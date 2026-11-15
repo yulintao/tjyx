@@ -57,6 +57,8 @@
 		1104 /* QimenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2106 /* QimenViewModel.swift */; };
 		1105 /* QimenDunjiaSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2107 /* QimenDunjiaSections.swift */; };
 		1057 /* PurpleWhiteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2057 /* PurpleWhiteView.swift */; };
+		1106 /* PurpleWhiteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2108 /* PurpleWhiteViewModel.swift */; };
+		1107 /* PurpleWhiteSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2109 /* PurpleWhiteSections.swift */; };
 		1058 /* TianJiShuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2058 /* TianJiShuView.swift */; };
 		1063 /* SolarTermsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2063 /* SolarTermsData.swift */; };
 		1014 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2087 /* PrivacyInfo.xcprivacy */; };
@@ -149,6 +151,8 @@
 		2106 /* QimenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/QimenViewModel.swift"; sourceTree = "<group>"; };
 		2107 /* QimenDunjiaSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/QimenDunjiaSections.swift"; sourceTree = "<group>"; };
 		2057 /* PurpleWhiteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/PurpleWhiteView.swift"; sourceTree = "<group>"; };
+		2108 /* PurpleWhiteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/PurpleWhiteViewModel.swift"; sourceTree = "<group>"; };
+		2109 /* PurpleWhiteSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/PurpleWhiteSections.swift"; sourceTree = "<group>"; };
 		2058 /* TianJiShuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/TianJiShuView.swift"; sourceTree = "<group>"; };
 		2063 /* SolarTermsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/SolarTermsData.swift"; sourceTree = "<group>"; };
 		2065 /* FloorplanImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanImagePicker.swift"; sourceTree = "<group>"; };
@@ -313,6 +317,8 @@
 				2106 /* QimenViewModel.swift */,
 				2107 /* QimenDunjiaSections.swift */,
 				2057 /* PurpleWhiteView.swift */,
+				2108 /* PurpleWhiteViewModel.swift */,
+				2109 /* PurpleWhiteSections.swift */,
 				2058 /* TianJiShuView.swift */,
 				2063 /* SolarTermsData.swift */,
 				2065 /* FloorplanImagePicker.swift */,
@@ -578,6 +584,8 @@
 				1104 /* QimenViewModel.swift in Sources */,
 				1105 /* QimenDunjiaSections.swift in Sources */,
 				1057 /* PurpleWhiteView.swift in Sources */,
+				1106 /* PurpleWhiteViewModel.swift in Sources */,
+				1107 /* PurpleWhiteSections.swift in Sources */,
 				1058 /* TianJiShuView.swift in Sources */,
 				1063 /* SolarTermsData.swift in Sources */,
 				1065 /* FloorplanImagePicker.swift in Sources */,
