@@ -292,7 +292,14 @@ public struct CameraPreviewView: UIViewRepresentable {
             }
             // iOS 16 兼容分支：界面方向与 AVCaptureVideoOrientation 的横屏命名相反，
             // 竖屏 UI 下两者一致，横屏需要互换左右，否则 iPad 横屏会得到 180° 倒像。
-            let captureOrientation = (window?.windowScene?.interfaceOrientation ?? .portrait).avCaptureOrientation
+            let captureOrientation: AVCaptureVideoOrientation
+            switch window?.windowScene?.interfaceOrientation ?? .portrait {
+            case .portrait: captureOrientation = .portrait
+            case .portraitUpsideDown: captureOrientation = .portraitUpsideDown
+            case .landscapeLeft: captureOrientation = .landscapeRight
+            case .landscapeRight: captureOrientation = .landscapeLeft
+            @unknown default: captureOrientation = .portrait
+            }
             if connection.isVideoOrientationSupported {
                 connection.videoOrientation = captureOrientation
             }

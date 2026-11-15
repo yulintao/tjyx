@@ -287,7 +287,7 @@ enum ResidentialPDFReport {
             }
             func line(_ text: String, size: CGFloat = 12) {
                 let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: size), .foregroundColor: UIColor.black]
-                let height = (text as NSString).boundingRect(with: CGSize(width: 515, height: .greatestFiniteMagnitude),
+                let height = (text as NSString).boundingRect(with: CGSize(width: 515, height: CGFloat.greatestFiniteMagnitude),
                     options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: attributes, context: nil).height + 10
                 if y + height > 785 { beginPage() }
                 (text as NSString).draw(in: CGRect(x: 40, y: y, width: 515, height: height), withAttributes: attributes)

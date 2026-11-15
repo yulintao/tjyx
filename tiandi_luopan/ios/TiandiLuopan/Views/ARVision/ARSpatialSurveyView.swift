@@ -629,15 +629,6 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
 
 
 
-    /// Projects or removes a 3D True-North-aligned Nine-Palace Bagua & Luopan
-    /// holographic array on the detected floor plane.
-    @discardableResult
-
-
-
-
-
-
     public func toggleMeshVisibility() {
         meshVisible.toggle()
         guard let root = sceneView?.scene.rootNode else { return }
@@ -814,7 +805,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
     }
 
     public func syncPlanesToFloorplan() -> Bool {
-        guard surveyHeadingDegrees != nil else { return false }
+        guard let coordinateHeading = surveyHeadingDegrees, coordinateHeading.isFinite else { return false }
         guard let frame = sceneView?.session.currentFrame else { return false }
         let planes = frame.anchors.compactMap { $0 as? ARPlaneAnchor }
         guard !planes.isEmpty else { return false }
@@ -924,13 +915,20 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
         let weightedX = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midX) } / Double(max(1, floorplanRooms.count))
         let weightedY = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midY) } / Double(max(1, floorplanRooms.count))
         let currentSurvey = buildSpatialSurvey()
+        // The blueprint above was normalized against the padded envelope built here,
+        // so freeze that same mapping; points merged later must land on this blueprint.
+        let surveyMapping = currentSurvey.map { survey in
+            FloorplanSurveyMapping(surveyID: survey.id, minX: Double(minX), minZ: Double(minZ),
+                spanX: Double(spanX), spanZ: Double(spanZ), padding: Double(padX / totalX))
+        }
         return FloorplanView.persistRoomPlanImport(
             rooms: floorplanRooms,
             centroid: CGPoint(x: weightedX, y: weightedY),
             blueprintImage: blueprint,
             propertyID: propertyID,
-            compassHeading: surveyHeadingDegrees,
-            spatialSurvey: currentSurvey
+            compassHeading: coordinateHeading,
+            spatialSurvey: currentSurvey,
+            surveyMapping: surveyMapping
         )
     }
 

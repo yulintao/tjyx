@@ -493,7 +493,7 @@ struct ResidentialMeasurementView: View {
             .fullScreenCover(isPresented: $showAR) { CameraExclusiveGate { ARSpatialSurveyView() } }
             .fullScreenCover(isPresented: $showRoomPlan) {
 #if canImport(RoomPlan)
-                CameraExclusiveGate { ARRoomPlanCaptureView() }
+                CameraExclusiveGate { ARRoomPlanSurveyView() }
 #endif
             }
             .sheet(isPresented: $showManual) { VRSpatialSurveyView() }

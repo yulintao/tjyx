@@ -1389,7 +1389,8 @@ final class FunctionalRegressionTests: XCTestCase {
         let id = ShaSurveyStore.shared.propertyID
         let data = UserDefaults.standard.data(forKey: FloorplanWorkspaceStore.layoutKey)
         XCTAssertFalse(FloorplanView.persistRoomPlanImport(rooms: [], centroid: .zero, blueprintImage: nil,
-                                                         propertyID: UUID(), spatialSurvey: survey("old scan")))
+                                                         propertyID: UUID(), compassHeading: 0,
+                                                         spatialSurvey: survey("old scan"), surveyMapping: nil))
         XCTAssertEqual(store.snapshot.revision, revision)
         XCTAssertEqual(ShaSurveyStore.shared.propertyID, id)
         XCTAssertEqual(UserDefaults.standard.data(forKey: FloorplanWorkspaceStore.layoutKey), data)
