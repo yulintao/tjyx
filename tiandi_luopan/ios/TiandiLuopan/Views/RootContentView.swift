@@ -744,19 +744,16 @@ public struct RootContentView: View {
         // 冷启动：URL 在 SceneDelegate 同步到达时视图树尚未挂载，
         // 通知会丢；改为挂载后主动消费单例里暂存的路由意图。
         .onAppear {
-            consumePendingAlmanacRoute()
+            consumePendingRoutes()
         }
         // 热启动：SceneDelegate 收到 URL 后立即投递，同时刷新路由状态。
-        .onReceive(NotificationCenter.default.publisher(for: .didTapAlmanacWidget)) { _ in
-            consumePendingAlmanacRoute()
-        }
         .onReceive(NotificationCenter.default.publisher(for: .didRequestAppNavigation).receive(on: DispatchQueue.main)) { _ in
-            consumePendingAlmanacRoute()
+            consumePendingRoutes()
         }
         .onOpenURL { url in
             // SwiftUI 原生兜底：若系统把 URL 交给视图层，也能定位到目标页。
             SceneDelegate.routeWidgetURL(url)
-            consumePendingAlmanacRoute()
+            consumePendingRoutes()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             // Re-enable sensors only after the app is visible again. Keeping
@@ -771,9 +768,9 @@ public struct RootContentView: View {
         }
     }
 
-    /// 消费小组件深链与主屏快捷入口的待处理意图（幂等）。
+    /// 消费深链与主屏快捷入口的待处理意图（幂等）。
     /// 具体归一逻辑在 AppStateStore 里，这里只负责触发。
-    private func consumePendingAlmanacRoute() {
+    private func consumePendingRoutes() {
         app.consumePendingRoutes()
     }
 

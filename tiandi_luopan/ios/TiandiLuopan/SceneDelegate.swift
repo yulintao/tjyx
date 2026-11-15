@@ -10,7 +10,6 @@ import CoreSpotlight
 public final class AppNavigationRouter: ObservableObject {
     public static let shared = AppNavigationRouter()
 
-    @Published public private(set) var pendingAlmanacRoute = false
     @Published public private(set) var pendingTabRoute: AppRoute? = nil
 
     private let notificationCenter: NotificationCenter
@@ -19,21 +18,9 @@ public final class AppNavigationRouter: ObservableObject {
         self.notificationCenter = notificationCenter
     }
 
-    public func requestAlmanac() {
-        pendingAlmanacRoute = true
+    public func requestRoute(tab: AppTab) {
+        pendingTabRoute = AppRoute(tab: tab)
         notificationCenter.post(name: .didRequestAppNavigation, object: self)
-    }
-
-    public func requestRoute(tab: AppTab, openDailyCard: Bool = false) {
-        pendingTabRoute = AppRoute(tab: tab, openDailyCard: openDailyCard)
-        notificationCenter.post(name: .didRequestAppNavigation, object: self)
-    }
-
-    /// 幂等消费：只有第一个消费者拿到 true，避免冷/热启动两条路径重复跳转。
-    public func consumeAlmanac() -> Bool {
-        guard pendingAlmanacRoute else { return false }
-        pendingAlmanacRoute = false
-        return true
     }
 
     public func consumeTabRoute() -> AppRoute? {
@@ -45,8 +32,6 @@ public final class AppNavigationRouter: ObservableObject {
 
 extension Notification.Name {
     public static let didRequestAppNavigation = Notification.Name("com.tjyx.compass.didRequestAppNavigation")
-    /// 保留给已有监听方使用（热启动即时性），冷启动以 AppNavigationRouter 为准。
-    public static let didTapAlmanacWidget = Notification.Name("com.tjyx.compass.didTapAlmanacWidget")
 }
 
 @available(iOS 13.0, *)
@@ -110,10 +95,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         switch url.host {
         case "almanac":
-            AppNavigationRouter.shared.requestAlmanac()
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "compass":
-            let shouldOpenDailyCard = (sheetParam == "dailySign" || sheetParam == "dailyCard")
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: shouldOpenDailyCard)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "floorplan":
             AppNavigationRouter.shared.requestRoute(tab: .floorplan)
         case "analysis", "qimen":
@@ -121,7 +105,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "tab":
             if subParam == "qimen" {
-                AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
+                AppNavigationRouter.shared.requestRoute(tab: .ar)
             } else if indexParam == "3" {
                 AppNavigationRouter.shared.requestRoute(tab: .floorplan)
             } else if let idxStr = indexParam, let idx = Int(idxStr) {
@@ -132,25 +116,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         default:
             return
         }
-        NotificationCenter.default.post(name: .didTapAlmanacWidget, object: nil)
     }
 
     public static func routeShortcutType(_ type: String) {
         switch type {
         case "com.tjyx.compass.shortcut.dailygods":
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "com.tjyx.compass.shortcut.dailycard", "com.tjyx.compass.shortcut.dailysign":
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: true)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "com.tjyx.compass.shortcut.zeri":
             AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "com.tjyx.compass.shortcut.floorplan":
             AppNavigationRouter.shared.requestRoute(tab: .floorplan)
         case "com.tjyx.compass.shortcut.qimen":
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         default:
             return
         }
-        NotificationCenter.default.post(name: .didTapAlmanacWidget, object: nil)
     }
 
     private static func routeUserActivity(_ userActivity: NSUserActivity) {
@@ -160,19 +142,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         case "spotlight.zeri":
             AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "tiandiluopan://compass?guide=dailyGods":
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "tiandiluopan://compass?sheet=dailySign":
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: true)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "spotlight.bazhai":
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "spotlight.qimen", "tiandiluopan://tab?index=2&sub=qimen":
-            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "spotlight.floorplan", "tiandiluopan://tab?index=3":
             AppNavigationRouter.shared.requestRoute(tab: .floorplan)
         default:
             return
         }
-        NotificationCenter.default.post(name: .didTapAlmanacWidget, object: nil)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}

@@ -4,10 +4,8 @@ import Foundation
 /// 让调用方只描述「去哪」，不关心 Tab 下标。
 public struct AppRoute: Equatable {
     public let tab: AppTab
-    public let openDailyCard: Bool
 
-    public init(tab: AppTab, openDailyCard: Bool = false) {
+    public init(tab: AppTab) {
         self.tab = tab
-        self.openDailyCard = openDailyCard
     }
 }
