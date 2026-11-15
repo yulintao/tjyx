@@ -837,41 +837,27 @@ public class StoreKitIAPManager: ObservableObject {
         UserDefaults.standard.removeObject(forKey: kProcessedTransactionIDs)
     }
 
-    // MARK: - 权益查询（只读镜像；无验证背书不显示权益）
+    // MARK: - 收费暂停：功能全量开放
+    //
+    // 产品收敛为「AR 实景测绘 + 户型布局 + 家人分配」后定价尚未定案，先把所有门禁放行，
+    // 让功能可以完整验证。恢复收费时只需把下面四个返回值改回各自的权益表达式
+    // （原始实现见 e241ecb 之前的版本），其余购买/校验/镜像代码保持原样未动。
 
     public var hasUnlockedVIP: Bool {
-        // 镜像缺失（重装/首启）→ 返回 false 保持锁定；权威验证由
-        // init / refreshEntitlements / 购买完成 / updates 事件持续驱动。
-        guard let mirror = currentMirror(), mirror.isAuthoritative else { return false }
-        if mirror.isLifetime { return true }
-        // 苹果当前授予中（含宽限期/账单重试）不因本地到期日已过而锁
-        if mirror.vipActive { return true }
-        if mirror.vipExpireDate > Date().timeIntervalSince1970 { return true }
-        return false
+        true
     }
 
     public var canUseFloorplan: Bool {
-        entitlementLock.lock()
-        defer { entitlementLock.unlock() }
-        guard let mirror = currentMirrorLocked(), mirror.isAuthoritative else { return false }
-        return isVIPUnlocked() || mirror.floorplanCredits > activeFloorplanReservations.count
+        true
     }
 
-    /// Both membership products include family room allocation; case credits do not.
+    /// 会员与买断都包含家人分配；先全量开放。
     public var canUseFamilyRoomAllocation: Bool {
-        currentMirror()?.allowsFamilyRoomAllocation(at: Date()) == true
+        true
     }
 
     public var canUseTianji: Bool {
-        entitlementLock.lock()
-        defer { entitlementLock.unlock() }
-        guard let mirror = currentMirrorLocked(), mirror.isAuthoritative else { return false }
-        if mirror.isLifetime || mirror.vipActive || mirror.vipExpireDate > Date().timeIntervalSince1970 {
-            return true
-        }
-        // Credits are not debited while an export is in flight.  Exclude the
-        // reserved slots here so a second page cannot spend the same credit.
-        return mirror.tianjiCredits > activeTianjiReservations.count
+        true
     }
 
     public func isVIP() -> Bool {
