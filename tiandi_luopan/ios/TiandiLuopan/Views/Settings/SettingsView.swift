@@ -162,15 +162,15 @@ public struct SettingsView: View {
 
     private var userHeaderSubtitle: String {
         switch lang.effectiveLanguage {
-        case .zhHans: return "天机演象 · 专业风水罗盘与玄空理气"
-        case .zhHant: return "天機演象 · 專業風水羅盤與玄空理氣"
-        case .en: return "Tiandi Luopan · Professional Feng Shui Compass"
-        case .ja: return "天地羅盤 · プロ向け風水羅盤と玄空理気"
-        case .ko: return "천지나침반 · 전문 풍수 나침반 및 현공이기"
-        case .vi: return "Thiên Địa La Bàn · Huyền Không Phong Thủy"
-        case .th: return "เข็มทิศฟ้าดิน · เข็มทิศฮวงจุ้ยมืออาชีพ"
-        case .id: return "Tiandi Luopan · Kompas Feng Shui Profesional"
-        default: return "天机演象 · 专业风水罗盘与玄空理气"
+        case .zhHans: return "天机演象 · AR 实景测绘 · 户型布局 · 家人分房"
+        case .zhHant: return "天機演象 · AR 實景測繪 · 戶型佈局 · 家人分房"
+        case .en: return "Tiandi Luopan · AR survey · Floorplan · Family rooms"
+        case .ja: return "天地羅盤 · AR実測 · 間取り · 家族の部屋割り"
+        case .ko: return "천지나침반 · AR 실측 · 평면도 · 가족 방 배정"
+        case .vi: return "Thiên Địa La Bàn · Khảo sát AR · Mặt bằng · Chia phòng"
+        case .th: return "เข็มทิศฟ้าดิน · สำรวจ AR · ผังบ้าน · จัดห้องครอบครัว"
+        case .id: return "Tiandi Luopan · Survei AR · Denah · Kamar keluarga"
+        default: return "天机演象 · AR 实景测绘 · 户型布局 · 家人分房"
         }
     }
 
