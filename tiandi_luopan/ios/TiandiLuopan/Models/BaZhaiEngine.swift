@@ -1431,48 +1431,39 @@ public final class RetentionServiceManager: ObservableObject {
     public func registerSystemShortcutsAndSpotlight() {
         let lang = LocalizationManager.shared.effectiveLanguage
         let s1Title: String; let s1Sub: String
-        let s2Title: String; let s2Sub: String
         let s3Title: String; let s3Sub: String
         let s4Title: String; let s4Sub: String
         switch lang {
         case .en:
             s1Title = "Daily Wealth & Joy Compass"; s1Sub = "Locate today's auspicious directions"
-            s2Title = "Daily Auspicious Sign Card"; s2Sub = "Generate & share today's fortune card"
             s3Title = "Floorplan 9-Palace Audit"; s3Sub = "Check room layout & owner Life Gua"
             s4Title = "Qi Men Decision Guide"; s4Sub = "Best hour & direction for contracts/wealth"
         case .zhHant:
             s1Title = "今日財神與吉方導引"; s1Sub = "一鍵開啟羅盤財神喜神金標"
-            s2Title = "今日吉方日籤海報"; s2Sub = "生成黑金國風日課分享卡"
             s3Title = "戶型九宮立極體檢"; s3Sub = "多套宅譜對比與智能分房"
             s4Title = "奇門遁甲辦事吉方"; s4Sub = "簽約求財出行一事一斷"
         case .ja:
             s1Title = "本日の財神・吉方位ガイド"; s1Sub = "羅盤で吉方位を即座に確認"
-            s2Title = "本日の吉籤カード作成"; s2Sub = "日課カードを保存・共有"
             s3Title = "間取り九宮風水診断"; s3Sub = "複数物件比較と部屋割推奨"
             s4Title = "奇門遁甲・用事別吉方"; s4Sub = "契約・金運・外出の吉方"
         case .ko:
             s1Title = "오늘의 재신·길방 가이드"; s1Sub = "나침반 길방 마커 바로 켜기"
-            s2Title = "오늘의 길첨 카드"; s2Sub = "일과 길방 포스터 생성 및 공유"
             s3Title = "평면도 구궁 풍수 진단"; s3Sub = "다주택 비교 및 맞춤 방 추천"
             s4Title = "기문둔갑 용건별 길방"; s4Sub = "계약·재물·출행 길방 속람"
         case .vi:
             s1Title = "Hướng Thần Tài & Hỷ Thần"; s1Sub = "Mở nhanh kim chỉ nam cát phương"
-            s2Title = "Thẻ Cát Phương Hôm Nay"; s2Sub = "Tạo & chia sẻ thẻ nhật khóa"
             s3Title = "Khám Phong Thủy Mặt Bằng"; s3Sub = "So sánh căn hộ & gợi ý phân phòng"
             s4Title = "Kỳ Môn Cát Phương Theo Việc"; s4Sub = "Ký kết, cầu tài, xuất hành"
         case .th:
             s1Title = "นำทางทิศเทพโชคลาภวันนี้"; s1Sub = "เปิดเข็มทิศชี้ทิศมงคลทันที"
-            s2Title = "การ์ดมงคลประจำวัน"; s2Sub = "สร้างและแชร์การ์ดฤกษ์มงคล"
             s3Title = "ตรวจฮวงจุ้ยผังบ้าน 9 วัง"; s3Sub = "เปรียบเทียบผังบ้านและจัดห้อง"
             s4Title = "ฉีเหมินชี้ทิศตามธุระ"; s4Sub = "เซ็นสัญญา โชคลาภ เดินทาง"
         case .id:
             s1Title = "Panduan Arah Rezeki Hari Ini"; s1Sub = "Buka penunjuk arah hoki di kompas"
-            s2Title = "Kartu Keberuntungan Harian"; s2Sub = "Buat & bagikan kartu harian"
             s3Title = "Audit Denah 9 Istana"; s3Sub = "Bandingkan properti & rekomendasi kamar"
             s4Title = "Panduan Qi Men Sesuai Urusan"; s4Sub = "Kontrak, rezeki, perjalanan"
         case .auto, .zhHans:
             s1Title = "今日财神与吉方导引"; s1Sub = "一键开启罗盘财神喜神金标"
-            s2Title = "今日吉方日签海报"; s2Sub = "生成黑金国风日课分享卡"
             s3Title = "户型九宫立极体检"; s3Sub = "多套宅谱对比与智能分房"
             s4Title = "奇门遁甲办事吉方"; s4Sub = "签约求财出行一事一断"
         }
@@ -1484,12 +1475,6 @@ public final class RetentionServiceManager: ObservableObject {
                     localizedTitle: s1Title,
                     localizedSubtitle: s1Sub,
                     icon: UIApplicationShortcutIcon(systemImageName: "safari.fill")
-                ),
-                UIApplicationShortcutItem(
-                    type: "com.tjyx.compass.shortcut.dailysign",
-                    localizedTitle: s2Title,
-                    localizedSubtitle: s2Sub,
-                    icon: UIApplicationShortcutIcon(systemImageName: "sparkles.rectangle.stack.fill")
                 ),
                 UIApplicationShortcutItem(
                     type: "com.tjyx.compass.shortcut.floorplan",
@@ -1509,7 +1494,6 @@ public final class RetentionServiceManager: ObservableObject {
         // CoreSpotlight 索引注册，支持用户在 iOS 负一屏下拉搜索“财神方位”、“黄道吉日”、“户型风水”、“奇门遁甲”直达本 App
         let entries: [(id: String, title: String, desc: String, keywords: [String])] = [
             ("tiandiluopan://compass?guide=dailyGods", s1Title, s1Sub, ["财神", "喜神", "罗盘", "吉方", "Compass", "Wealth", "Fengshui"]),
-            ("tiandiluopan://compass?sheet=dailySign", s2Title, s2Sub, ["日签", "黄历", "吉日", "Almanac", "Sign"]),
             ("tiandiluopan://tab?index=3", s3Title, s3Sub, ["户型", "分房", "缺角", "八宅", "Floorplan", "Room"]),
             ("tiandiluopan://tab?index=2&sub=qimen", s4Title, s4Sub, ["奇门遁甲", "出行", "签约", "求财", "Qimen"])
         ]
@@ -1865,372 +1849,6 @@ private extension Collection {
         return indices.contains(index) ? self[index] : nil
     }
 }
-
-// MARK: - P2.3 「今日吉方日签」黑金国风分享卡生成与预览弹窗 (DailyAuspiciousCardSheet)
-
-public struct DailyAuspiciousCardSheet: View {
-    public let targetDate: Date
-    let headingState: CompassHeadingState
-    @ObservedObject private var lang = LocalizationManager.shared
-    @Environment(\.presentationMode) private var presentationMode
-    @State private var renderedImage: UIImage? = nil
-    @State private var showShareSheet = false
-    @State private var savedToast = false
-
-    public init(targetDate: Date = Date(), sittingMountain: Mountain24Item? = nil, headingState: CompassHeadingState? = nil) {
-        self.targetDate = targetDate
-        self.headingState = headingState ?? CompassMotionManager.shared.headingState
-    }
-
-    public var body: some View {
-        NavigationView {
-            ZStack {
-                Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea()
-
-                VStack(spacing: 14) {
-                    if let img = renderedImage {
-                        ScrollView {
-                            Image(uiImage: img)
-                                .resizable()
-                                .scaledToFit()
-                                .cornerRadius(14)
-                                .shadow(color: .black.opacity(0.6), radius: 12, x: 0, y: 6)
-                                .padding(.horizontal, 24)
-                                .padding(.top, 12)
-                        }
-                    } else {
-                        Spacer()
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: Color(red: 0.95, green: 0.85, blue: 0.45)))
-                        Spacer()
-                    }
-
-                    HStack(spacing: 12) {
-                        Button(action: {
-                            guard let img = renderedImage else { return }
-                            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                                guard status == .authorized || status == .limited else { return }
-                                UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
-                                DispatchQueue.main.async {
-                                    savedToast = true
-                                    RetentionServiceManager.shared.recordMilestone(reason: "save_daily_card")
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                        savedToast = false
-                                    }
-                                }
-                            }
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "square.and.arrow.down.fill")
-                                Text(lang.t("save_to_photos"))
-                            }
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color(red: 0.83, green: 0.68, blue: 0.21))
-                            .foregroundColor(.black)
-                            .cornerRadius(10)
-                        }
-
-                        Button(action: {
-                            guard renderedImage != nil else { return }
-                            showShareSheet = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "square.and.arrow.up.fill")
-                                Text(lang.t("share_and_print"))
-                            }
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.white.opacity(0.14))
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 16)
-                }
-
-                if savedToast {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.seal.fill").foregroundColor(.green)
-                        Text(lang.t("save_success"))
-                            .adaptiveFont(size: 12, weight: .bold)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color.black.opacity(0.85))
-                    .cornerRadius(20)
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text(cardTitle)
-                        .adaptiveFont(size: 15, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(lang.t("done")) {
-                        presentationMode.wrappedValue.dismiss()
-                    }
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                }
-            }
-            .sheet(isPresented: $showShareSheet) {
-                if let img = renderedImage {
-                    ActivityShareSheet(items: [img])
-                }
-            }
-            .onAppear {
-                renderedImage = Self.renderPoster(date: targetDate, state: headingState)
-            }
-        }
-        .preferredColorScheme(.dark)
-    }
-
-    private var cardTitle: String {
-        switch lang.effectiveLanguage {
-        case .en: return "Daily Auspicious Sign Card"
-        case .zhHant, .ja: return "今日吉方日籤 · 宣紙海報"
-        case .ko: return "오늘의 길방 일첨 카드"
-        case .vi: return "Thẻ Cát Phương Hôm Nay"
-        case .th: return "การ์ดทิศมงคลประจำวัน"
-        case .id: return "Kartu Arah Keberuntungan Harian"
-        case .auto, .zhHans: return "今日吉方日签 · 宣纸海报"
-        }
-    }
-
-    public static func renderPoster(date: Date, state: CompassHeadingState) -> UIImage {
-        let size = CGSize(width: 750, height: 1080)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let zeri = ZeRiEngine.shared.analyze(date: date, sitting: state.sittingMountain)
-        let gods = ZeRiEngine.shared.dailyCompassDirections(for: date)
-        let qimen = QimenEngine.shared.calculateChart(date: date, heading: state.facingAngle)
-        let kuaMatch = UserKuaProfileManager.shared.evaluateCompatibility(sittingPalace: state.sittingMountain.palace)
-        let termRaw = SolarTimeCalculator.shared.solarTermName(for: date)
-        let termName = SolarTermsData.shared.terms.first(where: { $0.name == termRaw })?.localizedName ?? termRaw
-        let df = DateFormatter()
-        df.dateFormat = "yyyy · MM · dd"
-        let dateStr = df.string(from: date)
-        let effLang = LocalizationManager.shared.effectiveLanguage
-
-        return renderer.image { ctx in
-            let cg = ctx.cgContext
-            let rect = CGRect(origin: .zero, size: size)
-
-            // 1. 黑金渐变底色与外框
-            UIColor(red: 0.08, green: 0.08, blue: 0.11, alpha: 1.0).setFill()
-            cg.fill(rect)
-
-            let borderRect = rect.insetBy(dx: 28, dy: 28)
-            cg.setStrokeColor(UIColor(red: 0.85, green: 0.70, blue: 0.30, alpha: 0.65).cgColor)
-            cg.setLineWidth(2.5)
-            cg.stroke(borderRect)
-
-            let innerRect = rect.insetBy(dx: 38, dy: 38)
-            cg.setStrokeColor(UIColor(red: 0.85, green: 0.70, blue: 0.30, alpha: 0.25).cgColor)
-            cg.setLineWidth(1.0)
-            cg.stroke(innerRect)
-
-            let gold = UIColor(red: 0.95, green: 0.83, blue: 0.42, alpha: 1.0)
-            let cyan = UIColor(red: 0.35, green: 0.85, blue: 0.80, alpha: 1.0)
-            let white = UIColor.white
-            let dim = UIColor.white.withAlphaComponent(0.72)
-
-            let centerStyle = NSMutableParagraphStyle()
-            centerStyle.alignment = .center
-
-            // 2. 顶部纪年与节气
-            let headerAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 22, weight: .semibold),
-                .foregroundColor: gold,
-                .paragraphStyle: centerStyle
-            ]
-            ("\(dateStr)  ·  \(termName)" as NSString).draw(in: CGRect(x: 60, y: 72, width: 630, height: 34), withAttributes: headerAttrs)
-
-            // 3. 日柱大字
-            let pillarAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.boldSystemFont(ofSize: 78),
-                .foregroundColor: gold,
-                .paragraphStyle: centerStyle
-            ]
-            (zeri.localizedDayPillar as NSString).draw(in: CGRect(x: 60, y: 125, width: 630, height: 96), withAttributes: pillarAttrs)
-
-            let fourPillarAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedSystemFont(ofSize: 20, weight: .medium),
-                .foregroundColor: dim,
-                .paragraphStyle: centerStyle
-            ]
-            (zeri.fourPillarsText as NSString).draw(in: CGRect(x: 60, y: 232, width: 630, height: 32), withAttributes: fourPillarAttrs)
-
-            // 4. 今日财神 / 喜神 / 奇门动身吉方 / 宅主本命卦卡片
-            let cardRect = CGRect(x: 64, y: 288, width: 622, height: 342)
-            UIColor(red: 0.13, green: 0.13, blue: 0.17, alpha: 1.0).setFill()
-            UIBezierPath(roundedRect: cardRect, cornerRadius: 16).fill()
-
-            let leftStyle = NSMutableParagraphStyle()
-            leftStyle.alignment = .left
-            leftStyle.lineSpacing = 7
-
-            let sectionTitle: String
-            let wealthLine: String
-            let joyLine: String
-            let qimenLine: String
-            let sittingLine: String
-            let kuaLine: String
-            let yiLabel: String
-            let jiLabel: String
-            let footer: String
-
-            switch effLang {
-            case .en:
-                sectionTitle = "✦ TODAY'S AUSPICIOUS COMPASS GUIDE"
-                wealthLine = "💰 God of Wealth: \(gods.wealthDirection) (\(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 God of Joy: \(gods.joyDirection) (\(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 Qimen Best Gate: \(qimen.bestNavDirection)"
-                sittingLine = "🏠 House Sitting: \(state.sittingMountain.localizedName) → \(state.facingMountain.localizedName) (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 Owner Gua: \(kuaMatch.localizedOwnerGuaName) · Wealth \(kuaMatch.wealthDirection)"
-                yiLabel = "GOOD FOR: "
-                jiLabel = "AVOID: "
-                footer = "TIANDI LUOPAN · CLASSICAL FENGSHUI & COMPASS"
-            case .zhHant:
-                sectionTitle = "✦ 今日出行納吉方位導引"
-                wealthLine = "💰 今日財神正位：【\(gods.wealthDirection)】 (羅盤 \(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 今日喜神吉位：【\(gods.joyDirection)】 (羅盤 \(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 時家奇門吉門：【\(qimen.bestNavDirection)】"
-                sittingLine = "🏠 當前立極坐向：\(state.sittingMountain.localizedName)山\(state.facingMountain.localizedName)向 (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 宅主本命配卦：\(kuaMatch.localizedOwnerGuaName)（\(kuaMatch.matchBadgeTitle)）· 生氣【\(kuaMatch.wealthDirection)】"
-                yiLabel = "【今日宜】 "
-                jiLabel = "【今日忌】 "
-                footer = "天地羅盤 · 三元玄空與三式絕學專業堪輿羅經"
-            case .ja:
-                sectionTitle = "✦ 本日の出行納吉方位ガイド"
-                wealthLine = "💰 本日の財神方位：【\(gods.wealthDirection)】 (羅盤 \(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 本日の喜神方位：【\(gods.joyDirection)】 (羅盤 \(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 時家奇門吉門：【\(qimen.bestNavDirection)】"
-                sittingLine = "🏠 現在の立極坐向：\(state.sittingMountain.localizedName)山\(state.facingMountain.localizedName)向 (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 家主本命卦：\(kuaMatch.localizedOwnerGuaName)（\(kuaMatch.matchBadgeTitle)）・生気【\(kuaMatch.wealthDirection)】"
-                yiLabel = "【本日の宜】 "
-                jiLabel = "【本日の忌】 "
-                footer = "天地羅盤・三元玄空＆三式風水プロフェッショナル羅経"
-            case .ko:
-                sectionTitle = "✦ 오늘의 출행 납길 방위 가이드"
-                wealthLine = "💰 오늘의 재신 방위: 【\(gods.wealthDirection)】 (나경 \(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 오늘의 희신 방위: 【\(gods.joyDirection)】 (나경 \(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 시가기문 길문: 【\(qimen.bestNavDirection)】"
-                sittingLine = "🏠 현재 입극 좌향: \(state.sittingMountain.localizedName)산 \(state.facingMountain.localizedName)향 (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 택주 본명괘: \(kuaMatch.localizedOwnerGuaName) (\(kuaMatch.matchBadgeTitle)) · 생기【\(kuaMatch.wealthDirection)】"
-                yiLabel = "【오늘의 의(宜)】 "
-                jiLabel = "【오늘의 기(忌)】 "
-                footer = "천지나경 · 삼원현공 및 삼식 풍수 전문 나경"
-            case .vi:
-                sectionTitle = "✦ HƯỚNG DẪN PHƯƠNG VỊ ĐÓN CÁT HÔM NAY"
-                wealthLine = "💰 Hướng Thần Tài: 【\(gods.wealthDirection)】 (La bàn \(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 Hướng Hỷ Thần: 【\(gods.joyDirection)】 (La bàn \(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 Cát Môn Kỳ Môn: 【\(qimen.bestNavDirection)】"
-                sittingLine = "🏠 Tọa Hướng Lập Cực: Tọa \(state.sittingMountain.localizedName) Hướng \(state.facingMountain.localizedName) (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 Bản Mệnh Gia Chủ: \(kuaMatch.localizedOwnerGuaName) · Sinh Khí 【\(kuaMatch.wealthDirection)】"
-                yiLabel = "【NÊN LÀM】 "
-                jiLabel = "【KIÊNG KỴ】 "
-                footer = "THIÊN ĐỊA LA BÀN · LA KINH PHONG THỦY TAM NGUYÊN HUYỀN KHÔNG"
-            case .th:
-                sectionTitle = "✦ เข็มทิศนำทางรับโชคมงคลวันนี้"
-                wealthLine = "💰 ทิศเทพเจ้าโชคลาภ: 【\(gods.wealthDirection)】 (\(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 ทิศเทพแห่งความยินดี: 【\(gods.joyDirection)】 (\(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 ประตูมงคลฉีเหมิน: 【\(qimen.bestNavDirection)】"
-                sittingLine = "🏠 ทิศบ้านปัจจุบัน: หลังพิง\(state.sittingMountain.localizedName) หันหน้า\(state.facingMountain.localizedName) (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 ดวงเจ้าของบ้าน: \(kuaMatch.localizedOwnerGuaName) · ทิศโชคลาภ【\(kuaMatch.wealthDirection)】"
-                yiLabel = "【สิ่งที่ควรทำ】 "
-                jiLabel = "【สิ่งที่ควรเลี่ยง】 "
-                footer = "เทียนตี้หลัวผาน · เข็มทิศฮวงจุ้ยซานหยวนเสวียนคงระดับมืออาชีพ"
-            case .id:
-                sectionTitle = "✦ PANDUAN ARAH KEBERUNTUNGAN HARI INI"
-                wealthLine = "💰 Arah Dewa Rezeki: 【\(gods.wealthDirection)】 (\(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 Arah Dewa Kebahagiaan: 【\(gods.joyDirection)】 (\(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 Gerbang Baik Qimen: 【\(qimen.bestNavDirection)】"
-                sittingLine = "🏠 Arah Rumah: Duduk \(state.sittingMountain.localizedName) Hadap \(state.facingMountain.localizedName) (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 Gua Pemilik: \(kuaMatch.localizedOwnerGuaName) · Rezeki 【\(kuaMatch.wealthDirection)】"
-                yiLabel = "BAIK UNTUK: "
-                jiLabel = "HINDARI: "
-                footer = "TIANDI LUOPAN · KOMPAS FENG SHUI KLASIK PROFESIONAL"
-            case .auto, .zhHans:
-                sectionTitle = "✦ 今日出行纳吉方位导引"
-                wealthLine = "💰 今日财神正位：【\(gods.wealthDirection)】 (罗盘 \(Int(gods.wealthAngle))°)"
-                joyLine = "🎉 今日喜神吉位：【\(gods.joyDirection)】 (罗盘 \(Int(gods.joyAngle))°)"
-                qimenLine = "🧭 时家奇门吉门：【\(qimen.bestNavDirection)】"
-                sittingLine = "🏠 当前立极坐向：\(state.sittingMountain.localizedName)山\(state.facingMountain.localizedName)向 (\(String(format: "%.1f°", state.facingAngle)))"
-                kuaLine = "👤 宅主本命配卦：\(kuaMatch.localizedOwnerGuaName)（\(kuaMatch.matchBadgeTitle)）· 生气【\(kuaMatch.wealthDirection)】"
-                yiLabel = "【今日宜】 "
-                jiLabel = "【今日忌】 "
-                footer = "天地罗盘 · 三元玄空与三式绝学专业堪舆罗经"
-            }
-
-            (sectionTitle as NSString).draw(
-                in: CGRect(x: 92, y: 312, width: 566, height: 32),
-                withAttributes: [.font: UIFont.boldSystemFont(ofSize: 22), .foregroundColor: cyan]
-            )
-
-            let lines = [wealthLine, joyLine, qimenLine, sittingLine]
-                + (UserKuaProfileManager.shared.canUsePersonalAnalysis ? [kuaLine] : [])
-            let bodyText = lines.joined(separator: "\n")
-            (bodyText as NSString).draw(
-                in: CGRect(x: 92, y: 356, width: 566, height: 262),
-                withAttributes: [
-                    .font: UIFont.systemFont(ofSize: 21, weight: .semibold),
-                    .foregroundColor: white,
-                    .paragraphStyle: leftStyle
-                ]
-            )
-
-            // 5. 今日宜忌卡片
-            let yijiRect = CGRect(x: 64, y: 650, width: 622, height: 240)
-            UIColor(red: 0.13, green: 0.12, blue: 0.14, alpha: 1.0).setFill()
-            UIBezierPath(roundedRect: yijiRect, cornerRadius: 16).fill()
-
-            let yiStr = yiLabel + zeri.yiActivities.joined(separator: " · ")
-            let jiStr = jiLabel + zeri.jiActivities.joined(separator: " · ")
-
-            (zeri.overallStatus as NSString).draw(
-                in: CGRect(x: 92, y: 676, width: 566, height: 32),
-                withAttributes: [
-                    .font: UIFont.boldSystemFont(ofSize: 24),
-                    .foregroundColor: zeri.isAuspicious ? UIColor.systemGreen : UIColor.systemOrange
-                ]
-            )
-            (yiStr as NSString).draw(
-                in: CGRect(x: 92, y: 726, width: 566, height: 64),
-                withAttributes: [.font: UIFont.systemFont(ofSize: 21, weight: .medium), .foregroundColor: gold]
-            )
-            (jiStr as NSString).draw(
-                in: CGRect(x: 92, y: 798, width: 566, height: 64),
-                withAttributes: [.font: UIFont.systemFont(ofSize: 20, weight: .regular), .foregroundColor: dim]
-            )
-
-            // 6. 底部品牌落款
-            (footer as NSString).draw(
-                in: CGRect(x: 60, y: 955, width: 630, height: 40),
-                withAttributes: [
-                    .font: UIFont.systemFont(ofSize: 19, weight: .bold),
-                    .foregroundColor: gold.withAlphaComponent(0.85),
-                    .paragraphStyle: centerStyle
-                ]
-            )
-        }
-    }
-}
-
-private struct ActivityShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
-// MARK: - P2.3 首次启动三步新手引导 (OnboardingGuideSheet)
 
 public struct OnboardingGuideSheet: View {
     private static let kCompletedKey = "tiandi_onboarding_v1_completed"

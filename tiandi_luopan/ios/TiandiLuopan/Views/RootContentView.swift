@@ -738,9 +738,6 @@ public struct RootContentView: View {
         .sheet(isPresented: $app.showOnboarding) {
             OnboardingGuideSheet()
         }
-        .sheet(isPresented: $app.showShortcutDailyCard) {
-            DailyAuspiciousCardSheet()
-        }
         .onChange(of: selectedTab) { _ in
             updateResourceUsage()
         }
