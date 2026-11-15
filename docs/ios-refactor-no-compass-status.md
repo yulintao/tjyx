@@ -109,7 +109,15 @@ ARVisionView              → SanHeWaterEngine、ZeRiEngine、BaZhaiEngine
   主屏快捷指令与 Spotlight 里指向它的条目一并删除。旧深链仍落到 AR 页，不会死链。
 - 未做：独立 widget target（`TiandiLuopanWidget/AlmanacWidgetViews.swift` 1,416 行 +
   `TiandiLuopanAlmanacWidget.swift`）仍会显示今日黄历，下线需动 target 级配置。
-- 未做：`VIPPaywallSheet` 与 13 个文件里约 80 处 `showPaywall` 残留。
-  门禁放行后它们触发不到，属于死代码，清理无功能影响。
-- 仍未编译、未 push：本机没有 Xcode，六个提交只过了静态检查（括号配平、
-  悬挂符号扫描、pbxproj 登记核对）。
+- 部分完成：用户可见的收费痕迹已清（`1185c90`）。家人分房卡片去掉了
+  「会员权益」角标、解锁按钮和付费弹层，设置页头像不再戴皇冠、不再显示
+  「会员/标准用户」徽标。`fra_membership`、`fra_paywall`、`fra_unlock` 三个键就此成为死键，
+  按既有约定未动语言表。
+- 未做：`VIPPaywallSheet` 与 AR / 户型内层的锁图标与 `showPaywall` 弹层（约 60 处）。
+  门禁放行后它们触发不到，属死代码，清理不影响功能，留待编译验证后再收。
+- 已做：设置页副标题从「专业风水罗盘与玄空理气」改为实际范围（AR 实景测绘 ·
+  户型布局 · 家人分房），八语同步（`e214ccb`）。
+- 仍未编译、未 push：本机没有 Xcode，十个提交只过了静态检查（括号配平、
+  悬挂符号扫描、pbxproj 登记核对、id 配对审计）。推送被阻断：远端走 SSH，
+  私钥 `id_ed25519_github` 带口令且系统 ssh-agent 处于 Disabled，Windows 凭据管理器
+  里也没有 GitHub 条目，非交互进程无法完成认证。
