@@ -683,15 +683,6 @@ public struct RootContentView: View {
                 }
                 .tag(AppTab.floorplan)
 
-            // Tab 3: 玄空理气与三式绝学（玄空飞星、八宅三合、流年紫白、时家奇门、天机长卷）
-            XuanKongGridView(isActive: selectedTab == .analysis,
-                             selectedSubTab: $app.analysisSubTab, featureRequest: $app.analysisFeatureRequest)
-                .tabItem {
-                    Image(systemName: AppTab.analysis.symbol)
-                    Text(lang.t(AppTab.analysis.titleKey))
-                }
-                .tag(AppTab.analysis)
-
             // Tab 4: 系统设置与会员中心（四档 StoreKit 内购、特权矩阵、传感器校准）
             SettingsView(isActive: selectedTab == .settings)
                 .tabItem {

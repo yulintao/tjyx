@@ -3,64 +3,6 @@ import WidgetKit
 import Combine
 import CoreSpotlight
 
-public enum AnalysisFeature: String, CaseIterable, Identifiable, Hashable {
-    case xuanKong, baZhai, sanHe, owner, dates, purpleWhite, qimen
-    public var id: String { rawValue }
-    var requiresVIP: Bool { self == .owner || self == .sanHe }
-    var legacySubTab: Int? {
-        switch self {
-        case .xuanKong: return 0
-        case .baZhai, .sanHe: return 1
-        case .purpleWhite: return 2
-        case .qimen: return 3
-        case .owner, .dates: return nil
-        }
-    }
-    static func fromLegacySubTab(_ index: Int) -> AnalysisFeature? {
-        let features: [AnalysisFeature] = [.xuanKong, .baZhai, .purpleWhite, .qimen]
-        return features.indices.contains(index) ? features[index] : nil
-    }
-    var titleKey: String {
-        switch self {
-        case .xuanKong: return "xuankong_stars"
-        case .baZhai: return "bazhai_tab_title"
-        case .sanHe: return "sanhe_tab_title"
-        case .owner: return "bz_tool_owner"
-        case .dates: return "bz_tool_dates"
-        case .purpleWhite: return "purple_white"
-        case .qimen: return "qimen_dunjia"
-        }
-    }
-    var subtitleKey: String {
-        switch self {
-        case .xuanKong: return "analysis_xk_hint"
-        case .baZhai: return "analysis_bz_hint"
-        case .sanHe: return "analysis_water_hint"
-        case .owner: return "bz_tool_owner_hint"
-        case .dates: return "bz_tool_dates_hint"
-        case .purpleWhite: return "analysis_pw_hint"
-        case .qimen: return "analysis_qimen_hint"
-        }
-    }
-    var symbol: String {
-        switch self {
-        case .xuanKong: return "square.grid.3x3.fill"
-        case .baZhai: return "house.fill"
-        case .sanHe: return "water.waves"
-        case .owner: return "person.2.fill"
-        case .dates: return "calendar.badge.clock"
-        case .purpleWhite: return "sparkles"
-        case .qimen: return "safari"
-        }
-    }
-}
-
-public struct AnalysisFeatureRequest: Identifiable {
-    public let id = UUID()
-    public let feature: AnalysisFeature
-    public init(feature: AnalysisFeature) { self.feature = feature }
-}
-
 /// 小组件深链与主屏快捷指令（Quick Actions / Spotlight）的待处理路由。
 /// 不能用 NotificationCenter 直接投递：冷启动时 SceneDelegate 同步发通知，
 /// SwiftUI 视图树尚未挂载，.onReceive 订阅者还不存在，通知会被静默吞掉。
@@ -82,9 +24,8 @@ public final class AppNavigationRouter: ObservableObject {
         notificationCenter.post(name: .didRequestAppNavigation, object: self)
     }
 
-    public func requestRoute(tab: AppTab, subTab: Int? = nil, openDailyCard: Bool = false, feature: AnalysisFeature? = nil) {
-        let anchor = feature.map { AnalysisAnchor.feature($0) } ?? subTab.map { AnalysisAnchor.legacySubTab($0) }
-        pendingTabRoute = AppRoute(tab: tab, anchor: anchor, openDailyCard: openDailyCard)
+    public func requestRoute(tab: AppTab, openDailyCard: Bool = false) {
+        pendingTabRoute = AppRoute(tab: tab, openDailyCard: openDailyCard)
         notificationCenter.post(name: .didRequestAppNavigation, object: self)
     }
 
@@ -172,22 +113,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             AppNavigationRouter.shared.requestAlmanac()
         case "compass":
             let shouldOpenDailyCard = (sheetParam == "dailySign" || sheetParam == "dailyCard")
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: shouldOpenDailyCard)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: shouldOpenDailyCard)
         case "floorplan":
-            AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
-        case "analysis":
-            let rawFeature = queryItems.first(where: { $0.name == "feature" })?.value
-            guard let rawFeature, let feature = AnalysisFeature(rawValue: rawFeature) else { return }
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, feature: feature)
-        case "qimen":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .floorplan)
+        case "analysis", "qimen":
+            // 理气页族已下线：旧链接统一落到 AR 实景页，避免死链。
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "tab":
             if subParam == "qimen" {
-                AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
+                AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
             } else if indexParam == "3" {
-                AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
+                AppNavigationRouter.shared.requestRoute(tab: .floorplan)
             } else if let idxStr = indexParam, let idx = Int(idxStr) {
-                AppNavigationRouter.shared.requestRoute(tab: AppTab.fromLegacyIndex(idx), subTab: nil, openDailyCard: false)
+                AppNavigationRouter.shared.requestRoute(tab: AppTab.fromLegacyIndex(idx))
             } else {
                 return
             }
@@ -200,15 +138,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     public static func routeShortcutType(_ type: String) {
         switch type {
         case "com.tjyx.compass.shortcut.dailygods":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
         case "com.tjyx.compass.shortcut.dailycard", "com.tjyx.compass.shortcut.dailysign":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: true)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: true)
         case "com.tjyx.compass.shortcut.zeri":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, feature: .dates)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "com.tjyx.compass.shortcut.floorplan":
-            AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .floorplan)
         case "com.tjyx.compass.shortcut.qimen":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
         default:
             return
         }
@@ -220,17 +158,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               let id = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String else { return }
         switch id {
         case "spotlight.zeri":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, feature: .dates)
+            AppNavigationRouter.shared.requestRoute(tab: .ar)
         case "tiandiluopan://compass?guide=dailyGods":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
         case "tiandiluopan://compass?sheet=dailySign":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: true)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: true)
         case "spotlight.bazhai":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 1, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
         case "spotlight.qimen", "tiandiluopan://tab?index=2&sub=qimen":
-            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .ar, openDailyCard: false)
         case "spotlight.floorplan", "tiandiluopan://tab?index=3":
-            AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .floorplan)
         default:
             return
         }
