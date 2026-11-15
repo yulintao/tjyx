@@ -104,9 +104,12 @@ ARVisionView              → SanHeWaterEngine、ZeRiEngine、BaZhaiEngine
   `FamilyRoomAllocationSection`），含标签开关、手动分配、添加家人与持久化，不需要新接线。
 - 工程登记已核对：主 target 53 个 swift 文件、54 条 `PBXBuildFile`，
   id 与文件引用一一配对，无幽灵条目、无漏登记。
-- 未做：黄历卡片（`DailyAuspiciousCardSheet` 在 `BaZhaiEngine.swift` 内）与
-  独立 widget target（`AlmanacWidgetViews.swift` 1,416 行）是否下线，涉及 target 级配置。
+- 已做：应用内「今日吉方」日签卡片下线（`ca4f3dc`）。渲染器与分享弹层从
+  `BaZhaiEngine` 移除（该文件 2,711 → 2,330 行），`RootContentView` 不再呈现，
+  主屏快捷指令与 Spotlight 里指向它的条目一并删除。旧深链仍落到 AR 页，不会死链。
+- 未做：独立 widget target（`TiandiLuopanWidget/AlmanacWidgetViews.swift` 1,416 行 +
+  `TiandiLuopanAlmanacWidget.swift`）仍会显示今日黄历，下线需动 target 级配置。
 - 未做：`VIPPaywallSheet` 与 13 个文件里约 80 处 `showPaywall` 残留。
   门禁放行后它们触发不到，属于死代码，清理无功能影响。
-- 仍未编译、未 push：本机没有 Xcode，五个提交只过了静态检查（括号配平、
+- 仍未编译、未 push：本机没有 Xcode，六个提交只过了静态检查（括号配平、
   悬挂符号扫描、pbxproj 登记核对）。
