@@ -11,12 +11,7 @@ public struct XuanKongGridView: View {
     @ObservedObject var lang = LocalizationManager.shared
     @ObservedObject private var workspace = FloorplanWorkspaceStore.shared
     @ObservedObject private var surveyStore = ShaSurveyStore.shared
-    @State private var analyzeHome = false
-    @State private var didChooseSource = false
-    @State private var analysisDate = Date()
-    @State private var followsToday = true
-    @State private var cachedDeepAnalysis: XuanKongDeepAnalysis?
-    @State private var lastAnalysisSnapshot: TianJiAnalysisSnapshot?
+    @StateObject private var viewModel = XuanKongViewModel()
     private var homeLayout: SavedFloorplanLayout? {
         workspace.snapshot.propertyID == surveyStore.propertyID ? workspace.snapshot.layout : nil
     }
@@ -24,28 +19,14 @@ public struct XuanKongGridView: View {
         XuanKongHomeContextBuilder.facing(layout: homeLayout, survey: surveyStore.latestInterior)
     }
     private var analysisHeading: CompassHeadingState {
-        if analyzeHome, let heading = homeFacing {
+        if viewModel.analyzeHome, let heading = homeFacing {
             return Mountain24Data.shared.resolveHeadingState(heading: heading, pitch: motion.pitch, roll: motion.roll)
         }
         return motion.headingState
     }
-    @State private var selectedPeriod: Int = FlyingStarsEngine.shared.currentPeriod(for: Date())
-    // 手动替卦锁定：nil=跟随传感器 isJianXiang；非 nil=用户手动指定，传感器不再覆盖。
-    // 换坐/向山后重置回跟随，避免用户已看清的盘被高频传感器样本突然改写。
-    @State private var starMode = FlyingStarModeSelection()
-    private var useTiGua: Bool { starMode.usesTiGua(automatic: analysisHeading.isJianXiang) }
+    private var useTiGua: Bool { viewModel.starMode.usesTiGua(automatic: analysisHeading.isJianXiang) }
     @Binding private var featureRequest: AnalysisFeatureRequest?
-    @State private var selectedFeature: AnalysisFeature?
-    @State private var toolRequest: AnalysisToolRequest?
-    @State private var reportSnapshot: TianJiAnalysisSnapshot?
-    @State private var showTianJiShuSheet: Bool = false
-    @State private var showDailySignSheet: Bool = false
-    @State private var showPaywall: Bool = false
-    @State private var showMountainPickerSheet: Bool = false
-    @State private var cachedChart: XuanKongChart?
-    @State private var selectedPalaceIdx: Int = 4
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var lastCurrentPeriod: Int = FlyingStarsEngine.shared.currentPeriod(for: Date())
     private static let periodRefreshTimer = Timer.publish(
         every: 60,
         on: .main,
@@ -83,16 +64,10 @@ public struct XuanKongGridView: View {
     }
     
     public var body: some View {
-        // The other three sub-tabs have their own engines. Avoid rebuilding
-        // the complete nine-palace flying-star chart for every compass sample
-        // while one of those tabs is active.
-        let chart: XuanKongChart? = isActive && selectedFeature == .xuanKong
-            ? (cachedChart ?? FlyingStarsEngine.shared.calculateChart(
-                period: selectedPeriod,
-                sitting: analysisHeading.sittingMountain,
-                facing: analysisHeading.facingMountain,
-                useTiGua: useTiGua, date: analysisDate
-            ))
+        // 盘面只由 ViewModel 在事件点上重排；这里不再兜底同步重算，否则每个罗盘
+        // 样本都会在主线程重建一次九宫飞星。
+        let chart: XuanKongChart? = isActive && viewModel.selectedFeature == .xuanKong
+            ? viewModel.chart
             : nil
         
         ScrollViewReader { scroll in
@@ -100,9 +75,9 @@ public struct XuanKongGridView: View {
             if isActive {
                 VStack(spacing: 14) {
                 Color.clear.frame(height: 1).id("analysisRootTop")
-                if let feature = selectedFeature {
+                if let feature = viewModel.selectedFeature {
                     HStack {
-                        Button(action: { selectedFeature = nil; cachedChart = nil }) {
+                        Button(action: { viewModel.selectedFeature = nil; viewModel.clearChartCache() }) {
                             Label(lang.t("analysis_back_menu"), systemImage: "chevron.left")
                                 .adaptiveFont(size: 13, weight: .semibold)
                                 .foregroundColor(Color.yanCyan)
@@ -144,55 +119,53 @@ public struct XuanKongGridView: View {
             .padding(.bottom, 24)
             }
         }
-        .onChange(of: selectedFeature) { _ in
+        .onChange(of: viewModel.selectedFeature) { _ in
             scroll.scrollTo("analysisRootTop", anchor: .top)
         }
         }
         .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
-        .sheet(isPresented: $showTianJiShuSheet) {
-            if let reportSnapshot { TianJiShuView(analysis: reportSnapshot) }
+        .sheet(isPresented: $viewModel.showTianJiShuSheet) {
+            if let viewModel.reportSnapshot { TianJiShuView(analysis: viewModel.reportSnapshot) }
         }
-        .sheet(isPresented: $showDailySignSheet) {
-            DailyAuspiciousCardSheet(targetDate: selectedFeature == .xuanKong ? analysisDate : Date(),
+        .sheet(isPresented: $viewModel.showDailySignSheet) {
+            DailyAuspiciousCardSheet(targetDate: viewModel.selectedFeature == .xuanKong ? viewModel.analysisDate : Date(),
                                     headingState: analysisHeading)
         }
-        .sheet(isPresented: $showPaywall) {
+        .sheet(isPresented: $viewModel.showPaywall) {
             VIPPaywallSheet(defaultProductId: .proLifetime)
         }
-        .sheet(isPresented: $showMountainPickerSheet) {
-            Mountain24PickerSheet(isPresented: $showMountainPickerSheet)
+        .sheet(isPresented: $viewModel.showMountainPickerSheet) {
+            Mountain24PickerSheet(isPresented: $viewModel.showMountainPickerSheet)
         }
-        .sheet(item: $toolRequest) { item in
+        .sheet(item: $viewModel.toolRequest) { item in
             switch item.tool {
             case .owner: OwnerLifeGuaView(context: item.context)
             case .dates: CelestialDateSelectionView(context: item.context, propertyKey: item.propertyKey)
             }
         }
         .onAppear {
-            if followsToday { analysisDate = Date() }
+            if viewModel.followsToday { viewModel.analysisDate = Date() }
             consumeFeatureRequest()
             refreshChart()
         }
         .onChange(of: featureRequest?.id) { _ in consumeFeatureRequest() }
         .onChange(of: isActive) { _ in
-            if isActive && followsToday { analysisDate = Date() }
+            if isActive && viewModel.followsToday { viewModel.analysisDate = Date() }
             consumeFeatureRequest()
             refreshChart()
         }
         .onChange(of: selectedSubTab) { _ in
             refreshChart()
         }
-        .onChange(of: selectedPeriod) { _ in
+        .onChange(of: viewModel.selectedPeriod) { _ in
             refreshChart()
         }
-        .onChange(of: analyzeHome) { _ in starMode.restoreAutomatic(); refreshChart() }
-        .onChange(of: analysisDate) { _ in refreshChart() }
+        .onChange(of: viewModel.analyzeHome) { _ in viewModel.starMode.restoreAutomatic(); refreshChart() }
+        .onChange(of: viewModel.analysisDate) { _ in refreshChart() }
         .onChange(of: workspace.snapshot.revision) { _ in refreshChart() }
         .onChange(of: surveyStore.propertyID) { _ in
-            lastAnalysisSnapshot = nil
-            if homeFacing == nil { analyzeHome = false }
-            cachedChart = nil
-            starMode.restoreAutomatic()
+            viewModel.invalidate()
+            if homeFacing == nil { viewModel.analyzeHome = false }
             refreshChart()
         }
         .onReceive(surveyStore.objectWillChange) { _ in
@@ -204,15 +177,15 @@ public struct XuanKongGridView: View {
         }
         .onChange(of: analysisHeading.isJianXiang) { isJian in
             // 仅跟随模式（用户未手动锁定）下才随传感器切换下卦/替卦。
-            guard starMode.manualOverride == nil else { return }
+            guard viewModel.starMode.manualOverride == nil else { return }
             refreshChart()
         }
         .onChange(of: analysisHeading.sittingMountain.id) { _ in
-            starMode.restoreAutomatic()
+            viewModel.starMode.restoreAutomatic()
             refreshChart()
         }
         .onChange(of: analysisHeading.facingMountain.id) { _ in
-            starMode.restoreAutomatic()
+            viewModel.starMode.restoreAutomatic()
             refreshChart()
         }
         .onChange(of: lang.effectiveLanguage) { _ in
@@ -220,53 +193,16 @@ public struct XuanKongGridView: View {
         }
         .onReceive(Self.periodRefreshTimer) { _ in
             guard isActive else { return }
-            if followsToday { analysisDate = Date() }
-            let currentPeriod = FlyingStarsEngine.shared.currentPeriod(for: Date())
-            // If the user was following the previously current period, keep
-            // following it across the Li Chun/20-year boundary. A deliberate
-            // historical-period selection remains untouched.
-            if selectedPeriod == lastCurrentPeriod, selectedPeriod != currentPeriod {
-                selectedPeriod = currentPeriod
-            }
-            lastCurrentPeriod = currentPeriod
+            viewModel.syncClockToNow()
             refreshChart()
         }
     }
 
     private func refreshChart() {
-        guard isActive, selectedFeature == .xuanKong else {
-            cachedChart = nil
-            cachedDeepAnalysis = nil
-            return
-        }
-        let isFirstChart = cachedChart == nil
-        let snapshot = captureAnalysis()
-        let updated = snapshot.flyingStarsChart()
-        let deep = snapshot.deepAnalysis(chart: updated)
-        lastAnalysisSnapshot = snapshot
-        if isFirstChart { selectedPalaceIdx = deep.priorities.first?.id ?? 4 }
-        cachedDeepAnalysis = deep
-        cachedChart = updated
+        viewModel.refresh(isActive: isActive, motionHeading: motion.headingState,
+                          homeFacing: homeFacing, homeLayout: homeLayout)
     }
 
-    private func captureAnalysis() -> TianJiAnalysisSnapshot {
-        let usesHome = analyzeHome && homeFacing != nil
-        let heading = usesHome ? (homeFacing ?? motion.headingState.facingAngle) : motion.headingState.facingAngle
-        let headingState = Mountain24Data.shared.resolveHeadingState(heading: heading)
-        let context = analyzeHome && homeFacing != nil
-            ? XuanKongHomeContextBuilder.build(layout: homeLayout, survey: surveyStore.latestInterior,
-                exterior: surveyStore.records, facts: surveyStore.siteFacts) : nil
-        let report = usesHome ? homeLayout.map { layout in
-            FloorplanEngine.shared.auditFloorplan(rooms: layout.rooms,
-                centroid: CGPoint(x: layout.centroidX, y: layout.centroidY), heading: layout.compassRotation,
-                aspectRatio: CGFloat(layout.aspectRatio ?? 1), date: analysisDate).report
-        } ?? [] : []
-        return TianJiAnalysisSnapshot(heading: heading, period: selectedPeriod,
-            useTiGua: starMode.usesTiGua(automatic: headingState.isJianXiang), reportDate: analysisDate)
-            .capturing(context: context, propertyKey: usesHome ? surveyStore.propertyKey : nil,
-                floorplanReport: report, panoramaArchive: usesHome ? surveyStore.archive : nil)
-    }
-    
     private func consumeFeatureRequest() {
         guard isActive, let request = featureRequest else { return }
         featureRequest = nil
@@ -275,13 +211,13 @@ public struct XuanKongGridView: View {
 
     private func openFeature(_ feature: AnalysisFeature) {
         if feature == .owner || feature == .dates {
-            toolRequest = AnalysisToolRequest(tool: feature == .owner ? .owner : .dates, context: analysisHeading)
+            viewModel.toolRequest = AnalysisToolRequest(tool: feature == .owner ? .owner : .dates, context: analysisHeading)
         } else {
-            if feature == .xuanKong && !didChooseSource {
-                analyzeHome = homeFacing != nil
-                didChooseSource = true
+            if feature == .xuanKong && !viewModel.didChooseSource {
+                viewModel.analyzeHome = homeFacing != nil
+                viewModel.didChooseSource = true
             }
-            selectedFeature = feature
+            viewModel.selectedFeature = feature
             selectedSubTab = feature.legacySubTab ?? 0
             refreshChart()
         }
@@ -349,7 +285,7 @@ public struct XuanKongGridView: View {
 
     // MARK: - P0.1 常驻立极坐向锁定与 24 山手选控制栏 + 今日吉签入口
     private func sittingControlHeader() -> some View {
-        let usesHome = (selectedFeature == .xuanKong || selectedFeature == nil) && analyzeHome && homeFacing != nil
+        let usesHome = (viewModel.selectedFeature == .xuanKong || viewModel.selectedFeature == nil) && viewModel.analyzeHome && homeFacing != nil
         let state = usesHome ? analysisHeading : motion.headingState
         let pickLabel: String
         let signLabel: String
@@ -384,7 +320,7 @@ public struct XuanKongGridView: View {
             // 当前坐山朝向与度数（支持点击直接调出 24 山选向弹窗）
             Button(action: {
                 if usesHome { AppNavigationRouter.shared.requestRoute(tab: .floorplan) }
-                else { showMountainPickerSheet = true }
+                else { viewModel.showMountainPickerSheet = true }
             }) {
                 HStack(spacing: 4) {
                     Image(systemName: usesHome ? "house.fill" : (motion.isLocked ? "lock.fill" : "location.north.line.fill"))
@@ -419,8 +355,8 @@ public struct XuanKongGridView: View {
 
                 // 24 山手选快速选向按钮（打开 24 山专业选向面板，彻底解决手选无法点击选定问题）
                 Button(action: {
-                    analyzeHome = false
-                    showMountainPickerSheet = true
+                    viewModel.analyzeHome = false
+                    viewModel.showMountainPickerSheet = true
                 }) {
                     HStack(spacing: 3) {
                         Image(systemName: "dial.medium.fill")
@@ -440,7 +376,7 @@ public struct XuanKongGridView: View {
 
             // 今日吉方日签海报按钮
             Button(action: {
-                showDailySignSheet = true
+                viewModel.showDailySignSheet = true
             }) {
                 HStack(spacing: 3) {
                     Image(systemName: "sparkles.rectangle.stack.fill")
@@ -482,8 +418,8 @@ public struct XuanKongGridView: View {
             Spacer()
             
             Button(action: {
-                reportSnapshot = lastAnalysisSnapshot ?? captureAnalysis()
-                showTianJiShuSheet = true
+                viewModel.reportSnapshot = viewModel.lastAnalysisSnapshot ?? viewModel.snapshotForReport(motionHeading: motion.headingState, homeFacing: homeFacing, homeLayout: homeLayout)
+                viewModel.showTianJiShuSheet = true
             }) {
                 Text(lang.t("one_click_export"))
                     .adaptiveFont(size: 11, weight: .bold)
@@ -554,14 +490,14 @@ public struct XuanKongGridView: View {
                 HStack(spacing: 6) {
                     ForEach(1...9, id: \.self) { p in
                         let isCur = (p == curPeriod)
-                        let isSelected = (p == selectedPeriod)
+                        let isSelected = (p == viewModel.selectedPeriod)
                         let isLocked = (!isCur && !iap.hasUnlockedVIP)
                         
                         Button(action: {
                             if isLocked {
-                                showPaywall = true
+                                viewModel.showPaywall = true
                             } else {
-                                selectedPeriod = p
+                                viewModel.selectedPeriod = p
                             }
                         }) {
                             HStack(spacing: 2) {
@@ -613,7 +549,7 @@ public struct XuanKongGridView: View {
                     .minimumScaleFactor(0.7)
                 
                 Button(action: {
-                    starMode.toggle(automatic: analysisHeading.isJianXiang)
+                    viewModel.starMode.toggle(automatic: analysisHeading.isJianXiang)
                     // 手动切换后锁定该选择，传感器 isJianXiang 不再覆盖；
                     // 换坐/向山后自动回到跟随模式。
                 }) {
@@ -671,7 +607,7 @@ public struct XuanKongGridView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(cell.plainDirectionName + ", " + lang.t(cell.suggestedUse.titleKey))
-                .accessibilityAddTraits(cell.id == selectedPalaceIdx ? .isSelected : [])
+                .accessibilityAddTraits(cell.id == viewModel.selectedPalaceIndex ? .isSelected : [])
             }
         }
         // 分栏时铺满左栏（两栏已按有效宽度分配），单列宽屏仍 580、手机全宽
@@ -681,7 +617,7 @@ public struct XuanKongGridView: View {
     
     private func palaceCellView(cell: XuanKongPalace) -> some View {
         let use = cell.suggestedUse
-        let isSelected = cell.id == selectedPalaceIdx
+        let isSelected = cell.id == viewModel.selectedPalaceIndex
         let borderColor = isSelected ? Color.yanCyan : (use == .quiet ? Color.orange : (use == .separateUses ? Color.yanGold : Color.white.opacity(0.12)))
         let bgColor = use == .quiet ? Color.orange.opacity(0.1) : Color(red: 0.12, green: 0.12, blue: 0.16)
         
@@ -726,19 +662,19 @@ public struct XuanKongGridView: View {
     
     private func analysisSourceBar() -> some View {
         VStack(spacing: 8) {
-            Picker(lang.t("xkd_source"), selection: $analyzeHome) {
+            Picker(lang.t("xkd_source"), selection: $viewModel.analyzeHome) {
                 Text(lang.t("xkd_source_compass")).tag(false)
                 if homeFacing != nil { Text(lang.t("xkd_source_home")).tag(true) }
             }
             .pickerStyle(.segmented)
             HStack {
-                DatePicker(lang.t("xkd_date"), selection: Binding(get: { analysisDate }, set: {
-                    followsToday = false
-                    analysisDate = $0
+                DatePicker(lang.t("xkd_date"), selection: Binding(get: { viewModel.analysisDate }, set: {
+                    viewModel.followsToday = false
+                    viewModel.analysisDate = $0
                 }), displayedComponents: [.date, .hourAndMinute])
                 .adaptiveFont(size: 12)
-                Button(lang.t("xkd_today")) { followsToday = true; analysisDate = Date() }
-                    .foregroundColor(followsToday ? Color.yanGold : Color.yanCyan)
+                Button(lang.t("xkd_today")) { viewModel.followsToday = true; viewModel.analysisDate = Date() }
+                    .foregroundColor(viewModel.followsToday ? Color.yanGold : Color.yanCyan)
                     .frame(minWidth: 44, minHeight: 44)
             }
             .foregroundColor(.white)
@@ -747,7 +683,7 @@ public struct XuanKongGridView: View {
 
     // MARK: - 结论、位置、行动；依据按需展开
     private func analysisCard(chart: XuanKongChart) -> some View {
-        let analysis = cachedDeepAnalysis ?? XuanKongDeepAnalyzer.analyze(chart: chart, date: analysisDate)
+        let analysis = viewModel.deepAnalysis ?? XuanKongDeepAnalyzer.analyze(chart: chart, date: viewModel.analysisDate)
         return VStack(alignment: .leading, spacing: 14) {
             Text(lang.t(analysis.summaryKey))
                 .adaptiveFont(size: 18, weight: .bold)
@@ -774,10 +710,10 @@ public struct XuanKongGridView: View {
                 }
             }
             guidanceMap(chart: chart, analysis: analysis)
-            if let selected = chart.palaces.first(where: { $0.id == selectedPalaceIdx }),
+            if let selected = chart.palaces.first(where: { $0.id == viewModel.selectedPalaceIndex }),
                let sector = analysis.sectors.first(where: { $0.id == selected.id }) {
                 sectorActionCard(cell: selected, sector: sector)
-                if analyzeHome { siteFactsEditor(palaceID: selected.id) }
+                if viewModel.analyzeHome { siteFactsEditor(palaceID: selected.id) }
             }
             ForEach(analysis.patternChecks) { check in
                 DisclosureGroup {
@@ -797,7 +733,7 @@ public struct XuanKongGridView: View {
                     Text(lang.t(chart.pattern.titleKey)).bold()
                     Text(lang.t(chart.pattern.explanationKey))
                     Text(lang.t("xk_guide_terms"))
-                    if let cell = chart.palaces.first(where: { $0.id == selectedPalaceIdx }),
+                    if let cell = chart.palaces.first(where: { $0.id == viewModel.selectedPalaceIndex }),
                        let sector = analysis.sectors.first(where: { $0.id == cell.id }) {
                         sectorEvidence(cell: cell, sector: sector)
                         sourceEvidence(chart: chart, cell: cell, sector: sector)
@@ -901,7 +837,7 @@ public struct XuanKongGridView: View {
 
     private func selectGuidancePalace(_ id: Int) {
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
-            selectedPalaceIdx = id
+            viewModel.selectedPalaceIndex = id
         }
     }
 
@@ -933,7 +869,7 @@ public struct XuanKongGridView: View {
 
     private func guidanceMapCell(cell: PalaceCell, chart: XuanKongChart, sector: XuanKongSectorAnalysis) -> some View {
         let use = sector.use
-        let selected = selectedPalaceIdx == cell.id
+        let selected = viewModel.selectedPalaceIndex == cell.id
         let color = guidanceColor(use)
         return Button(action: { selectGuidancePalace(cell.id) }) {
             VStack(spacing: 5) {

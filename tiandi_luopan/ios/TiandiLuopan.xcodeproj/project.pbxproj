@@ -39,6 +39,7 @@
 		1026 /* ExteriorShaEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2026 /* ExteriorShaEngine.swift */; };
 		1033 /* ARVisionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2033 /* ARVisionView.swift */; };
 		1034 /* XuanKongGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2034 /* XuanKongGridView.swift */; };
+		1109 /* XuanKongViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2111 /* XuanKongViewModel.swift */; };
 		1035 /* BaZhaiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2035 /* BaZhaiView.swift */; };
 		1036 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2036 /* SettingsView.swift */; };
 		1037 /* RootContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2037 /* RootContentView.swift */; };
@@ -134,6 +135,7 @@
 		2026 /* ExteriorShaEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/ExteriorShaEngine.swift"; sourceTree = "<group>"; };
 		2033 /* ARVisionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ARVision/ARVisionView.swift"; sourceTree = "<group>"; };
 		2034 /* XuanKongGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/XuanKongGridView.swift"; sourceTree = "<group>"; };
+		2111 /* XuanKongViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/XuanKongViewModel.swift"; sourceTree = "<group>"; };
 		2035 /* BaZhaiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/BaZhaiView.swift"; sourceTree = "<group>"; };
 		2036 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsView.swift"; sourceTree = "<group>"; };
 		2037 /* RootContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/RootContentView.swift"; sourceTree = "<group>"; };
@@ -306,6 +308,7 @@
 				2026 /* ExteriorShaEngine.swift */,
 				2033 /* ARVisionView.swift */,
 				2034 /* XuanKongGridView.swift */,
+				2111 /* XuanKongViewModel.swift */,
 				2035 /* BaZhaiView.swift */,
 				2036 /* SettingsView.swift */,
 				2037 /* RootContentView.swift */,
@@ -574,6 +577,7 @@
 				1026 /* ExteriorShaEngine.swift in Sources */,
 				1033 /* ARVisionView.swift in Sources */,
 				1034 /* XuanKongGridView.swift in Sources */,
+				1109 /* XuanKongViewModel.swift in Sources */,
 				1035 /* BaZhaiView.swift in Sources */,
 				1036 /* SettingsView.swift in Sources */,
 				1037 /* RootContentView.swift in Sources */,
