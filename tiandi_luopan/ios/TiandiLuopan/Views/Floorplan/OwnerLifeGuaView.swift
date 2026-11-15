@@ -6,7 +6,6 @@ import SwiftUI
 struct OwnerGuaVIPGate<Content: View>: View {
     @ObservedObject private var iap = StoreKitIAPManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var showPaywall = false
     private let content: () -> Content
 
     init(@ViewBuilder content: @escaping () -> Content) { self.content = content }
@@ -17,11 +16,10 @@ struct OwnerGuaVIPGate<Content: View>: View {
             else {
                 VIPLockCardView(title: lang.t("bz_tool_owner"), featureDesc: lang.t("bz_owner_vip_desc"),
                                 badge: lang.t("vip_badge_title"), targetProductId: .vipYearly,
-                                onUnlockTap: { showPaywall = true })
+                                onUnlockTap: {})
                     .padding(16)
             }
         }
-        .sheet(isPresented: $showPaywall) { VIPPaywallSheet(defaultProductId: .proLifetime) }
     }
 }
 

@@ -276,8 +276,6 @@ public struct FloorplanView: View {
     @State private var selectedRoom: FloorplanRoom? = nil
     @State private var userFloorplanImage: UIImage? = nil
     @State private var showImagePicker: Bool = false
-    @State private var showPaywall: Bool = false
-    @State private var paywallDefaultProduct: IAPProductID = .floorplanSingle
     @State private var showResetConfirmation: Bool = false
     @State private var isEditingRooms: Bool = false
     @State private var activeRoomDragID: String? = nil
@@ -595,7 +593,6 @@ public struct FloorplanView: View {
                         // this callback. Restore the previous plan when the
                         // user tries to switch without another entitlement.
                         userFloorplanImage = floorplanImageBeforePicker
-                        showPaywall = true
                         return
                     }
                 }
@@ -629,9 +626,6 @@ public struct FloorplanView: View {
                 floorplanImageBeforePicker = nil
                 refreshAudit(force: true)
             }
-        }
-        .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: paywallDefaultProduct)
         }
         .sheet(isPresented: $showARSpatialSurvey) {
             // 相机闸门：另一个窗口正在用相机时不构造采集会话，改为提示卡。
@@ -1741,8 +1735,6 @@ public struct FloorplanView: View {
                 caseBackupToastMessage = lang.t("iap_storage_unavailable")
                 return false
             }
-            paywallDefaultProduct = .floorplanSingle
-            showPaywall = true
             return false
         case .saveFailed:
             return false
@@ -1802,8 +1794,6 @@ public struct FloorplanView: View {
                     floorplanImageBeforePicker = userFloorplanImage
                     showImagePicker = true
                 } else {
-                    paywallDefaultProduct = .floorplanSingle
-                    showPaywall = true
                 }
             }) {
                 HStack(spacing: 3) {
@@ -1898,8 +1888,6 @@ public struct FloorplanView: View {
             // which could belong to a different floorplan.
             Button(action: {
                 if !iap.hasUnlockedVIP {
-                    paywallDefaultProduct = .vipYearly
-                    showPaywall = true
                     return
                 }
                 guard let survey = buildCurrentFloorplanSurvey() else { return }
@@ -1934,8 +1922,6 @@ public struct FloorplanView: View {
                 let isVR = survey.scanMethod.contains("VR") || survey.scanMethod.contains("仿真")
                 Button(action: {
                     if isVR && !iap.hasUnlockedVIP {
-                        paywallDefaultProduct = .vipYearly
-                        showPaywall = true
                         return
                     }
                     show3DSpaceViewer = true
@@ -1965,8 +1951,6 @@ public struct FloorplanView: View {
             if persistedVirtualSpatialSurvey != nil {
                 Button(action: {
                     if !iap.hasUnlockedVIP {
-                        paywallDefaultProduct = .vipYearly
-                        showPaywall = true
                         return
                     }
                     showVirtualSpaceViewer = true
@@ -1997,8 +1981,6 @@ public struct FloorplanView: View {
             // 3D 入口。该入口是“按比例仿真”，不会冒充 LiDAR 实测结果。
             Button(action: {
                 if !iap.hasUnlockedVIP {
-                    paywallDefaultProduct = .vipYearly
-                    showPaywall = true
                     return
                 }
                 showVRSpatialSurvey = true
@@ -3382,8 +3364,6 @@ public struct FloorplanView: View {
                         badge: lang.t("vip_badge_title"),
                         targetProductId: .floorplanSingle,
                         onUnlockTap: {
-                            paywallDefaultProduct = .floorplanSingle
-                            showPaywall = true
                         }
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)

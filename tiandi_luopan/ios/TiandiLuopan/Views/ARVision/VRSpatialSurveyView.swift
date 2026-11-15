@@ -46,7 +46,6 @@ public struct VRSpatialSurveyView: View {
     }
 
     @ObservedObject private var iap = StoreKitIAPManager.shared
-    @State private var showPaywall = false
     @State private var rooms: [VRRoomItem] = []
     @State private var openings: [VROpeningItem] = []
     @State private var selectedType: FloorplanRoomType = .livingRoom
@@ -157,9 +156,6 @@ public struct VRSpatialSurveyView: View {
             if let survey = resultSurvey {
                 House3DSpaceViewer(survey: survey, propertyID: propertyID)
             }
-        }
-        .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
     }
 
@@ -528,7 +524,6 @@ public struct VRSpatialSurveyView: View {
     private func generateReport() {
         guard ShaSurveyStore.shared.isCurrentProperty(propertyID) else { return }
         if !iap.hasUnlockedVIP {
-            showPaywall = true
             return
         }
         validationMessage = nil

@@ -16,7 +16,6 @@ public struct House3DSpaceViewer: View {
     @State private var viewMode: ViewAngleMode = .perspective
     @State private var palaceGridMode: PalaceGridMode = .baZhai
     @ObservedObject private var iap = StoreKitIAPManager.shared
-    @State private var showPaywall: Bool = false
     @State private var showDimensions: Bool = true
     @State private var showShaAlerts: Bool = true
     @State private var selectedShaItem: HouseSpatialShaItem? = nil
@@ -116,9 +115,6 @@ public struct House3DSpaceViewer: View {
         }
         .sheet(item: $shareSheetItem) { report in
             SurveyShareActivityView(activityItems: report.activityItems)
-        }
-        .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
         .onAppear {
             refreshSurveyForActiveLanguage()
@@ -634,7 +630,6 @@ public struct House3DSpaceViewer: View {
 
     private func exportAndShareReport() {
         if !iap.hasUnlockedVIP {
-            showPaywall = true
             return
         }
         guard let coord = sceneCoordinator, let snapshot = coord.captureSnapshot() else { return }
@@ -644,7 +639,6 @@ public struct House3DSpaceViewer: View {
 
     private func exportAndShareDXF() {
         if !iap.hasUnlockedVIP {
-            showPaywall = true
             return
         }
         if let dxfURL = survey.exportDXFFileURL() {

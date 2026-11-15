@@ -42,7 +42,6 @@ public struct AboutPageView: View {
                 Link(destination: LegalLinks.support) {
                     Label(lang.t("about_contact"), systemImage: "envelope")
                 }
-                RestorePurchasesButton(style: .settingsRow)
             }
             .foregroundColor(Color.yanCyan)
 

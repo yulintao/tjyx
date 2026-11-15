@@ -549,7 +549,6 @@ public struct ARVisionView: View {
     @State private var targetHorizontalFOV: Double = 50.0
     @State private var targetDragStart: CGSize?
     @State private var showRemedySheet: Bool = false
-    @State private var showPaywall: Bool = false
     @State private var hasCameraPermission: Bool = false
     @State private var showSnapshotToast: Bool = false
     @State private var cameraPosition: AVCaptureDevice.Position = .back
@@ -792,9 +791,6 @@ public struct ARVisionView: View {
             if shaList.indices.contains(activeShaIndex) {
                 ShaRemedyDetailSheet(sha: shaList[activeShaIndex])
             }
-        }
-        .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
         .sheet(isPresented: $showSnapshotShareSheet) {
             if let snapshot = latestSnapshotImage {
@@ -1332,7 +1328,6 @@ public struct ARVisionView: View {
                     // 勘测存证快照拍照按钮
                     Button(action: {
                         if !iap.hasUnlockedVIP {
-                            showPaywall = true
                         } else {
                             guard pendingCapturePurpose == nil else { return }
                             if hasCameraPermission && isActive {
@@ -2178,7 +2173,6 @@ public struct ShaRemedyDetailSheet: View {
     @ObservedObject private var lang = LocalizationManager.shared
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedShaId: String
-    @State private var showPaywall: Bool = false
     
     private let database = ExteriorShaEngine.shared.database
     
@@ -2218,9 +2212,6 @@ public struct ShaRemedyDetailSheet: View {
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()
             })
-            .sheet(isPresented: $showPaywall) {
-                VIPPaywallSheet(defaultProductId: .proLifetime)
-            }
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
@@ -2438,7 +2429,7 @@ public struct ShaRemedyDetailSheet: View {
                     featureDesc: lang.t("ar_sha_vip_lock_desc"),
                     badge: lang.t("vip_badge_title"),
                     targetProductId: .vipYearly,
-                    onUnlockTap: { showPaywall = true }
+                    onUnlockTap: {}
                 )
             } else {
                 VStack(alignment: .leading, spacing: 8) {

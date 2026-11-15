@@ -2725,7 +2725,6 @@ public struct ARSpatialSurveyView: View {
     @StateObject private var fallbackCameraModel = CameraPreviewController()
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject private var iap = StoreKitIAPManager.shared
-    @State private var showPaywall = false
     @State private var isSavingMap = false
     @State private var shareItem: ARSpatialShareItem?
     @State private var saveMessage: String?
@@ -2915,7 +2914,6 @@ public struct ARSpatialSurveyView: View {
                     .accessibilityLabel(lang.t("floorplan_3d_recent_actual"))
                     Button(action: {
                         if !iap.hasUnlockedVIP {
-                            showPaywall = true
                             return
                         }
                         showVRSurvey = true
@@ -3270,9 +3268,6 @@ public struct ARSpatialSurveyView: View {
             // that measured geometry so users can correct/complete it. An
             // empty simulation is only used before the first scan.
             VRSpatialSurveyView(initialSurvey: latestSurveyForVR, propertyID: model.propertyID)
-        }
-        .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
     }
 
