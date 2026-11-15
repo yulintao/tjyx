@@ -203,8 +203,8 @@ enum FloorplanCreditPurchase {
 // MARK: - IAP 商品与权益定义
 
 public enum IAPProductID: String, CaseIterable, Equatable {
-    case vipYearly = "com.yanxiang.compass.vip.yearly"           // 演象·年度堪舆会员 198元/年
-    case proLifetime = "com.yanxiang.compass.pro.lifetime"       // 演象·大师终身版 298元 一次性买断
+    case vipYearly = "com.yanxiang.compass.vip.yearly"           // 演象·年度堪舆会员 199元/年（自动续期）
+    case proLifetime = "com.yanxiang.compass.pro.lifetime"       // 演象·大师终身版 399元 一次性买断（主推）
     case floorplanSingle = "com.yanxiang.compass.floorplan.case"   // 户型空间立极·单套全案 19.9元
     case tianjiSingle = "com.yanxiang.compass.tianji.single"       // 福宅天机宣纸长卷·单次高清导出 9.9元
 

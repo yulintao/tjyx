@@ -9,14 +9,14 @@ public struct VIPLockCardView: View {
     public let title: String
     public let featureDesc: String
     public var badge: String = LocalizationManager.shared.t("vip_badge_title")
-    public var targetProductId: IAPProductID = .vipYearly
+    public var targetProductId: IAPProductID = .proLifetime
     public var onUnlockTap: () -> Void
     
     public init(
         title: String,
         featureDesc: String,
         badge: String = LocalizationManager.shared.t("vip_badge_title"),
-        targetProductId: IAPProductID = .vipYearly,
+        targetProductId: IAPProductID = .proLifetime,
         onUnlockTap: @escaping () -> Void
     ) {
         self.title = title
@@ -225,13 +225,13 @@ public struct VIPPaywallSheet: View {
     @ObservedObject var iap = StoreKitIAPManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
     
-    @State private var selectedProductId: String = IAPProductID.vipYearly.rawValue
+    @State private var selectedProductId: String = IAPProductID.proLifetime.rawValue
     @State private var isPurchasing: Bool = false
     @State private var alertMsg: String = ""
     @State private var alertIsError: Bool = false
     @State private var showAlert: Bool = false
     
-    public init(defaultProductId: IAPProductID = .vipYearly) {
+    public init(defaultProductId: IAPProductID = .proLifetime) {
         _selectedProductId = State(initialValue: defaultProductId.rawValue)
     }
     
@@ -462,7 +462,7 @@ public struct VIPPaywallSheet: View {
     }
     
     private var selectedIAPProduct: IAPProductID {
-        IAPProductID(rawValue: selectedProductId) ?? .vipYearly
+        IAPProductID(rawValue: selectedProductId) ?? .proLifetime
     }
 
     private var selectedIsSingleProduct: Bool {

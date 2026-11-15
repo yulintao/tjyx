@@ -3039,23 +3039,23 @@
             <!-- 核心商品选购网格 (StoreKit 四大商品) -->
             <div class="iap-products-grid">
                 <!-- 商品 1: 年度堪舆 VIP (推荐) -->
-                <div class="iap-prod-card selected" id="card-prod-yearly"
+                <div class="iap-prod-card" id="card-prod-yearly"
                     onclick="selectIAPProduct('com.yanxiang.compass.vip.yearly')">
-                    <span class="iap-badge-corner">80% 首选</span>
+                    <span class="iap-badge-corner">按年付费</span>
                     <div>
                         <div class="iap-prod-name">👑 年度堪舆 VIP</div>
-                        <div class="iap-prod-price">¥198 <small>/ 年</small></div>
+                        <div class="iap-prod-price">¥199 <small>/ 年</small></div>
                     </div>
-                    <div class="iap-prod-desc">约合 ¥0.54/天 · 全场景全息交互与四大绝学完整解锁</div>
+                    <div class="iap-prod-desc">约合 ¥0.55/天 · 全场景全息交互与四大绝学完整解锁</div>
                 </div>
 
                 <!-- 商品 2: 大师终身专业版 -->
-                <div class="iap-prod-card" id="card-prod-lifetime"
+                <div class="iap-prod-card selected" id="card-prod-lifetime"
                     onclick="selectIAPProduct('com.yanxiang.compass.pro.lifetime')">
-                    <span class="iap-badge-corner gold">终身买断</span>
+                    <span class="iap-badge-corner gold">首选 · 一次性买断</span>
                     <div>
                         <div class="iap-prod-name">💎 大师终身版</div>
-                        <div class="iap-prod-price">¥298 <small>永久</small></div>
+                        <div class="iap-prod-price">¥399 <small>一次性买断</small></div>
                     </div>
                     <div class="iap-prod-desc">一次购买 · 终身受用 · 含未来所有易学算法升级</div>
                 </div>
@@ -3147,7 +3147,7 @@
             <button class="iap-btn-applepay" id="btn-iap-submit" onclick="executeApplePurchase()">
                 <span id="iap-btn-icon"></span>
                 <span id="iap-btn-label">立即通过 App Store 安全支付</span>
-                <span id="iap-btn-price">¥198</span>
+                <span id="iap-btn-price">¥399</span>
             </button>
 
 
@@ -4654,7 +4654,7 @@
             floorplanCredits: 0,
             tianjiCredits: 0
         };
-        let selectedIAPProductId = 'com.yanxiang.compass.vip.yearly';
+        let selectedIAPProductId = 'com.yanxiang.compass.pro.lifetime';
         let pendingActionAfterPurchase = null;
 
         // 本地缓存加载
@@ -4731,8 +4731,8 @@
                 'com.yanxiang.compass.tianji.single': 'card-prod-tianji'
             };
             const prices = {
-                'com.yanxiang.compass.vip.yearly': '¥198',
-                'com.yanxiang.compass.pro.lifetime': '¥298',
+                'com.yanxiang.compass.vip.yearly': '¥199',
+                'com.yanxiang.compass.pro.lifetime': '¥399',
                 'com.yanxiang.compass.floorplan.case': '¥19.9',
                 'com.yanxiang.compass.tianji.single': '¥9.9'
             };
@@ -4773,7 +4773,7 @@
                 if (btn) {
                     btn.disabled = false;
                     btn.style.opacity = '1';
-                    btn.innerHTML = '<span> 立即通过 App Store 安全支付</span> <span id="iap-btn-price">¥198</span>';
+                    btn.innerHTML = '<span> 立即通过 App Store 安全支付</span> <span id="iap-btn-price">¥399</span>';
                 }
                 localizedAlert('请在 iOS 原生 App 中完成 App Store 内购。', '請在 iOS 原生 App 中完成 App Store 內購。', 'Complete the purchase through the App Store in the native iOS app.');
             }
@@ -4807,7 +4807,7 @@
             if (btn) {
                 btn.disabled = false;
                 btn.style.opacity = '1';
-                btn.innerHTML = '<span> 立即通过 App Store 安全支付</span> <span id="iap-btn-price">¥198</span>';
+                btn.innerHTML = '<span> 立即通过 App Store 安全支付</span> <span id="iap-btn-price">¥399</span>';
             }
             if (pid === 'com.yanxiang.compass.pro.lifetime') {
                 userIAPStatus.isLifetime = true;
@@ -4839,7 +4839,7 @@
             if (btn) {
                 btn.disabled = false;
                 btn.style.opacity = '1';
-                btn.innerHTML = '<span> 立即通过 App Store 安全支付</span> <span id="iap-btn-price">¥198</span>';
+                btn.innerHTML = '<span> 立即通过 App Store 安全支付</span> <span id="iap-btn-price">¥399</span>';
             }
             if (errorMsg && !errorMsg.includes('取消')) {
                 localizedAlert('支付未完成: ' + errorMsg, '支付未完成：' + errorMsg, 'Payment incomplete: ' + errorMsg);

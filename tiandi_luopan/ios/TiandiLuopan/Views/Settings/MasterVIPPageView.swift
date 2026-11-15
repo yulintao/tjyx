@@ -46,8 +46,8 @@ public struct MasterVIPPageView: View {
 
                     // 四档商品卡片选择
                     VStack(spacing: 8) {
-                        productRow(id: .vipYearly, tag: lang.t("product_vip_yearly_tag"))
                         productRow(id: .proLifetime, tag: lang.t("product_pro_lifetime_tag"))
+                        productRow(id: .vipYearly, tag: lang.t("product_vip_yearly_tag"))
                         productRow(id: .floorplanSingle, tag: lang.t("product_floorplan_single_tag"))
                         productRow(id: .tianjiSingle, tag: lang.t("product_tianji_single_tag"))
                     }
