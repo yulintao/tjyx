@@ -16,7 +16,6 @@ public final class SettingsViewModel: ObservableObject {
         }
     }
 
-    @Published public var selectedProductId: String = IAPProductID.proLifetime.rawValue
     @Published public private(set) var alert: Alert?
 
     public init() {}

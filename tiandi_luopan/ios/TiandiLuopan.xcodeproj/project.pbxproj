@@ -16,7 +16,6 @@
 		1095 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2097 /* SettingsViewModel.swift */; };
 		1096 /* SettingsLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2098 /* SettingsLinks.swift */; };
 		1097 /* SettingsLocalizationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2099 /* SettingsLocalizationHelpers.swift */; };
-		1098 /* MasterVIPPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2100 /* MasterVIPPageView.swift */; };
 		1099 /* OwnerKuaReminderPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2101 /* OwnerKuaReminderPageView.swift */; };
 		1100 /* LanguagePreferencesPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2102 /* LanguagePreferencesPageView.swift */; };
 		1101 /* AboutPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2103 /* AboutPageView.swift */; };
@@ -100,7 +99,6 @@
 		2097 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsViewModel.swift"; sourceTree = "<group>"; };
 		2098 /* SettingsLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsLinks.swift"; sourceTree = "<group>"; };
 		2099 /* SettingsLocalizationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsLocalizationHelpers.swift"; sourceTree = "<group>"; };
-		2100 /* MasterVIPPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/MasterVIPPageView.swift"; sourceTree = "<group>"; };
 		2101 /* OwnerKuaReminderPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/OwnerKuaReminderPageView.swift"; sourceTree = "<group>"; };
 		2102 /* LanguagePreferencesPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/LanguagePreferencesPageView.swift"; sourceTree = "<group>"; };
 		2103 /* AboutPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/AboutPageView.swift"; sourceTree = "<group>"; };
@@ -262,7 +260,6 @@
 				2097 /* SettingsViewModel.swift */,
 				2098 /* SettingsLinks.swift */,
 				2099 /* SettingsLocalizationHelpers.swift */,
-				2100 /* MasterVIPPageView.swift */,
 				2101 /* OwnerKuaReminderPageView.swift */,
 				2102 /* LanguagePreferencesPageView.swift */,
 				2103 /* AboutPageView.swift */,
@@ -526,7 +523,6 @@
 				1095 /* SettingsViewModel.swift in Sources */,
 				1096 /* SettingsLinks.swift in Sources */,
 				1097 /* SettingsLocalizationHelpers.swift in Sources */,
-				1098 /* MasterVIPPageView.swift in Sources */,
 				1099 /* OwnerKuaReminderPageView.swift in Sources */,
 				1100 /* LanguagePreferencesPageView.swift in Sources */,
 				1101 /* AboutPageView.swift in Sources */,

@@ -38,16 +38,7 @@ public struct SettingsView: View {
 
                         // 4 大功能模块菜单组
                         Section {
-                            // 模块 1: 大师会员
-                            NavigationLink(destination: MasterVIPPageView(selectedProductId: $viewModel.selectedProductId)) {
-                                menuRow(
-                                    icon: "crown.fill",
-                                    iconColor: Color(red: 0.95, green: 0.85, blue: 0.45),
-                                    title: lang.t("settings_menu_vip"),
-                                    badge: isProUnlocked ? lang.t("vip_user") : lang.t("standard_user"),
-                                    badgeColor: isProUnlocked ? .green : .yellow
-                                )
-                            }
+                            // 收费暂停：会员中心入口先撤下，功能全部开放；定价定案后再恢复。
 
                             // 模块 2: 宅主命卦与节气提醒
                             NavigationLink(destination: OwnerKuaReminderPageView()) {
