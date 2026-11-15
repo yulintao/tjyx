@@ -144,6 +144,9 @@ jobs:
 
   ios:
     name: iOS device archive / simulator app
+    # push 时 iOS 由「iOS Multi-Mode Build & Deploy」签名出可安装 IPA，
+    # 这里不再重复占用一台 macOS runner；手动 dispatch / PR 仍做无签名编译。
+    if: github.event_name != 'push'
     runs-on: ${{ vars.IOS_RUNNER_LABEL || 'xcode-27' }}
     timeout-minutes: 60
     defaults:
