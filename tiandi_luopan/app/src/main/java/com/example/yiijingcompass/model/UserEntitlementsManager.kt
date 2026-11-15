@@ -11,10 +11,10 @@ enum class EntitlementLevel {
 }
 
 enum class InAppProductId(val productId: String, val titleZh: String) {
-    VIP_YEARLY("com.yanxiang.compass.vip.yearly", "太学高阶会员 (年度订阅)"),
-    PRO_LIFETIME("com.yanxiang.compass.pro.lifetime", "乾坤·大师版 (终身买断)"),
-    FLOORPLAN_SINGLE("com.yanxiang.compass.floorplan.case", "户型空间全案立极 (单次)"),
-    TIANJI_SINGLE("com.yanxiang.compass.tianji.single", "福宅宣纸长卷高清导出 (单次)");
+    VIP_YEARLY("com.tjyx.compass.vip.yearly", "太学高阶会员 (年度订阅)"),
+    PRO_LIFETIME("com.tjyx.compass.pro.lifetime", "乾坤·大师版 (终身买断)"),
+    FLOORPLAN_SINGLE("com.tjyx.compass.floorplan.case", "户型空间全案立极 (单次)"),
+    TIANJI_SINGLE("com.tjyx.compass.tianji.single", "福宅宣纸长卷高清导出 (单次)");
 
     val localizedTitle: String
         get() = when (LocalizationManager.instance.effectiveLanguage) {

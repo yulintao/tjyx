@@ -1,4 +1,4 @@
-# 演象 · 天地全息时空罗盘 (YanXiang Compass 2.0)
+# 演象 · 天地全息时空罗盘 (TJYX Compass 2.0)
 ## 系统架构方案与详细产品设计文档 (PRD)
 
 > **版本**：v2.0-Alpha Architecture & PRD  

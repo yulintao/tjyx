@@ -150,12 +150,12 @@ class TianJiShuEngine private constructor() {
         val topTitle = tr8(
             "天机演象 · 福宅堪测全案长卷",
             "天機演象 · 福宅堪測全案長卷",
-            "TIANJI YANXIANG · CELESTIAL FENG SHUI SCROLL",
+            "TIANJI TJYX · CELESTIAL FENG SHUI SCROLL",
             "天機演象・福宅風水鑑定全書長巻",
             "천기연상 · 복택 풍수 감여 전안 장권",
             "THIÊN CƠ DIỄN TƯỢNG · TRƯỜNG QUYỂN KHẢO SÁT PHONG THỦY",
             "คัมภีร์เทียนจียั่นเซี่ยง · ตรวจฮวงจุ้ยบ้านมงคลฉบับสมบูรณ์",
-            "TIANJI YANXIANG · GULUNGAN FENG SHUI KELUARGA LENGKAP"
+            "TIANJI TJYX · GULUNGAN FENG SHUI KELUARGA LENGKAP"
         )
         canvas.drawText(topTitle, width / 2f, curY, titlePaint)
         curY += 50f
@@ -513,7 +513,7 @@ class TianJiShuEngine private constructor() {
         val sealText = tr8(
             "天机演象\n罗盘\n御印",
             "天機演象\n羅盤\n御印",
-            "TIANJI\nYANXIANG\nCELESTIAL\nSEAL",
+            "TIANJI\nTJYX\nCELESTIAL\nSEAL",
             "天機演象\n羅盤\n御印",
             "천기연상\n나경\n어인",
             "THIÊN CƠ\nLA BÀN\nNGỰ ẤN",
@@ -534,13 +534,13 @@ class TianJiShuEngine private constructor() {
         val curGzYear = "${stems[yOffset % 10]}${branches[yOffset % 12]}"
 
         val signText = when (renderLanguage) {
-            AppLanguage.EN -> "MASTER FENG SHUI\nTIANJI YANXIANG\nYEAR $curGzYear"
+            AppLanguage.EN -> "MASTER FENG SHUI\nTIANJI TJYX\nYEAR $curGzYear"
             AppLanguage.ZH_HANT -> "大 師 堪 輿 親 訂\n天 機 演 象 院\n歲 次 $curGzYear 謹 啟"
             AppLanguage.JA -> "監修 風水鑑定親定\n天 機 演 象 院\n歳 次 $curGzYear 謹 啓"
             AppLanguage.KO -> "풍수지리 감여 친정\n천 기 연 상 원\n세 차 $curGzYear 삼가 올림"
             AppLanguage.VI -> "PHONG THỦY ĐẠI SƯ ĐỊNH BẢN\nTHIÊN CƠ DIỄN TƯỢNG VIỆN\nTUẾ THỨ $curGzYear CẨN KHẢI"
             AppLanguage.TH -> "ปรมาจารย์ฮวงจุ้ยลิขิต\nสถาบันเทียนจียั่นเซี่ยง\nปี $curGzYear"
-            AppLanguage.ID -> "MASTER FENG SHUI RESMI\nTIANJI YANXIANG ACADEMY\nTAHUN $curGzYear"
+            AppLanguage.ID -> "MASTER FENG SHUI RESMI\nTIANJI TJYX ACADEMY\nTAHUN $curGzYear"
             else -> "大 师 堪 舆 亲 订\n天 机 演 象 院\n岁 次 $curGzYear 谨 启"
         }
         val signPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -1011,13 +1011,13 @@ class TianJiShuEngine private constructor() {
         }
         val failureMsg = LocalizationManager.instance.t("save_failed")
 
-        val filename = "TianJiYanXiang_Scroll_${System.currentTimeMillis()}.jpg"
+        val filename = "TianJiTJYX_Scroll_${System.currentTimeMillis()}.jpg"
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val contentValues = ContentValues().apply {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
                     put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/YanXiang")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/TJYX")
                 }
                 val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                     ?: return Pair(false, failureMsg)
@@ -1027,7 +1027,7 @@ class TianJiShuEngine private constructor() {
                 } ?: false
                 Pair(ok, if (ok) successMsg else failureMsg)
             } else {
-                val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/YanXiang"
+                val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/TJYX"
                 val dir = java.io.File(imagesDir)
                 if (!dir.exists()) dir.mkdirs()
                 val image = java.io.File(dir, filename)

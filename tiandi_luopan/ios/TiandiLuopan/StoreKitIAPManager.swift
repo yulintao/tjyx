@@ -37,8 +37,8 @@ enum IAPLedgerStorageError: Error {
 /// backup migration. Never replace a temporarily inaccessible key or return a
 /// newly generated key before Keychain confirms it was stored successfully.
 final class IAPSealKeyStore {
-    static let account = "com.yanxiang.compass.iap.seal.key"
-    static let legacyAccount = "com.yanxiang.luopan.iap.seal.key"
+    static let account = "com.tjyx.compass.iap.seal.key"
+    static let legacyAccount = "com.tjyx.luopan.iap.seal.key"
     private let lock = NSLock()
     private var cachedKey: Data?
     private let read: (String) throws -> Data?
@@ -203,10 +203,10 @@ enum FloorplanCreditPurchase {
 // MARK: - IAP 商品与权益定义
 
 public enum IAPProductID: String, CaseIterable, Equatable {
-    case vipYearly = "com.yanxiang.compass.vip.yearly"           // 演象·年度堪舆会员 199元/年（自动续期）
-    case proLifetime = "com.yanxiang.compass.pro.lifetime"       // 演象·大师终身版 399元 一次性买断（主推）
-    case floorplanSingle = "com.yanxiang.compass.floorplan.case"   // 户型空间立极·单套全案 19.9元
-    case tianjiSingle = "com.yanxiang.compass.tianji.single"       // 福宅天机宣纸长卷·单次高清导出 9.9元
+    case vipYearly = "com.tjyx.compass.vip.yearly"           // 演象·年度堪舆会员 199元/年（自动续期）
+    case proLifetime = "com.tjyx.compass.pro.lifetime"       // 演象·大师终身版 399元 一次性买断（主推）
+    case floorplanSingle = "com.tjyx.compass.floorplan.case"   // 户型空间立极·单套全案 19.9元
+    case tianjiSingle = "com.tjyx.compass.tianji.single"       // 福宅天机宣纸长卷·单次高清导出 9.9元
 
     var title: String {
         switch self {
@@ -584,15 +584,15 @@ public class StoreKitIAPManager: ObservableObject {
 
     private func productKind(for productID: String) -> IAPProductKind? {
         switch productID {
-        case IAPProductID.vipYearly.rawValue, "com.yanxiang.luopan.vip.yearly":
+        case IAPProductID.vipYearly.rawValue, "com.tjyx.luopan.vip.yearly":
             return .vipYearly
-        case IAPProductID.proLifetime.rawValue, "com.yanxiang.luopan.pro.lifetime":
+        case IAPProductID.proLifetime.rawValue, "com.tjyx.luopan.pro.lifetime":
             return .proLifetime
         case IAPProductID.floorplanSingle.rawValue,
-             "com.yanxiang.compass.floorplan.single",
-             "com.yanxiang.luopan.floorplan.single":
+             "com.tjyx.compass.floorplan.single",
+             "com.tjyx.luopan.floorplan.single":
             return .floorplanSingle
-        case IAPProductID.tianjiSingle.rawValue, "com.yanxiang.luopan.tianji.single":
+        case IAPProductID.tianjiSingle.rawValue, "com.tjyx.luopan.tianji.single":
             return .tianjiSingle
         default:
             return nil

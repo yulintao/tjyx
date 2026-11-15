@@ -70,7 +70,7 @@ public struct CameraPreviewView: UIViewRepresentable {
         private var currentPosition: AVCaptureDevice.Position = .back
         private var isCapturingPhoto = false
         private var sessionObservers: [NSObjectProtocol] = []
-        private let sessionQueue = DispatchQueue(label: "com.yanxiang.compass.camera-session")
+        private let sessionQueue = DispatchQueue(label: "com.tjyx.compass.camera-session")
         private var wantsRunning = true
         // iPad 声明了四个方向，预览层与照片输出必须跟随界面旋转；
         // iOS 17 用 AVCaptureDevice.RotationCoordinator，iOS 16 用 videoOrientation。

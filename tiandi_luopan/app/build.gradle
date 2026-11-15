@@ -18,13 +18,13 @@ android {
     // Release signing is opt-in.  The old file contained a hard-coded password
     // and referenced a keystore that is not part of the repository, which made
     // every clean build fail and exposed credentials in source control.
-    def releaseKeystore = rootProject.file('yanxiang.jks')
-    def releaseStorePassword = project.providers.gradleProperty('YANXIANG_STORE_PASSWORD')
-        .orElse(project.providers.environmentVariable('YANXIANG_STORE_PASSWORD'))
-    def releaseKeyAlias = project.providers.gradleProperty('YANXIANG_KEY_ALIAS')
-        .orElse(project.providers.environmentVariable('YANXIANG_KEY_ALIAS'))
-    def releaseKeyPassword = project.providers.gradleProperty('YANXIANG_KEY_PASSWORD')
-        .orElse(project.providers.environmentVariable('YANXIANG_KEY_PASSWORD'))
+    def releaseKeystore = rootProject.file('tjyx.jks')
+    def releaseStorePassword = project.providers.gradleProperty('TJYX_STORE_PASSWORD')
+        .orElse(project.providers.environmentVariable('TJYX_STORE_PASSWORD'))
+    def releaseKeyAlias = project.providers.gradleProperty('TJYX_KEY_ALIAS')
+        .orElse(project.providers.environmentVariable('TJYX_KEY_ALIAS'))
+    def releaseKeyPassword = project.providers.gradleProperty('TJYX_KEY_PASSWORD')
+        .orElse(project.providers.environmentVariable('TJYX_KEY_PASSWORD'))
     def hasReleaseSigning = releaseKeystore.isFile() &&
         releaseStorePassword.isPresent() && releaseKeyAlias.isPresent() && releaseKeyPassword.isPresent()
 
@@ -52,9 +52,9 @@ android {
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
             if (variant.buildType.name == 'release') {
-                outputFileName = "yanxiang-v${variant.versionName}.apk"
+                outputFileName = "tjyx-v${variant.versionName}.apk"
             } else {
-                outputFileName = "yanxiang-v${variant.versionName}-${variant.buildType.name}.apk"
+                outputFileName = "tjyx-v${variant.versionName}-${variant.buildType.name}.apk"
             }
         }
     }

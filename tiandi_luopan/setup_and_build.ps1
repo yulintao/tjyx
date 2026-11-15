@@ -84,7 +84,7 @@ if ($Target -eq "release") {
     $apkDir = Join-Path $baseDir "app\build\outputs\apk\debug"
 }
 
-$foundApk = Get-ChildItem -Path $apkDir -Filter "yanxiang*.apk" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$foundApk = Get-ChildItem -Path $apkDir -Filter "tjyx*.apk" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if ($foundApk) {
     $apkPath = $foundApk.FullName
     $apkItem = Get-Item $apkPath

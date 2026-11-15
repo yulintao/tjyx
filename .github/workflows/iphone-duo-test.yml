@@ -197,7 +197,7 @@ jobs:
         if: steps.detect_duo.outputs.duo_available == 'true'
         run: |
           set -euo pipefail
-          BUNDLE_ID="com.yanxiang.compass"
+          BUNDLE_ID="com.tjyx.compass"
           xcrun simctl install "$DUO_UDID" "$APP_PATH"
           for svc in location location-always photos motion microphone camera; do
             xcrun simctl privacy "$DUO_UDID" grant "$svc" "$BUNDLE_ID" 2>/dev/null \
@@ -242,7 +242,7 @@ jobs:
         run: |
           cat > "$RUNNER_TEMP/duo_capture.sh" <<'SH'
           # usage: capture_set <close|open> <outer|inner> <file-prefix> <allow-simctl-fallback:0|1>
-          BUNDLE_ID="com.yanxiang.compass"
+          BUNDLE_ID="com.tjyx.compass"
           LANGS=(zh-Hans zh-Hant en ja ko vi th id)
           LOCALES=(zh_CN zh_TW en_US ja_JP ko_KR vi_VN th_TH id_ID)
           OUT="duo-screenshots"

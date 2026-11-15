@@ -503,7 +503,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             throw ARSpatialSurveyError.storageUnavailable
         }
         let directory = applicationSupport
-            .appendingPathComponent("TianJiYanXiang", isDirectory: true)
+            .appendingPathComponent("TianJiTJYX", isDirectory: true)
             .appendingPathComponent("ARExports", isDirectory: true)
         try FileManager.default.createDirectory(
             at: directory,
@@ -522,7 +522,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             includingPropertiesForKeys: [.creationDateKey, .fileSizeKey],
             options: [.skipsHiddenFiles]
         ) else { return }
-        var maps = files.filter { $0.pathExtension == "arworldmap" && $0.lastPathComponent.hasPrefix("TianJiYanXiang-") }
+        var maps = files.filter { $0.pathExtension == "arworldmap" && $0.lastPathComponent.hasPrefix("TianJiTJYX-") }
             .compactMap { url -> (url: URL, date: Date, size: Int)? in
                 guard let values = try? url.resourceValues(forKeys: [.creationDateKey, .fileSizeKey]),
                       let date = values.creationDate,
@@ -1697,7 +1697,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             return
         }
         hasSavedWorldMap = files.contains {
-            $0.pathExtension == "arworldmap" && $0.lastPathComponent.hasPrefix("TianJiYanXiang-")
+            $0.pathExtension == "arworldmap" && $0.lastPathComponent.hasPrefix("TianJiTJYX-")
         }
     }
 
@@ -1714,7 +1714,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
                 options: [.skipsHiddenFiles]
             )
             let latestURL = files
-                .filter { $0.pathExtension == "arworldmap" && $0.lastPathComponent.hasPrefix("TianJiYanXiang-") }
+                .filter { $0.pathExtension == "arworldmap" && $0.lastPathComponent.hasPrefix("TianJiTJYX-") }
                 .compactMap { url -> (url: URL, date: Date)? in
                     guard let date = (try? url.resourceValues(forKeys: [.creationDateKey]))?.creationDate else { return nil }
                     return (url, date)
@@ -1923,7 +1923,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
                     let archive = try SpatialWorldMapArchive(mapData: mapData, coordinateHeading: coordinateHeading,
                                                              annotations: annotations)
                     let data = try JSONEncoder().encode(archive)
-                    let name = "TianJiYanXiang-\(UUID().uuidString).arworldmap"
+                    let name = "TianJiTJYX-\(UUID().uuidString).arworldmap"
                     let directory = try Self.worldMapDirectory()
                     let url = directory.appendingPathComponent(name)
                     try data.write(to: url, options: .atomic)

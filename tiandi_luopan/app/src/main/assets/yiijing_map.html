@@ -643,7 +643,7 @@
             font-weight: bold;
         }
     
-        /* ===== YanXiang 2.0 全局重构样式 ===== */
+        /* ===== TJYX 2.0 全局重构样式 ===== */
         :root {
             --gold-primary: #d4af37;
             --gold-light: #f3e5ab;
@@ -1103,7 +1103,7 @@
         .bz-desc { font-size: 11px; color: #888; }
     
     
-        /* ===== YanXiang 2.0 PRD 11-13章 深度理气扩展样式 ===== */
+        /* ===== TJYX 2.0 PRD 11-13章 深度理气扩展样式 ===== */
         .xk-star-year {
             color: #ff6b6b;
             font-size: 11px;
@@ -2316,7 +2316,7 @@
             <!-- 核心商品选购网格 (StoreKit 四大商品) -->
             <div class="iap-products-grid">
                 <!-- 商品 1: 年度堪舆 VIP (推荐) -->
-                <div class="iap-prod-card selected" id="card-prod-yearly" onclick="selectIAPProduct('com.yanxiang.compass.vip.yearly')">
+                <div class="iap-prod-card selected" id="card-prod-yearly" onclick="selectIAPProduct('com.tjyx.compass.vip.yearly')">
                     <span class="iap-badge-corner">80% 首选</span>
                     <div>
                         <div class="iap-prod-name">👑 年度堪舆 VIP</div>
@@ -2326,7 +2326,7 @@
                 </div>
 
                 <!-- 商品 2: 大师终身专业版 -->
-                <div class="iap-prod-card" id="card-prod-lifetime" onclick="selectIAPProduct('com.yanxiang.compass.pro.lifetime')">
+                <div class="iap-prod-card" id="card-prod-lifetime" onclick="selectIAPProduct('com.tjyx.compass.pro.lifetime')">
                     <span class="iap-badge-corner gold">终身买断</span>
                     <div>
                         <div class="iap-prod-name">💎 大师终身版</div>
@@ -2336,7 +2336,7 @@
                 </div>
 
                 <!-- 商品 3: 户型空间立极单次测算 -->
-                <div class="iap-prod-card" id="card-prod-floorplan" onclick="selectIAPProduct('com.yanxiang.compass.floorplan.case')">
+                <div class="iap-prod-card" id="card-prod-floorplan" onclick="selectIAPProduct('com.tjyx.compass.floorplan.case')">
                     <div>
                         <div class="iap-prod-name">🏡 户型立极全案</div>
                         <div class="iap-prod-price">¥19.9 <small>/ 套</small></div>
@@ -2345,7 +2345,7 @@
                 </div>
 
                 <!-- 商品 4: 福宅天机宣纸长卷单次导出 -->
-                <div class="iap-prod-card" id="card-prod-tianji" onclick="selectIAPProduct('com.yanxiang.compass.tianji.single')">
+                <div class="iap-prod-card" id="card-prod-tianji" onclick="selectIAPProduct('com.tjyx.compass.tianji.single')">
                     <div>
                         <div class="iap-prod-name">📜 天机宣纸长卷</div>
                         <div class="iap-prod-price">¥9.9 <small>/ 次</small></div>
@@ -2937,7 +2937,7 @@
         <div style="font-size:15px; font-weight:bold; color:var(--gold-primary); margin-bottom:12px;">📸 演象 · 实地勘测全案存证快照</div>
         <img class="ar-snapshot-img" id="ar-snapshot-img" src="" alt="勘测存证">
         <div style="display:flex; gap:10px; width:100%; max-width:360px;">
-            <a class="ar-btn ar-btn-primary" id="ar-download-btn" download="yanxiang_ar_evidence.png">💾 保存图片到本地</a>
+            <a class="ar-btn ar-btn-primary" id="ar-download-btn" download="tjyx_ar_evidence.png">💾 保存图片到本地</a>
             <button class="ar-btn" onclick="closeARSnapshotModal()">关闭</button>
         </div>
     </div>
@@ -3955,7 +3955,7 @@
             floorplanCredits: 0,
             tianjiCredits: 0
         };
-        let selectedIAPProductId = 'com.yanxiang.compass.vip.yearly';
+        let selectedIAPProductId = 'com.tjyx.compass.vip.yearly';
         let pendingActionAfterPurchase = null;
 
         // 本地缓存加载
@@ -4032,16 +4032,16 @@
         function selectIAPProduct(pid) {
             selectedIAPProductId = pid;
             const cards = {
-                'com.yanxiang.compass.vip.yearly': 'card-prod-yearly',
-                'com.yanxiang.compass.pro.lifetime': 'card-prod-lifetime',
-                'com.yanxiang.compass.floorplan.case': 'card-prod-floorplan',
-                'com.yanxiang.compass.tianji.single': 'card-prod-tianji'
+                'com.tjyx.compass.vip.yearly': 'card-prod-yearly',
+                'com.tjyx.compass.pro.lifetime': 'card-prod-lifetime',
+                'com.tjyx.compass.floorplan.case': 'card-prod-floorplan',
+                'com.tjyx.compass.tianji.single': 'card-prod-tianji'
             };
             const prices = {
-                'com.yanxiang.compass.vip.yearly': '¥198',
-                'com.yanxiang.compass.pro.lifetime': '¥298',
-                'com.yanxiang.compass.floorplan.case': '¥19.9',
-                'com.yanxiang.compass.tianji.single': '¥9.9'
+                'com.tjyx.compass.vip.yearly': '¥198',
+                'com.tjyx.compass.pro.lifetime': '¥298',
+                'com.tjyx.compass.floorplan.case': '¥19.9',
+                'com.tjyx.compass.tianji.single': '¥9.9'
             };
             for (let k in cards) {
                 const el = document.getElementById(cards[k]);
@@ -4114,16 +4114,16 @@
             }
             if (Array.isArray(products)) {
                 products.forEach(function(p) {
-                    if (p.productId === 'com.yanxiang.compass.vip.yearly' && p.price) {
+                    if (p.productId === 'com.tjyx.compass.vip.yearly' && p.price) {
                         var el = document.querySelector('#card-prod-yearly .iap-prod-price');
                         if (el) el.innerHTML = p.price + ' <small>/ 年</small>';
-                    } else if (p.productId === 'com.yanxiang.compass.pro.lifetime' && p.price) {
+                    } else if (p.productId === 'com.tjyx.compass.pro.lifetime' && p.price) {
                         var el = document.querySelector('#card-prod-lifetime .iap-prod-price');
                         if (el) el.innerHTML = p.price + ' <small>/ 终身买断</small>';
-                    } else if (p.productId === 'com.yanxiang.compass.floorplan.case' && p.price) {
+                    } else if (p.productId === 'com.tjyx.compass.floorplan.case' && p.price) {
                         var el = document.querySelector('#card-prod-floorplan .iap-prod-price');
                         if (el) el.innerHTML = p.price + ' <small>/ 套</small>';
-                    } else if (p.productId === 'com.yanxiang.compass.tianji.single' && p.price) {
+                    } else if (p.productId === 'com.tjyx.compass.tianji.single' && p.price) {
                         var el = document.querySelector('#card-prod-tianji .iap-prod-price');
                         if (el) el.innerHTML = p.price + ' <small>/ 次</small>';
                     }
@@ -4152,14 +4152,14 @@
                 btn.style.opacity = '1';
                 btn.innerHTML = '<span> 立即通过 Apple 安全支付</span> <span id="iap-btn-price">¥198</span>';
             }
-            if (pid === 'com.yanxiang.compass.pro.lifetime') {
+            if (pid === 'com.tjyx.compass.pro.lifetime') {
                 userIAPStatus.isLifetime = true;
                 userIAPStatus.isVIP = true;
-            } else if (pid === 'com.yanxiang.compass.vip.yearly') {
+            } else if (pid === 'com.tjyx.compass.vip.yearly') {
                 userIAPStatus.isVIP = true;
-            } else if (pid === 'com.yanxiang.compass.floorplan.case') {
+            } else if (pid === 'com.tjyx.compass.floorplan.case') {
                 userIAPStatus.floorplanCredits = (userIAPStatus.floorplanCredits || 0) + 1;
-            } else if (pid === 'com.yanxiang.compass.tianji.single') {
+            } else if (pid === 'com.tjyx.compass.tianji.single') {
                 userIAPStatus.tianjiCredits = (userIAPStatus.tianjiCredits || 0) + 1;
             }
             try {
@@ -4241,10 +4241,10 @@
             const currencyHint = document.getElementById('iap-currency-hint');
 
             const prices = {
-                'com.yanxiang.compass.vip.yearly': { cny: '¥198', usd: '约 $27.50 USD' },
-                'com.yanxiang.compass.pro.lifetime': { cny: '¥298', usd: '约 $41.50 USD' },
-                'com.yanxiang.compass.floorplan.case': { cny: '¥19.9', usd: '约 $2.80 USD' },
-                'com.yanxiang.compass.tianji.single': { cny: '¥9.9', usd: '约 $1.40 USD' }
+                'com.tjyx.compass.vip.yearly': { cny: '¥198', usd: '约 $27.50 USD' },
+                'com.tjyx.compass.pro.lifetime': { cny: '¥298', usd: '约 $41.50 USD' },
+                'com.tjyx.compass.floorplan.case': { cny: '¥19.9', usd: '约 $2.80 USD' },
+                'com.tjyx.compass.tianji.single': { cny: '¥9.9', usd: '约 $1.40 USD' }
             };
             const currentPrice = prices[selectedIAPProductId] || { cny: '¥198', usd: '约 $27.50 USD' };
 
@@ -4339,10 +4339,10 @@
             const pid = selectedIAPProductId;
             const channel = selectedPayChannel;
             const prices = {
-                'com.yanxiang.compass.vip.yearly': '198.00',
-                'com.yanxiang.compass.pro.lifetime': '298.00',
-                'com.yanxiang.compass.floorplan.case': '19.90',
-                'com.yanxiang.compass.tianji.single': '9.90'
+                'com.tjyx.compass.vip.yearly': '198.00',
+                'com.tjyx.compass.pro.lifetime': '298.00',
+                'com.tjyx.compass.floorplan.case': '19.90',
+                'com.tjyx.compass.tianji.single': '9.90'
             };
             const amount = prices[pid] || '198.00';
             const orderId = 'ORD_' + Date.now();
@@ -4507,14 +4507,14 @@
         // Only a verified native/server callback may grant an entitlement.
         function applyVerifiedPayment(channel, txId, channelName) {
             const pid = selectedIAPProductId;
-            if (pid === 'com.yanxiang.compass.pro.lifetime') {
+            if (pid === 'com.tjyx.compass.pro.lifetime') {
                 userIAPStatus.isLifetime = true;
                 userIAPStatus.isVIP = true;
-            } else if (pid === 'com.yanxiang.compass.vip.yearly') {
+            } else if (pid === 'com.tjyx.compass.vip.yearly') {
                 userIAPStatus.isVIP = true;
-            } else if (pid === 'com.yanxiang.compass.floorplan.case') {
+            } else if (pid === 'com.tjyx.compass.floorplan.case') {
                 userIAPStatus.floorplanCredits = (userIAPStatus.floorplanCredits || 0) + 1;
-            } else if (pid === 'com.yanxiang.compass.tianji.single') {
+            } else if (pid === 'com.tjyx.compass.tianji.single') {
                 userIAPStatus.tianjiCredits = (userIAPStatus.tianjiCredits || 0) + 1;
             }
 
@@ -5676,7 +5676,7 @@
             },
             'en': {
                 langName: 'English',
-                title: 'TianJi YanXiang',
+                title: 'TianJi TJYX',
                 crosshairHint: '🎯 Crosshair Align · Front▲ Facing · Back▼ Sitting',
                 tabPost: 'Later Bagua',
                 tabPre: 'Earlier Bagua',
@@ -5742,12 +5742,12 @@
                 xkCard2: 'Purple-White Dynamic Stars Layout',
                 xkCard3: 'Yang Gong 8 Yellow Springs & Mountain Sha',
                 xkCard4: 'Qi Men Dun Jia Holographic Chart',
-                xkCard5: '📜 YanXiang Celestial Feng Shui Audit Scroll',
+                xkCard5: '📜 TJYX Celestial Feng Shui Audit Scroll',
                 fpTitle: '🏡 Floor Plan Compliance Audit Dashboard',
                 fpBtnSample: 'Sample 3-Bed Unit',
                 fpBtnUpload: 'Upload Floor Plan',
                 fpBtnRecenter: 'Recalibrate Center',
-                vipTitle: 'YanXiang VIP Sanctuary & Cashier',
+                vipTitle: 'TJYX VIP Sanctuary & Cashier',
                 vipSub: 'Time-Space Esoteric Arts · Audits & Exports',
                 vipPayTitle: '💳 Select Payment Method',
                 vipPayHint: 'Global Cards & Mainstream Channels Supported',
@@ -7737,7 +7737,7 @@
         drawCompass();
         initCompassTouchDrag();
     
-        // ========== YanXiang 2.0 全局模式与 Tab 状态 ==========
+        // ========== TJYX 2.0 全局模式与 Tab 状态 ==========
         let isProMode = true; // true=专业模式(展开全部64卦分金), false=白话模式(精简只看八宫24山)
         let activeTab = 'compass'; // 'compass', 'ar', 'floorplan', 'fengshui'
         let arStream = null;
@@ -8343,7 +8343,7 @@
 
             sCtx.fillStyle = '#9ea0b4';
             sCtx.font = '19px sans-serif';
-            sCtx.fillText('YanXiang Space-Time Fengshui AR Forensic Certificate', 60, cardY + 86);
+            sCtx.fillText('TJYX Space-Time Fengshui AR Forensic Certificate', 60, cardY + 86);
 
             // 详细参数矩阵
             const m = getMountainFromHeading(currentHeading);
@@ -8418,7 +8418,7 @@
                 floorplanAccessGranted = false;
                 switchAppTab('floorplan');
             };
-            openIAPModal('com.yanxiang.compass.floorplan.case');
+            openIAPModal('com.tjyx.compass.floorplan.case');
             return false;
         }
 
@@ -9332,7 +9332,7 @@ ${lore}`);
         function saveTianJiShuToDevice() {
             if (!lastGeneratedTianJiDataUrl) return;
             if (!userIAPStatus.isVIP && (!userIAPStatus.tianjiCredits || userIAPStatus.tianjiCredits <= 0)) {
-                openIAPModal('com.yanxiang.compass.tianji.single');
+                openIAPModal('com.tjyx.compass.tianji.single');
                 return;
             }
 
@@ -9406,7 +9406,7 @@ ${lore}`);
             // 付费门槛检测：若非 VIP 且无单次导出额度，弹出 Apple 付费墙
             if (!userIAPStatus.isVIP && (!userIAPStatus.tianjiCredits || userIAPStatus.tianjiCredits <= 0)) {
                 pendingActionAfterPurchase = function() { generateTianJiShu(); };
-                openIAPModal('com.yanxiang.compass.tianji.single');
+                openIAPModal('com.tjyx.compass.tianji.single');
                 return;
             }
             const heading = currentHeading;

@@ -48,8 +48,8 @@ jobs:
         shell: bash
 
     env:
-      APP_BUNDLE_ID: com.yanxiang.compass
-      WIDGET_BUNDLE_ID: com.yanxiang.compass.widget
+      APP_BUNDLE_ID: com.tjyx.compass
+      WIDGET_BUNDLE_ID: com.tjyx.compass.widget
       PROJECT_PATH: ios/TiandiLuopan.xcodeproj
       SCHEME_NAME: TiandiLuopan
       CONFIGURATION: Release

@@ -7,8 +7,8 @@ extension Notification.Name {
     /// archive. This is intentionally separate from the floorplan
     /// import notification: importing a floorplan also restores its room
     /// layout, while editing a VR report must not overwrite that layout.
-    public static let didUpdateHouseSpatialSurvey = Notification.Name("com.yanxiang.compass.didUpdateHouseSpatialSurvey")
-    public static let didUpdateMeasuredSpatialSurvey = Notification.Name("com.yanxiang.compass.didUpdateMeasuredSpatialSurvey")
+    public static let didUpdateHouseSpatialSurvey = Notification.Name("com.tjyx.compass.didUpdateHouseSpatialSurvey")
+    public static let didUpdateMeasuredSpatialSurvey = Notification.Name("com.tjyx.compass.didUpdateMeasuredSpatialSurvey")
 }
 
 /// Separate persistence slots prevent a hand-authored VR correction from

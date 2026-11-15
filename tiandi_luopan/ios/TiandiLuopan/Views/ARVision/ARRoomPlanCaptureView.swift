@@ -142,7 +142,7 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             throw ARRoomPlanExportError.storageUnavailable
         }
         let directory = applicationSupport
-            .appendingPathComponent("TianJiYanXiang", isDirectory: true)
+            .appendingPathComponent("TianJiTJYX", isDirectory: true)
             .appendingPathComponent("ARExports", isDirectory: true)
         try FileManager.default.createDirectory(
             at: directory,
@@ -163,7 +163,7 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
         ) else { return }
         let reports = files.filter {
             ($0.pathExtension == "json" || $0.pathExtension == "usdz") &&
-            $0.lastPathComponent.hasPrefix("TianJiYanXiang-RoomPlan-")
+            $0.lastPathComponent.hasPrefix("TianJiTJYX-RoomPlan-")
         }
         .compactMap { url -> (url: URL, date: Date, size: Int)? in
             guard let values = try? url.resourceValues(forKeys: [.creationDateKey, .fileSizeKey]),
@@ -179,7 +179,7 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
         // vice versa), so group by export UUID and remove complete old batches.
         func batchID(for url: URL) -> String {
             let stem = url.deletingPathExtension().lastPathComponent
-            let prefix = "TianJiYanXiang-RoomPlan-"
+            let prefix = "TianJiTJYX-RoomPlan-"
             let value = String(stem.dropFirst(prefix.count))
             return value.components(separatedBy: "-segment-").first ?? value
         }
@@ -356,7 +356,7 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             }
 
             let data = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
-            let jsonURL = directory.appendingPathComponent("TianJiYanXiang-RoomPlan-\(exportID).json")
+            let jsonURL = directory.appendingPathComponent("TianJiTJYX-RoomPlan-\(exportID).json")
             try data.write(to: jsonURL, options: .atomic)
             exportedURLs.append(jsonURL)
 
@@ -366,7 +366,7 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             // canonical cross-segment topology.
             for (index, room) in rooms.enumerated() {
                 let suffix = rooms.count == 1 ? "" : "-segment-\(index + 1)"
-                let usdzURL = directory.appendingPathComponent("TianJiYanXiang-RoomPlan-\(exportID)\(suffix).usdz")
+                let usdzURL = directory.appendingPathComponent("TianJiTJYX-RoomPlan-\(exportID)\(suffix).usdz")
                 if (try? room.export(to: usdzURL)) != nil {
                     exportedURLs.append(usdzURL)
                 }

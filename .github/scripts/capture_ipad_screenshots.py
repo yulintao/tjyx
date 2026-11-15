@@ -40,7 +40,7 @@ SCREENS = [
     {"tab": 4, "id": "05_settings",  "title": "系统设置与会员中心"}
 ]
 
-BUNDLE_ID = "com.yanxiang.compass"
+BUNDLE_ID = "com.tjyx.compass"
 
 
 def run_cmd(cmd, check=True, capture=True):

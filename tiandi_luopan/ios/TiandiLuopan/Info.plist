@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>TiandiLuopan</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yanxiang.compass</string>
+	<string>com.tjyx.compass</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -57,7 +57,7 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.yanxiang.compass.almanac</string>
+			<string>com.tjyx.compass.almanac</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>tiandiluopan</string>

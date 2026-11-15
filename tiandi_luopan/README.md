@@ -1,4 +1,4 @@
-# 天机演象 (TianJi YanXiang)
+# 天机演象 (TianJi TJYX)
 
 > **天地人合一 · 时空一体化数字易学罗盘**  
 > 一款深度融合**传统风水勘测规范**、**现代高精度天体力学**与**移动传感器融合算法**的专业级 Android 综合时空罗盘应用。
@@ -274,7 +274,7 @@
 
 仓库提供 Gradle Wrapper。Windows 脚本可使用项目目录下的 `.tools` SDK/JDK；Linux/macOS 需要预先安装 JDK 17、Android SDK 34 和 Build-Tools 34.0.0。
 
-Release 签名不会从源码读取密码。需要签名时，将 `yanxiang.jks` 放在项目根目录，并通过环境变量或 Gradle 属性提供 `YANXIANG_STORE_PASSWORD`、`YANXIANG_KEY_ALIAS`、`YANXIANG_KEY_PASSWORD`；缺少这些变量时仍可生成未签名 release 包用于 CI 构建检查。
+Release 签名不会从源码读取密码。需要签名时，将 `tjyx.jks` 放在项目根目录，并通过环境变量或 Gradle 属性提供 `TJYX_STORE_PASSWORD`、`TJYX_KEY_ALIAS`、`TJYX_KEY_PASSWORD`；缺少这些变量时仍可生成未签名 release 包用于 CI 构建检查。
 
 ```powershell
 # 1. 一键编译 Release 签名版本 APK
@@ -284,8 +284,8 @@ Release 签名不会从源码读取密码。需要签名时，将 `yanxiang.jks`
 .\setup_and_build.ps1 -Target debug
 
 # 3. 产物路径 (携带版本号)
-# app/build/outputs/apk/release/yanxiang-v1.2.4.apk
-# 根目录下亦会同步生成 yanxiang-v1.2.4.apk
+# app/build/outputs/apk/release/tjyx-v1.2.4.apk
+# 根目录下亦会同步生成 tjyx-v1.2.4.apk
 ```
 
 Linux/macOS：
@@ -302,7 +302,7 @@ export ANDROID_SDK_ROOT=/path/to/android-sdk
 ### 快捷安装到手机 (ADB)
 ```powershell
 # 推送并自动安装至已连接的 Android 设备
-.\.tools\android-sdk\platform-tools\adb.exe install -r app/build/outputs/apk/release/yanxiang-v1.2.2.apk
+.\.tools\android-sdk\platform-tools\adb.exe install -r app/build/outputs/apk/release/tjyx-v1.2.2.apk
 ```
 
 ---
@@ -313,7 +313,7 @@ export ANDROID_SDK_ROOT=/path/to/android-sdk
 
 ### 5.1 产物与工程路径
 
-* **iOS 安装包 (IPA)**：`dist-ios/YanXiangCompass-v1.3.3.ipa`
+* **iOS 安装包 (IPA)**：`dist-ios/TJYXCompass-v1.3.3.ipa`
 * **Xcode 原生工程**：`ios/TiandiLuopan.xcodeproj`（Swift 5.x + **纯 SwiftUI** + CoreLocation + CoreMotion + ARKit + StoreKit）
 * **Web / PWA 兜底资源**：`ios/TiandiLuopan/www/`（可选。该目录仅由 `tools/serve_ios_web.py` 在局域网内提供独立 Safari/PWA 演示，不再复制进原生 App 安装包，详见 5.3 方式 4）
 
@@ -324,7 +324,7 @@ export ANDROID_SDK_ROOT=/path/to/android-sdk
 1. 提取并生成全套高清 iOS AppIcon / PWA 图标资源；
 2. 为独立 PWA 演示生成 Web 适配资源（`prepare_ios_web.py`），该资源不参与原生打包；
 3. 校验已维护的 Xcode 工程（`generate_pbxproj.py` 不会重新生成或覆盖工程）；
-4. 调用 `package_ipa.py` **组装并压缩**出资源结构验证包 `dist-ios/YanXiangCompass-v1.3.3.ipa`。
+4. 调用 `package_ipa.py` **组装并压缩**出资源结构验证包 `dist-ios/TJYXCompass-v1.3.3.ipa`。
 
 > **⚠️ 关于“在 Windows 上打包 IPA”的说明**
 > 一个可被设备安装的、**经过 Apple 签名**的 IPA 必须依赖 macOS + Xcode（`xcodebuild` / `codesign`）或 Apple 的云构建链编译出真实的 Mach-O 可执行文件。**Windows 环境无法完成这一步。**
@@ -340,7 +340,7 @@ export ANDROID_SDK_ROOT=/path/to/android-sdk
 #### 方式 1：通过签名工具直接安装 IPA（无需 Mac）
 * 使用 **爱思助手 (3uTools)**、**Sideloadly** 或 **AltStore**：
   1. 将 iPhone 通过数据线连接电脑；
-  2. 打开 Sideloadly / 爱思助手，将 `dist-ios/YanXiangCompass-v1.3.3.ipa` 拖入；
+  2. 打开 Sideloadly / 爱思助手，将 `dist-ios/TJYXCompass-v1.3.3.ipa` 拖入；
   3. 输入您的免费 Apple ID 进行一键签名安装；
   4. 首次打开在 iPhone「设置 -> 通用 -> VPN与设备管理」信任开发者证书即可。
 * 若设备已越狱或拥有 **TrollStore**，可直接将 IPA 发送至手机无视证书永久安装。
@@ -371,10 +371,10 @@ iOS 原生工程使用 **StoreKit 2** 完成 App Store 内购；原生 App 是�
 * **商品配置清单 (Apple App Store Connect)**：
   | 商品 ID (Product Identifier) | 类型 | 源码注释参考价（以 StoreKit 本地化价格为准） | 权益说明 |
   | :--- | :--- | :--- | :--- |
-  | `com.yanxiang.compass.vip.yearly` | 自动续期订阅 (Auto-Renewable) | ¥198/年 | 演象·年度堪舆会员（解锁全场景全息交互、奇门全息排盘、紫白客星布防、宣纸长图无限导出） |
-  | `com.yanxiang.compass.pro.lifetime` | 非消耗品 (Non-Consumable) | ¥298 | 演象·大师终身专业版（一次付费，终身永久享受所有专业特权与未来算法升级） |
-  | `com.yanxiang.compass.floorplan.case` | 消耗品 (Consumable) | ¥19.9/套 | 户型空间立极·单套房型全案体检（几何重心立极、全屋动线与明财文昌位吉凶诊断） |
-  | `com.yanxiang.compass.tianji.single` | 消耗品 (Consumable) | ¥9.9/次 | 福宅天机堪舆全案宣纸长卷·单次无水印高清长图导出 |
+  | `com.tjyx.compass.vip.yearly` | 自动续期订阅 (Auto-Renewable) | ¥199/年 | 演象·年度堪舆会员（解锁全场景全息交互、奇门全息排盘、紫白客星布防、宣纸长图无限导出） |
+  | `com.tjyx.compass.pro.lifetime` | 非消耗品 (Non-Consumable) | ¥399 | 演象·大师终身专业版（一次付费，终身永久享受所有专业特权与未来算法升级） |
+  | `com.tjyx.compass.floorplan.case` | 消耗品 (Consumable) | ¥19.9/套 | 户型空间立极·单套房型全案体检（几何重心立极、全屋动线与明财文昌位吉凶诊断） |
+  | `com.tjyx.compass.tianji.single` | 消耗品 (Consumable) | ¥9.9/次 | 福宅天机堪舆全案宣纸长卷·单次无水印高清长图导出 |
 
 * **审核合规保障**：
   - 支持 **恢复已购项目 (Restore Purchases)**：通过 `AppStore.sync()` 和 `Transaction.currentEntitlements` 找回订阅/终身权益；消耗型商品的未用额度只保存在本机账本，Apple 不会通过恢复流程重新发放；
@@ -413,7 +413,7 @@ iOS 原生工程使用 **StoreKit 2** 完成 App Store 内购；原生 App 是�
 
 ## 6. 演象 2.0 全息罗盘升级架构与产品设计文档 (PRD)
 
-为了突破传统数字罗盘“数据密布却结论模糊”的技术瓶颈，项目已正式确立 **YanXiang 2.0** 架构升级方案与全套产品设计规范，全面融合**三元九运玄空飞星、八宅明镜命卦、AR 镜头实景天心透视、户型图立极定中宫、以及渐进式白话/专业双模呈现体系**。
+为了突破传统数字罗盘“数据密布却结论模糊”的技术瓶颈，项目已正式确立 **TJYX 2.0** 架构升级方案与全套产品设计规范，全面融合**三元九运玄空飞星、八宅明镜命卦、AR 镜头实景天心透视、户型图立极定中宫、以及渐进式白话/专业双模呈现体系**。
 
 * 完整架构拓扑、数学模型与详细 PRD 规范请参阅：  
   👉 **[演象 · 天地全息时空罗盘 2.0 产品设计方案与架构规划文档](docs/PRODUCT_DESIGN.md)**

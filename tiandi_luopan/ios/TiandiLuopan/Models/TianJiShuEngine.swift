@@ -234,12 +234,12 @@ public class TianJiShuEngine {
             let subTitle = tr8(
                 "—— 天 机 演 象 · 天 地 时 空 全 息 罗 盘 钦 定 ——",
                 "—— 天 機 演 象 · 天 地 時 空 全 息 羅 盤 欽 定 ——",
-                "— TIANJI YANXIANG · CELESTIAL COMPASS —",
+                "— TIANJI TJYX · CELESTIAL COMPASS —",
                 "—— 天機演象・天地時空ホログラフィック羅盤欽定 ——",
                 "—— 천기연상 · 천지시공 홀로그램 나경 흠정 ——",
                 "—— THIÊN CƠ DIỄN TƯỢNG · THIÊN ĐỊA LA BÀN ĐỊNH BẢN ——",
                 "— ปรากฏการณ์ฟ้าลิขิต · เข็มทิศกาลอวกาศฟ้าดิน —",
-                "— TIANJI YANXIANG · KOMPAS HOLOGRAFIS ALAM SEMESTA —"
+                "— TIANJI TJYX · KOMPAS HOLOGRAFIS ALAM SEMESTA —"
             )
             let subAttr: [NSAttributedString.Key: Any] = [
                 .font: subTitleFont,
@@ -766,7 +766,7 @@ public class TianJiShuEngine {
                 sealText = tr8(
                     "天机演象\n罗盘\n御印",
                     "天機演象\n羅盤\n御印",
-                    "TIANJI\nYANXIANG\nCELESTIAL\nSEAL",
+                    "TIANJI\nTJYX\nCELESTIAL\nSEAL",
                     "天機演象\n羅盤\n御印",
                     "천기연상\n나경\n어인",
                     "THIÊN CƠ\nLA BÀN\nNGỰ ẤN",
@@ -812,7 +812,7 @@ public class TianJiShuEngine {
             } else {
                 switch renderLanguage {
                 case .en:
-                    signText = "MASTER FENG SHUI\nTIANJI YANXIANG\nYEAR \(curGzYear)"
+                    signText = "MASTER FENG SHUI\nTIANJI TJYX\nYEAR \(curGzYear)"
                 case .zhHant:
                     signText = "大 師 堪 輿 親 訂\n天 機 演 象 院\n歲 次 \(curGzYear) 謹 啟"
                 case .ja:
@@ -824,7 +824,7 @@ public class TianJiShuEngine {
                 case .th:
                     signText = "ปรมาจารย์ฮวงจุ้ยลิขิต\nสถาบันเทียนจียั่นเซี่ยง\nปี \(curGzYear)"
                 case .id:
-                    signText = "MASTER FENG SHUI RESMI\nTIANJI YANXIANG ACADEMY\nTAHUN \(curGzYear)"
+                    signText = "MASTER FENG SHUI RESMI\nTIANJI TJYX ACADEMY\nTAHUN \(curGzYear)"
                 case .auto, .zhHans:
                     signText = "大 师 堪 舆 亲 订\n天 机 演 象 院\n岁 次 \(curGzYear) 谨 启"
                 }

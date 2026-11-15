@@ -27,7 +27,7 @@ def generate_self_signed_cert(cert_path, key_path, ip_str):
 
         key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         subject = issuer = x509.Name([
-            x509.NameAttribute(NameOID.COMMON_NAME, f"YanXiang Compass")
+            x509.NameAttribute(NameOID.COMMON_NAME, f"TJYX Compass")
         ])
         
         sans = [

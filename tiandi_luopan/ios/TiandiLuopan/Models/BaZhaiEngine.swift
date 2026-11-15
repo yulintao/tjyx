@@ -1480,25 +1480,25 @@ public final class RetentionServiceManager: ObservableObject {
         DispatchQueue.main.async {
             UIApplication.shared.shortcutItems = [
                 UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.dailygods",
+                    type: "com.tjyx.compass.shortcut.dailygods",
                     localizedTitle: s1Title,
                     localizedSubtitle: s1Sub,
                     icon: UIApplicationShortcutIcon(systemImageName: "safari.fill")
                 ),
                 UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.dailysign",
+                    type: "com.tjyx.compass.shortcut.dailysign",
                     localizedTitle: s2Title,
                     localizedSubtitle: s2Sub,
                     icon: UIApplicationShortcutIcon(systemImageName: "sparkles.rectangle.stack.fill")
                 ),
                 UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.floorplan",
+                    type: "com.tjyx.compass.shortcut.floorplan",
                     localizedTitle: s3Title,
                     localizedSubtitle: s3Sub,
                     icon: UIApplicationShortcutIcon(systemImageName: "square.split.bottomrightquarter.fill")
                 ),
                 UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.qimen",
+                    type: "com.tjyx.compass.shortcut.qimen",
                     localizedTitle: s4Title,
                     localizedSubtitle: s4Sub,
                     icon: UIApplicationShortcutIcon(systemImageName: "timelapse")
@@ -1519,7 +1519,7 @@ public final class RetentionServiceManager: ObservableObject {
             attr.title = entry.title
             attr.contentDescription = entry.desc
             attr.keywords = entry.keywords
-            let item = CSSearchableItem(uniqueIdentifier: entry.id, domainIdentifier: "com.yanxiang.compass", attributeSet: attr)
+            let item = CSSearchableItem(uniqueIdentifier: entry.id, domainIdentifier: "com.tjyx.compass", attributeSet: attr)
             searchableItems.append(item)
         }
         CSSearchableIndex.default().indexSearchableItems(searchableItems, completionHandler: nil)

@@ -6,7 +6,7 @@ import ImageIO
 // MARK: - 户型空间立极与全屋风水体检视图 (Floorplan View - PRD 5.3)
 
 extension Notification.Name {
-    public static let didImportRoomPlanFloorplan = Notification.Name("com.yanxiang.compass.didImportRoomPlanFloorplan")
+    public static let didImportRoomPlanFloorplan = Notification.Name("com.tjyx.compass.didImportRoomPlanFloorplan")
 }
 
 struct SavedFloorplanLayout: Codable {
@@ -3483,7 +3483,7 @@ public struct FloorplanView: View {
         let reportSubHeadline: String
         switch lang.effectiveLanguage {
         case .en:
-            reportMainTitle = "YanXiang · Whole-Home Floorplan & Feng Shui Report"
+            reportMainTitle = "TJYX · Whole-Home Floorplan & Feng Shui Report"
             reportSubHeadline = "Period 9 · Nine-Palace Bagua Alignment\(kuaSuffix)"
         case .zhHant:
             reportMainTitle = "演象 · 戶型空間立極與全屋堪輿全案"
@@ -3501,7 +3501,7 @@ public struct FloorplanView: View {
             reportMainTitle = "เหยียนเซี่ยง · รายงานฮวงจุ้ยและจุดศูนย์กลางผังบ้าน"
             reportSubHeadline = "ยุค 9 ล่าง · วิเคราะห์เก้าวังแปดทิศ\(kuaSuffix)"
         case .id:
-            reportMainTitle = "YanXiang · Laporan Feng Shui & Titik Pusat Denah Rumah"
+            reportMainTitle = "TJYX · Laporan Feng Shui & Titik Pusat Denah Rumah"
             reportSubHeadline = "Periode 9 · Analisis Sembilan Istana Bagua\(kuaSuffix)"
         case .auto, .zhHans:
             reportMainTitle = "演象 · 户型空间立极与全屋堪舆全案"

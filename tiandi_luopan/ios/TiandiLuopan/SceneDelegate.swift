@@ -103,9 +103,9 @@ public final class AppNavigationRouter: ObservableObject {
 }
 
 extension Notification.Name {
-    public static let didRequestAppNavigation = Notification.Name("com.yanxiang.compass.didRequestAppNavigation")
+    public static let didRequestAppNavigation = Notification.Name("com.tjyx.compass.didRequestAppNavigation")
     /// 保留给已有监听方使用（热启动即时性），冷启动以 AppNavigationRouter 为准。
-    public static let didTapAlmanacWidget = Notification.Name("com.yanxiang.compass.didTapAlmanacWidget")
+    public static let didTapAlmanacWidget = Notification.Name("com.tjyx.compass.didTapAlmanacWidget")
 }
 
 @available(iOS 13.0, *)
@@ -199,15 +199,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     public static func routeShortcutType(_ type: String) {
         switch type {
-        case "com.yanxiang.compass.shortcut.dailygods":
+        case "com.tjyx.compass.shortcut.dailygods":
             AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: false)
-        case "com.yanxiang.compass.shortcut.dailycard", "com.yanxiang.compass.shortcut.dailysign":
+        case "com.tjyx.compass.shortcut.dailycard", "com.tjyx.compass.shortcut.dailysign":
             AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: true)
-        case "com.yanxiang.compass.shortcut.zeri":
+        case "com.tjyx.compass.shortcut.zeri":
             AppNavigationRouter.shared.requestRoute(tab: .analysis, feature: .dates)
-        case "com.yanxiang.compass.shortcut.floorplan":
+        case "com.tjyx.compass.shortcut.floorplan":
             AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
-        case "com.yanxiang.compass.shortcut.qimen":
+        case "com.tjyx.compass.shortcut.qimen":
             AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
         default:
             return
