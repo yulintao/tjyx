@@ -1539,18 +1539,29 @@ final class FunctionalRegressionTests: XCTestCase {
         XCTAssertNotEqual(AnalysisFeature.baZhai, .sanHe)
     }
 
+    /// 五 Tab 时代的深链下标必须稳定映射到新路由：罗盘入口落到理气页。
+    func testLegacyTabIndicesMapToCurrentTabs() {
+        XCTAssertEqual(AppTab.fromLegacyIndex(0), .analysis)
+        XCTAssertEqual(AppTab.fromLegacyIndex(1), .ar)
+        XCTAssertEqual(AppTab.fromLegacyIndex(2), .floorplan)
+        XCTAssertEqual(AppTab.fromLegacyIndex(3), .analysis)
+        XCTAssertEqual(AppTab.fromLegacyIndex(4), .settings)
+        XCTAssertEqual(AppTab.fromLegacyIndex(99), .ar)
+        XCTAssertEqual(AppTab.allCases.map(\.rawValue), [0, 1, 2, 3])
+    }
+
     @MainActor
     func testMenuRoutesSurviveUntilConsumedAndCanOpenTheSameFeatureAgain() throws {
         let router = AppNavigationRouter()
         for feature in AnalysisFeature.allCases {
-            router.requestRoute(tab: 3, feature: feature)
-            XCTAssertEqual(router.pendingTabRoute?.feature, feature)
+            router.requestRoute(tab: .analysis, feature: feature)
+            XCTAssertEqual(router.pendingTabRoute?.anchor?.feature, feature)
             let route = try XCTUnwrap(router.consumeTabRoute())
-            XCTAssertEqual(route.tab, 3)
+            XCTAssertEqual(route.tab, .analysis)
             XCTAssertEqual(route.feature, feature)
             XCTAssertNil(router.consumeTabRoute())
-            router.requestRoute(tab: 3, feature: feature)
-            XCTAssertEqual(router.consumeTabRoute()?.feature, feature)
+            router.requestRoute(tab: .analysis, feature: feature)
+            XCTAssertEqual(router.consumeTabRoute()?.anchor?.feature, feature)
         }
         XCTAssertNotEqual(AnalysisFeatureRequest(feature: .dates).id, AnalysisFeatureRequest(feature: .dates).id)
     }
@@ -2513,16 +2524,16 @@ final class FunctionalRegressionTests: XCTestCase {
     func testNavigationRequestsWakeMountedViewsAndSurviveWithoutSubscribers() {
         let center = NotificationCenter()
         let router = AppNavigationRouter(notificationCenter: center)
-        var deliveredTab: Int?
+        var deliveredTab: AppTab?
         let subscription = center.publisher(for: .didRequestAppNavigation).sink { _ in
             deliveredTab = router.consumeTabRoute()?.tab
         }
-        router.requestRoute(tab: 2)
-        XCTAssertEqual(deliveredTab, 2)
+        router.requestRoute(tab: .floorplan)
+        XCTAssertEqual(deliveredTab, .floorplan)
         XCTAssertNil(router.consumeTabRoute())
         subscription.cancel()
-        router.requestRoute(tab: 1)
-        XCTAssertEqual(router.consumeTabRoute()?.tab, 1)
+        router.requestRoute(tab: .ar)
+        XCTAssertEqual(router.consumeTabRoute()?.tab, .ar)
         router.requestAlmanac()
         XCTAssertTrue(router.consumeAlmanac())
         XCTAssertFalse(router.consumeAlmanac())

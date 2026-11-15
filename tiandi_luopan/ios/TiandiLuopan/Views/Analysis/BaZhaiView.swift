@@ -718,7 +718,7 @@ public struct OwnerLifeGuaView: View {
                                 ownerKuaCard(sittingPalace: context.sittingMountain.palace)
                                 Button {
                                     presentationMode.wrappedValue.dismiss()
-                                    AppNavigationRouter.shared.requestRoute(tab: 2)
+                                    AppNavigationRouter.shared.requestRoute(tab: .floorplan)
                                 } label: {
                                     Label(lang.t("fra_open_plan") + " · " + lang.t("fra_membership"), systemImage: "person.2.fill")
                                         .font(.system(size: 13, weight: .semibold))

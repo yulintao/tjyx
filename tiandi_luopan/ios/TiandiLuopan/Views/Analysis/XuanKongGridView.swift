@@ -383,7 +383,7 @@ public struct XuanKongGridView: View {
         return HStack(spacing: 8) {
             // 当前坐山朝向与度数（支持点击直接调出 24 山选向弹窗）
             Button(action: {
-                if usesHome { AppNavigationRouter.shared.requestRoute(tab: 2) }
+                if usesHome { AppNavigationRouter.shared.requestRoute(tab: .floorplan) }
                 else { showMountainPickerSheet = true }
             }) {
                 HStack(spacing: 4) {
@@ -832,9 +832,9 @@ public struct XuanKongGridView: View {
                     .foregroundColor(.white.opacity(0.6))
             }
             HStack {
-                Button(lang.t("xkd_edit_home")) { AppNavigationRouter.shared.requestRoute(tab: 2) }
+                Button(lang.t("xkd_edit_home")) { AppNavigationRouter.shared.requestRoute(tab: .floorplan) }
                 Spacer()
-                Button(lang.t("xkd_edit_exterior")) { AppNavigationRouter.shared.requestRoute(tab: 1) }
+                Button(lang.t("xkd_edit_exterior")) { AppNavigationRouter.shared.requestRoute(tab: .ar) }
             }
             .foregroundColor(Color.yanCyan)
             .frame(minHeight: 44)

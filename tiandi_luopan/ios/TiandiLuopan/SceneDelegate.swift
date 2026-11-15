@@ -69,7 +69,7 @@ public final class AppNavigationRouter: ObservableObject {
     public static let shared = AppNavigationRouter()
 
     @Published public private(set) var pendingAlmanacRoute = false
-    @Published public private(set) var pendingTabRoute: (tab: Int, subTab: Int?, openDailyCard: Bool, feature: AnalysisFeature?)? = nil
+    @Published public private(set) var pendingTabRoute: AppRoute? = nil
 
     private let notificationCenter: NotificationCenter
 
@@ -82,8 +82,9 @@ public final class AppNavigationRouter: ObservableObject {
         notificationCenter.post(name: .didRequestAppNavigation, object: self)
     }
 
-    public func requestRoute(tab: Int, subTab: Int? = nil, openDailyCard: Bool = false, feature: AnalysisFeature? = nil) {
-        pendingTabRoute = (tab: tab, subTab: subTab, openDailyCard: openDailyCard, feature: feature)
+    public func requestRoute(tab: AppTab, subTab: Int? = nil, openDailyCard: Bool = false, feature: AnalysisFeature? = nil) {
+        let anchor = feature.map { AnalysisAnchor.feature($0) } ?? subTab.map { AnalysisAnchor.legacySubTab($0) }
+        pendingTabRoute = AppRoute(tab: tab, anchor: anchor, openDailyCard: openDailyCard)
         notificationCenter.post(name: .didRequestAppNavigation, object: self)
     }
 
@@ -94,7 +95,7 @@ public final class AppNavigationRouter: ObservableObject {
         return true
     }
 
-    public func consumeTabRoute() -> (tab: Int, subTab: Int?, openDailyCard: Bool, feature: AnalysisFeature?)? {
+    public func consumeTabRoute() -> AppRoute? {
         guard let route = pendingTabRoute else { return nil }
         pendingTabRoute = nil
         return route
@@ -170,24 +171,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         case "almanac":
             AppNavigationRouter.shared.requestAlmanac()
         case "compass":
-            CompassLayerManager.shared.showDailyGodMarkers = true
             let shouldOpenDailyCard = (sheetParam == "dailySign" || sheetParam == "dailyCard")
-            AppNavigationRouter.shared.requestRoute(tab: 0, subTab: nil, openDailyCard: shouldOpenDailyCard)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: shouldOpenDailyCard)
         case "floorplan":
-            AppNavigationRouter.shared.requestRoute(tab: 2, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
         case "analysis":
             let rawFeature = queryItems.first(where: { $0.name == "feature" })?.value
             guard let rawFeature, let feature = AnalysisFeature(rawValue: rawFeature) else { return }
-            AppNavigationRouter.shared.requestRoute(tab: 3, feature: feature)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, feature: feature)
         case "qimen":
-            AppNavigationRouter.shared.requestRoute(tab: 3, subTab: 3, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
         case "tab":
             if subParam == "qimen" {
-                AppNavigationRouter.shared.requestRoute(tab: 3, subTab: 3, openDailyCard: false)
+                AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
             } else if indexParam == "3" {
-                AppNavigationRouter.shared.requestRoute(tab: 2, subTab: nil, openDailyCard: false)
+                AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
             } else if let idxStr = indexParam, let idx = Int(idxStr) {
-                AppNavigationRouter.shared.requestRoute(tab: max(0, min(4, idx)), subTab: nil, openDailyCard: false)
+                AppNavigationRouter.shared.requestRoute(tab: AppTab.fromLegacyIndex(idx), subTab: nil, openDailyCard: false)
             } else {
                 return
             }
@@ -200,17 +200,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     public static func routeShortcutType(_ type: String) {
         switch type {
         case "com.yanxiang.compass.shortcut.dailygods":
-            CompassLayerManager.shared.showDailyGodMarkers = true
-            AppNavigationRouter.shared.requestRoute(tab: 0, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: false)
         case "com.yanxiang.compass.shortcut.dailycard", "com.yanxiang.compass.shortcut.dailysign":
-            CompassLayerManager.shared.showDailyGodMarkers = true
-            AppNavigationRouter.shared.requestRoute(tab: 0, subTab: nil, openDailyCard: true)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: true)
         case "com.yanxiang.compass.shortcut.zeri":
-            AppNavigationRouter.shared.requestRoute(tab: 3, feature: .dates)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, feature: .dates)
         case "com.yanxiang.compass.shortcut.floorplan":
-            AppNavigationRouter.shared.requestRoute(tab: 2, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
         case "com.yanxiang.compass.shortcut.qimen":
-            AppNavigationRouter.shared.requestRoute(tab: 3, subTab: 3, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
         default:
             return
         }
@@ -222,19 +220,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               let id = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String else { return }
         switch id {
         case "spotlight.zeri":
-            AppNavigationRouter.shared.requestRoute(tab: 3, feature: .dates)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, feature: .dates)
         case "tiandiluopan://compass?guide=dailyGods":
-            CompassLayerManager.shared.showDailyGodMarkers = true
-            AppNavigationRouter.shared.requestRoute(tab: 0, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: false)
         case "tiandiluopan://compass?sheet=dailySign":
-            CompassLayerManager.shared.showDailyGodMarkers = true
-            AppNavigationRouter.shared.requestRoute(tab: 0, subTab: nil, openDailyCard: true)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: nil, openDailyCard: true)
         case "spotlight.bazhai":
-            AppNavigationRouter.shared.requestRoute(tab: 3, subTab: 1, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 1, openDailyCard: false)
         case "spotlight.qimen", "tiandiluopan://tab?index=2&sub=qimen":
-            AppNavigationRouter.shared.requestRoute(tab: 3, subTab: 3, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .analysis, subTab: 3, openDailyCard: false)
         case "spotlight.floorplan", "tiandiluopan://tab?index=3":
-            AppNavigationRouter.shared.requestRoute(tab: 2, subTab: nil, openDailyCard: false)
+            AppNavigationRouter.shared.requestRoute(tab: .floorplan, subTab: nil, openDailyCard: false)
         default:
             return
         }

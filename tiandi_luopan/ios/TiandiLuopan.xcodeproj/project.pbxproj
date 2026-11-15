@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2001 /* AppDelegate.swift */; };
+		1090 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2090 /* AppTab.swift */; };
+		1091 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2091 /* AppRoute.swift */; };
 		1002 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2002 /* SceneDelegate.swift */; };
 		1003 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2003 /* ViewController.swift */; };
 		1004 /* CompassMotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004 /* CompassMotionManager.swift */; };
@@ -23,9 +25,6 @@
 		1024 /* SanHeWaterEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2024 /* SanHeWaterEngine.swift */; };
 		1025 /* SolarTimeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2025 /* SolarTimeCalculator.swift */; };
 		1026 /* ExteriorShaEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2026 /* ExteriorShaEngine.swift */; };
-		1030 /* CompassDialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2030 /* CompassDialView.swift */; };
-		1031 /* CompassHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031 /* CompassHeaderView.swift */; };
-		1032 /* CompassMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032 /* CompassMainView.swift */; };
 		1033 /* ARVisionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2033 /* ARVisionView.swift */; };
 		1034 /* XuanKongGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2034 /* XuanKongGridView.swift */; };
 		1035 /* BaZhaiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2035 /* BaZhaiView.swift */; };
@@ -45,13 +44,8 @@
 		1056 /* QimenDunjiaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2056 /* QimenDunjiaView.swift */; };
 		1057 /* PurpleWhiteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2057 /* PurpleWhiteView.swift */; };
 		1058 /* TianJiShuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2058 /* TianJiShuView.swift */; };
-		1059 /* FenjinDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2059 /* FenjinDetailSheet.swift */; };
-		1060 /* KongWangDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2060 /* KongWangDetailSheet.swift */; };
-		1061 /* FengshuiPalaceDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061 /* FengshuiPalaceDetailSheet.swift */; };
-		1062 /* CompassLayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2062 /* CompassLayerManager.swift */; };
 		1063 /* SolarTermsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2063 /* SolarTermsData.swift */; };
 		1014 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2087 /* PrivacyInfo.xcprivacy */; };
-		1064 /* LayerSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2064 /* LayerSettingsSheet.swift */; };
 		1065 /* FloorplanImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2065 /* FloorplanImagePicker.swift */; };
 		1066 /* ZeRiEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2066 /* ZeRiEngine.swift */; };
 		1067 /* CalibrationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2067 /* CalibrationSheet.swift */; };
@@ -91,6 +85,8 @@
 /* Begin PBXFileReference section */
 		2000 /* TiandiLuopan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TiandiLuopan.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		2090 /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/App/AppTab.swift"; sourceTree = "<group>"; };
+		2091 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/App/AppRoute.swift"; sourceTree = "<group>"; };
 		2002 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		2003 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		2004 /* CompassMotionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompassMotionManager.swift; sourceTree = "<group>"; };
@@ -107,9 +103,6 @@
 		2024 /* SanHeWaterEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/SanHeWaterEngine.swift"; sourceTree = "<group>"; };
 		2025 /* SolarTimeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/SolarTimeCalculator.swift"; sourceTree = "<group>"; };
 		2026 /* ExteriorShaEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/ExteriorShaEngine.swift"; sourceTree = "<group>"; };
-		2030 /* CompassDialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/CompassDialView.swift"; sourceTree = "<group>"; };
-		2031 /* CompassHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/CompassHeaderView.swift"; sourceTree = "<group>"; };
-		2032 /* CompassMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/CompassMainView.swift"; sourceTree = "<group>"; };
 		2033 /* ARVisionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ARVision/ARVisionView.swift"; sourceTree = "<group>"; };
 		2034 /* XuanKongGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/XuanKongGridView.swift"; sourceTree = "<group>"; };
 		2035 /* BaZhaiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/BaZhaiView.swift"; sourceTree = "<group>"; };
@@ -129,15 +122,10 @@
 		2056 /* QimenDunjiaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/QimenDunjiaView.swift"; sourceTree = "<group>"; };
 		2057 /* PurpleWhiteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/PurpleWhiteView.swift"; sourceTree = "<group>"; };
 		2058 /* TianJiShuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/TianJiShuView.swift"; sourceTree = "<group>"; };
-		2059 /* FenjinDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/FenjinDetailSheet.swift"; sourceTree = "<group>"; };
-		2060 /* KongWangDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/KongWangDetailSheet.swift"; sourceTree = "<group>"; };
-		2061 /* FengshuiPalaceDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/FengshuiPalaceDetailSheet.swift"; sourceTree = "<group>"; };
-		2062 /* CompassLayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/CompassLayerManager.swift"; sourceTree = "<group>"; };
 		2063 /* SolarTermsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/SolarTermsData.swift"; sourceTree = "<group>"; };
-		2064 /* LayerSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/LayerSettingsSheet.swift"; sourceTree = "<group>"; };
 		2065 /* FloorplanImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanImagePicker.swift"; sourceTree = "<group>"; };
 		2066 /* ZeRiEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/ZeRiEngine.swift"; sourceTree = "<group>"; };
-		2067 /* CalibrationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/CalibrationSheet.swift"; sourceTree = "<group>"; };
+		2067 /* CalibrationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/CalibrationSheet.swift"; sourceTree = "<group>"; };
 		2068 /* VIPPaywallSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/VIPPaywallSheet.swift"; sourceTree = "<group>"; };
 		2069 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/LocalizationManager.swift"; sourceTree = "<group>"; };
 		2070 /* WorldMagneticModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/WorldMagneticModel.swift"; sourceTree = "<group>"; };
@@ -252,6 +240,8 @@
 			isa = PBXGroup;
 			children = (
 				2001 /* AppDelegate.swift */,
+				2090 /* AppTab.swift */,
+				2091 /* AppRoute.swift */,
 				2002 /* SceneDelegate.swift */,
 				2003 /* ViewController.swift */,
 				2004 /* CompassMotionManager.swift */,
@@ -268,9 +258,6 @@
 				2024 /* SanHeWaterEngine.swift */,
 				2025 /* SolarTimeCalculator.swift */,
 				2026 /* ExteriorShaEngine.swift */,
-				2030 /* CompassDialView.swift */,
-				2031 /* CompassHeaderView.swift */,
-				2032 /* CompassMainView.swift */,
 				2033 /* ARVisionView.swift */,
 				2034 /* XuanKongGridView.swift */,
 				2035 /* BaZhaiView.swift */,
@@ -285,12 +272,7 @@
 				2056 /* QimenDunjiaView.swift */,
 				2057 /* PurpleWhiteView.swift */,
 				2058 /* TianJiShuView.swift */,
-				2059 /* FenjinDetailSheet.swift */,
-				2060 /* KongWangDetailSheet.swift */,
-				2061 /* FengshuiPalaceDetailSheet.swift */,
-				2062 /* CompassLayerManager.swift */,
 				2063 /* SolarTermsData.swift */,
-				2064 /* LayerSettingsSheet.swift */,
 				2065 /* FloorplanImagePicker.swift */,
 				2066 /* ZeRiEngine.swift */,
 				2067 /* CalibrationSheet.swift */,
@@ -514,6 +496,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				1001 /* AppDelegate.swift in Sources */,
+				1090 /* AppTab.swift in Sources */,
+				1091 /* AppRoute.swift in Sources */,
 				1002 /* SceneDelegate.swift in Sources */,
 				1003 /* ViewController.swift in Sources */,
 				1004 /* CompassMotionManager.swift in Sources */,
@@ -525,9 +509,6 @@
 				1024 /* SanHeWaterEngine.swift in Sources */,
 				1025 /* SolarTimeCalculator.swift in Sources */,
 				1026 /* ExteriorShaEngine.swift in Sources */,
-				1030 /* CompassDialView.swift in Sources */,
-				1031 /* CompassHeaderView.swift in Sources */,
-				1032 /* CompassMainView.swift in Sources */,
 				1033 /* ARVisionView.swift in Sources */,
 				1034 /* XuanKongGridView.swift in Sources */,
 				1035 /* BaZhaiView.swift in Sources */,
@@ -542,12 +523,7 @@
 				1056 /* QimenDunjiaView.swift in Sources */,
 				1057 /* PurpleWhiteView.swift in Sources */,
 				1058 /* TianJiShuView.swift in Sources */,
-				1059 /* FenjinDetailSheet.swift in Sources */,
-				1060 /* KongWangDetailSheet.swift in Sources */,
-				1061 /* FengshuiPalaceDetailSheet.swift in Sources */,
-				1062 /* CompassLayerManager.swift in Sources */,
 				1063 /* SolarTermsData.swift in Sources */,
-				1064 /* LayerSettingsSheet.swift in Sources */,
 				1065 /* FloorplanImagePicker.swift in Sources */,
 				1066 /* ZeRiEngine.swift in Sources */,
 				1067 /* CalibrationSheet.swift in Sources */,

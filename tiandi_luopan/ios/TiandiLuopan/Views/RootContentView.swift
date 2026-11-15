@@ -547,7 +547,7 @@ struct ProportionalTwoPaneLayout: Layout {
 public struct RootContentView: View {
     private let motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var selectedTab: Int
+    @State private var selectedTab: AppTab = .ar
     /// 保留旧子页索引用于链接兼容；菜单导航使用独立功能请求。
     @State private var analysisSubTab: Int = 0
     @State private var analysisFeatureRequest: AnalysisFeatureRequest?
@@ -567,11 +567,12 @@ public struct RootContentView: View {
     @State private var layoutForm = AdaptiveLayoutForm.current()
     
     public init() {
-        var initialTab = 0
+        var initialTab: AppTab = .ar
         if let tabArgIndex = CommandLine.arguments.firstIndex(of: "-selectedTab"),
            tabArgIndex + 1 < CommandLine.arguments.count,
-           let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]) {
-            initialTab = tabValue
+           let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]),
+           let tab = AppTab(rawValue: tabValue) {
+            initialTab = tab
         }
         _selectedTab = State(initialValue: initialTab)
         
@@ -665,46 +666,38 @@ public struct RootContentView: View {
     
     public var body: some View {
         TabView(selection: $selectedTab) {
-            // Tab 1: 主罗盘与天心十道 (含120分金、64卦、24山、双轴水准仪、空亡详勘)
-            CompassMainView(isActive: selectedTab == 0)
+            // Tab 1: AR 实景天心透视与形煞智能标注（前后镜头翻转、靶心动态测角、水印快照存证）
+            ARVisionView(isActive: selectedTab == .ar)
                 .tabItem {
-                    Image(systemName: "safari.fill")
-                    Text(lang.t("tab_compass"))
+                    Image(systemName: AppTab.ar.symbol)
+                    Text(lang.t(AppTab.ar.titleKey))
                 }
-                .tag(0)
-            
-            // Tab 2: AR 实景天心透视与形煞智能标注 (前后镜头翻转、靶心动态测角、水印快照存证)
-            ARVisionView(isActive: selectedTab == 1)
+                .tag(AppTab.ar)
+
+            // Tab 2: 户型空间立极与全屋风水体检（中宫重心立极、罗盘半透明叠透、火烧天门/鬼门体检）
+            FloorplanView(isActive: selectedTab == .floorplan)
                 .tabItem {
-                    Image(systemName: "camera.viewfinder")
-                    Text(lang.t("tab_ar"))
+                    Image(systemName: AppTab.floorplan.symbol)
+                    Text(lang.t(AppTab.floorplan.titleKey))
                 }
-                .tag(1)
-            
-            // Tab 3: 户型空间立极与全屋风水体检 (中宫重心立极、罗盘半透明叠透、火烧天门/鬼门体检)
-            FloorplanView(isActive: selectedTab == 2)
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text(lang.t("tab_floorplan"))
-                }
-                .tag(2)
-            
-            // Tab 4: 玄空理气与三式绝学 (玄空飞星、八宅三合、流年紫白、时家奇门、天机长卷)
-            XuanKongGridView(isActive: selectedTab == 3,
+                .tag(AppTab.floorplan)
+
+            // Tab 3: 玄空理气与三式绝学（玄空飞星、八宅三合、流年紫白、时家奇门、天机长卷）
+            XuanKongGridView(isActive: selectedTab == .analysis,
                              selectedSubTab: $analysisSubTab, featureRequest: $analysisFeatureRequest)
                 .tabItem {
-                    Image(systemName: "square.grid.3x3.fill")
-                    Text(lang.t("tab_analysis"))
+                    Image(systemName: AppTab.analysis.symbol)
+                    Text(lang.t(AppTab.analysis.titleKey))
                 }
-                .tag(3)
-            
-            // Tab 5: 系统设置与会员中心 (四档 StoreKit 内购、特权矩阵、8字传感器校准)
-            SettingsView(isActive: selectedTab == 4)
+                .tag(AppTab.analysis)
+
+            // Tab 4: 系统设置与会员中心（四档 StoreKit 内购、特权矩阵、传感器校准）
+            SettingsView(isActive: selectedTab == .settings)
                 .tabItem {
-                    Image(systemName: "gearshape.fill")
-                    Text(lang.t("tab_settings"))
+                    Image(systemName: AppTab.settings.symbol)
+                    Text(lang.t(AppTab.settings.titleKey))
                 }
-                .tag(4)
+                .tag(AppTab.settings)
         }
         .accentColor(Color(red: 0.95, green: 0.85, blue: 0.45))
         .preferredColorScheme(.dark)
@@ -793,16 +786,16 @@ public struct RootContentView: View {
     /// Tab 3 = 理气菜单；旧黄历请求直接打开独立天星择日工具。
     private func consumePendingAlmanacRoute() {
         if AppNavigationRouter.shared.consumeAlmanac() {
-            selectedTab = 3
+            selectedTab = .analysis
             analysisSubTab = 1
             analysisFeatureRequest = AnalysisFeatureRequest(feature: .dates)
         }
         if let route = AppNavigationRouter.shared.consumeTabRoute() {
             selectedTab = route.tab
-            if let sub = route.subTab {
+            if let anchor = route.anchor, let sub = anchor.legacySubTab {
                 analysisSubTab = sub
             }
-            if route.tab == 3, let feature = route.feature ?? route.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
+            if route.tab == .analysis, let feature = route.anchor?.feature {
                 analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
             }
             if route.openDailyCard {
@@ -823,9 +816,9 @@ public struct RootContentView: View {
             .filter { $0.activationState == .foregroundActive }
             .count
         let multipleActiveScenes = activeSceneCount > 1
-        UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || selectedTab == 0 || selectedTab == 1
-        motion.setDeviceMotionEnabled(multipleActiveScenes || selectedTab == 0 || selectedTab == 1)
-        motion.setHeadingUpdatesEnabled(multipleActiveScenes || selectedTab != 4)
+        UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || selectedTab == .ar
+        motion.setDeviceMotionEnabled(multipleActiveScenes || selectedTab == .ar)
+        motion.setHeadingUpdatesEnabled(multipleActiveScenes || selectedTab != .settings)
         motion.resumeIfSensorsEnabled()
     }
 }
