@@ -547,12 +547,13 @@ struct ProportionalTwoPaneLayout: Layout {
 public struct RootContentView: View {
     private let motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var selectedTab: AppTab = .ar
-    /// 保留旧子页索引用于链接兼容；菜单导航使用独立功能请求。
-    @State private var analysisSubTab: Int = 0
-    @State private var analysisFeatureRequest: AnalysisFeatureRequest?
-    @State private var showOnboarding: Bool = false
-    @State private var showShortcutDailyCard: Bool = false
+    /// 页面状态统一由状态中枢持有；这里只做转发，不再各自维护一份副本。
+    @StateObject private var app: AppStateStore
+
+    private var selectedTab: AppTab {
+        get { app.selectedTab }
+        nonmutating set { app.selectedTab = newValue }
+    }
     // 读取 size class 建立环境依赖：折叠/展开（或 iPad 分屏拖动）切换时本视图
     // 重渲染并级联子视图 body 重算，使 Font.adaptive 的静态查询同步刷新
     //（配合 body 尾部 onChange 一起生效）。
@@ -574,7 +575,7 @@ public struct RootContentView: View {
            let tab = AppTab(rawValue: tabValue) {
             initialTab = tab
         }
-        _selectedTab = State(initialValue: initialTab)
+        _app = StateObject(wrappedValue: AppStateStore(initialTab: initialTab))
         
         // 自定义原生 TabBar 深色黑金质感外观（折叠/展开切换时 onChange 会重调以刷新字号）
         Self.applyTabBarAppearance(isLargeLayout: UITraitCollection.current.horizontalSizeClass == .regular)
@@ -665,7 +666,7 @@ public struct RootContentView: View {
     }
     
     public var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $app.selectedTab) {
             // Tab 1: AR 实景天心透视与形煞智能标注（前后镜头翻转、靶心动态测角、水印快照存证）
             ARVisionView(isActive: selectedTab == .ar)
                 .tabItem {
@@ -684,7 +685,7 @@ public struct RootContentView: View {
 
             // Tab 3: 玄空理气与三式绝学（玄空飞星、八宅三合、流年紫白、时家奇门、天机长卷）
             XuanKongGridView(isActive: selectedTab == .analysis,
-                             selectedSubTab: $analysisSubTab, featureRequest: $analysisFeatureRequest)
+                             selectedSubTab: $app.analysisSubTab, featureRequest: $app.analysisFeatureRequest)
                 .tabItem {
                     Image(systemName: AppTab.analysis.symbol)
                     Text(lang.t(AppTab.analysis.titleKey))
@@ -740,13 +741,13 @@ public struct RootContentView: View {
             updateResourceUsage()
             RetentionServiceManager.shared.registerSystemShortcutsAndSpotlight()
             if OnboardingGuideSheet.shouldPresentOnLaunch() {
-                showOnboarding = true
+                app.showOnboarding = true
             }
         }
-        .sheet(isPresented: $showOnboarding) {
+        .sheet(isPresented: $app.showOnboarding) {
             OnboardingGuideSheet()
         }
-        .sheet(isPresented: $showShortcutDailyCard) {
+        .sheet(isPresented: $app.showShortcutDailyCard) {
             DailyAuspiciousCardSheet()
         }
         .onChange(of: selectedTab) { _ in
@@ -783,26 +784,9 @@ public struct RootContentView: View {
     }
 
     /// 消费小组件深链与主屏快捷入口的待处理意图（幂等）。
-    /// Tab 3 = 理气菜单；旧黄历请求直接打开独立天星择日工具。
+    /// 具体归一逻辑在 AppStateStore 里，这里只负责触发。
     private func consumePendingAlmanacRoute() {
-        if AppNavigationRouter.shared.consumeAlmanac() {
-            selectedTab = .analysis
-            analysisSubTab = 1
-            analysisFeatureRequest = AnalysisFeatureRequest(feature: .dates)
-        }
-        if let route = AppNavigationRouter.shared.consumeTabRoute() {
-            selectedTab = route.tab
-            if let anchor = route.anchor, let sub = anchor.legacySubTab {
-                analysisSubTab = sub
-            }
-            if route.tab == .analysis, let feature = route.anchor?.feature {
-                analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
-            }
-            if route.openDailyCard {
-                showOnboarding = false
-                showShortcutDailyCard = true
-            }
-        }
+        app.consumePendingRoutes()
     }
 
     /// The live compass and camera survey need an awake screen while they are
@@ -816,9 +800,12 @@ public struct RootContentView: View {
             .filter { $0.activationState == .foregroundActive }
             .count
         let multipleActiveScenes = activeSceneCount > 1
-        UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || selectedTab == .ar
-        motion.setDeviceMotionEnabled(multipleActiveScenes || selectedTab == .ar)
-        motion.setHeadingUpdatesEnabled(multipleActiveScenes || selectedTab != .settings)
+        UIApplication.shared.isIdleTimerDisabled = SensorPolicy.keepsScreenAwake(selectedTab,
+                                                                                  hasMultipleActiveScenes: multipleActiveScenes)
+        motion.setDeviceMotionEnabled(SensorPolicy.needsDeviceMotion(selectedTab,
+                                                                     hasMultipleActiveScenes: multipleActiveScenes))
+        motion.setHeadingUpdatesEnabled(SensorPolicy.needsHeadingUpdates(selectedTab,
+                                                                         hasMultipleActiveScenes: multipleActiveScenes))
         motion.resumeIfSensorsEnabled()
     }
 }

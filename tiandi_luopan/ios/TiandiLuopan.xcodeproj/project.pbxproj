@@ -10,6 +10,9 @@
 		1001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2001 /* AppDelegate.swift */; };
 		1090 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2090 /* AppTab.swift */; };
 		1091 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2091 /* AppRoute.swift */; };
+		1092 /* AppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2094 /* AppStateStore.swift */; };
+		1093 /* SensorPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2095 /* SensorPolicy.swift */; };
+		1094 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2096 /* ServiceProtocols.swift */; };
 		1002 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2002 /* SceneDelegate.swift */; };
 		1003 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2003 /* ViewController.swift */; };
 		1004 /* CompassMotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004 /* CompassMotionManager.swift */; };
@@ -87,6 +90,9 @@
 		2001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2090 /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/App/AppTab.swift"; sourceTree = "<group>"; };
 		2091 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/App/AppRoute.swift"; sourceTree = "<group>"; };
+		2094 /* AppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/State/AppStateStore.swift"; sourceTree = "<group>"; };
+		2095 /* SensorPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/Services/SensorPolicy.swift"; sourceTree = "<group>"; };
+		2096 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/Services/ServiceProtocols.swift"; sourceTree = "<group>"; };
 		2002 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		2003 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		2004 /* CompassMotionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompassMotionManager.swift; sourceTree = "<group>"; };
@@ -242,6 +248,9 @@
 				2001 /* AppDelegate.swift */,
 				2090 /* AppTab.swift */,
 				2091 /* AppRoute.swift */,
+				2094 /* AppStateStore.swift */,
+				2095 /* SensorPolicy.swift */,
+				2096 /* ServiceProtocols.swift */,
 				2002 /* SceneDelegate.swift */,
 				2003 /* ViewController.swift */,
 				2004 /* CompassMotionManager.swift */,
@@ -498,6 +507,9 @@
 				1001 /* AppDelegate.swift in Sources */,
 				1090 /* AppTab.swift in Sources */,
 				1091 /* AppRoute.swift in Sources */,
+				1092 /* AppStateStore.swift in Sources */,
+				1093 /* SensorPolicy.swift in Sources */,
+				1094 /* ServiceProtocols.swift in Sources */,
 				1002 /* SceneDelegate.swift in Sources */,
 				1003 /* ViewController.swift in Sources */,
 				1004 /* CompassMotionManager.swift in Sources */,
