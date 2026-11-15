@@ -86,11 +86,6 @@ public class LocalizationManager: ObservableObject {
             UserDefaults.standard.set(raw, forKey: "app_language")
             Self.sharedDefaults?.set(raw, forKey: "app_language")
             updateEffectiveLanguage()
-            #if canImport(WidgetKit) && !WIDGET_EXTENSION
-            if #available(iOS 14.0, *) {
-                WidgetCenter.shared.reloadTimelines(ofKind: "TiandiLuopanAlmanacWidget")
-            }
-            #endif
         }
     }
     

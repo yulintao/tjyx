@@ -69,21 +69,7 @@
 		1079 /* TraditionalEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2079 /* TraditionalEvidence.swift */; };
 		1081 /* FamilyRoomAllocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093 /* FamilyRoomAllocationView.swift */; };
 		1080 /* FamilyRoomAllocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2092 /* FamilyRoomAllocation.swift */; };
-		9100 /* WidgetAlmanacSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9200 /* WidgetAlmanacSnapshot.swift */; };
-		9101 /* TiandiLuopanAlmanacWidget.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 9201 /* TiandiLuopanAlmanacWidget.swift */; };
-		9102 /* AlmanacWidgetViews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 9202 /* AlmanacWidgetViews.swift */; };
-		9103 /* WidgetAlmanacSnapshot.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 9200 /* WidgetAlmanacSnapshot.swift */; };
-		9104 /* SolarTimeCalculator.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2025 /* SolarTimeCalculator.swift */; };
-		9105 /* SolarTermsData.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2063 /* SolarTermsData.swift */; };
-		9106 /* PurpleWhiteEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2052 /* PurpleWhiteEngine.swift */; };
-		9107 /* ZeRiEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2066 /* ZeRiEngine.swift */; };
-		9108 /* Mountain24.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2020 /* Mountain24.swift */; };
-		9109 /* LocalizationManager.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2069 /* LocalizationManager.swift */; };
-		9110 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9210 /* WidgetKit.framework */; };
 		9112 /* WidgetKit.framework in App Frameworks */ = {isa = PBXBuildFile; fileRef = 9210 /* WidgetKit.framework */; };
-		9113 /* Widget PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9211 /* Widget PrivacyInfo.xcprivacy */; };
-		9114 /* TraditionalEvidence.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2079 /* TraditionalEvidence.swift */; };
-		9111 /* TiandiLuopanWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9209 /* TiandiLuopanWidget.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9603 /* FunctionalRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9602 /* FunctionalRegressionTests.swift */; };
 		1108 /* OwnerLifeGuaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2110 /* OwnerLifeGuaView.swift */; };
 /* End PBXBuildFile section */
@@ -160,26 +146,13 @@
 		2079 /* TraditionalEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/TraditionalEvidence.swift"; sourceTree = "<group>"; };
 		2093 /* FamilyRoomAllocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FamilyRoomAllocationView.swift"; sourceTree = "<group>"; };
 		2092 /* FamilyRoomAllocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/FamilyRoomAllocation.swift"; sourceTree = "<group>"; };
-		9200 /* WidgetAlmanacSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/WidgetAlmanacSnapshot.swift"; sourceTree = "<group>"; };
-		9201 /* TiandiLuopanAlmanacWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiandiLuopanAlmanacWidget.swift; sourceTree = "<group>"; };
-		9202 /* AlmanacWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlmanacWidgetViews.swift; sourceTree = "<group>"; };
-		9203 /* Widget Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9209 /* TiandiLuopanWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TiandiLuopanWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9210 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		9211 /* Widget PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9601 /* TiandiLuopanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TiandiLuopanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9602 /* FunctionalRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalRegressionTests.swift; sourceTree = "<group>"; };
 		2110 /* OwnerLifeGuaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/OwnerLifeGuaView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
-		9001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5002;
-			remoteInfo = TiandiLuopanWidget;
-		};
 		9607 /* Test Host Proxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7001 /* Project object */;
@@ -190,17 +163,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		3004 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				9111 /* TiandiLuopanWidget.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -220,14 +182,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		3010 /* Widget Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9110 /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		9605 /* Test Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -241,7 +195,6 @@
 			isa = PBXGroup;
 			children = (
 				4001 /* TiandiLuopan */,
-				4004 /* TiandiLuopanWidget */,
 				9600 /* TiandiLuopanTests */,
 				4002 /* Frameworks */,
 				4003 /* Products */,
@@ -306,7 +259,6 @@
 				2073 /* ARRoomPlanCaptureView.swift */,
 				2075 /* House3DSpaceViewer.swift */,
 				2078 /* VRSpatialSurveyView.swift */,
-				9200 /* WidgetAlmanacSnapshot.swift */,
 				2087 /* PrivacyInfo.xcprivacy */,
 				2013 /* InfoPlist.strings */,
 
@@ -350,21 +302,9 @@
 			isa = PBXGroup;
 			children = (
 				2000 /* TiandiLuopan.app */,
-				9209 /* TiandiLuopanWidget.appex */,
 				9601 /* TiandiLuopanTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		4004 /* TiandiLuopanWidget */ = {
-			isa = PBXGroup;
-			children = (
-				9201 /* TiandiLuopanAlmanacWidget.swift */,
-				9202 /* AlmanacWidgetViews.swift */,
-				9203 /* Widget Info.plist */,
-				9211 /* Widget PrivacyInfo.xcprivacy */,
-			);
-			path = TiandiLuopanWidget;
 			sourceTree = "<group>";
 		};
 		9600 /* TiandiLuopanTests */ = {
@@ -383,34 +323,15 @@
 				3002 /* Sources */,
 				3001 /* Frameworks */,
 				3003 /* Resources */,
-				3004 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				9002 /* PBXTargetDependency */,
 			);
 			name = TiandiLuopan;
 			productName = TiandiLuopan;
 			productReference = 2000 /* TiandiLuopan.app */;
 			productType = "com.apple.product-type.application";
-		};
-		5002 /* TiandiLuopanWidget */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 6003 /* Build configuration list for PBXNativeTarget "TiandiLuopanWidget" */;
-			buildPhases = (
-				3011 /* Widget Sources */,
-				3010 /* Widget Frameworks */,
-				3012 /* Widget Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = TiandiLuopanWidget;
-			productName = TiandiLuopanWidget;
-			productReference = 9209 /* TiandiLuopanWidget.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 		9609 /* TiandiLuopanTests */ = {
 			isa = PBXNativeTarget;
@@ -426,11 +347,6 @@
 /* End PBXNativeTarget section */
 
 /* Begin PBXTargetDependency section */
-		9002 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5002 /* TiandiLuopanWidget */;
-			targetProxy = 9001 /* PBXContainerItemProxy */;
-		};
 		9608 /* Test Host Dependency */ = {
 			isa = PBXTargetDependency;
 			target = 5001 /* TiandiLuopan */;
@@ -448,9 +364,6 @@
 				TargetAttributes = {
 					9609 = {CreatedOnToolsVersion = 15.0; TestTargetID = 5001; };
 					5001 = {
-						CreatedOnToolsVersion = 15.0;
-					};
-					5002 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -477,7 +390,6 @@
 			targets = (
 				9609 /* TiandiLuopanTests */,
 				5001 /* TiandiLuopan */,
-				5002 /* TiandiLuopanWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -490,14 +402,6 @@
 				1005 /* Assets.xcassets in Resources */,
 				1012 /* InfoPlist.strings in Resources */,
 				1014 /* PrivacyInfo.xcprivacy in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3012 /* Widget Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9113 /* Widget PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,27 +471,9 @@
 
 				1108 /* OwnerLifeGuaView.swift in Sources */,
 				1080 /* FamilyRoomAllocation.swift in Sources */,
-				9100 /* WidgetAlmanacSnapshot.swift in Sources */,
 
 
 
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3011 /* Widget Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9101 /* TiandiLuopanAlmanacWidget.swift in Widget Sources */,
-				9102 /* AlmanacWidgetViews.swift in Widget Sources */,
-				9103 /* WidgetAlmanacSnapshot.swift in Widget Sources */,
-				9104 /* SolarTimeCalculator.swift in Widget Sources */,
-				9105 /* SolarTermsData.swift in Widget Sources */,
-				9106 /* PurpleWhiteEngine.swift in Widget Sources */,
-				9107 /* ZeRiEngine.swift in Widget Sources */,
-				9108 /* Mountain24.swift in Widget Sources */,
-				9109 /* LocalizationManager.swift in Widget Sources */,
-				9114 /* TraditionalEvidence.swift in Widget Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,55 +596,6 @@
 			};
 			name = Release;
 		};
-		8005 /* Widget Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGNING_ALLOWED = YES;
-				CODE_SIGN_STYLE = Automatic;
-				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = TiandiLuopanWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass.widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(WIDGET_PROVISIONING_PROFILE_SPECIFIER)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG WIDGET_EXTENSION";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		8006 /* Widget Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGNING_ALLOWED = "$(WIDGET_CODE_SIGNING_ALLOWED:default=YES)";
-				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = TiandiLuopanWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass.widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(WIDGET_PROVISIONING_PROFILE_SPECIFIER)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION;
-				SWIFT_COMPILATION_MODE = "wholemodule";
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		9611 /* Test Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -810,15 +647,6 @@
 			buildConfigurations = (
 				8003 /* Project Debug */,
 				8004 /* Project Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		6003 /* Build configuration list for PBXNativeTarget "TiandiLuopanWidget" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8005 /* Widget Debug */,
-				8006 /* Widget Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

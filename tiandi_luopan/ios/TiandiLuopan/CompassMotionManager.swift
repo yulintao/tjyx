@@ -152,7 +152,6 @@ public final class CompassMotionManager: NSObject, ObservableObject, CLLocationM
             self.continuousHeading = normalized
             self.manualOffset = 0.0
             self.headingState = Mountain24Data.shared.resolveHeadingState(heading: normalized)
-            Self.syncSittingMountainToWidget(isLocked: true, sittingMountainID: self.headingState.sittingMountain.id)
         }
         setupLocationManager()
         locationAuthorizationStatus = locationManager.authorizationStatus
@@ -488,27 +487,8 @@ public final class CompassMotionManager: NSObject, ObservableObject, CLLocationM
             NSUbiquitousKeyValueStore.default.set(effective, forKey: "compass_locked_facing_angle")
         }
         NSUbiquitousKeyValueStore.default.synchronize()
-        Self.syncSittingMountainToWidget(isLocked: isLocked, sittingMountainID: headingState.sittingMountain.id)
     }
 
-    private static func syncSittingMountainToWidget(isLocked: Bool, sittingMountainID: Int) {
-        let shared = LocalizationManager.sharedDefaults
-        UserDefaults.standard.set(isLocked, forKey: "compass_is_locked")
-        shared?.set(isLocked, forKey: "compass_is_locked")
-        if isLocked {
-            UserDefaults.standard.set(sittingMountainID, forKey: "saved_sitting_mountain_id")
-            shared?.set(sittingMountainID, forKey: "saved_sitting_mountain_id")
-        } else {
-            UserDefaults.standard.removeObject(forKey: "saved_sitting_mountain_id")
-            shared?.removeObject(forKey: "saved_sitting_mountain_id")
-        }
-        #if canImport(WidgetKit)
-        if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadTimelines(ofKind: "TiandiLuopanAlmanacWidget")
-        }
-        #endif
-    }
-    
     public func resetManualOffset() {
         DispatchQueue.main.async {
             self.manualOffset = 0.0

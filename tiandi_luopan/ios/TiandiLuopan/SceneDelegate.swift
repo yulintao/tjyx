@@ -203,8 +203,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard !isAnotherSceneActive(excluding: scene) else { return }
         UIApplication.shared.isIdleTimerDisabled = false
         CompassMotionManager.shared.stop()
-        // 跨日 / 节气交接后回到前台时，让小组件重建 Timeline。
-        WidgetCenter.shared.reloadTimelines(ofKind: "TiandiLuopanAlmanacWidget")
     }
 
     /// 是否还有别的场景处于前台活跃状态。
