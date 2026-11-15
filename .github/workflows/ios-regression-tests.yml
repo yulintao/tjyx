@@ -2,11 +2,7 @@ name: iOS Functional Regression Tests
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-    paths:
-      - 'tiandi_luopan/ios/**'
-      - '.github/workflows/ios-regression-tests.yml'
+  # 暂时只保留手动触发：push 只跑「Android & iOS Build」编译校验，回归测试人工发起。
 permissions:
   contents: read
 

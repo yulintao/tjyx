@@ -22,6 +22,7 @@ concurrency:
 
 # The jobs run independently: either platform keeps its results even if the
 # other fails. No signing secrets or store uploads are required for this CI.
+# Push runs compile only: Android unit tests and lint are gated to manual dispatch.
 jobs:
   android:
     name: Android APK / AAB
@@ -91,8 +92,10 @@ jobs:
           } > "$OUT/BUILD-INFO.txt"
           (cd "$OUT" && sha256sum debug/*.apk release-unsigned/*.apk release-unsigned/*.aab > SHA256SUMS.txt)
 
+      # 单元测试与 lint 只在手动 dispatch 时跑；push 触发的流水线只做编译。
       - name: Run Android tests and lint
         id: checks
+        if: github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
           bash ./gradlew --no-daemon --console=plain \

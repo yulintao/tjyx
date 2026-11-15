@@ -16,14 +16,8 @@ on:
         required: false
         default: true
         type: boolean
-  push:
-    branches:
-      - main
-      - master
-    # 只有工程或 workflow 本身变化才触发，避免改文档也占一次 macOS runner
-    paths:
-      - 'tiandi_luopan/**'
-      - '.github/workflows/**'
+  # 暂时只保留手动触发：push 时改由「Android & iOS Build」只做编译校验，
+  # 签名、导出 IPA、TestFlight 上传一律人工发起。
 
 permissions:
   contents: read
