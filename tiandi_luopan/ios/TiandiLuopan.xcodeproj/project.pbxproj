@@ -13,6 +13,15 @@
 		1092 /* AppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2094 /* AppStateStore.swift */; };
 		1093 /* SensorPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2095 /* SensorPolicy.swift */; };
 		1094 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2096 /* ServiceProtocols.swift */; };
+		1095 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2097 /* SettingsViewModel.swift */; };
+		1096 /* SettingsLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2098 /* SettingsLinks.swift */; };
+		1097 /* SettingsLocalizationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2099 /* SettingsLocalizationHelpers.swift */; };
+		1098 /* MasterVIPPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2100 /* MasterVIPPageView.swift */; };
+		1099 /* OwnerKuaReminderPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2101 /* OwnerKuaReminderPageView.swift */; };
+		1100 /* LanguagePreferencesPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2102 /* LanguagePreferencesPageView.swift */; };
+		1101 /* AboutPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2103 /* AboutPageView.swift */; };
+		1102 /* PersonalProfileDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2104 /* PersonalProfileDataView.swift */; };
+		1103 /* LegalDocumentSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2105 /* LegalDocumentSheet.swift */; };
 		1002 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2002 /* SceneDelegate.swift */; };
 		1003 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2003 /* ViewController.swift */; };
 		1004 /* CompassMotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004 /* CompassMotionManager.swift */; };
@@ -93,6 +102,15 @@
 		2094 /* AppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/State/AppStateStore.swift"; sourceTree = "<group>"; };
 		2095 /* SensorPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/Services/SensorPolicy.swift"; sourceTree = "<group>"; };
 		2096 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/Services/ServiceProtocols.swift"; sourceTree = "<group>"; };
+		2097 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsViewModel.swift"; sourceTree = "<group>"; };
+		2098 /* SettingsLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsLinks.swift"; sourceTree = "<group>"; };
+		2099 /* SettingsLocalizationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsLocalizationHelpers.swift"; sourceTree = "<group>"; };
+		2100 /* MasterVIPPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/MasterVIPPageView.swift"; sourceTree = "<group>"; };
+		2101 /* OwnerKuaReminderPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/OwnerKuaReminderPageView.swift"; sourceTree = "<group>"; };
+		2102 /* LanguagePreferencesPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/LanguagePreferencesPageView.swift"; sourceTree = "<group>"; };
+		2103 /* AboutPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/AboutPageView.swift"; sourceTree = "<group>"; };
+		2104 /* PersonalProfileDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/PersonalProfileDataView.swift"; sourceTree = "<group>"; };
+		2105 /* LegalDocumentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/LegalDocumentSheet.swift"; sourceTree = "<group>"; };
 		2002 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		2003 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		2004 /* CompassMotionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompassMotionManager.swift; sourceTree = "<group>"; };
@@ -251,6 +269,15 @@
 				2094 /* AppStateStore.swift */,
 				2095 /* SensorPolicy.swift */,
 				2096 /* ServiceProtocols.swift */,
+				2097 /* SettingsViewModel.swift */,
+				2098 /* SettingsLinks.swift */,
+				2099 /* SettingsLocalizationHelpers.swift */,
+				2100 /* MasterVIPPageView.swift */,
+				2101 /* OwnerKuaReminderPageView.swift */,
+				2102 /* LanguagePreferencesPageView.swift */,
+				2103 /* AboutPageView.swift */,
+				2104 /* PersonalProfileDataView.swift */,
+				2105 /* LegalDocumentSheet.swift */,
 				2002 /* SceneDelegate.swift */,
 				2003 /* ViewController.swift */,
 				2004 /* CompassMotionManager.swift */,
@@ -510,6 +537,15 @@
 				1092 /* AppStateStore.swift in Sources */,
 				1093 /* SensorPolicy.swift in Sources */,
 				1094 /* ServiceProtocols.swift in Sources */,
+				1095 /* SettingsViewModel.swift in Sources */,
+				1096 /* SettingsLinks.swift in Sources */,
+				1097 /* SettingsLocalizationHelpers.swift in Sources */,
+				1098 /* MasterVIPPageView.swift in Sources */,
+				1099 /* OwnerKuaReminderPageView.swift in Sources */,
+				1100 /* LanguagePreferencesPageView.swift in Sources */,
+				1101 /* AboutPageView.swift in Sources */,
+				1102 /* PersonalProfileDataView.swift in Sources */,
+				1103 /* LegalDocumentSheet.swift in Sources */,
 				1002 /* SceneDelegate.swift in Sources */,
 				1003 /* ViewController.swift in Sources */,
 				1004 /* CompassMotionManager.swift in Sources */,
