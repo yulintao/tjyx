@@ -127,3 +127,17 @@ ARVisionView              → SanHeWaterEngine、ZeRiEngine、BaZhaiEngine
   尚未编译验证，只过了括号配平、悬挂符号扫描、pbxproj 登记核对与 id 配对审计。
 - 推送：本机 SSH 私钥带口令、系统 ssh-agent 处于 Disabled、Windows 凭据管理器里没有
   GitHub 条目，非交互进程无法完成认证；远端已被更新到 `73b7f55`，剩余四笔待推。
+
+### 收尾两笔：黄历路由空转链与付费墙
+
+`45b0ea5`：日签卡下线后，`AppRoute.openDailyCard`、`AppNavigationRouter` 的
+`pendingAlmanacRoute` / `requestAlmanac` / `consumeAlmanac`、`AppStateStore.showShortcutDailyCard`、
+`.didTapAlmanacWidget` 的定义与三处投递已无任何语义——它们只是置一个没人读的 bool、
+发一条没人收的通知。`AppRoute` 收敛成单一 `tab`，`requestRoute(tab:)` 单参，
+旧 `almanac` 深链和其它退役链接一样落到 `.ar`。
+
+`20b5ccd`：付费弹层从应用里消失。`showPaywall` 只被额度与 VIP 门禁赋值，而这些门禁
+恒真，所以 `VIPPaywallSheet` 结构、购买披露块、六处 `.sheet($showPaywall)`、七个
+`@State showPaywall`、`paywallDefaultProduct` 及其全部赋值、关于页的「恢复购买」行
+一并删除；文件剩 `VIPLockCardView`，改名为 `VIPLockCardView.swift`，工程登记四处同步。
+锁卡仍被 AR 与户型页的 `hasUnlockedVIP` 分支引用，分支今天是死的——等门禁彻底去掉时一起删。
