@@ -107,8 +107,12 @@ ARVisionView              → SanHeWaterEngine、ZeRiEngine、BaZhaiEngine
 - 已做：应用内「今日吉方」日签卡片下线（`ca4f3dc`）。渲染器与分享弹层从
   `BaZhaiEngine` 移除（该文件 2,711 → 2,330 行），`RootContentView` 不再呈现，
   主屏快捷指令与 Spotlight 里指向它的条目一并删除。旧深链仍落到 AR 页，不会死链。
-- 未做：独立 widget target（`TiandiLuopanWidget/AlmanacWidgetViews.swift` 1,416 行 +
-  `TiandiLuopanAlmanacWidget.swift`）仍会显示今日黄历，下线需动 target 级配置。
+- 已做：独立小组件 target 整条下线（`6da0d35`）。摘掉原生 target、它的配置列表与两套
+  构建配置、容器代理、target 依赖、Embed App Extensions 拷贝阶段、三个阶段
+  （Widget Sources / Frameworks / Resources）、它的 group、产物引用以及 14 条 BuildFile；
+  随后 `WidgetAlmanacSnapshot.swift`（436 行）失去唯一调用方一并删除，两处仅用于刷新
+  小组件的 `WidgetCenter.reloadTimelines` 与 App Group 镜像写入也清掉。工程现在只剩
+  `TiandiLuopan` 与 `TiandiLuopanTests` 两个 target。
 - 部分完成：用户可见的收费痕迹已清（`1185c90`）。家人分房卡片去掉了
   「会员权益」角标、解锁按钮和付费弹层，设置页头像不再戴皇冠、不再显示
   「会员/标准用户」徽标。`fra_membership`、`fra_paywall`、`fra_unlock` 三个键就此成为死键，
@@ -117,7 +121,9 @@ ARVisionView              → SanHeWaterEngine、ZeRiEngine、BaZhaiEngine
   门禁放行后它们触发不到，属死代码，清理不影响功能，留待编译验证后再收。
 - 已做：设置页副标题从「专业风水罗盘与玄空理气」改为实际范围（AR 实景测绘 ·
   户型布局 · 家人分房），八语同步（`e214ccb`）。
-- 仍未编译、未 push：本机没有 Xcode，十个提交只过了静态检查（括号配平、
-  悬挂符号扫描、pbxproj 登记核对、id 配对审计）。推送被阻断：远端走 SSH，
-  私钥 `id_ed25519_github` 带口令且系统 ssh-agent 处于 Disabled，Windows 凭据管理器
-  里也没有 GitHub 条目，非交互进程无法完成认证。
+- 编译状态：截至 `73b7f55` 的十笔提交已由 CI 验证通过
+  （`iOS Multi-Mode Build & Deploy #161`，6m37s，`refactor/no-compass`）。
+  此后四笔（`1185c90` 付费痕迹、`e214ccb` 副标题、`4958427` 文档、`6da0d35` 小组件下线）
+  尚未编译验证，只过了括号配平、悬挂符号扫描、pbxproj 登记核对与 id 配对审计。
+- 推送：本机 SSH 私钥带口令、系统 ssh-agent 处于 Disabled、Windows 凭据管理器里没有
+  GitHub 条目，非交互进程无法完成认证；远端已被更新到 `73b7f55`，剩余四笔待推。
