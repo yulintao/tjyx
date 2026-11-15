@@ -9,14 +9,7 @@ public struct QimenDunjiaView: View {
     @ObservedObject var motion = CompassMotionManager.shared
     @ObservedObject var iap = StoreKitIAPManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var showPaywall: Bool = false
-    @State private var selectedDate: Date = Date()
-    @State private var isUsingCustomDate: Bool = false
-    @State private var cachedChart: QimenChart?
-    @State private var selectedPalaceId: Int? = nil
-    @State private var selectedScenario: QimenScenarioType = .contract
-    @State private var lastChartHeading: Double?
-    @State private var lastChartTimeKey: QimenChartTimeKey?
+    @StateObject private var viewModel = QimenViewModel()
 
     // Qimen uses the current hour. A low-frequency publisher catches an hour
     // boundary while the phone is stationary; refreshChart's time key keeps
@@ -43,161 +36,130 @@ public struct QimenDunjiaView: View {
     private var isRoomyLayout: Bool {
         isLargeLayout && !isSplitLayout
     }
-    
+
     public init(isActive: Bool = true) {
         self.isActive = isActive
     }
-    
+
+    private var heading: Double { motion.headingState.facingAngle }
+
     public var body: some View {
-        return Group {
+        Group {
             if isActive {
-                let effectiveDate = isUsingCustomDate ? selectedDate : Date()
-                // Motion publishes tilt and magnetic-field samples
-                // independently of the heading. Reuse the chart across
-                // those updates; Qimen only needs a new result when the
-                // heading or language changes.
-                let chart = cachedChart ?? QimenEngine.shared.calculateChart(date: effectiveDate, heading: motion.headingState.facingAngle)
+                // 视图只读盘：首次进入或数据为空时用当前方位即时补算一次，
+                // 之后一律走 viewModel 的节流结果。
+                let chart = viewModel.chart
+                    ?? QimenEngine.shared.calculateChart(date: viewModel.effectiveDate, heading: heading)
+                let rec = QimenEngine.shared.evaluateScenario(
+                    viewModel.selectedScenario,
+                    chart: chart,
+                    heading: heading
+                )
 
                 // iPhone Duo 展开态双栏：左栏 = 奇门九宫方阵（主交互），
                 // 右栏 = 选中宫门星神摘要与出行动身方位导航（分析解释）；折叠态保持原单列纵排。
                 FoldableTwoPane(compactSpacing: 12) {
-                VStack(spacing: 12) {
-            // 局数标题栏
-            HStack {
-                HStack(spacing: 6) {
-                    Image(systemName: "sparkles")
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                    Text(lang.t("qimen_header_title"))
-                        .adaptiveFont(size: 14, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                }
-                Spacer()
-                Text(chart.title)
-                    .adaptiveFont(size: 11, weight: .bold)
-                    .foregroundColor(.white.opacity(0.8))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            .padding(.horizontal, 16)
+                    VStack(spacing: 12) {
+                        headerBar(chart: chart)
 
-            // P0.3 时辰穿越控制栏（每 2 小时换一局，支持提前推演谈判/出行时辰）
-            qimenTimeControlBar()
-                .padding(.horizontal, 16)
+                        qimenTimeControlBar()
+                            .padding(.horizontal, 16)
 
-            // P3.3 奇门遁甲「场景化一事一断」速查向导条
-            qimenScenarioSelectorBar(chart: chart)
-                .padding(.horizontal, 16)
-            
-            // P0.2 开放 3x3 奇门九宫方阵预览 (天地人神四盘可点选查看八门九星)
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
-                let rec = QimenEngine.shared.evaluateScenario(selectedScenario, chart: chart, heading: motion.headingState.facingAngle)
-                ForEach(chart.cells) { cell in
-                    let activeId = selectedPalaceId ?? rec.recommendedPalaceId
-                    qimenCellView(cell: cell, isSelected: cell.palaceId == activeId)
-                        .onTapGesture {
-                            selectedPalaceId = cell.palaceId
+                        QimenScenarioSelectorBar(selected: viewModel.selectedScenario) { scenario in
+                            viewModel.selectScenario(scenario, heading: heading)
                         }
-                }
-            }
-            // 分栏时铺满左栏（两栏已按有效宽度分配），单列宽屏仍 580、手机全宽
-            .frame(maxWidth: isSplitLayout ? .infinity : (isLargeLayout ? 580 : .infinity))
-            .padding(.horizontal, isLargeLayout ? 0 : 16)
-            }
-            } analysis: {
-            // 选中宫门星神摘要与出行动身方位导航（展开态右栏 / 折叠态底部）
-            VStack(spacing: 12) {
-                let rec = QimenEngine.shared.evaluateScenario(selectedScenario, chart: chart, heading: motion.headingState.facingAngle)
-                qimenScenarioGuideCard(rec: rec)
-                    .padding(.horizontal, 16)
-
-                if let activeCell = chart.cells.first(where: { $0.palaceId == (selectedPalaceId ?? rec.recommendedPalaceId) }), !activeCell.isTaiJiCenter {
-                    let doorObj = QimenDoor(name: activeCell.doorName, palace: activeCell.palaceId, isAuspicious: activeCell.isDoorAuspicious, luckType: activeCell.doorLuck, lore: "")
-                    HStack(spacing: 8) {
-                        Text("【\(activeCell.localizedPalaceName)】")
-                            .adaptiveFont(size: 11, weight: .bold)
-                            .foregroundColor(Color.yanCyan)
-                        Text("\(activeCell.localizedDoorName) [\(doorObj.localizedLuckType)] · \(activeCell.localizedGodName) · \(activeCell.localizedStarName)")
-                            .adaptiveFont(size: 11, weight: .semibold)
-                            .foregroundColor(activeCell.isDoorAuspicious ? .green : (activeCell.isDoorInauspicious ? .red : Color(red: 0.95, green: 0.85, blue: 0.45)))
-                        Spacer()
-                    }
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 10)
-                    .background(Color.white.opacity(0.05))
-                    .cornerRadius(8)
-                    .padding(.horizontal, 16)
-                }
-
-                if iap.hasUnlockedVIP {
-                    // 出行动身方位导航卡
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Image(systemName: "location.north.circle.fill")
-                                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
-                            Text(lang.t("qimen_travel_best"))
-                                .adaptiveFont(size: 12, weight: .bold)
-                                .foregroundColor(.white)
-                            Spacer()
-                            Text(lang.t("qimen_pattern_best"))
-                                .adaptiveFont(size: 10)
-                                .foregroundColor(.green)
-                        }
-                        
-                        Text("\(lang.t("qimen_best_nav"))【\(chart.bestNavDirection)】！\(chart.bestNavReason)")
-                            .adaptiveFont(size: 11)
-                            .foregroundColor(Color.green)
-                            .lineLimit(2)
-                        
-                        if !chart.tabooDirections.isEmpty {
-                            Text("\(lang.t("qimen_taboo_nav"))【\(chart.tabooDirections)】\(lang.t("qimen_taboo_suffix"))")
-                                .adaptiveFont(size: 11)
-                                .foregroundColor(Color.orange)
-                                .lineLimit(2)
-                        }
-                    }
-                    .padding(10)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.2), lineWidth: 1)
-                    )
-                    .padding(.horizontal, 16)
-                } else {
-                    qimenVIPPreviewCard()
                         .padding(.horizontal, 16)
+
+                        // P0.2 开放 3x3 奇门九宫方阵预览 (天地人神四盘可点选查看八门九星)
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
+                            let activeId = viewModel.selectedPalaceId ?? rec.recommendedPalaceId
+                            ForEach(chart.cells) { cell in
+                                QimenPalaceCellView(
+                                    cell: cell,
+                                    isSelected: cell.palaceId == activeId,
+                                    isRoomy: isRoomyLayout
+                                )
+                                .onTapGesture {
+                                    viewModel.selectedPalaceId = cell.palaceId
+                                }
+                            }
+                        }
+                        // 分栏时铺满左栏（两栏已按有效宽度分配），单列宽屏仍 580、手机全宽
+                        .frame(maxWidth: isSplitLayout ? .infinity : (isLargeLayout ? 580 : .infinity))
+                        .padding(.horizontal, isLargeLayout ? 0 : 16)
+                    }
+                } analysis: {
+                    // 选中宫门星神摘要与出行动身方位导航（展开态右栏 / 折叠态底部）
+                    VStack(spacing: 12) {
+                        QimenScenarioGuideCard(rec: rec)
+                            .padding(.horizontal, 16)
+
+                        if let activeCell = chart.cells.first(where: { $0.palaceId == (viewModel.selectedPalaceId ?? rec.recommendedPalaceId) }), !activeCell.isTaiJiCenter {
+                            selectedPalaceSummary(cell: activeCell)
+                        }
+
+                        if iap.hasUnlockedVIP {
+                            travelNavigationCard(chart: chart)
+                        } else {
+                            QimenVIPPreviewCard(onUnlock: { viewModel.showPaywall = true })
+                                .padding(.horizontal, 16)
+                        }
+                    }
                 }
-            }
-            }
             } else {
                 Color.clear
             }
         }
-        .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .vipYearly)
+        .sheet(isPresented: $viewModel.showPaywall) {
+            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
         .onAppear {
-            refreshChart(force: true)
+            viewModel.refresh(force: true, heading: heading, isActive: isActive)
         }
         .onChange(of: motion.headingState.facingAngle) { _ in
-            refreshChart()
+            viewModel.refresh(heading: heading, isActive: isActive)
         }
         .onChange(of: lang.effectiveLanguage) { _ in
-            refreshChart(force: true)
+            viewModel.refresh(force: true, heading: heading, isActive: isActive)
         }
         .onChange(of: motion.currentSolarTermName) { _ in
-            if !isUsingCustomDate { refreshChart() }
+            if !viewModel.isUsingCustomDate {
+                viewModel.refresh(heading: heading, isActive: isActive)
+            }
         }
         .onChange(of: isActive) { active in
-            if active { refreshChart(force: true) }
+            if active { viewModel.refresh(force: true, heading: heading, isActive: isActive) }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
-            refreshChart(force: true)
+            viewModel.refresh(force: true, heading: heading, isActive: isActive)
         }
         .onReceive(Self.chartRefreshTimer) { _ in
-            refreshChart()
+            viewModel.refresh(heading: heading, isActive: isActive)
         }
     }
+
+    // MARK: - 标题栏
+
+    private func headerBar(chart: QimenChart) -> some View {
+        HStack {
+            HStack(spacing: 6) {
+                Image(systemName: "sparkles")
+                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                Text(lang.t("qimen_header_title"))
+                    .adaptiveFont(size: 14, weight: .bold)
+                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+            }
+            Spacer()
+            Text(chart.title)
+                .adaptiveFont(size: 11, weight: .bold)
+                .foregroundColor(.white.opacity(0.8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .padding(.horizontal, 16)
+    }
+
+    // MARK: - P0.3 时辰穿越控制栏（每 2 小时换一局，支持提前推演谈判/出行时辰）
 
     private func qimenTimeControlBar() -> some View {
         let prevLabel: String
@@ -223,12 +185,7 @@ public struct QimenDunjiaView: View {
         }
 
         return HStack(spacing: 8) {
-            Button(action: {
-                let base = isUsingCustomDate ? selectedDate : Date()
-                selectedDate = Calendar.current.date(byAdding: .hour, value: -2, to: base) ?? base
-                isUsingCustomDate = true
-                refreshChart(force: true)
-            }) {
+            Button(action: { viewModel.shiftHour(by: -2, heading: heading) }) {
                 Text(prevLabel)
                     .adaptiveFont(size: 10, weight: .semibold)
                     .padding(.horizontal, 8)
@@ -238,21 +195,15 @@ public struct QimenDunjiaView: View {
                     .cornerRadius(6)
             }
 
-            DatePicker("", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+            DatePicker("", selection: $viewModel.selectedDate, displayedComponents: [.date, .hourAndMinute])
                 .labelsHidden()
                 .colorScheme(.dark)
                 .scaleEffect(0.88)
-                .onChange(of: selectedDate) { _ in
-                    isUsingCustomDate = true
-                    refreshChart(force: true)
+                .onChange(of: viewModel.selectedDate) { date in
+                    viewModel.setCustomDate(date, heading: heading)
                 }
 
-            Button(action: {
-                let base = isUsingCustomDate ? selectedDate : Date()
-                selectedDate = Calendar.current.date(byAdding: .hour, value: 2, to: base) ?? base
-                isUsingCustomDate = true
-                refreshChart(force: true)
-            }) {
+            Button(action: { viewModel.shiftHour(by: 2, heading: heading) }) {
                 Text(nextLabel)
                     .adaptiveFont(size: 10, weight: .semibold)
                     .padding(.horizontal, 8)
@@ -262,12 +213,8 @@ public struct QimenDunjiaView: View {
                     .cornerRadius(6)
             }
 
-            if isUsingCustomDate {
-                Button(action: {
-                    isUsingCustomDate = false
-                    selectedDate = Date()
-                    refreshChart(force: true)
-                }) {
+            if viewModel.isUsingCustomDate {
+                Button(action: { viewModel.resetToNow(heading: heading) }) {
                     Text(nowLabel)
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 7)
@@ -282,211 +229,67 @@ public struct QimenDunjiaView: View {
         }
     }
 
-    private func refreshChart(force: Bool = false) {
-        guard isActive else { return }
-        let heading = motion.headingState.facingAngle
-        let now = isUsingCustomDate ? selectedDate : Date()
-        let timeKey = QimenEngine.shared.chartTimeKey(for: now)
-        if !force, let lastHeading = lastChartHeading,
-           let lastTimeKey = lastChartTimeKey,
-           lastTimeKey == timeKey {
-            let rawDelta = abs(heading - lastHeading)
-            let delta = min(rawDelta, 360.0 - rawDelta)
-            // The chart's actionable turn instruction is displayed in whole
-            // degrees. Rebuilding it for sub-degree sensor noise only adds
-            // work and causes unnecessary SwiftUI row updates.
-            if delta < 1.0 { return }
-        }
-        lastChartHeading = heading
-        lastChartTimeKey = timeKey
-        cachedChart = QimenEngine.shared.calculateChart(date: now, heading: heading)
-    }
-    
-    private func qimenCellView(cell: QimenPalaceCell, isSelected: Bool = false) -> some View {
-        let isJi = cell.isDoorAuspicious
-        let isXiong = cell.isDoorInauspicious
-        let borderColor = isSelected ? Color.yanCyan : (isJi ? Color.green.opacity(0.5) : (isXiong ? Color.red.opacity(0.4) : Color.white.opacity(0.12)))
-        let bgColor = isJi ? Color.green.opacity(0.08) : (isXiong ? Color.red.opacity(0.06) : Color(red: 0.12, green: 0.13, blue: 0.18))
-        
-        return VStack {
-            // 顶行: 八神 / 九星
-            HStack {
-                Text(cell.localizedGodName)
-                    .adaptiveFont(size: 9, weight: .bold)
-                    .foregroundColor(Color.yellow)
-                Spacer()
-                Text(cell.localizedStarName)
-                    .adaptiveFont(size: 9)
-                    .foregroundColor(Color.yanCyan)
-            }
-            
-            Spacer(minLength: 2)
-            
-            // 中行: 八门 (大字显影)
-            Text(cell.localizedDoorName)
-                .adaptiveFont(size: 15, weight: .bold, design: .serif)
-                .foregroundColor(isJi ? Color.green : (isXiong ? Color.red : Color(red: 0.95, green: 0.85, blue: 0.45)))
-            
-            Spacer(minLength: 2)
-            
-            // 底行: 宫名 / 天地三奇六仪
-            HStack {
-                Text(cell.localizedPalaceName)
-                    .adaptiveFont(size: 8)
-                    .foregroundColor(.white.opacity(0.6))
-                Spacer()
-                Text("\(cell.localizedTianStem)/\(cell.localizedDiStem)")
-                    .adaptiveFont(size: 9, weight: .bold, design: .monospaced)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-            }
-        }
-        .padding(isRoomyLayout ? 10 : 6)
-        .aspectRatio(1.0, contentMode: .fit)
-        .background(bgColor)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(borderColor, lineWidth: 1)
+    // MARK: - 选中宫摘要
+
+    private func selectedPalaceSummary(cell: QimenPalaceCell) -> some View {
+        let doorObj = QimenDoor(
+            name: cell.doorName,
+            palace: cell.palaceId,
+            isAuspicious: cell.isDoorAuspicious,
+            luckType: cell.doorLuck,
+            lore: ""
         )
-    }
-    // MARK: - P3.3 奇门场景化一事一断选择器与指南卡
-    private func qimenScenarioSelectorBar(chart: QimenChart) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(QimenScenarioType.allCases) { item in
-                    let isSelected = selectedScenario == item
-                    Button(action: {
-                        selectedScenario = item
-                        let rec = QimenEngine.shared.evaluateScenario(item, chart: chart, heading: motion.headingState.facingAngle)
-                        selectedPalaceId = rec.recommendedPalaceId
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: item.iconName)
-                                .adaptiveFont(size: 10)
-                            Text(item.localizedTitle)
-                                .adaptiveFont(size: 10, weight: .bold)
-                        }
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 5)
-                        .background(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : Color.white.opacity(0.08))
-                        .foregroundColor(isSelected ? .black : .white.opacity(0.85))
-                        .cornerRadius(6)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
+        return HStack(spacing: 8) {
+            Text("【\(cell.localizedPalaceName)】")
+                .adaptiveFont(size: 11, weight: .bold)
+                .foregroundColor(Color.yanCyan)
+            Text("\(cell.localizedDoorName) [\(doorObj.localizedLuckType)] · \(cell.localizedGodName) · \(cell.localizedStarName)")
+                .adaptiveFont(size: 11, weight: .semibold)
+                .foregroundColor(cell.isDoorAuspicious ? .green : (cell.isDoorInauspicious ? .red : Color(red: 0.95, green: 0.85, blue: 0.45)))
+            Spacer()
         }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 10)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(8)
+        .padding(.horizontal, 16)
     }
 
-    private func qimenScenarioGuideCard(rec: QimenScenarioRecommendation) -> some View {
-        let badgeLabel: String = {
-            switch lang.effectiveLanguage {
-            case .en: return "Best Direction"
-            case .zhHant: return "一事一斷 · 首選吉方"
-            case .ja: return "目的別・最吉方位"
-            case .ko: return "목적별 길방"
-            case .vi: return "Phương vị ưu tiên"
-            case .th: return "ทิศมงคลตามภารกิจ"
-            case .id: return "Arah Prioritas"
-            case .auto, .zhHans: return "一事一断 · 首选吉方"
-            }
-        }()
-        return VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Image(systemName: rec.scenario.iconName)
-                    .adaptiveFont(size: 12)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                Text("\(rec.scenario.localizedTitle) · \(rec.directionTitle)")
+    // MARK: - 出行动身方位导航卡
+
+    private func travelNavigationCard(chart: QimenChart) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Image(systemName: "location.north.circle.fill")
+                    .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                Text(lang.t("qimen_travel_best"))
                     .adaptiveFont(size: 12, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(.white)
                 Spacer()
-                Text(badgeLabel)
-                    .adaptiveFont(size: 9, weight: .bold)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.yanCyan.opacity(0.18))
-                    .foregroundColor(Color.yanCyan)
-                    .cornerRadius(4)
+                Text(lang.t("qimen_pattern_best"))
+                    .adaptiveFont(size: 10)
+                    .foregroundColor(.green)
             }
-            Text(rec.keyPattern)
-                .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
-                .foregroundColor(Color.green)
-            Text(rec.actionGuide)
+
+            Text("\(lang.t("qimen_best_nav"))【\(chart.bestNavDirection)】！\(chart.bestNavReason)")
                 .adaptiveFont(size: 11)
-                .foregroundColor(.white.opacity(0.88))
-                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(Color.green)
+                .lineLimit(2)
+
+            if !chart.tabooDirections.isEmpty {
+                Text("\(lang.t("qimen_taboo_nav"))【\(chart.tabooDirections)】\(lang.t("qimen_taboo_suffix"))")
+                    .adaptiveFont(size: 11)
+                    .foregroundColor(Color.orange)
+                    .lineLimit(2)
+            }
         }
         .padding(10)
-        .background(Color(red: 0.11, green: 0.13, blue: 0.18))
-        .cornerRadius(9)
+        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .cornerRadius(10)
         .overlay(
-            RoundedRectangle(cornerRadius: 9)
-                .stroke(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.35), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.2), lineWidth: 1)
         )
-    }
-
-    // MARK: - 奇门遁甲 VIP 展开态预览占位卡 (消除展开态双栏右侧留白)
-    private func qimenVIPPreviewCard() -> some View {
-        let lang = LocalizationManager.shared
-        return VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "lock.shield.fill")
-                    .adaptiveFont(size: 16)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                Text(lang.t("privilege_qimen_title"))
-                    .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                Spacer()
-                Text(lang.t("vip_badge_title"))
-                    .adaptiveFont(size: 10, weight: .bold)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.2))
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                    .cornerRadius(4)
-            }
-
-            Text(lang.t("privilege_qimen_desc"))
-                .adaptiveFont(size: 11)
-                .foregroundColor(.white.opacity(0.85))
-                .lineSpacing(3)
-
-            Divider().background(Color.white.opacity(0.1))
-
-            Text("🧭 \(lang.t("privilege_qm_feature_title"))")
-                .adaptiveFont(size: 12, weight: .semibold)
-                .foregroundColor(Color.yanCyan)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("• \(lang.t("privilege_qm_bullet_1"))")
-                    .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.75))
-                Text("• \(lang.t("privilege_qm_bullet_2"))")
-                    .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.75))
-                Text("• \(lang.t("privilege_qm_bullet_3"))")
-                    .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.75))
-            }
-
-            Spacer(minLength: 8)
-
-            Button(action: { showPaywall = true }) {
-                HStack {
-                    Spacer()
-                    Image(systemName: "crown.fill")
-                    Text(lang.t("unlock_vip_now"))
-                    Spacer()
-                }
-                .adaptiveFont(size: 12, weight: .bold)
-                .padding(.vertical, 8)
-                .background(Color(red: 0.83, green: 0.68, blue: 0.21))
-                .foregroundColor(.black)
-                .cornerRadius(8)
-            }
-        }
-        .padding(14)
-        .background(Color.white.opacity(0.04))
-        .cornerRadius(12)
+        .padding(.horizontal, 16)
     }
 }
