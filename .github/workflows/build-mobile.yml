@@ -211,6 +211,17 @@ jobs:
           # tar preserves bundle symlinks and executable modes through Artifacts.
           tar -czf "$OUT/artifacts/ios/TiandiLuopan-device-unsigned.xcarchive.tar.gz" \
             -C "$OUT/ios" TiandiLuopan.xcarchive
+          # An IPA is just Payload/<App>.app zipped. This one is unsigned: it is
+          # built from the archive above, so no certificate is involved, and it
+          # must be re-signed before it can be installed on a device.
+          ART_DIR="$(cd "$OUT/artifacts/ios" && pwd)"
+          rm -rf "$OUT/ios/ipaPayload"
+          mkdir -p "$OUT/ios/ipaPayload/Payload"
+          cp -R "$OUT/ios/TiandiLuopan.xcarchive/Products/Applications/TiandiLuopan.app" \
+            "$OUT/ios/ipaPayload/Payload/"
+          (cd "$OUT/ios/ipaPayload" && zip -qry "$ART_DIR/TiandiLuopan-unsigned.ipa" Payload)
+          test -s "$OUT/artifacts/ios/TiandiLuopan-unsigned.ipa"
+          rm -rf "$OUT/ios/ipaPayload"
 
       - name: Build and package iOS simulator application
         id: simulator
@@ -241,11 +252,16 @@ jobs:
           {
             printf 'Commit: %s\nRun: %s\nAttempt: %s\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
             xcodebuild -version
-            printf 'Device archive: unsigned, not an installable IPA.\n'
+            printf 'TiandiLuopan-unsigned.ipa: Payload/<App>.app zipped, built from the device archive.\n'
+            printf 'Unsigned IPA: cannot install on a device until it is re-signed (Xcode, a signing service or a re-sign tool).\n'
+            printf 'Device archive: unsigned, keeps symbols/dSYMs for later signing.\n'
             printf 'Simulator app: only for the iOS Simulator, not physical devices.\n'
-            printf 'Use the existing iOS Multi-Mode Build & Deploy workflow for a signed IPA.\n'
+            printf 'For a signed, installable IPA, run the iOS Multi-Mode Build & Deploy workflow manually.\n'
           } > "$OUT/BUILD-INFO.txt"
-          (cd "$OUT" && shasum -a 256 ./*.tar.gz > SHA256SUMS.txt)
+          # shasum both tarballs and the IPA; either group may be missing when
+          # only one of the two iOS builds succeeded.
+          : > "$OUT/SHA256SUMS.txt"
+          (cd "$OUT" && for f in ./*.tar.gz ./*.ipa; do if [ -e "$f" ]; then shasum -a 256 "$f" >> SHA256SUMS.txt; fi; done)
 
       - name: Upload iOS build results
         id: upload
@@ -278,10 +294,10 @@ jobs:
         run: |
           {
             printf '## iOS build\n\n'
-            printf -- '- Device archive: **%s**\n- Simulator app: **%s**\n' "$DEVICE_OUTCOME" "$SIMULATOR_OUTCOME"
+            printf -- '- Device archive / unsigned IPA: **%s**\n- Simulator app: **%s**\n' "$DEVICE_OUTCOME" "$SIMULATOR_OUTCOME"
             printf -- '- Commit: `%s`\n- Artifact retention: 30 days (subject to repository policy).\n' "$GITHUB_SHA"
             if [ -n "$ARTIFACT_URL" ]; then
-              printf -- '- [Download iOS archive / app](%s)\n' "$ARTIFACT_URL"
+              printf -- '- [Download IPA / archive / simulator app](%s)\n' "$ARTIFACT_URL"
             fi
-            printf '\nDevice archives are unsigned. A signed IPA is available through the existing iOS signing workflow.\n'
+            printf '\nThe IPA (TiandiLuopan-unsigned.ipa) is unsigned: re-sign it before installing on a device.\nFor a signed, installable IPA run the iOS Multi-Mode Build & Deploy workflow manually.\n'
           } >> "$GITHUB_STEP_SUMMARY"
