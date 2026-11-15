@@ -381,72 +381,6 @@ public class TianJiShuEngine {
                 minimumHeight: 80
             ) + 12
 
-            // 1.5 宅主本命卦人宅配卦与当日财神喜神吉位 (P1.1 & P2.1 全案长卷集成)
-            let kuaMgr = UserKuaProfileManager.shared
-            if kuaMgr.canUsePersonalAnalysis {
-            let compat = kuaMgr.evaluateCompatibility(sittingPalace: mSitting.palace)
-            let dailyGods = ZeRiEngine.shared.dailyCompassDirections(for: reportDate)
-            let p1KuaText: String
-            switch renderLanguage {
-            case .en:
-                p1KuaText = """
-                • Owner Life Gua: \(kuaMgr.birthYear) (\(compat.localizedZodiacName)) · \(compat.localizedOwnerGuaName) (\(compat.localizedLifeGroup)) · [\(compat.matchBadgeTitle)]
-                • Personal 4 Auspicious Sectors: Wealth \(compat.wealthDirection) · Health \(compat.healthDirection) · Harmony \(compat.harmonyDirection) · Study \(compat.studyDirection)
-                • Daily Auspicious Bearings: God of Wealth \(dailyGods.wealthDirection) (\(Int(dailyGods.wealthAngle))°) · God of Joy \(dailyGods.joyDirection) (\(Int(dailyGods.joyAngle))°)
-                """
-            case .zhHant:
-                p1KuaText = """
-                • 宅主本命配卦：\(kuaMgr.birthYear)年（\(compat.localizedZodiacName)）· \(compat.localizedOwnerGuaName)（\(compat.localizedLifeGroup)）· 【\(compat.matchBadgeTitle)】
-                • 宅主本命四吉方：生氣財位【\(compat.wealthDirection)】· 天醫祛病位【\(compat.healthDirection)】· 延年和合位【\(compat.harmonyDirection)】· 伏位文昌【\(compat.studyDirection)】
-                • 當日出行納吉方：今日財神正位【\(dailyGods.wealthDirection)（\(Int(dailyGods.wealthAngle))°）】· 今日喜神吉位【\(dailyGods.joyDirection)（\(Int(dailyGods.joyAngle))°）】
-                """
-            case .ja:
-                p1KuaText = """
-                • 家主本命配卦：\(kuaMgr.birthYear)年（\(compat.localizedZodiacName)）· \(compat.localizedOwnerGuaName)（\(compat.localizedLifeGroup)）· 【\(compat.matchBadgeTitle)】
-                • 本命四吉方位：生気財位【\(compat.wealthDirection)】· 天医健康位【\(compat.healthDirection)】· 延年和合位【\(compat.harmonyDirection)】· 伏位文昌【\(compat.studyDirection)】
-                • 本日の吉方位：財神【\(dailyGods.wealthDirection)（\(Int(dailyGods.wealthAngle))°）】· 喜神【\(dailyGods.joyDirection)（\(Int(dailyGods.joyAngle))°）】
-                """
-            case .ko:
-                p1KuaText = """
-                • 건축주 본명배괘: \(kuaMgr.birthYear)년 (\(compat.localizedZodiacName)) · \(compat.localizedOwnerGuaName) (\(compat.localizedLifeGroup)) · 【\(compat.matchBadgeTitle)】
-                • 본명 4길방: 생기재위【\(compat.wealthDirection)】· 천의건강위【\(compat.healthDirection)】· 연년화합위【\(compat.harmonyDirection)】· 복위문창【\(compat.studyDirection)】
-                • 당일 출행 길방: 오늘의 재신방【\(dailyGods.wealthDirection) (\(Int(dailyGods.wealthAngle))°)】· 희신방【\(dailyGods.joyDirection) (\(Int(dailyGods.joyAngle))°)】
-                """
-            case .vi:
-                p1KuaText = """
-                • Bản mệnh Trạch chủ: Năm \(kuaMgr.birthYear) (\(compat.localizedZodiacName)) · \(compat.localizedOwnerGuaName) (\(compat.localizedLifeGroup)) · 【\(compat.matchBadgeTitle)】
-                • Tứ cát phương bản mệnh: Sinh Khí 【\(compat.wealthDirection)】 · Thiên Y 【\(compat.healthDirection)】 · Diên Niên 【\(compat.harmonyDirection)】 · Phục Vị 【\(compat.studyDirection)】
-                • Cát phương xuất hành: Thần Tài 【\(dailyGods.wealthDirection) (\(Int(dailyGods.wealthAngle))°)】 · Hỷ Thần 【\(dailyGods.joyDirection) (\(Int(dailyGods.joyAngle))°)】
-                """
-            case .th:
-                p1KuaText = """
-                • รหัสชีวิตเจ้าของบ้าน: ปี \(kuaMgr.birthYear) (\(compat.localizedZodiacName)) · \(compat.localizedOwnerGuaName) (\(compat.localizedLifeGroup)) · 【\(compat.matchBadgeTitle)】
-                • ๔ ทิศมงคลประจำตัว: โชคลาภ【\(compat.wealthDirection)】· สุขภาพ【\(compat.healthDirection)】· ความปรองดอง【\(compat.harmonyDirection)】· การศึกษา【\(compat.studyDirection)】
-                • ทิศมงคลประจำวัน: เทพโชคลาภ【\(dailyGods.wealthDirection) (\(Int(dailyGods.wealthAngle))°)】· เทพมงคล【\(dailyGods.joyDirection) (\(Int(dailyGods.joyAngle))°)】
-                """
-            case .id:
-                p1KuaText = """
-                • Gua Pemilik Rumah: \(kuaMgr.birthYear) (\(compat.localizedZodiacName)) · \(compat.localizedOwnerGuaName) (\(compat.localizedLifeGroup)) · [\(compat.matchBadgeTitle)]
-                • 4 Sektor Keberuntungan: Rezeki \(compat.wealthDirection) · Kesehatan \(compat.healthDirection) · Harmoni \(compat.harmonyDirection) · Studi \(compat.studyDirection)
-                • Arah Hoki Harian: Dewa Rezeki \(dailyGods.wealthDirection) (\(Int(dailyGods.wealthAngle))°) · Dewa Sukacita \(dailyGods.joyDirection) (\(Int(dailyGods.joyAngle))°)
-                """
-            case .auto, .zhHans:
-                p1KuaText = """
-                • 宅主本命配卦：\(kuaMgr.birthYear)年（\(compat.localizedZodiacName)）· \(compat.localizedOwnerGuaName)（\(compat.localizedLifeGroup)）· 【\(compat.matchBadgeTitle)】
-                • 宅主本命四吉方：生气财位【\(compat.wealthDirection)】· 天医祛病位【\(compat.healthDirection)】· 延年和合位【\(compat.harmonyDirection)】· 伏位文昌【\(compat.studyDirection)】
-                • 当日出行纳吉方：今日财神正位【\(dailyGods.wealthDirection)（\(Int(dailyGods.wealthAngle))°）】· 今日喜神吉位【\(dailyGods.joyDirection)（\(Int(dailyGods.joyAngle))°）】
-                """
-            }
-            curY += drawMeasuredText(
-                p1KuaText,
-                atY: curY,
-                font: bodyFont,
-                color: vermilion,
-                minimumHeight: 60
-            ) + 20
-            
-            }
-
             // 5. 第二部：玄空飞星九宫方阵 (根据实时天文学历法动态排盘)
             let xkChart = snapshot.flyingStarsChart()
             let patternSummary = LocalizationManager.shared.t(xkChart.pattern.explanationKey) + "\n\n" + xkChart.analysisNote
@@ -655,47 +589,9 @@ public class TianJiShuEngine {
                 minimumHeight: 80
             ) + 20
             
-            // 8. 第五部：全屋空间调理与开光化煞清单
-            let sec5Title = tr8(
-                "第五卷 · 全屋空间调理与镇煞秘诀",
-                "第五卷 · 全屋空間調理與鎮煞秘訣",
-                "V · WHOLE-HOME HARMONIZATION",
-                "第五巻・全室空間調和と化煞の秘訣",
-                "제5권 · 주택 공간 조율 및 비전 화살",
-                "QUYỂN V · ĐIỀU HÒA KHÔNG GIAN VÀ HÓA SÁT",
-                "บทที่ ๕ · การปรับสมดุลและเคล็ดลับสลายเคราะห์ทั่วบ้าน",
-                "BAGIAN V · PENYELARASAN RUANG & PENANGKAL SHA"
-            )
-            drawSectionHeader(ctx: cg, title: sec5Title, atY: curY, vermilion: vermilion)
-            curY += 65
-            
-            let pwChart = PurpleWhiteEngine.shared.calculateChart(date: reportDate, heading: heading)
             let deepAnalysis = snapshot.deepAnalysis(chart: xkChart)
             let zeri = ZeRiEngine.shared.analyze(date: reportDate, sitting: mSitting)
-            let annualNote = tr8(
-                "• 岁运太岁与择日：太岁在\(pwChart.taiSuiDescription)、岁破在\(pwChart.suiPoDescription)、三煞在\(pwChart.sanShaDescription)；当前四柱【\(zeri.fourPillarsText)】（\(zeri.overallStatus)）。",
-                "• 歲運太歲與擇日：太歲在\(pwChart.taiSuiDescription)、歲破在\(pwChart.suiPoDescription)、三煞在\(pwChart.sanShaDescription)；當前四柱【\(zeri.fourPillarsText)】（\(zeri.overallStatus)）。",
-                "• Annual Tai Sui & Date Selection: Tai Sui at \(pwChart.taiSuiDescription), Sui Po at \(pwChart.suiPoDescription), San Sha at \(pwChart.sanShaDescription); Four Pillars [\(zeri.fourPillarsText)] (\(zeri.overallStatus)).",
-                "• 歳運太歳と択日：太歳\(pwChart.taiSuiDescription)・歳破\(pwChart.suiPoDescription)・三煞\(pwChart.sanShaDescription)；四柱【\(zeri.fourPillarsText)】（\(zeri.overallStatus)）。",
-                "• 세운 태세 및 택일: 태세 \(pwChart.taiSuiDescription), 세파 \(pwChart.suiPoDescription), 삼살 \(pwChart.sanShaDescription); 사주 【\(zeri.fourPillarsText)】(\(zeri.overallStatus)).",
-                "• Thái Tuế & Trạch Nhật: Thái Tuế \(pwChart.taiSuiDescription), Tuế Phá \(pwChart.suiPoDescription), Tam Sát \(pwChart.sanShaDescription); Tứ Trụ 【\(zeri.fourPillarsText)】 (\(zeri.overallStatus)).",
-                "• ไท่ซุ่ยประจำปีและฤกษ์ยาม: ไท่ซุ่ย \(pwChart.taiSuiDescription), ซุ่ยพั่ว \(pwChart.suiPoDescription), ซานซ่า \(pwChart.sanShaDescription); สี่เสา 【\(zeri.fourPillarsText)】 (\(zeri.overallStatus))",
-                "• Tai Sui Tahunan & Pemilihan Hari: Tai Sui di \(pwChart.taiSuiDescription), Sui Po di \(pwChart.suiPoDescription), San Sha di \(pwChart.sanShaDescription); Empat Pilar [\(zeri.fourPillarsText)] (\(zeri.overallStatus))."
-            )
-            let p5Text = """
-            \(snapshot.guidanceText(chart: xkChart, analysis: deepAnalysis))
-            \(annualNote)
-            """
-            curY += drawMeasuredText(
-                p5Text,
-                atY: curY,
-                font: bodyFont,
-                color: UIColor(red: 40/255.0, green: 35/255.0, blue: 30/255.0, alpha: 1.0),
-                minimumHeight: 80
-            ) + 20
-
-            // The summary above is intentionally short for the opening pages;
-            // these sections carry every palace cell so the exported scroll is
+            // These sections carry every palace cell, so the exported scroll stays
             // a complete snapshot of the current engines rather than a list of
             // only the most notable directions.
             curY = drawFlyingStarsDetails(
