@@ -24,10 +24,6 @@ public struct SettingsView: View {
         _ = Self.appearanceConfigured
     }
 
-    private var isProUnlocked: Bool {
-        iap.hasUnlockedVIP
-    }
-
     public var body: some View {
         Group {
             if isActive {
@@ -140,30 +136,18 @@ public struct SettingsView: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: isProUnlocked
-                                    ? [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)]
-                                    : [Color(red: 0.25, green: 0.26, blue: 0.3), Color(red: 0.15, green: 0.16, blue: 0.2)],
+                                colors: [Color(red: 0.25, green: 0.26, blue: 0.3), Color(red: 0.15, green: 0.16, blue: 0.2)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .frame(width: 50, height: 50)
-                    Image(systemName: isProUnlocked ? "crown.fill" : "person.fill")
+                    Image(systemName: "person.fill")
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(isProUnlocked ? .black : .white.opacity(0.85))
+                        .foregroundColor(.white.opacity(0.85))
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text(isProUnlocked ? lang.t("vip_user") : lang.t("standard_user"))
-                            .adaptiveFont(size: 16, weight: .bold)
-                            .foregroundColor(isProUnlocked ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white)
-                        if isProUnlocked {
-                            Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                                .font(.system(size: 13))
-                        }
-                    }
                     Text(userHeaderSubtitle)
                         .adaptiveFont(size: 11)
                         .foregroundColor(.secondary)

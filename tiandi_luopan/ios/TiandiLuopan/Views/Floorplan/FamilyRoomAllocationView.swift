@@ -9,12 +9,10 @@ struct FamilyRoomAllocationSection: View {
     let manualAssignments: [FamilyRoomAssignment]?
     @Binding var showLabels: Bool
     let onUpdate: ([FamilyRoomAssignment]?) -> Void
-    @ObservedObject private var iap = StoreKitIAPManager.shared
     @ObservedObject private var profile = UserKuaProfileManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
     @State private var showEditor = false
     @State private var showProfiles = false
-    @State private var showPaywall = false
 
     init(rooms: [FloorplanRoom], centroid: CGPoint, heading: Double, aspectRatio: CGFloat,
          houseContext: CompassHeadingState, manualAssignments: [FamilyRoomAssignment]?,
@@ -32,7 +30,7 @@ struct FamilyRoomAllocationSection: View {
     private var people: [FamilyRoomPerson] { FamilyRoomAllocationEngine.people(profile: profile) }
     private var assignments: [FamilyRoomAssignment] {
         FamilyRoomAllocationEngine.resolve(manual: manualAssignments, rooms: rooms, people: people,
-            centroid: centroid, heading: heading, aspectRatio: aspectRatio, hasMembershipAccess: iap.canUseFamilyRoomAllocation)
+            centroid: centroid, heading: heading, aspectRatio: aspectRatio, hasMembershipAccess: true)
     }
 
     private var unassignedPeople: [FamilyRoomPerson] {
@@ -46,20 +44,9 @@ struct FamilyRoomAllocationSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label(lang.t("fra_title"), systemImage: "person.2.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                Spacer()
-                Text(lang.t("fra_membership"))
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.yellow)
-            }
-            if !iap.canUseFamilyRoomAllocation {
-                Text(lang.t("fra_paywall"))
-                    .font(.system(size: 12)).foregroundColor(.white.opacity(0.7))
-                Button(lang.t("fra_unlock")) { showPaywall = true }
-                    .buttonStyle(.borderedProminent)
-            } else if !profile.isProfileEnabled {
+            Label(lang.t("fra_title"), systemImage: "person.2.fill")
+                .font(.system(size: 14, weight: .semibold))
+            if !profile.isProfileEnabled {
                 Button(lang.t("fra_add_family")) { showProfiles = true }
             } else {
                 Toggle(lang.t("fra_show_labels"), isOn: $showLabels)
@@ -84,15 +71,14 @@ struct FamilyRoomAllocationSection: View {
         .background(Color.white.opacity(0.05))
         .cornerRadius(12)
         .padding(.horizontal, 16)
-        .sheet(isPresented: $showPaywall) { VIPPaywallSheet(defaultProductId: .proLifetime) }
         .sheet(isPresented: $showProfiles) {
             OwnerLifeGuaView(context: houseContext)
         }
         .sheet(isPresented: $showEditor) {
             NavigationView {
                 Group {
-                    if iap.canUseFamilyRoomAllocation && profile.isProfileEnabled { editor }
-                    else { Text(lang.t("fra_paywall")).padding() }
+                    if profile.isProfileEnabled { editor }
+                    else { EmptyView() }
                 }
                 .navigationTitle(lang.t("fra_title"))
                 .navigationBarTitleDisplayMode(.inline)
@@ -138,7 +124,6 @@ struct FamilyRoomAllocationSection: View {
             ForEach(fits, id: \.person.id) { fit in
                 let selected = assignments.contains { $0.roomID == room.id && $0.personID == fit.person.id }
                 Button {
-                    guard iap.canUseFamilyRoomAllocation else { return }
                     onUpdate(FamilyRoomAllocationEngine.toggling(personID: fit.person.id, room: room,
                         assignments: assignments, rooms: rooms, people: people))
                 } label: {
