@@ -157,7 +157,7 @@ public struct XuanKongGridView: View {
                                     headingState: analysisHeading)
         }
         .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .vipYearly)
+            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
         .sheet(isPresented: $showMountainPickerSheet) {
             Mountain24PickerSheet(isPresented: $showMountainPickerSheet)

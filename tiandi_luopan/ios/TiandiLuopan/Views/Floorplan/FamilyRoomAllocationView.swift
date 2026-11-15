@@ -84,7 +84,7 @@ struct FamilyRoomAllocationSection: View {
         .background(Color.white.opacity(0.05))
         .cornerRadius(12)
         .padding(.horizontal, 16)
-        .sheet(isPresented: $showPaywall) { VIPPaywallSheet(defaultProductId: .vipYearly) }
+        .sheet(isPresented: $showPaywall) { VIPPaywallSheet(defaultProductId: .proLifetime) }
         .sheet(isPresented: $showProfiles) {
             OwnerLifeGuaView(context: houseContext)
         }

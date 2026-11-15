@@ -3272,7 +3272,7 @@ public struct ARSpatialSurveyView: View {
             VRSpatialSurveyView(initialSurvey: latestSurveyForVR, propertyID: model.propertyID)
         }
         .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .vipYearly)
+            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
     }
 

@@ -58,7 +58,7 @@ public struct PurpleWhiteView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .vipYearly)
+            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
         .onAppear {
             refreshChart(force: true)

@@ -159,7 +159,7 @@ public struct VRSpatialSurveyView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .vipYearly)
+            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
     }
 

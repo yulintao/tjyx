@@ -89,7 +89,7 @@ public struct BaZhaiView: View {
         }
         .padding(.top, isEmbedded ? 0 : 12)
         .padding(.bottom, isEmbedded ? 0 : 24)
-        .sheet(item: $activeSheet) { _ in VIPPaywallSheet(defaultProductId: .vipYearly) }
+        .sheet(item: $activeSheet) { _ in VIPPaywallSheet(defaultProductId: .proLifetime) }
 
         if isEmbedded { content }
         else {
@@ -671,7 +671,7 @@ struct OwnerGuaVIPGate<Content: View>: View {
                     .padding(16)
             }
         }
-        .sheet(isPresented: $showPaywall) { VIPPaywallSheet(defaultProductId: .vipYearly) }
+        .sheet(isPresented: $showPaywall) { VIPPaywallSheet(defaultProductId: .proLifetime) }
     }
 }
 

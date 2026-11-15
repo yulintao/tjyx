@@ -794,7 +794,7 @@ public struct ARVisionView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .vipYearly)
+            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
         .sheet(isPresented: $showSnapshotShareSheet) {
             if let snapshot = latestSnapshotImage {
@@ -2219,7 +2219,7 @@ public struct ShaRemedyDetailSheet: View {
                 presentationMode.wrappedValue.dismiss()
             })
             .sheet(isPresented: $showPaywall) {
-                VIPPaywallSheet(defaultProductId: .vipYearly)
+                VIPPaywallSheet(defaultProductId: .proLifetime)
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())

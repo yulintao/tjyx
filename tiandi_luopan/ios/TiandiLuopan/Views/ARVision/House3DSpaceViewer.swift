@@ -118,7 +118,7 @@ public struct House3DSpaceViewer: View {
             SurveyShareActivityView(activityItems: report.activityItems)
         }
         .sheet(isPresented: $showPaywall) {
-            VIPPaywallSheet(defaultProductId: .vipYearly)
+            VIPPaywallSheet(defaultProductId: .proLifetime)
         }
         .onAppear {
             refreshSurveyForActiveLanguage()
