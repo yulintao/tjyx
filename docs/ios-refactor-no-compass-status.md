@@ -57,3 +57,56 @@
 - **i18n 未清理**：`tab_compass` 等罗盘专属键仍留在 8 张表里（死键，不影响运行）。清理会改动语言表，按既有约定（不动中日韩表）需要单独评估。
 
 生成时间：2026-11-15
+
+## 四、产品收窄：AR 测绘 + 户型布局 + 家人分配
+
+用户把产品范围定为「通过 AR/VR 分析，根据房屋布局合理安排家人居住，其他的都不要」，
+并要求「全部重构，收费先取消，等功能出来以后再看怎么收费」。据此做了五个提交。
+
+| 提交 | 内容 |
+|------|------|
+| `e241ecb` | 导航收口到 AR / 户型 / 设置三个 Tab，删除 `Views/Analysis` 全部 11 个文件（八宅、紫白、奇门、长卷、玄空），pbxproj 同步删 44 行 |
+| `aa857c4` | 删除 `TianJiShuEngine`（长卷渲染器，内含 `TianJiAnalysisSnapshot`），删前确认零引用 |
+| `425c19c` | 收费暂停：`hasUnlockedVIP` / `canUseFloorplan` / `canUseFamilyRoomAllocation` / `canUseTianji` 四个门禁统一放行 |
+| `addbc7a` | 找回被 `BaZhaiView` 带走的四个类型（见下方「删除风险」） |
+| `00875a3` | 撤下设置里的会员中心入口，删除 `MasterVIPPageView` 与其商品状态 |
+
+### 为什么理气引擎留下
+
+引用扫描结论：这些引擎不是分析页专属，而是空间功能的内核。
+
+```
+FamilyRoomAllocation      → BaZhaiEngine（按家人命卦算吉凶方）
+FloorplanEngine           → XuanKongDeepAnalyzer、PurpleWhiteEngine、BaZhaiEngine
+HouseSpatialSurveyModel   → BaZhaiEngine、FlyingStarsEngine
+House3DSpaceViewer        → BaZhaiEngine、FlyingStarsEngine
+ARVisionView              → SanHeWaterEngine、ZeRiEngine、BaZhaiEngine
+```
+
+可删的是页面与报告，引擎必须留。真正零引用、已删除的只有 `TianJiShuEngine`
+（连带的 `TianJiAnalysisSnapshot` 一并消失）。
+
+### 删除风险：页面文件里藏着别家在用的类型
+
+`BaZhaiView.swift` 里同时定义着 `OwnerLifeGuaView`、`AddFamilyMemberDialog`、
+`EditOwnerKuaDialog`、`OwnerGuaVIPGate`、`ActiveSheet` 五个类型，其中前四个分别被
+`FamilyRoomAllocationView.swift`（家人分房的「添加家人」弹窗）与
+`OwnerKuaReminderPageView.swift`（设置里的宅主命卦提醒）使用。删页面等于删掉它们，
+工程会编不过。已原样搬到 `Views/Floorplan/OwnerLifeGuaView.swift`（1,865 行），
+删掉搬迁后无人使用的 `ActiveSheet`，pbxproj 四处登记（`1108` / `2110`）。
+
+教训：删一个视图文件之前，先把它定义的**顶层类型**列出来，逐个查引用，
+不能只看文件名是否被引用。
+
+### 现状与待办
+
+- 家人分房本来就已经接在户型页里（`FloorplanView` 第 498 行
+  `FamilyRoomAllocationSection`），含标签开关、手动分配、添加家人与持久化，不需要新接线。
+- 工程登记已核对：主 target 53 个 swift 文件、54 条 `PBXBuildFile`，
+  id 与文件引用一一配对，无幽灵条目、无漏登记。
+- 未做：黄历卡片（`DailyAuspiciousCardSheet` 在 `BaZhaiEngine.swift` 内）与
+  独立 widget target（`AlmanacWidgetViews.swift` 1,416 行）是否下线，涉及 target 级配置。
+- 未做：`VIPPaywallSheet` 与 13 个文件里约 80 处 `showPaywall` 残留。
+  门禁放行后它们触发不到，属于死代码，清理无功能影响。
+- 仍未编译、未 push：本机没有 Xcode，五个提交只过了静态检查（括号配平、
+  悬挂符号扫描、pbxproj 登记核对）。
