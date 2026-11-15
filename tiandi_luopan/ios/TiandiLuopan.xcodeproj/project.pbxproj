@@ -86,6 +86,7 @@
 		9114 /* TraditionalEvidence.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2079 /* TraditionalEvidence.swift */; };
 		9111 /* TiandiLuopanWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9209 /* TiandiLuopanWidget.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9603 /* FunctionalRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9602 /* FunctionalRegressionTests.swift */; };
+		1108 /* OwnerLifeGuaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2110 /* OwnerLifeGuaView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -170,6 +171,7 @@
 		9211 /* Widget PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9601 /* TiandiLuopanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TiandiLuopanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9602 /* FunctionalRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalRegressionTests.swift; sourceTree = "<group>"; };
+		2110 /* OwnerLifeGuaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/OwnerLifeGuaView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -277,6 +279,8 @@
 				2022 /* FlyingStarsEngine.swift */,
 				2079 /* TraditionalEvidence.swift */,
 				2093 /* FamilyRoomAllocationView.swift */,
+
+				2110 /* OwnerLifeGuaView.swift */,
 				2092 /* FamilyRoomAllocation.swift */,
 				2023 /* BaZhaiEngine.swift */,
 				2024 /* SanHeWaterEngine.swift */,
@@ -564,6 +568,8 @@
 				1078 /* VRSpatialSurveyView.swift in Sources */,
 				1079 /* TraditionalEvidence.swift in Sources */,
 				1081 /* FamilyRoomAllocationView.swift in Sources */,
+
+				1108 /* OwnerLifeGuaView.swift in Sources */,
 				1080 /* FamilyRoomAllocation.swift in Sources */,
 				9100 /* WidgetAlmanacSnapshot.swift in Sources */,
 
