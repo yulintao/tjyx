@@ -60,6 +60,7 @@
 		1106 /* PurpleWhiteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2108 /* PurpleWhiteViewModel.swift */; };
 		1107 /* PurpleWhiteSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2109 /* PurpleWhiteSections.swift */; };
 		1058 /* TianJiShuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2058 /* TianJiShuView.swift */; };
+		1108 /* TianJiShuViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2110 /* TianJiShuViewModel.swift */; };
 		1063 /* SolarTermsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2063 /* SolarTermsData.swift */; };
 		1014 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2087 /* PrivacyInfo.xcprivacy */; };
 		1065 /* FloorplanImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2065 /* FloorplanImagePicker.swift */; };
@@ -154,6 +155,7 @@
 		2108 /* PurpleWhiteViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/PurpleWhiteViewModel.swift"; sourceTree = "<group>"; };
 		2109 /* PurpleWhiteSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/PurpleWhiteSections.swift"; sourceTree = "<group>"; };
 		2058 /* TianJiShuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/TianJiShuView.swift"; sourceTree = "<group>"; };
+		2110 /* TianJiShuViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Analysis/TianJiShuViewModel.swift"; sourceTree = "<group>"; };
 		2063 /* SolarTermsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/SolarTermsData.swift"; sourceTree = "<group>"; };
 		2065 /* FloorplanImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanImagePicker.swift"; sourceTree = "<group>"; };
 		2066 /* ZeRiEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/ZeRiEngine.swift"; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 				2108 /* PurpleWhiteViewModel.swift */,
 				2109 /* PurpleWhiteSections.swift */,
 				2058 /* TianJiShuView.swift */,
+				2110 /* TianJiShuViewModel.swift */,
 				2063 /* SolarTermsData.swift */,
 				2065 /* FloorplanImagePicker.swift */,
 				2066 /* ZeRiEngine.swift */,
@@ -587,6 +590,7 @@
 				1106 /* PurpleWhiteViewModel.swift in Sources */,
 				1107 /* PurpleWhiteSections.swift in Sources */,
 				1058 /* TianJiShuView.swift in Sources */,
+				1108 /* TianJiShuViewModel.swift in Sources */,
 				1063 /* SolarTermsData.swift in Sources */,
 				1065 /* FloorplanImagePicker.swift in Sources */,
 				1066 /* ZeRiEngine.swift in Sources */,

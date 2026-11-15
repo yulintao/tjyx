@@ -9,53 +9,34 @@ public struct TianJiShuView: View {
     @ObservedObject var iap = StoreKitIAPManager.shared
     @ObservedObject var lang = LocalizationManager.shared
     @Environment(\.presentationMode) var presentationMode
-    
-    @State private var scrollImage: UIImage? = nil
-    @State private var isGenerating: Bool = true
-    @State private var showSavedToast: Bool = false
-    @State private var saveErrorMessage: String?
-    @State private var showSaveError: Bool = false
-    @State private var showPhotoSettings: Bool = false
-    @State private var showShareSheet: Bool = false
-    @State private var showPaywall: Bool = false
-    @State private var isExporting: Bool = false
-    @State private var photoWriteInFlight = false
-    @State private var reservedTianjiCredit: String?
-    @State private var shareCreditLease: TianjiExportCreditLease?
-    @State private var exportImage: UIImage?
-    // Invalidated whenever a new render starts or the view disappears, so a
-    // late background result cannot overwrite current or dismissed state.
-    @State private var renderGeneration: Int = 0
-    @State private var showCustomSignEditor: Bool = false
-    @State private var customClientName: String = UserDefaults.standard.string(forKey: "tianjishu_custom_client") ?? ""
-    @State private var customMasterName: String = UserDefaults.standard.string(forKey: "tianjishu_custom_master") ?? ""
-    @State private var customSealText: String = UserDefaults.standard.string(forKey: "tianjishu_custom_seal") ?? ""
-    
-    @State private var analysis: TianJiAnalysisSnapshot
-    @State private var capturedCoordsDesc: String
-    @State private var capturedSolarTimeDesc: String
-    @State private var capturedFloorplanReport: [FloorplanAuditItem]
-    @State private var capturedPanoramaArchive: PanoramaFengShuiArchive?
+    @StateObject private var viewModel = TianJiShuViewModel()
+
+    /// 报告生成后不再变化的固定输入，渲染与导出共用同一份。
+    private let context: TianJiShuReportContext
 
     public init(analysis: TianJiAnalysisSnapshot? = nil) {
         let motion = CompassMotionManager.shared
         let snapshot = analysis ?? TianJiAnalysisSnapshot(heading: motion.headingState.facingAngle)
-        self._analysis = State(initialValue: snapshot)
-        self._capturedCoordsDesc = State(initialValue: motion.coordsDesc)
-        self._capturedSolarTimeDesc = State(initialValue: motion.solarTimeDesc)
-        self._capturedFloorplanReport = State(initialValue: snapshot.hasSpatialSnapshot
-            ? snapshot.capturedFloorplanReport : FloorplanAuditStore.shared.latestReport)
-        self._capturedPanoramaArchive = State(initialValue: snapshot.hasSpatialSnapshot
-            ? snapshot.capturedPanoramaArchive : ShaSurveyStore.shared.archive)
+        self.context = TianJiShuReportContext(
+            analysis: snapshot,
+            coordsDesc: motion.coordsDesc,
+            solarTimeDesc: motion.solarTimeDesc,
+            floorplanReport: snapshot.hasSpatialSnapshot
+                ? snapshot.capturedFloorplanReport
+                : FloorplanAuditStore.shared.latestReport,
+            panoramaArchive: snapshot.hasSpatialSnapshot
+                ? snapshot.capturedPanoramaArchive
+                : ShaSurveyStore.shared.archive
+        )
     }
-    
+
     public var body: some View {
         NavigationView {
             ZStack {
                 Color(red: 0.1, green: 0.1, blue: 0.12).ignoresSafeArea()
-                
+
                 VStack(spacing: 12) {
-                    if isGenerating {
+                    if viewModel.isGenerating {
                         Spacer()
                         VStack(spacing: 12) {
                             ProgressView()
@@ -66,7 +47,7 @@ public struct TianJiShuView: View {
                                 .foregroundColor(.white.opacity(0.8))
                         }
                         Spacer()
-                    } else if let img = scrollImage {
+                    } else if let img = viewModel.scrollImage {
                         // P3.8 自定义师门落款、堂号印章与福主署名栏
                         customSignatureBar()
                             .padding(.horizontal, 16)
@@ -79,148 +60,17 @@ public struct TianJiShuView: View {
                                     .scaledToFit()
                                     .cornerRadius(8)
                                     .shadow(color: .black.opacity(0.6), radius: 10, x: 0, y: 5)
-                                
                             }
                             .padding(12)
                         }
-                        
-                        // 底部操作栏
-                        VStack(spacing: 8) {
-                            if !iap.canUseTianji {
-                                VIPLockCardView(
-                                    title: lang.t("tianji_vip_card_title"),
-                                    featureDesc: lang.t("tianji_vip_card_desc"),
-                                    badge: "\(lang.t("tianji_vip_badge")) · \(iap.localizedPrice(for: .tianjiSingle))",
-                                    targetProductId: .tianjiSingle,
-                                    onUnlockTap: { showPaywall = true }
-                                )
-                            }
-                            
-                            HStack(spacing: 12) {
-                                Button(action: {
-                                    guard !isExporting else { return }
-                                    if !iap.canUseTianji {
-                                        showPaywall = true
-                                        return
-                                    }
-                                    let reservation = iap.hasUnlockedVIP ? nil : iap.reserveTianjiCredit()
-                                    if !iap.hasUnlockedVIP && reservation == nil {
-                                        showPaywall = true
-                                        return
-                                    }
-                                    reservedTianjiCredit = reservation
-                                    isExporting = true
-                                    prepareExportImage { exportImage in
-                                        guard let exportImage = exportImage else {
-                                            isExporting = false
-                                            releaseReservedTianjiCredit(reservation)
-                                            saveErrorMessage = lang.t("save_failed")
-                                            showSaveError = true
-                                            return
-                                        }
-                                        photoWriteInFlight = true
-                                        TianJiShuEngine.shared.saveToPhotoLibrary(image: exportImage) { success, message in
-                                            DispatchQueue.main.async {
-                                                photoWriteInFlight = false
-                                                isExporting = false
-                                                if success {
-                                                    // The credit is committed only
-                                                    // after the photo write succeeds.
-                                                    commitReservedTianjiCredit(reservation)
-                                                    RetentionServiceManager.shared.recordMilestone(reason: "save_tianjishu")
-                                                    withAnimation { showSavedToast = true }
-                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                                                        withAnimation { showSavedToast = false }
-                                                    }
-                                                } else {
-                                                    releaseReservedTianjiCredit(reservation)
-                                                    saveErrorMessage = message ?? lang.t("save_failed")
-                                                    let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
-                                                    showPhotoSettings = status == .denied || status == .restricted
-                                                    showSaveError = true
-                                                }
-                                            }
-                                        }
-                                    }
-                                }) {
-                                    HStack {
-                                        if isExporting {
-                                            ProgressView()
-                                                .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                        } else {
-                                            Image(systemName: "square.and.arrow.down.fill")
-                                        }
-                                        Text(isExporting ? lang.t("exporting") : lang.t("save_to_photos"))
-                                    }
-                                    .adaptiveFont(size: 13, weight: .bold)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(
-                                        LinearGradient(
-                                            colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .foregroundColor(.black)
-                                    .cornerRadius(10)
-                                }
-                                .disabled(isExporting)
-                                
-                                Button(action: {
-                                    guard !isExporting else { return }
-                                    if !iap.canUseTianji {
-                                        showPaywall = true
-                                        return
-                                    }
-                                    let reservation = iap.hasUnlockedVIP ? nil : iap.reserveTianjiCredit()
-                                    if !iap.hasUnlockedVIP && reservation == nil {
-                                        showPaywall = true
-                                        return
-                                    }
-                                    reservedTianjiCredit = reservation
-                                    isExporting = true
-                                    prepareExportImage { exportImage in
-                                        guard let exportImage = exportImage else {
-                                            isExporting = false
-                                            releaseReservedTianjiCredit(reservation)
-                                            saveErrorMessage = lang.t("save_failed")
-                                            showSaveError = true
-                                            return
-                                        }
-                                        shareCreditLease = TianjiExportCreditLease { [exportManager = iap] success in
-                                            guard let reservation else { return }
-                                            if success { exportManager.commitTianjiCreditReservation(reservation) }
-                                            else { exportManager.refundTianjiCreditReservation(reservation) }
-                                        }
-                                        reservedTianjiCredit = nil
-                                        self.exportImage = exportImage
-                                        // Keep only one long image in memory while
-                                        // the share controller is presented.
-                                        self.scrollImage = nil
-                                        showShareSheet = true
-                                    }
-                                }) {
-                                    HStack {
-                                        Image(systemName: "square.and.arrow.up.fill")
-                                        Text(lang.t("share_and_print"))
-                                    }
-                                    .adaptiveFont(size: 13, weight: .bold)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(Color.white.opacity(0.12))
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                                }
-                                .disabled(isExporting)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 12)
+
+                        exportBar
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 12)
                     }
-                    
+
                     // 保存成功轻提示
-                    if showSavedToast {
+                    if viewModel.showSavedToast {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.seal.fill")
                                 .foregroundColor(.green)
@@ -241,48 +91,35 @@ public struct TianJiShuView: View {
                 presentationMode.wrappedValue.dismiss()
             })
             .onAppear {
-                beginRendering()
+                viewModel.beginRendering(context: context, isPro: iap.hasUnlockedVIP)
             }
             .onChange(of: lang.effectiveLanguage) { _ in
                 // The report image contains localized text independently of
                 // the surrounding SwiftUI labels. Re-render it after a
                 // language change so the page never mixes two locales.
-                beginRendering()
+                viewModel.beginRendering(context: context, isPro: iap.hasUnlockedVIP)
             }
             .onReceive(iap.$tianjiCreditsCount.dropFirst()) { _ in
-                guard !isExporting else { return }
-                beginRendering()
+                guard !viewModel.isExporting else { return }
+                viewModel.beginRendering(context: context, isPro: iap.hasUnlockedVIP)
             }
             .onReceive(iap.$isVIPUser.dropFirst()) { _ in
-                guard !isExporting else { return }
-                beginRendering()
+                guard !viewModel.isExporting else { return }
+                viewModel.beginRendering(context: context, isPro: iap.hasUnlockedVIP)
             }
             .onDisappear {
-                renderGeneration += 1
-                if !showShareSheet && !photoWriteInFlight {
-                    releaseReservedTianjiCredit(reservedTianjiCredit)
-                    isExporting = false
-                }
+                viewModel.handleDisappear()
             }
-            .sheet(isPresented: $showShareSheet, onDismiss: {
-                // The controller's callback still owns the lease if settlement
-                // is pending; teardown without a callback cancels it on deinit.
-                shareCreditLease = nil
-                isExporting = false
-                exportImage = nil
-                if scrollImage == nil {
-                    beginRendering()
-                }
+            .sheet(isPresented: $viewModel.showShareSheet, onDismiss: {
+                viewModel.handleShareSheetDismissed(context: context)
             }) {
-                if let exportImage {
-                    let lease = shareCreditLease
+                if let exportImage = viewModel.exportImage {
                     TianJiActivityViewController(activityItems: [exportImage]) { completed in
-                        lease?.complete(success: completed)
-                        isExporting = false
+                        viewModel.handleShareCompletion(completed: completed)
                     }
                 }
             }
-            .sheet(isPresented: $showPaywall) {
+            .sheet(isPresented: $viewModel.showPaywall) {
                 VIPPaywallSheet(defaultProductId: .tianjiSingle)
             }
         }
@@ -291,39 +128,86 @@ public struct TianJiShuView: View {
         // high-frequency compass stream, which tore down the alert.
         .overlay(
             Group {
-                if showSaveError {
+                if viewModel.showSaveError {
                     FloorplanConfirmDialog(
                         title: lang.t("save_failed"),
-                        message: saveErrorMessage ?? lang.t("save_failed"),
-                        confirmTitle: showPhotoSettings ? lang.t("open_system_settings") : lang.t("done"),
-                        cancelTitle: showPhotoSettings ? lang.t("done") : nil,
+                        message: viewModel.saveErrorMessage ?? lang.t("save_failed"),
+                        confirmTitle: viewModel.showPhotoSettings ? lang.t("open_system_settings") : lang.t("done"),
+                        cancelTitle: viewModel.showPhotoSettings ? lang.t("done") : nil,
                         confirmColor: Color(red: 0.83, green: 0.68, blue: 0.21),
                         onConfirm: {
-                            showSaveError = false
-                            if showPhotoSettings,
+                            viewModel.dismissError()
+                            if viewModel.showPhotoSettings,
                                let url = URL(string: UIApplication.openSettingsURLString),
                                UIApplication.shared.canOpenURL(url) {
                                 UIApplication.shared.open(url)
                             }
                         },
-                        onCancel: { showSaveError = false }
+                        onCancel: { viewModel.dismissError() }
                     )
                 }
             }
         )
     }
 
-    private func releaseReservedTianjiCredit(_ reservation: String?) {
-        guard let token = reservation else { return }
-        if reservedTianjiCredit == token { reservedTianjiCredit = nil }
-        iap.refundTianjiCreditReservation(token)
+    // MARK: - 底部导出栏
+
+    private var exportBar: some View {
+        VStack(spacing: 8) {
+            if !iap.canUseTianji {
+                VIPLockCardView(
+                    title: lang.t("tianji_vip_card_title"),
+                    featureDesc: lang.t("tianji_vip_card_desc"),
+                    badge: "\(lang.t("tianji_vip_badge")) · \(iap.localizedPrice(for: .tianjiSingle))",
+                    targetProductId: .tianjiSingle,
+                    onUnlockTap: { viewModel.showPaywall = true }
+                )
+            }
+
+            HStack(spacing: 12) {
+                Button(action: { viewModel.saveToPhotos(context: context) }) {
+                    HStack {
+                        if viewModel.isExporting {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                        } else {
+                            Image(systemName: "square.and.arrow.down.fill")
+                        }
+                        Text(viewModel.isExporting ? lang.t("exporting") : lang.t("save_to_photos"))
+                    }
+                    .adaptiveFont(size: 13, weight: .bold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .foregroundColor(.black)
+                    .cornerRadius(10)
+                }
+                .disabled(viewModel.isExporting)
+
+                Button(action: { viewModel.startShare(context: context) }) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up.fill")
+                        Text(lang.t("share_and_print"))
+                    }
+                    .adaptiveFont(size: 13, weight: .bold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.white.opacity(0.12))
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+                .disabled(viewModel.isExporting)
+            }
+        }
     }
 
-    private func commitReservedTianjiCredit(_ reservation: String?) {
-        guard let token = reservation else { return }
-        if reservedTianjiCredit == token { reservedTianjiCredit = nil }
-        iap.commitTianjiCreditReservation(token)
-    }
+    // MARK: - 落款定制栏
 
     private func customSignatureBar() -> some View {
         let barTitle: String
@@ -385,7 +269,7 @@ public struct TianJiShuView: View {
         return VStack(alignment: .leading, spacing: 8) {
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    showCustomSignEditor.toggle()
+                    viewModel.showCustomSignEditor.toggle()
                 }
             }) {
                 HStack(spacing: 6) {
@@ -395,42 +279,36 @@ public struct TianJiShuView: View {
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
                     Spacer()
-                    Image(systemName: showCustomSignEditor ? "chevron.up" : "chevron.down")
+                    Image(systemName: viewModel.showCustomSignEditor ? "chevron.up" : "chevron.down")
                         .adaptiveFont(size: 10, weight: .bold)
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
             .buttonStyle(PlainButtonStyle())
 
-            if showCustomSignEditor {
+            if viewModel.showCustomSignEditor {
                 VStack(spacing: 6) {
-                    TextField(clientPh, text: $customClientName)
+                    TextField(clientPh, text: $viewModel.customClientName)
                         .adaptiveFont(size: 11)
                         .padding(7)
                         .background(Color.white.opacity(0.08))
                         .foregroundColor(.white)
                         .cornerRadius(6)
                     HStack(spacing: 6) {
-                        TextField(masterPh, text: $customMasterName)
+                        TextField(masterPh, text: $viewModel.customMasterName)
                             .adaptiveFont(size: 11)
                             .padding(7)
                             .background(Color.white.opacity(0.08))
                             .foregroundColor(.white)
                             .cornerRadius(6)
-                        TextField(sealPh, text: $customSealText)
+                        TextField(sealPh, text: $viewModel.customSealText)
                             .adaptiveFont(size: 11)
                             .padding(7)
                             .background(Color.white.opacity(0.08))
                             .foregroundColor(.white)
                             .cornerRadius(6)
                     }
-                    Button(action: {
-                        UserDefaults.standard.set(customClientName, forKey: "tianjishu_custom_client")
-                        UserDefaults.standard.set(customMasterName, forKey: "tianjishu_custom_master")
-                        UserDefaults.standard.set(customSealText, forKey: "tianjishu_custom_seal")
-                        showCustomSignEditor = false
-                        beginRendering()
-                    }) {
+                    Button(action: { viewModel.applySignature(context: context) }) {
                         HStack(spacing: 5) {
                             Image(systemName: "checkmark.seal.fill")
                             Text(applyTitle)
@@ -449,83 +327,6 @@ public struct TianJiShuView: View {
         .padding(10)
         .background(Color.white.opacity(0.06))
         .cornerRadius(8)
-    }
-
-    /// Render a clean export image only after the user starts a real save/share
-    /// operation. The on-screen preview remains watermarked for single-credit
-    /// users, preventing screenshots from bypassing the one-export rule.
-    private func prepareExportImage(completion: @escaping (UIImage?) -> Void) {
-        let generation = renderGeneration
-        let reportAnalysis = analysis
-        let heading = reportAnalysis.heading
-        let coordsDesc = capturedCoordsDesc
-        let solarTimeDesc = capturedSolarTimeDesc
-        let language = lang.effectiveLanguage
-        let panoramaArchive = capturedPanoramaArchive
-        let floorplanReport = capturedFloorplanReport
-        let reportDate = reportAnalysis.reportDate
-        DispatchQueue.global(qos: .userInitiated).async {
-            let image = TianJiShuEngine.shared.generateScrollImage(
-                heading: heading,
-                coordsDesc: coordsDesc,
-                solarTimeDesc: solarTimeDesc,
-                language: language,
-                isPro: true,
-                floorplanReport: floorplanReport,
-                panoramaArchive: panoramaArchive,
-                reportDate: reportDate,
-                analysis: reportAnalysis
-            )
-            DispatchQueue.main.async {
-                guard renderGeneration == generation else {
-                    completion(nil)
-                    return
-                }
-                completion(image)
-            }
-        }
-    }
-
-    private func beginRendering() {
-        renderGeneration += 1
-        let generation = renderGeneration
-        // Re-render the captured report context when appearance or entitlement
-        // changes; the chart parameters stay fixed for this report.
-        let reportAnalysis = analysis
-        let heading = reportAnalysis.heading
-        let coordsDesc = capturedCoordsDesc
-        let solarTimeDesc = capturedSolarTimeDesc
-        let language = lang.effectiveLanguage
-        // Freeze the current indoor/outdoor survey archive together
-        // with the compass values. The renderer runs off the main
-        // queue, so reading the live store inside it could mix a new
-        // record with an older heading.
-        let panoramaArchive = capturedPanoramaArchive
-        let floorplanReport = capturedFloorplanReport
-        let reportDate = reportAnalysis.reportDate
-        // A single credit authorizes one actual export. Keep the
-        // preview watermarked until that export is committed; VIP and
-        // lifetime users receive the clean preview immediately.
-        let hasExportEntitlement = iap.hasUnlockedVIP
-        isGenerating = true
-        DispatchQueue.global(qos: .userInitiated).async {
-            let img = TianJiShuEngine.shared.generateScrollImage(
-                heading: heading,
-                coordsDesc: coordsDesc,
-                solarTimeDesc: solarTimeDesc,
-                language: language,
-                isPro: hasExportEntitlement,
-                floorplanReport: floorplanReport,
-                panoramaArchive: panoramaArchive,
-                reportDate: reportDate,
-                analysis: reportAnalysis
-            )
-            DispatchQueue.main.async {
-                guard self.renderGeneration == generation else { return }
-                self.scrollImage = img
-                self.isGenerating = false
-            }
-        }
     }
 }
 
