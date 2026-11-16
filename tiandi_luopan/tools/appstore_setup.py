@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import plistlib
 import re
 import shutil
 import subprocess
@@ -60,6 +61,43 @@ def plan(message: str) -> None:
 # ------------------------------------------------------------------ 配置
 
 REQUIRED = ("teamId", "apiKeyId", "issuerId", "apiKeyPath", "githubRepo")
+
+
+def read_profile_metadata(path: Path) -> dict:
+    """读 .mobileprovision 里的 plist。
+
+    这个文件是 CMS 签名包裹的 plist，plistlib 直接喂会失败，所以先截出 <?xml ... </plist> 那一段。
+    """
+    raw = path.read_bytes()
+    start = raw.find(b"<?xml")
+    end = raw.find(b"</plist>")
+    if start < 0 or end < 0:
+        raise SystemExit(f"{path} 里找不到 plist，不像是 .mobileprovision 文件。")
+    return plistlib.loads(raw[start:end + len(b"</plist>")])
+
+
+def describe_profile(path: Path, bundle_id: str) -> tuple[bool, dict]:
+    """核对该描述文件是否覆盖目标 Bundle ID，不覆盖就返回 (False, 元信息)。"""
+    meta = read_profile_metadata(path)
+    entitlements = meta.get("Entitlements") or {}
+    app_identifier = str(entitlements.get("application-identifier") or "")
+    team = str(entitlements.get("com.apple.developer.team-identifier") or "")
+    info = {
+        "name": str(meta.get("Name") or ""),
+        "uuid": str(meta.get("UUID") or ""),
+        "appIdentifier": app_identifier,
+        "team": team,
+        "devices": len(meta.get("ProvisionedDevices") or []),
+        "getTaskAllow": bool(entitlements.get("get-task-allow")),
+        "appGroups": entitlement_groups(entitlements),
+    }
+    covers = app_identifier.endswith("." + bundle_id) or app_identifier == bundle_id
+    return covers, info
+
+
+def entitlement_groups(entitlements: dict) -> list:
+    groups = entitlements.get("com.apple.security.application-groups") or []
+    return list(groups)
 
 
 def load_config(path: Path) -> dict:
@@ -524,7 +562,8 @@ def set_variable(repo: str, name: str, value: str | None, apply: bool) -> None:
     gh(["variable", "set", name, "--repo", repo, "--body", value], apply)
 
 
-def github(cfg: dict, apply: bool, out_dir: Path) -> int:
+def github(cfg: dict, apply: bool, out_dir: Path,
+           dev_profile: Path | None = None, dist_profile: Path | None = None) -> int:
     if not has_gh():
         warn("本机没有 gh：winget install --id GitHub.cli -e，然后 gh auth login")
         return 1
@@ -544,14 +583,35 @@ def github(cfg: dict, apply: bool, out_dir: Path) -> int:
 
     dev_b64 = out_dir / f"{slug}.dev.mobileprovision.b64"
     dist_b64 = out_dir / f"{slug}.appstore.mobileprovision.b64"
-    if dev_b64.is_file():
-        set_secret(cfg["githubRepo"], "DEV_PROVISION_PROFILE", dev_b64.read_text(encoding="utf-8").strip(), apply)
-    else:
-        warn(f"缺少 {dev_b64}：先跑 provision --apply")
-    if dist_b64.is_file():
-        set_secret(cfg["githubRepo"], "DIST_PROVISION_PROFILE", dist_b64.read_text(encoding="utf-8").strip(), apply)
-    else:
-        warn(f"缺少 {dist_b64}：先跑 provision --apply")
+
+    def push_profile(secret_name: str, explicit: Path | None, generated: Path) -> None:
+        """优先用手工下载的描述文件；推之前先核对 App ID，避免又推一个旧 bundle id 上去。"""
+        if explicit:
+            if not explicit.is_file():
+                raise SystemExit(f"找不到描述文件：{explicit}")
+            covers, info = describe_profile(explicit, primary["bundleId"])
+            step(f"描述文件 {explicit.name}")
+            plan(f"Name={info['name']}  UUID={info['uuid']}  AppID={info['appIdentifier']}")
+            plan(f"设备 {info['devices']} 台  get-task-allow={info['getTaskAllow']}  App Group={info['appGroups']}")
+            if not covers:
+                raise SystemExit(
+                    f"这个描述文件的 App ID 是 {info['appIdentifier']}，覆盖不到 {primary['bundleId']}。"
+                    "在 portal 里为当前 Bundle ID 重新生成一个，再指过来。"
+                )
+            if info["team"] and info["team"] != cfg["teamId"]:
+                warn(f"描述文件的 Team（{info['team']}）与配置的 {cfg['teamId']} 不一致。")
+            if info["appGroups"] and primary["appGroup"] not in info["appGroups"]:
+                warn(f"描述文件没带 {primary['appGroup']}，装上后读写 App Group 会失败。")
+            set_secret(cfg["githubRepo"], secret_name,
+                       base64.b64encode(explicit.read_bytes()).decode(), apply)
+            return
+        if generated.is_file():
+            set_secret(cfg["githubRepo"], secret_name, generated.read_text(encoding="utf-8").strip(), apply)
+        else:
+            warn(f"缺少 {generated}：先跑 provision --apply，或用 --dev-profile/--dist-profile 指一个现成的。")
+
+    push_profile("DEV_PROVISION_PROFILE", dev_profile, dev_b64)
+    push_profile("DIST_PROVISION_PROFILE", dist_profile, dist_b64)
 
     set_secret(cfg["githubRepo"], "DEV_CERTIFICATE_P", cfg.get("certP12Base64Dev"), apply)
     set_secret(cfg["githubRepo"], "DIST_CERTIFICATE_P", cfg.get("certP12Base64Dist"), apply)
@@ -617,6 +677,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--add-devices", action="store_true", help="允许在账户里登记配置中缺失的设备 UDID")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--dev-profile", type=Path, default=None,
+                        help="手工下载的开发描述文件；给了就直接用它，跳过 API 产物")
+    parser.add_argument("--dist-profile", type=Path, default=None,
+                        help="手工下载的 App Store 描述文件")
     args = parser.parse_args(argv)
 
     cfg = load_config(args.config)
@@ -624,7 +688,7 @@ def main(argv: list[str] | None = None) -> int:
         return check(cfg)
     if args.command == "provision":
         return provision(cfg, args.apply, args.out_dir, args.add_devices)
-    return github(cfg, args.apply, args.out_dir)
+    return github(cfg, args.apply, args.out_dir, args.dev_profile, args.dist_profile)
 
 
 if __name__ == "__main__":
