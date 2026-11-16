@@ -217,9 +217,6 @@ public struct OwnerKuaReminderPageView: View {
                 }
             }
 
-            } else {
-                Section { OwnerGuaVIPGate { EmptyView() } }
-
             // 3. 二十四节气交节与九星换月提醒
             Section(
                 header: Text(SettingsLocalizationHelpers.solarTermNotifyTitle(lang)),
