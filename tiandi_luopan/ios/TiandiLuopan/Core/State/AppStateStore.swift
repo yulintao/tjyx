@@ -8,7 +8,6 @@ import Combine
 public final class AppStateStore: ObservableObject {
     /// 启动落在户型页：它是主导航最左边的一页，也是唯一不依赖相机与动作传感器的入口。
     @Published public var selectedTab: AppTab = .floorplan
-    @Published public var showOnboarding = false
 
     private let router: AppNavigationRouter
 

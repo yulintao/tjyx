@@ -730,12 +730,6 @@ public struct RootContentView: View {
             // 不再无条件 motion.start()：那会让冷启动直接弹位置/运动权限。
             updateResourceUsage()
             RetentionServiceManager.shared.registerSystemShortcutsAndSpotlight()
-            if OnboardingGuideSheet.shouldPresentOnLaunch() {
-                app.showOnboarding = true
-            }
-        }
-        .sheet(isPresented: $app.showOnboarding) {
-            OnboardingGuideSheet()
         }
         .onChange(of: selectedTab) { _ in
             updateResourceUsage()

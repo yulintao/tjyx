@@ -7,7 +7,6 @@ import UIKit
 public struct AboutPageView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ObservedObject var lang = LocalizationManager.shared
-    @State private var showOnboardingGuide: Bool = false
     @State private var showTestFlightRateTip: Bool = false
     @State private var legalDocument: LegalDocument? = nil
 
@@ -45,21 +44,8 @@ public struct AboutPageView: View {
             }
             .foregroundColor(Color.yanCyan)
 
-            // 2. 新手教程与评分反馈
+            // 2. 评分反馈
             Section {
-                Button(action: {
-                    showOnboardingGuide = true
-                }) {
-                    HStack {
-                        Label(SettingsLocalizationHelpers.onboardingReplayTitle(lang), systemImage: "book.pages.fill")
-                            .foregroundColor(Color.yanCyan)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .adaptiveFont(size: 11)
-                            .foregroundColor(.secondary)
-                    }
-                }
-
                 Button(action: {
                     handleRateAppTap()
                 }) {
@@ -119,9 +105,6 @@ public struct AboutPageView: View {
         .background(Color.black.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_about"), displayMode: .inline)
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showOnboardingGuide) {
-            OnboardingGuideSheet()
-        }
         .sheet(item: $legalDocument) { document in
             LegalDocumentSheet(
                 title: lang.t(document.titleKey),

@@ -150,20 +150,6 @@ enum SettingsLocalizationHelpers {
         }
     }
 
-    static func onboardingReplayTitle(_ lang: LocalizationManager) -> String {
-        switch lang.effectiveLanguage {
-        case .zhHans: return "新手 3 步快速立向教学指南"
-        case .zhHant: return "新手 3 步快速立向教學指南"
-        case .en: return "3-Step Quick Compass Guide"
-        case .ja: return "3ステップ立向クイックガイド"
-        case .ko: return "3단계 나침반 빠른 가이드"
-        case .vi: return "Hướng Dẫn Lập Hướng 3 Bước"
-        case .th: return "คู่มือการวัดทิศ 3 ขั้นตอน"
-        case .id: return "Panduan Cepat 3 Langkah"
-        default: return "新手 3 步快速立向教学指南"
-        }
-    }
-
     static func rateAppTitle(_ lang: LocalizationManager) -> String {
         switch lang.effectiveLanguage {
         case .zhHans: return "为「天机演象」评分鼓励"
