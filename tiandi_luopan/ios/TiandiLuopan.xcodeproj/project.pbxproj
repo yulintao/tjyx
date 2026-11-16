@@ -513,7 +513,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tianjiwushe.app;
 				PRODUCT_NAME = tianjiwushe;
 				PRODUCT_MODULE_NAME = TiandiLuopan;
 				PROVISIONING_PROFILE_SPECIFIER = "$(APP_PROVISIONING_PROFILE_SPECIFIER)";
@@ -544,7 +544,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tianjiwushe.app;
 				PRODUCT_NAME = tianjiwushe;
 				PRODUCT_MODULE_NAME = TiandiLuopan;
 				PROVISIONING_PROFILE_SPECIFIER = "$(APP_PROVISIONING_PROFILE_SPECIFIER)";
@@ -606,7 +606,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks",);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tianjiwushe.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -623,7 +623,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks",);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tianjiwushe.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

@@ -309,7 +309,7 @@ def run(cfg: dict, apply: bool, out_dir: Path, create_certs: bool,
         device_ids = register_devices(client, app["devices"], add_devices)
 
         step("4) 描述文件")
-        if dev_cert:
+        if dev_cert and device_ids:
             found = [p for p in list_profiles(client, ASC_PROFILE_DEV)
                      if p["attributes"]["name"] == app["devProfileName"]]
             if found:
@@ -325,6 +325,9 @@ def run(cfg: dict, apply: bool, out_dir: Path, create_certs: bool,
             if record["devProfileId"]:
                 record["files"] += save_profile(client, record["devProfileId"],
                                                 f"{slug_of(app['bundleId'])}.dev.mobileprovision", out_dir)
+        elif dev_cert:
+            warn("没有可用的设备 UDID，开发描述文件跳过：iOS 的开发描述文件必须至少含一台设备。")
+            warn("App Store 描述文件不含设备，不受影响；要签开发包就把真机 UDID 填进 apps[].devices 再跑 --add-devices。")
         else:
             warn("没有开发证书，开发描述文件跳过")
 
