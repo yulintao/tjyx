@@ -2,8 +2,6 @@ import Foundation
 
 // MARK: - 真太阳时与太阳黄经节气计算器
 
-public typealias TrueSolarTimeEngine = SolarTimeCalculator
-
 public struct SolarTimeResult {
     public let standardTimeString: String
     public let trueSolarTimeString: String
