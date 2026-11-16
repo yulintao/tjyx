@@ -97,6 +97,25 @@ python tools\appstore_setup.py github --apply
 `github` 子命令需要 GitHub CLI：`winget install --id GitHub.cli -e`，然后 `gh auth login`。
 脚本用 `shutil.which` 找 gh，`.exe` 与 `.cmd` 两种落地形式都能用。
 
+已经手工在 portal 下载了描述文件（比如 API 密钥还没就绪时），可以直接指过去，跳过 `provision`：
+
+```powershell
+python tools\appstore_setup.py github --dev-profile .\tjyx_development.mobileprovision
+python tools\appstore_setup.py github --apply --dev-profile .\tjyx_development.mobileprovision
+```
+
+推之前它会读这个文件里的 plist 并核对：App ID 是否覆盖当前 Bundle ID（不覆盖直接拒绝，
+这正是 `Profile App ID does not cover` 那次失败的原因）、Team 是否一致、
+有没有带上配置里的 App Group、含几台设备。拒绝对话长这样：
+
+```
+==> 描述文件 old.mobileprovision
+    Name=yulintao_test  UUID=53bf2cee-...  AppID=W6QFD6Y86F.com.yanxiang.compass
+    设备 1 台  get-task-allow=True  App Group=['group.com.yanxiang.compass']
+这个描述文件的 App ID 是 W6QFD6Y86F.com.yanxiang.compass，覆盖不到 com.tjyx.compass。
+在 portal 里为当前 Bundle ID 重新生成一个，再指过来。
+```
+
 ## 需要你自己准备的两样东西
 
 1. **App Store Connect API 密钥**（Admin 或 App Manager 角色，要能改 App ID 与描述文件）。
