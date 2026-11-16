@@ -155,3 +155,11 @@ AR 页的形煞补救段与户型页的体检清单都保留 `else` 那一支内
 grant 签名与持久化）。它已走不到——门禁恒真时 `hasFloorplanAccess` 恒为真是因为
 `iap.hasUnlockedVIP` 恒真——但牵动布局持久化格式，留待有编译反馈的一轮再收。
 
+### 户型额度门禁也放行
+
+`hasFloorplanAccess` 与 `acquireFloorplanAccess()` 这两个判断点是户型页最后在问
+「你有没有额度」的地方。前者收成 `true`，后者整段 30 行的额度授予流程
+（reserve → persist → commit → cancel）替换成 `true`，注释写明恢复收费时改回哪个表达式。
+`didConsumeFloorplanCredit`、`floorplanCreditsCount`、`FloorplanCreditPurchase` 与
+grant 存档字段都留着——它们参与布局档案格式，动它们要以能编译为前提。
+

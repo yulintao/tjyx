@@ -1708,9 +1708,9 @@ public struct FloorplanView: View {
         }
     }
 
-    private var hasFloorplanAccess: Bool {
-        iap.hasUnlockedVIP || didConsumeFloorplanCredit
-    }
+    /// 收费暂停期间功能全量开放；恢复收费时改回
+    /// `iap.hasUnlockedVIP || didConsumeFloorplanCredit`。
+    private var hasFloorplanAccess: Bool { true }
 
     private static func aspectRatio(for record: FloorplanCaseRecord) -> CGFloat {
         if let ratio = record.layout.aspectRatio, ratio.isFinite, ratio > 0 { return CGFloat(ratio) }
@@ -1721,36 +1721,9 @@ public struct FloorplanView: View {
         return 1
     }
 
-    private func acquireFloorplanAccess() -> Bool {
-        if iap.hasUnlockedVIP || didConsumeFloorplanCredit { return true }
-        let outcome = FloorplanCreditPurchase.acquire(
-            reserve: { iap.reserveFloorplanCredit() },
-            persist: { persistLayout(accessGrant: $0) },
-            commit: { iap.commitFloorplanCreditReservation($0) },
-            cancel: { iap.cancelFloorplanCreditReservation($0) }
-        )
-        switch outcome {
-        case .unavailable:
-            if iap.floorplanCreditsCount > 0 {
-                caseBackupToastMessage = lang.t("iap_storage_unavailable")
-                return false
-            }
-            return false
-        case .saveFailed:
-            return false
-        case .commitFailed:
-            // The uncommitted grant is invalid even if this cleanup write
-            // fails. The paid balance remains available for another attempt.
-            persistLayout()
-            caseBackupToastMessage = lang.t("iap_storage_unavailable")
-            return false
-        case .completed(let grant):
-            didConsumeFloorplanCredit = true
-            floorplanAccessGrantID = grant.id
-            floorplanAccessGrantSignature = grant.signature
-            return true
-        }
-    }
+    /// 收费暂停期间功能全量开放；恢复收费时改回额度授予流程
+    /// （reserve → persist → commit，见 git 历史里的 FloorplanCreditPurchase 调用）。
+    private func acquireFloorplanAccess() -> Bool { true }
     
     // MARK: - 顶栏控制
     private func topControlBar() -> some View {
