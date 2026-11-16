@@ -62,6 +62,21 @@ ASC_PROFILE_DEV = "IOS_APP_DEVELOPMENT"
 ASC_PROFILE_STORE = "IOS_APP_STORE"
 
 
+def _cert_usable(cert: dict) -> bool:
+    """一张证书能不能拿来签名：字段缺失按可用处理，重点是别把过期/吊销的选进来。"""
+    attrs = cert.get("attributes") or {}
+    if attrs.get("status") and attrs["status"] != "ACTIVE":
+        return False
+    expiry = attrs.get("expirationDate")
+    if not expiry:
+        return True
+    try:
+        from datetime import datetime, timezone
+        return datetime.fromisoformat(expiry.replace("Z", "+00:00")) > datetime.now(timezone.utc)
+    except ValueError:
+        return True
+
+
 # ------------------------------------------------------------------ 证书
 
 def build_self_signed_p12(common_name: str, password: str, out_path: Path,
@@ -214,10 +229,10 @@ def run(cfg: dict, apply: bool, out_dir: Path, create_certs: bool,
     client = AscClient(jwt, apply)
 
     step("现有证书")
-    dev_cert = next((c for c in list_certificates(client, ASC_TYPE_DEV)
-                     if c["attributes"]["status"] == "ACTIVE"), None)
-    dist_cert = next((c for c in list_certificates(client, ASC_TYPE_DIST)
-                      if c["attributes"]["status"] == "ACTIVE"), None)
+    # /v1/certificates 的 attributes 里不一定带 status：吊销过的证书本来也不在列表里，
+    # 能判有效期的是 expirationDate。以前直接索引 ["status"]，账户里证书一多就 KeyError。
+    dev_cert = next((c for c in list_certificates(client, ASC_TYPE_DEV) if _cert_usable(c)), None)
+    dist_cert = next((c for c in list_certificates(client, ASC_TYPE_DIST) if _cert_usable(c)), None)
     if dev_cert:
         ok(f"开发证书：{dev_cert['id']}")
     if dist_cert:
@@ -284,7 +299,9 @@ def run(cfg: dict, apply: bool, out_dir: Path, create_certs: bool,
                 ok("已挂上")
             except RuntimeError as error:
                 warn(f"没挂上：{error}")
-                warn("组本身要在 portal 的 Identifiers → App Groups 里先建好；建好后这里重跑即可。")
+                warn("公开 API 的 /v1/bundleIdCapabilities 不接受 APP_GROUPS（只收 ICLOUD_VERSION 等三个 settings key），"
+                     "App Groups 能力只能在 portal 的 Identifiers → Capabilities 手点。"
+                     "工程没有 entitlements、也不读写共享容器时，跳过这一步不影响出包。")
         else:
             plan(f"将挂上 {app['appGroup']}")
 

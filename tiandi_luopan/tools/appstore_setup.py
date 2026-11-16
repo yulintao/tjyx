@@ -262,11 +262,21 @@ class AscClient:
     def post(self, path: str, body: dict) -> dict | None:
         return self._request("POST", path, body)
 
+    def delete(self, path: str) -> dict | None:
+        """删除资源。描述文件绑错 Bundle ID 时用它回滚，避免占着名字又签不上。"""
+        return self._request("DELETE", path, None)
+
 
 def get_bundle_id(client: AscClient, identifier: str) -> dict | None:
+    # filter[identifier] 不是精确匹配：账户里同时存在 com.tjyx.compass 与
+    # com.tjyx.compass.9ZK328P458 时，它会把后者排在前面返回，于是描述文件绑到
+    # 带团队后缀的那个标识上——包还是签不上。必须自己再按 identifier 全等挑一次。
     payload = client.get(f"/v1/bundleIds?filter[identifier]={identifier}")
     data = payload.get("data") or []
-    return data[0] if data else None
+    for row in data:
+        if ((row.get("attributes") or {}).get("identifier")) == identifier:
+            return row
+    return None
 
 
 def create_bundle_id(client: AscClient, bundle_id: str, name: str) -> dict | None:
@@ -280,6 +290,14 @@ def create_bundle_id(client: AscClient, bundle_id: str, name: str) -> dict | Non
 
 
 def add_app_group_capability(client: AscClient, bundle_id_id: str, group: str) -> dict | None:
+    """给 Bundle ID 挂上 App Groups 能力。
+
+    注意：这个端点在当前账户只接受 ICLOUD_VERSION / DATA_PROTECTION_PERMISSION_LEVEL /
+    APPLE_ID_AUTH_APP_CONSENT 三种 settings key，`APP_GROUPS` 会被 409 拒掉
+    （"'groups' is not a valid value for the attribute 'settings/0/key'"）。
+    也就是说 App Groups 能力只能去 portal 的 Identifiers → Capabilities 手点，
+    公开 API 这条路不通。没有 entitlements、也不读写共享容器的工程本来就不需要它。
+    """
     body = {
         "data": {
             "type": "bundleIdCapabilities",
@@ -324,6 +342,22 @@ def list_certificates(client: AscClient, cert_type: str) -> list[dict]:
 
 def list_profiles(client: AscClient, profile_type: str) -> list[dict]:
     return client.get(f"/v1/profiles?filter[profileType]={profile_type}&limit=50").get("data") or []
+
+
+def cert_usable(cert: dict, today: str | None = None) -> bool:
+    """证书能不能用：看 status（缺字段视为可用）与到期日。
+
+    证书列表接口偶尔不回 status，直接取 c["attributes"]["status"] 会 KeyError 把整条链路弄断。
+    """
+    attributes = cert.get("attributes") or {}
+    status = attributes.get("status")
+    if status and status not in ("ACTIVE", "DEVELOPMENT_ACTIVE"):
+        return False
+    expires = attributes.get("expirationDate")
+    if expires:
+        today = today or time.strftime("%Y-%m-%d")
+        return str(expires)[:10] >= today
+    return True
 
 
 def create_profile(client: AscClient, name: str, profile_type: str, bundle_id_id: str,
@@ -463,10 +497,8 @@ def provision(cfg: dict, apply: bool, out_dir: Path, add_devices: bool) -> int:
 
     step("证书（只挑现有的，不新建；取一次给所有 App 共用）")
     try:
-        dev_cert = next((c for c in list_certificates(client, "IOS_DEVELOPMENT")
-                         if c["attributes"]["status"] == "ACTIVE"), None)
-        dist_cert = next((c for c in list_certificates(client, "IOS_DISTRIBUTION")
-                          if c["attributes"]["status"] == "ACTIVE"), None)
+        dev_cert = next((c for c in list_certificates(client, "IOS_DEVELOPMENT") if cert_usable(c)), None)
+        dist_cert = next((c for c in list_certificates(client, "IOS_DISTRIBUTION") if cert_usable(c)), None)
     except RuntimeError as error:
         warn(f"中断：{error}")
         warn("API 密钥或角色权限不对时，这一步就会失败；先改好再跑。")
@@ -507,7 +539,8 @@ def provision(cfg: dict, apply: bool, out_dir: Path, add_devices: bool) -> int:
 
     step("下一步")
     print(f"    描述文件与 base64 都在 {out_dir}。")
-    print("    证书 .p12 的 base64 与密码不由脚本产出：用你导出的那份，写进 DEV_CERTIFICATE_P / DIST_CERTIFICATE_P，密码写进 P。")
+    print("    接着跑 `python tools/appstore_setup.py secrets --apply`：它把这批产物整理成 GitHub secrets 清单，")
+    print("    有 gh 就直接写进仓库，没有 gh 就导出 JSON + 一份可直接执行的 PowerShell 脚本。")
     return 0
 
 
@@ -561,11 +594,132 @@ def set_variable(repo: str, name: str, value: str | None, apply: bool) -> None:
     gh(["variable", "set", name, "--repo", repo, "--body", value], apply)
 
 
+def build_secret_bundle(cfg: dict, out_dir: Path, dev_profile: Path | None = None,
+                        dist_profile: Path | None = None) -> list[dict]:
+    """把「CI 需要的一切」整理成 {name, value, kind} 清单。
+
+    workflow（.github/workflows/build-ios.yml）里真正读到的名字必须逐字对得上，
+    所以这里集中一处生成，避免再出现 DEV_CERTIFICATE_P 这种少半截的键。
+    """
+    apps = expand_apps(cfg)
+    primary = apps[0]
+    slug = slug_of(primary["bundleId"])
+    entries: list[dict] = []
+
+    def add(name: str, value: str | None, kind: str, note: str = "") -> None:
+        if value:
+            entries.append({"name": name, "value": value, "kind": kind, "note": note})
+
+    add("APPLE_TEAM_ID", cfg.get("teamId"), "secret", "团队 ID，与描述文件里的 TeamIdentifier 一致")
+    add("APPSTORE_API_KEY_ID", cfg.get("apiKeyId"), "secret", "ASC 集成密钥的 Key ID（10 位）")
+    add("APPSTORE_ISSUER_ID", cfg.get("issuerId"), "secret", "ASC 密钥的 Issuer ID")
+    key_path = cfg.get("_keyPath")
+    if key_path and Path(key_path).is_file():
+        add("APPSTORE_API_PRIVATE_KEY", Path(key_path).read_text(encoding="utf-8"),
+            "secret", "AuthKey_<KeyID>.p8 的 PEM 原文")
+
+    def profile_bytes(explicit: Path | None, generated: Path, label: str) -> None:
+        path = explicit if explicit and explicit.is_file() else generated
+        if not path.is_file():
+            warn(f"缺少 {label} 描述文件（{path}），对应 secret 跳过")
+            return
+        covers, info = describe_profile(path, primary["bundleId"])
+        if not covers:
+            warn(f"{label} 描述文件的 App ID 是 {info['appIdentifier']}，覆盖不到 {primary['bundleId']}，不写进 secret")
+            return
+        b64_path = path.with_name(path.name + ".b64") if path.suffix != ".b64" else path
+        value = b64_path.read_text(encoding="utf-8").strip() if b64_path.is_file() \
+            else base64.b64encode(path.read_bytes()).decode()
+        add("DEV_PROVISION_PROFILE" if label == "开发" else "DIST_PROVISION_PROFILE", value,
+            "secret", f"{info['name']} / {info['uuid']} / App ID {info['appIdentifier']}")
+
+    profile_bytes(dev_profile, out_dir / f"{slug}.dev.mobileprovision", "开发")
+    profile_bytes(dist_profile, out_dir / f"{slug}.appstore.mobileprovision", "发布")
+
+    p12 = cfg.get("distP12Path") or (out_dir / "certificate.dist.p12")
+    if Path(p12).is_file():
+        b64_file = Path(str(p12) + ".b64")
+        add("DIST_CERTIFICATE_P12",
+            b64_file.read_text(encoding="utf-8").strip() if b64_file.is_file()
+            else base64.b64encode(Path(p12).read_bytes()).decode(),
+            "secret", "发布证书 .p12 的 base64")
+    else:
+        warn(f"缺少发布证书 {p12}：先在 bootstrap 里 --create-certificates 生成，或手动导出 .p12")
+    add("DIST_P12_PASSWORD", cfg.get("p12Password") or cfg.get("certP12Password"), "secret", ".p12 的密码")
+
+    group = primary["appGroup"]
+    add("APP_GROUP_ID", group if cfg.get("writeAppGroupVariable") else "", "variable",
+        "工程没有 entitlements 时留空：填了会让构建硬失败")
+    add("IOS_RUNNER_LABEL", cfg.get("runnerLabel") or "xcode-27", "variable", "CI 用的自托管/云 runner 标签")
+    return entries
+
+
+def export_secrets(cfg: dict, out_dir: Path, dev_profile: Path | None = None,
+                   dist_profile: Path | None = None) -> int:
+    """没有 gh 也能走：把清单落盘，给出一份可以直接粘/直接跑的配置说明。"""
+    entries = build_secret_bundle(cfg, out_dir, dev_profile, dist_profile)
+    if not entries:
+        warn("没有可导出的条目，先跑 provision --apply 生成证书与描述文件")
+        return 1
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    secrets = {e["name"]: e["value"] for e in entries if e["kind"] == "secret"}
+    variables = {e["name"]: e["value"] for e in entries if e["kind"] == "variable"}
+    bundle = out_dir / "github_secrets.json"
+    bundle.write_text(json.dumps({"repository": cfg["githubRepo"], "secrets": secrets,
+                                  "variables": variables}, ensure_ascii=False, indent=2),
+                      encoding="utf-8")
+    bundle.chmod(0o600) if hasattr(bundle, "chmod") else None
+
+    # 逐条拆成单文件，避免命令行长度与引号问题；PowerShell 脚本按文件喂给 gh。
+    payload_dir = out_dir / "github_secret_files"
+    payload_dir.mkdir(parents=True, exist_ok=True)
+    for name, value in list(secrets.items()) + list(variables.items()):
+        (payload_dir / f"{name}.txt").write_text(value, encoding="utf-8", newline="")
+
+    step(f"已导出 {len(secrets)} 个 secret、{len(variables)} 个 variable")
+    for entry in entries:
+        label = "secret" if entry["kind"] == "secret" else "variable"
+        ok(f"{entry['name']:<28} {label:<8} {len(entry['value']):>6} 字符   {entry['note']}")
+
+    repo = cfg["githubRepo"]
+    kind_cmd = {
+        "secret": 'gh secret set {name} --repo %s --body-file "{{file}}"' % repo,
+        "variable": 'gh variable set {name} --repo %s --body-file "{{file}}"' % repo,
+    }
+    lines = [
+        "# 由 tools/appstore_setup.py secrets --apply 生成。",
+        "# 1) 先装 gh 并登录（只需一次）：winget install --id GitHub.cli -e ; gh auth login",
+        "# 2) 在仓库根执行本脚本：powershell -ExecutionPolicy Bypass -File tools\\appstore_out\\apply_github_secrets.ps1",
+        "# 没有 gh 时，用网页逐条填：https://github.com/%s/settings/secrets/actions" % repo,
+        '$ErrorActionPreference = "Stop"',
+        '$gh = (Get-Command gh -ErrorAction SilentlyContinue)',
+        'if (-not $gh) { throw "没找到 gh：winget install --id GitHub.cli -e" }',
+        '$files = "%s"' % payload_dir,
+        '$repo = "%s"' % repo,
+        "",
+    ]
+    for entry in entries:
+        cmd = ("gh secret set " if entry["kind"] == "secret" else "gh variable set ") + entry["name"] + \
+              ' --repo $repo --body-file (Join-Path $files "' + entry["name"] + '.txt")'
+        lines.append(cmd)
+    script = out_dir / "apply_github_secrets.ps1"
+    script.write_text("\r\n".join(lines) + "\r\n", encoding="utf-8")
+
+    step("落盘")
+    ok(str(bundle))
+    ok(str(script))
+    print()
+    print("    注意：这个目录已在 .gitignore 里，明文密钥不会进仓库；用完记得删。")
+    return 0
+
+
 def github(cfg: dict, apply: bool, out_dir: Path,
            dev_profile: Path | None = None, dist_profile: Path | None = None) -> int:
     if not has_gh():
         warn("本机没有 gh：winget install --id GitHub.cli -e，然后 gh auth login")
-        return 1
+        warn("改成导出清单，你可以用导出的脚本或网页把它们填上去。")
+        return export_secrets(cfg, out_dir, dev_profile, dist_profile)
 
     apps = expand_apps(cfg)
     primary = apps[0]
@@ -612,9 +766,9 @@ def github(cfg: dict, apply: bool, out_dir: Path,
     push_profile("DEV_PROVISION_PROFILE", dev_profile, dev_b64)
     push_profile("DIST_PROVISION_PROFILE", dist_profile, dist_b64)
 
-    set_secret(cfg["githubRepo"], "DEV_CERTIFICATE_P", cfg.get("certP12Base64Dev"), apply)
-    set_secret(cfg["githubRepo"], "DIST_CERTIFICATE_P", cfg.get("certP12Base64Dist"), apply)
-    set_secret(cfg["githubRepo"], "P", cfg.get("certP12Password"), apply)
+    set_secret(cfg["githubRepo"], "DEV_CERTIFICATE_P12", cfg.get("certP12Base64Dev"), apply)
+    set_secret(cfg["githubRepo"], "DIST_CERTIFICATE_P12", cfg.get("certP12Base64Dist"), apply)
+    set_secret(cfg["githubRepo"], "DIST_P12_PASSWORD", cfg.get("p12Password") or cfg.get("certP12Password"), apply)
 
     set_variable(cfg["githubRepo"], "APP_GROUP_ID", primary["appGroup"], apply)
     set_variable(cfg["githubRepo"], "IOS_RUNNER_LABEL", cfg.get("runnerLabel"), apply)
@@ -661,6 +815,24 @@ def check(cfg: dict) -> int:
             warn(f"{app['bundleId']} 尚未创建")
     certs = list_certificates(client, "IOS_DISTRIBUTION")
     ok(f"发布证书 {len(certs)} 张")
+
+    step("「我的 App」记录")
+    try:
+        records = client.get("/v1/apps?limit=50").get("data") or []
+    except RuntimeError as error:
+        warn(f"查询失败：{error}")
+        records = []
+    by_bundle = {((r.get("attributes") or {}).get("bundleId")): r for r in records}
+    for app in apps:
+        record = by_bundle.get(app["bundleId"])
+        if record:
+            ok(f"{app['bundleId']} 已有 App 记录：{record['id']}（{((record.get('attributes') or {}).get('name'))}）")
+        else:
+            warn(f"{app['bundleId']} 没有 App 记录，TestFlight 上传会被拒（No app record found）")
+            warn("这一步 API 做不了：/v1/apps 只允许 GET/UPDATE，CREATE 返回 403。要在 App Store Connect 网页里")
+            warn("「App → 新建 App」里手建一次（平台 iOS、名称、主要语言、套装 ID、SKU 必填）。建好后重跑本命令确认。")
+            if app.get("sku"):
+                print(f"    建议填：名称={app['appName']}  SKU={app['sku']}  语言={app.get('primaryLocale') or '按需'}")
 
     step("GitHub CLI")
     ok("已安装") if has_gh() else warn("未安装：winget install --id GitHub.cli -e")
@@ -722,7 +894,7 @@ def write_profile_b64(cfg: dict, out_dir: Path, dev_profile: Path | None,
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="App Store 开发者账户与 GitHub 配置")
-    parser.add_argument("command", choices=("check", "provision", "github", "profile"))
+    parser.add_argument("command", choices=("check", "provision", "github", "profile", "secrets"))
     parser.add_argument("--apply", action="store_true", help="真正执行写操作（默认只打印计划）")
     parser.add_argument("--add-devices", action="store_true", help="允许在账户里登记配置中缺失的设备 UDID")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -740,6 +912,8 @@ def main(argv: list[str] | None = None) -> int:
         return provision(cfg, args.apply, args.out_dir, args.add_devices)
     if args.command == "profile":
         return write_profile_b64(cfg, args.out_dir, args.dev_profile, args.dist_profile)
+    if args.command == "secrets":
+        return export_secrets(cfg, args.out_dir, args.dev_profile, args.dist_profile)
     return github(cfg, args.apply, args.out_dir, args.dev_profile, args.dist_profile)
 
 
