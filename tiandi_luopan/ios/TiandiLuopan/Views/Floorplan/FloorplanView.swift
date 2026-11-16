@@ -1766,15 +1766,53 @@ public struct FloorplanView: View {
         // 横向按钮组理想宽度很大，与标题同层 HStack 时会把标题压成竖排单字。
         // 改为纵向：标题 / 副标题 / 按钮组各占整行，按钮组仍可横向滚动。
         VStack(alignment: .leading, spacing: 6) {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(lang.t("floorplan_title"))
                     .adaptiveFont(size: 15, weight: .bold)
                     .foregroundColor(Color.yanGoldSoft)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("\(lang.t("floorplan_current_facing"))\(String(format: "%.1f", floorplanHeadingState.facingAngle))° (\(floorplanHeadingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(floorplanHeadingState.facingMountain.localizedName)\(lang.t("facing_suffix")))")
-                    .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.7))
-                    .fixedSize(horizontal: false, vertical: true)
+                // 立极读数：度数单独做成金色胶囊，坐向做成青色胶囊，
+                // 不再挤在一整句 11pt 灰字里（原来那行在 iPhone 上要折行两次）。
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        Text(lang.t("floorplan_current_facing"))
+                            .adaptiveFont(size: 10)
+                            .foregroundColor(.white.opacity(0.5))
+                            .lineLimit(1)
+
+                        HStack(spacing: 1) {
+                            Text(String(format: "%.1f", floorplanHeadingState.facingAngle))
+                                .adaptiveFont(size: 14, weight: .bold)
+                                .foregroundColor(Color.yanGoldSoft)
+                            Text("°")
+                                .adaptiveFont(size: 10, weight: .bold)
+                                .foregroundColor(Color.yanGoldDeep)
+                                .padding(.bottom, 4)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.yanGold.opacity(0.13)))
+                        .overlay(Capsule().stroke(Color.yanGoldDeep.opacity(0.45), lineWidth: 0.8))
+
+                        HStack(spacing: 4) {
+                            Text("\(floorplanHeadingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))")
+                                .adaptiveFont(size: 11, weight: .semibold)
+                                .foregroundColor(Color.yanCyan)
+                                .lineLimit(1)
+                            Image(systemName: "arrow.right")
+                                .adaptiveFont(size: 8, weight: .bold)
+                                .foregroundColor(.white.opacity(0.35))
+                            Text("\(floorplanHeadingState.facingMountain.localizedName)\(lang.t("facing_suffix"))")
+                                .adaptiveFont(size: 11, weight: .semibold)
+                                .foregroundColor(Color.yanCyan)
+                                .lineLimit(1)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Capsule().fill(Color.yanCyan.opacity(0.12)))
+                        .overlay(Capsule().stroke(Color.yanCyan.opacity(0.35), lineWidth: 0.8))
+                    }
+                }
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -2802,21 +2840,25 @@ public struct FloorplanView: View {
             )
             
             ZStack {
-                // 底色
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(red: 0.11, green: 0.12, blue: 0.16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                // 图纸底：墨青渐变 + 淡蓝图网格，替掉原来那块平色板
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.appInkRaised, Color.appInk],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     )
-                
+
+                blueprintGridLayer(size: geo.size)
+
                 // 真实导入图纸底图
                 if let userImg = userFloorplanImage {
                     Image(uiImage: userImg)
                         .resizable()
                         .frame(width: layoutRect.width, height: layoutRect.height)
                         .position(x: layoutRect.midX, y: layoutRect.midY)
-                        .opacity(0.85)
+                        .opacity(0.86)
                 }
                 
                 // 户型外墙与房间隔断
@@ -2824,21 +2866,95 @@ public struct FloorplanView: View {
                     roomBlockView(room: room, layoutRect: layoutRect, personLabel: personLabels[room.id],
                                   needsFamilyReview: reviewRoomIDs.contains(room.id))
                 }
-                
+
+                // 边缘压暗：把视线收拢到中宫与立极点上
+                vignetteLayer(size: geo.size)
+
                 // 随动半透明罗盘八宫扇区与十字天心
                 compassOverlayLayer(centerPt: centerPt, size: min(layoutRect.width, layoutRect.height))
-                
+
+                // 四角定位角标，读起来像一张装裱过的图纸
+                canvasCornerTicks(size: geo.size)
+
                 // 可拖拽的中宫立极点 (Centroid Handle)
                 centroidHandle(centerPt: centerPt, layoutRect: layoutRect)
             }
-            .clipped()
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(
+                        LinearGradient(
+                            colors: [Color.yanGoldDeep.opacity(0.55), Color.yanCyan.opacity(0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.45), radius: 12, x: 0, y: 6)
         }
     }
     
     private func floorplanContentRect(in canvasSize: CGSize) -> CGRect {
         GeometryUtils.aspectFitRect(aspectRatio: floorplanAspectRatio,
                                     in: CGRect(origin: .zero, size: canvasSize))
+    }
+
+    /// 蓝图网格：只用来托住图纸感，透明度压到 0.06，不和房间色块抢注意力。
+    private func blueprintGridLayer(size: CGSize) -> some View {
+        let step = max(16, min(size.width, size.height) / 12)
+        return Path { path in
+            var x = step
+            while x < size.width {
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x, y: size.height))
+                x += step
+            }
+            var y = step
+            while y < size.height {
+                path.move(to: CGPoint(x: 0, y: y))
+                path.addLine(to: CGPoint(x: size.width, y: y))
+                y += step
+            }
+        }
+        .stroke(Color.yanCyan.opacity(0.06), lineWidth: 0.5)
+        .allowsHitTesting(false)
+    }
+
+    /// 中心透、边缘暗的径向遮罩：截图里八宫角标与房间名会同时挤在边缘，压暗后层级立刻分开。
+    private func vignetteLayer(size: CGSize) -> some View {
+        RadialGradient(
+            gradient: Gradient(colors: [Color.black.opacity(0), Color.black.opacity(0.34)]),
+            center: .center,
+            startRadius: min(size.width, size.height) * 0.34,
+            endRadius: max(size.width, size.height) * 0.70
+        )
+        .allowsHitTesting(false)
+    }
+
+    /// 四角 L 形角标（不走 .rotationEffect，手机横竖屏都保持同一朝向）。
+    private func canvasCornerTicks(size: CGSize) -> some View {
+        let inset: CGFloat = 9
+        let len: CGFloat = 18
+        return Path { path in
+            path.move(to: CGPoint(x: inset, y: inset + len))
+            path.addLine(to: CGPoint(x: inset, y: inset))
+            path.addLine(to: CGPoint(x: inset + len, y: inset))
+
+            path.move(to: CGPoint(x: size.width - inset - len, y: inset))
+            path.addLine(to: CGPoint(x: size.width - inset, y: inset))
+            path.addLine(to: CGPoint(x: size.width - inset, y: inset + len))
+
+            path.move(to: CGPoint(x: size.width - inset, y: size.height - inset - len))
+            path.addLine(to: CGPoint(x: size.width - inset, y: size.height - inset))
+            path.addLine(to: CGPoint(x: size.width - inset - len, y: size.height - inset))
+
+            path.move(to: CGPoint(x: inset + len, y: size.height - inset))
+            path.addLine(to: CGPoint(x: inset, y: size.height - inset))
+            path.addLine(to: CGPoint(x: inset, y: size.height - inset - len))
+        }
+        .stroke(Color.yanGold.opacity(0.5), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
+        .allowsHitTesting(false)
     }
 
     private func roomBlockView(room: FloorplanRoom, layoutRect: CGRect, personLabel: String?, needsFamilyReview: Bool) -> some View {
@@ -3168,32 +3284,67 @@ public struct FloorplanView: View {
         let badgeR = size * 0.465
         let badges = localizedOverlayPalaceBadges()
 
+        // 中宫那片总是比外圈亮一档，立极点才有"这里是太极"的视觉落点。
+        let centerGlow = RadialGradient(
+            gradient: Gradient(colors: [Color.yanGold.opacity(0.16), Color.yanGold.opacity(0)]),
+            center: .center,
+            startRadius: 0,
+            endRadius: r * 0.36
+        )
+
         return ZStack {
-            // 八宫分界辐射线 (位于每宫 ±22.5° 交界处，与 FloorplanEngine.palaceForPoint 完全对齐)
-            ForEach(0..<8) { i in
-                let boundaryAngle = Double(i) * 45.0 + 22.5 - effectiveHeading
-                Path { p in
-                    p.move(to: centerPt)
-                    let rad = boundaryAngle * .pi / 180.0
-                    p.addLine(to: CGPoint(x: centerPt.x + CGFloat(sin(rad)) * r, y: centerPt.y - CGFloat(cos(rad)) * r))
-                }
-                .stroke(Color.yanGoldDeep.opacity(0.35), lineWidth: 1)
-            }
-
-            // 十字天心红线
-            Path { p in
-                p.move(to: CGPoint(x: centerPt.x - r, y: centerPt.y))
-                p.addLine(to: CGPoint(x: centerPt.x + r, y: centerPt.y))
-                p.move(to: CGPoint(x: centerPt.x, y: centerPt.y - r))
-                p.addLine(to: CGPoint(x: centerPt.x, y: centerPt.y + r))
-            }
-            .stroke(Color.red.opacity(0.6), lineWidth: 1.5)
-
-            // 外圈金环
             Circle()
-                .stroke(Color.yanGoldDeep.opacity(0.4), lineWidth: 1)
+                .fill(centerGlow)
+                .frame(width: r * 0.72, height: r * 0.72)
+                .position(centerPt)
+
+            // 八宫分界：虚线、从内 0.18 起画到 0.94，留出中宫空白
+            Path { path in
+                for i in 0..<8 {
+                    let rad = (Double(i) * 45.0 + 22.5 - effectiveHeading) * .pi / 180.0
+                    let dir = CGPoint(x: CGFloat(sin(rad)), y: -CGFloat(cos(rad)))
+                    path.move(to: CGPoint(x: centerPt.x + dir.x * r * 0.18,
+                                          y: centerPt.y + dir.y * r * 0.18))
+                    path.addLine(to: CGPoint(x: centerPt.x + dir.x * r * 0.94,
+                                             y: centerPt.y + dir.y * r * 0.94))
+                }
+            }
+            .stroke(Color.yanGoldDeep.opacity(0.3),
+                    style: StrokeStyle(lineWidth: 1, lineCap: .round, dash: [7, 5]))
+
+            // 二十四向刻度：只落在环上，每三格加长一次，像真罗盘的刻度
+            Path { path in
+                for i in 0..<24 {
+                    let rad = (Double(i) * 15.0 - effectiveHeading) * .pi / 180.0
+                    let dir = CGPoint(x: CGFloat(sin(rad)), y: -CGFloat(cos(rad)))
+                    let outerRun: CGFloat = 1
+                    let innerRun: CGFloat = (i % 3 == 0) ? 0.90 : 0.95
+                    path.move(to: CGPoint(x: centerPt.x + dir.x * r * innerRun,
+                                          y: centerPt.y + dir.y * r * innerRun))
+                    path.addLine(to: CGPoint(x: centerPt.x + dir.x * r * outerRun,
+                                             y: centerPt.y + dir.y * r * outerRun))
+                }
+            }
+            .stroke(Color.yanGoldSoft.opacity(0.4), lineWidth: 1)
+
+            // 双环：外金内青，和图标那对色呼应
+            Circle()
+                .stroke(Color.yanGoldDeep.opacity(0.5), lineWidth: 1.2)
                 .frame(width: r * 2, height: r * 2)
                 .position(centerPt)
+            Circle()
+                .stroke(Color.yanCyan.opacity(0.22), lineWidth: 0.8)
+                .frame(width: r * 2 - 12, height: r * 2 - 12)
+                .position(centerPt)
+
+            // 十字天心红线
+            Path { path in
+                path.move(to: CGPoint(x: centerPt.x - r, y: centerPt.y))
+                path.addLine(to: CGPoint(x: centerPt.x + r, y: centerPt.y))
+                path.move(to: CGPoint(x: centerPt.x, y: centerPt.y - r))
+                path.addLine(to: CGPoint(x: centerPt.x, y: centerPt.y + r))
+            }
+            .stroke(Color.red.opacity(0.55), lineWidth: 1)
 
             // 八宫八卦方位与九运飞星财位/文昌位角标
             ForEach(0..<badges.count, id: \.self) { idx in
@@ -3202,18 +3353,25 @@ public struct FloorplanView: View {
                 let rad = screenAngle * .pi / 180.0
                 let bx = centerPt.x + CGFloat(sin(rad)) * badgeR
                 let by = centerPt.y - CGFloat(cos(rad)) * badgeR
-                VStack(spacing: 0) {
+                VStack(spacing: 1) {
                     Text(item.title)
                         .adaptiveFont(size: 8, weight: .bold)
                         .foregroundColor(Color.yanGoldSoft)
                     Text(item.star)
                         .adaptiveFont(size: 7, weight: .semibold)
-                        .foregroundColor(item.isAuspicious ? .green : .orange.opacity(0.9))
+                        .foregroundColor(item.isAuspicious ? Color.yanCyan : Color.orange.opacity(0.9))
                 }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 1.5)
-                .background(Color.black.opacity(0.62))
-                .cornerRadius(4)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(Color.appInk.opacity(0.82))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(Color.yanGoldDeep.opacity(0.35), lineWidth: 0.75)
+                )
+                .shadow(color: Color.black.opacity(0.4), radius: 2, x: 0, y: 1)
                 .position(x: bx, y: by)
             }
         }
@@ -3222,17 +3380,56 @@ public struct FloorplanView: View {
     
     private func centroidHandle(centerPt: CGPoint, layoutRect: CGRect) -> some View {
         ZStack {
+            // 光晕：让立极点在一堆房间色块里始终是最亮的一点
             Circle()
-                .fill(Color.yanGoldSoft)
-                .frame(width: 18, height: 18)
-                .shadow(color: .black.opacity(0.6), radius: 3)
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(colors: [Color.yanGold.opacity(0.30), Color.yanGold.opacity(0)]),
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 26
+                    )
+                )
+                .frame(width: 52, height: 52)
+
+            // 定位环
             Circle()
-                .stroke(Color.red, lineWidth: 2)
-                .frame(width: 24, height: 24)
+                .stroke(Color.yanGold.opacity(0.6), lineWidth: 1)
+                .frame(width: 30, height: 30)
+
+            // 瞄准短线：原来 24pt 的实心红圈太抢，改成细十字
+            Rectangle()
+                .fill(Color.red.opacity(0.5))
+                .frame(width: 34, height: 1)
+            Rectangle()
+                .fill(Color.red.opacity(0.5))
+                .frame(width: 1, height: 34)
+
+            // 立极芯
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [Color.yanGoldSoft, Color.yanGoldDeep],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 13, height: 13)
+                .overlay(Circle().stroke(Color.appInk.opacity(0.9), lineWidth: 1.5))
+                .shadow(color: Color.yanGold.opacity(0.5), radius: 4)
+
+            // 标签放到点下沿：原来那行字被塞在直径 18pt 的圆里，等于读不出来
             Text(lang.t("floorplan_center_point"))
-                .adaptiveFont(size: 8, weight: .bold)
-                .foregroundColor(.black)
+                .adaptiveFont(size: 9, weight: .bold)
+                .foregroundColor(Color.yanGoldSoft)
+                .lineLimit(1)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.appInk.opacity(0.85)))
+                .overlay(Capsule().stroke(Color.yanGoldDeep.opacity(0.5), lineWidth: 0.8))
+                .offset(y: 27)
         }
+        .frame(width: 76, height: 76)
         .position(centerPt)
         .gesture(
             DragGesture()
