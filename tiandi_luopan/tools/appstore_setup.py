@@ -100,7 +100,7 @@ def entitlement_groups(entitlements: dict) -> list:
     return list(groups)
 
 
-def load_config(path: Path) -> dict:
+def load_config(path: Path, require_api: bool = True) -> dict:
     if not path.is_file():
         raise SystemExit(f"缺少配置文件：{path}。先从 appstore_setup.config.example.json 复制一份。")
     with path.open(encoding="utf-8") as handle:
@@ -113,35 +113,34 @@ def load_config(path: Path) -> dict:
     if not cfg.get("appGroup") and not any(a.get("appGroup") for a in (cfg.get("apps") or [])):
         raise SystemExit("配置缺字段：appGroup（也可以在 apps 的每个条目里单独写）")
     key_path = Path(cfg["apiKeyPath"]).expanduser()
-    if not key_path.is_file():
+    if require_api and not key_path.is_file():
         raise SystemExit(f"找不到 API 私钥文件：{key_path}（App Store Connect → 用户和访问 → 密钥 下载的 AuthKey_*.p8）")
-    # 占位符守卫：示例里的 XXXXXXXXXX 忘了替换，鉴权必然 401，但报错会指向「密钥无效」，
-    # 让人以为是密钥问题。这里直接在本地拦下。
-    key_id = str(cfg.get("apiKeyId") or "").strip()
-    if re.fullmatch(r"[Xx]{6,}", key_id):
-        raise SystemExit(
-            f"apiKeyId 还是示例里的占位符（{key_id}）。填 App Store Connect → 用户和访问 → 密钥 里那一行的 Key ID，"
-            "它同时也是 .p8 文件名里 AuthKey_ 之后的那一段。"
-        )
-    if not re.fullmatch(r"[A-Z0-9]{10}", key_id):
-        warn(f"apiKeyId（{key_id}）不像 Key ID：Apple 的 Key ID 是 10 位大写字母数字。")
+    # profile 子命令只读本地描述文件、不碰 API，所以跳过下面这组检查。
+    if require_api:
+        key_id = str(cfg.get("apiKeyId") or "").strip()
+        if re.fullmatch(r"[Xx]{6,}", key_id):
+            raise SystemExit(
+                f"apiKeyId 还是示例里的占位符（{key_id}）。填 App Store Connect → 用户和访问 → 密钥 里那一行的 Key ID，"
+                "它同时也是 .p8 文件名里 AuthKey_ 之后的那一段。"
+            )
+        if not re.fullmatch(r"[A-Z0-9]{10}", key_id):
+            warn(f"apiKeyId（{key_id}）不像 Key ID：Apple 的 Key ID 是 10 位大写字母数字。")
 
-    issuer = str(cfg.get("issuerId") or "").strip()
-    if not re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", issuer):
-        warn(f"issuerId（{issuer}）不像 Issuer ID：它应是形如 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx 的 UUID。")
+        issuer = str(cfg.get("issuerId") or "").strip()
+        if not re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", issuer):
+            warn(f"issuerId（{issuer}）不像 Issuer ID：它应是形如 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx 的 UUID。")
 
-    # 文件名交叉核对。App Store Connect 下载的密钥叫 AuthKey_<10 位 Key ID>.p8；
-    # 文件名里的标识若不是 10 位，这个 .p8 很可能来自别的服务（APNs 推送密钥也是 EC P-256，
-    # 签名能过，但这套鉴权不认），比「密钥无效」有用得多。
-    stem = key_path.stem
-    prefix, _, candidate = stem.partition("_")
-    if candidate:
-        if len(candidate) != 10:
-            warn(f".p8 文件名里的标识「{candidate}」是 {len(candidate)} 位，不是 10 位 Key ID。"
-                 "App Store Connect 下载的文件形如 AuthKey_<10 位 Key ID>.p8，"
-                 "这个文件可能来自别的服务（比如 APNs 推送密钥），那种密钥签出来的 JWT 会被判 401。")
-        elif candidate.upper() != key_id:
-            warn(f"配置的 apiKeyId（{key_id}）与文件名里的（{candidate}）不一致，确认哪个才是密钥页上的 Key ID。")
+        # 文件名交叉核对。App Store Connect 下载的密钥叫 AuthKey_<10 位 Key ID>.p8；
+        # 文件名里的标识若不是 10 位，这个 .p8 很可能来自别的服务（APNs 推送密钥也是 EC P-256，
+        # 签名能过，但这套鉴权不认），比「密钥无效」有用得多。
+        prefix, _, candidate = key_path.stem.partition("_")
+        if candidate:
+            if len(candidate) != 10:
+                warn(f".p8 文件名里的标识「{candidate}」是 {len(candidate)} 位，不是 10 位 Key ID。"
+                     "App Store Connect 下载的文件形如 AuthKey_<10 位 Key ID>.p8，"
+                     "这个文件可能来自别的服务（比如 APNs 推送密钥），那种密钥签出来的 JWT 会被判 401。")
+            elif candidate.upper() != key_id:
+                warn(f"配置的 apiKeyId（{key_id}）与文件名里的（{candidate}）不一致，确认哪个才是密钥页上的 Key ID。")
 
     cfg["_keyPath"] = key_path
     return cfg
@@ -734,7 +733,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="手工下载的 App Store 描述文件")
     args = parser.parse_args(argv)
 
-    cfg = load_config(args.config)
+    cfg = load_config(args.config, require_api=args.command != "profile")
     if args.command == "check":
         return check(cfg)
     if args.command == "provision":

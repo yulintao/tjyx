@@ -153,8 +153,9 @@ jobs:
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           # 可选：App Group ID（仓库变量）。设置后强制使用它；不设置则从描述文件里自动挑。
-          # 但提示文案里会用到它，所以给个默认值，别让错误信息出现「App Group  enabled」这种空档。
-          APP_GROUP_ID: ${{ vars.APP_GROUP_ID || 'group.com.tjyx.compass' }}
+          # 注意：这里必须保持「未设就是空」。给它填默认值会让下面的校验变成硬失败
+          # （工程已无 entitlements 文件，描述文件里本来也不带 group）。
+          APP_GROUP_ID: ${{ vars.APP_GROUP_ID }}
           # 开发者模式凭证 (含 fallback)
           DEV_P12: ${{ secrets.DEV_CERTIFICATE_P12 || secrets.BUILD_CERTIFICATE_P12 }}
           DEV_P12_PWD: ${{ secrets.DEV_P12_PASSWORD || secrets.P12_PASSWORD }}
@@ -168,10 +169,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -n "$TEAM_ID" || {
-            echo "ERROR: Missing APPLE_TEAM_ID in GitHub Secrets."
-            exit 1
-          }
+          # APPLE_TEAM_ID 可以不填：解密描述文件后能从里面取到团队，见下面「Team ID 以描述文件为准」。
+          if [ -z "$TEAM_ID" ]; then
+            echo "APPLE_TEAM_ID is empty; it will be read from the provisioning profile."
+          fi
 
           mkdir -p "$RUNNER_TEMP/signing"
           P12_PATH="$RUNNER_TEMP/signing/certificate.p12"
@@ -257,10 +258,10 @@ jobs:
           SIGNING_IDENTITY="$(printf '%s\n' "$SIGNING_LINE" | sed -E 's/^[^"]*"([^"]*)".*/\1/')"
           CERT_SHA1="$(printf '%s\n' "$SIGNING_LINE" | awk '{print toupper($2)}')"
 
-          if [[ "$SIGNING_IDENTITY" != *"($TEAM_ID)"* ]]; then
-            echo "WARNING: Certificate identity does not contain ($TEAM_ID), proceeding with: $SIGNING_IDENTITY"
-          fi
+          # 证书 CN 里的括号是签发时记录的标识，未必等于团队 ID（这台机器上就是 W6QFD6Y86F
+          # 对 9ZK328P458），所以这里不做判断，只把两个值都打出来便于对账。
           echo "Selected Signing Identity: $SIGNING_IDENTITY ($CERT_SHA1)"
+          echo "Team on the profile: ${TEAM_ID:-<not read yet>}"
 
           # 描述文件通用预检：未过期 + 包含刚导入的这张证书
           check_profile() {
@@ -305,6 +306,21 @@ jobs:
           echo "App ID: $PROFILE_APP_ID"
           echo "get-task-allow: $GET_TASK_ALLOW"
 
+          # Team ID 也以描述文件为准：这个账户里同时存在个人团队与旧团队，
+          # secret 里的 APPLE_TEAM_ID 一旦和描述文件不是同一个团队，下面每条校验都会错配。
+          # 所以：secret 为空就从描述文件取；secret 与描述文件冲突就明确报冲突，而不是含糊地报 App ID。
+          if [ -z "$TEAM_ID" ]; then
+            TEAM_ID="$PROFILE_TEAM"
+            echo "Team ID comes from the profile: $TEAM_ID"
+            echo "TEAM_ID=$TEAM_ID" >> "$GITHUB_ENV"
+          elif [ "$TEAM_ID" != "$PROFILE_TEAM" ]; then
+            echo "::warning::APPLE_TEAM_ID is $TEAM_ID but this profile belongs to team $PROFILE_TEAM; using the profile's team."
+            TEAM_ID="$PROFILE_TEAM"
+            echo "TEAM_ID=$TEAM_ID" >> "$GITHUB_ENV"
+          else
+            echo "Team ID: $TEAM_ID (matches the profile)"
+          fi
+
           # Bundle ID 以工程为唯一来源，CI 不另存一份副本
           PROJECT_APP_BUNDLE_ID="$(grep -m1 -oE 'PRODUCT_BUNDLE_IDENTIFIER = [A-Za-z0-9.-]+;' "$PROJECT_PATH/project.pbxproj" | sed -E 's/.*= //; s/;//')"
           if [ -z "$PROJECT_APP_BUNDLE_ID" ]; then
@@ -330,7 +346,8 @@ jobs:
             echo "::error::The provisioning profile in the secret belongs to a different bundle id."
             echo "::error::Expected: $EXPECTED_APP_ID"
             if [ "$BUILD_TARGET" = "app-store" ]; then PROFILE_SECRET="DIST_PROVISION_PROFILE"; else PROFILE_SECRET="DEV_PROVISION_PROFILE"; fi
-            echo "::error::Fix: in Apple Developer portal create (or reuse) the App ID $APP_BUNDLE_ID with App Group $APP_GROUP_ID enabled, generate a $BUILD_TARGET profile that includes the test device UDID, then store base64 of the .mobileprovision in the $PROFILE_SECRET secret."
+            # 只是提示文案：没设变量时显示工程里的默认组名，不参与任何校验
+            echo "::error::Fix: in Apple Developer portal create (or reuse) the App ID $APP_BUNDLE_ID (it needs App Group ${APP_GROUP_ID:-group.com.tjyx.compass} only if the app actually uses one), generate a $BUILD_TARGET profile that includes the test device UDID, then store base64 of the .mobileprovision in the $PROFILE_SECRET secret."
             echo "::error::Or from the repo: python tools\\appstore_setup.py github --apply --dev-profile ./tjyx_development.mobileprovision (it refuses a profile whose App ID does not cover $APP_BUNDLE_ID)."
             echo "::error::PowerShell: [Convert]::ToBase64String([IO.File]::ReadAllBytes('profile.mobileprovision')) | Set-Clipboard"
             exit 1
@@ -515,7 +532,8 @@ jobs:
       # --------------------------------------------------
       - name: Build Archive
         env:
-          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # 不要在这里重新读 secret：签名步骤已把解析出的团队写进 GITHUB_ENV，
+          # 这里的覆盖会让空 secret 抹掉那个值。
           SIGNING_IDENTITY: ${{ steps.setup_signing.outputs.signing_identity }}
           PROFILE_UUID: ${{ steps.setup_signing.outputs.profile_uuid }}
           HAS_WIDGET_PROFILE: ${{ steps.setup_signing.outputs.has_widget_profile }}
@@ -601,7 +619,6 @@ jobs:
       # --------------------------------------------------
       - name: Create ExportOptions
         env:
-          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           PROFILE_UUID: ${{ steps.setup_signing.outputs.profile_uuid }}
           HAS_WIDGET_PROFILE: ${{ steps.setup_signing.outputs.has_widget_profile }}
           WIDGET_PROFILE_UUID: ${{ steps.setup_signing.outputs.widget_profile_uuid }}
