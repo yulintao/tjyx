@@ -629,18 +629,12 @@ public struct House3DSpaceViewer: View {
     }
 
     private func exportAndShareReport() {
-        if !iap.hasUnlockedVIP {
-            return
-        }
         guard let coord = sceneCoordinator, let snapshot = coord.captureSnapshot() else { return }
         let reportImage = SurveyReportRenderer.renderReportImage(survey: survey, snapshot: snapshot)
         self.shareSheetItem = SurveyShareReportItem(activityItems: [reportImage])
     }
 
     private func exportAndShareDXF() {
-        if !iap.hasUnlockedVIP {
-            return
-        }
         if let dxfURL = survey.exportDXFFileURL() {
             self.shareSheetItem = SurveyShareReportItem(activityItems: [dxfURL])
         }

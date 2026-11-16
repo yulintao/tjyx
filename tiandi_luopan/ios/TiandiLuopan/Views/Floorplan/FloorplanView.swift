@@ -1887,9 +1887,6 @@ public struct FloorplanView: View {
             // The previous button opened the last persisted AR/VR snapshot,
             // which could belong to a different floorplan.
             Button(action: {
-                if !iap.hasUnlockedVIP {
-                    return
-                }
                 guard let survey = buildCurrentFloorplanSurvey() else { return }
                 currentFloorplanSurvey = survey
                 // Make the exact snapshot shown by this button available to
@@ -1898,17 +1895,8 @@ public struct FloorplanView: View {
                 showCurrentFloorplan3D = true
             }) {
                 HStack(spacing: 3) {
-                    Image(systemName: iap.hasUnlockedVIP ? "cube.transparent" : "lock.fill")
+                    Image(systemName: "cube.transparent")
                     Text(lang.t("floorplan_3d_current"))
-                    if !iap.hasUnlockedVIP {
-                        Text(lang.t("vip_badge_title"))
-                            .adaptiveFont(size: 8, weight: .bold)
-                            .padding(.horizontal, 3)
-                            .padding(.vertical, 1)
-                            .background(Color.yellow.opacity(0.3))
-                            .foregroundColor(.yellow)
-                            .cornerRadius(3)
-                    }
                 }
                 .adaptiveFont(size: 11, weight: .bold)
                 .padding(.horizontal, 7)
@@ -1921,23 +1909,11 @@ public struct FloorplanView: View {
             if let survey = persistedSpatialSurvey {
                 let isVR = survey.scanMethod.contains("VR") || survey.scanMethod.contains("仿真")
                 Button(action: {
-                    if isVR && !iap.hasUnlockedVIP {
-                        return
-                    }
                     show3DSpaceViewer = true
                 }) {
                     HStack(spacing: 3) {
-                        Image(systemName: isVR && !iap.hasUnlockedVIP ? "lock.fill" : "cube.transparent")
+                        Image(systemName: "cube.transparent")
                         Text(isVR ? lang.t("floorplan_3d_recent_vr") : lang.t("floorplan_3d_recent_actual"))
-                        if isVR && !iap.hasUnlockedVIP {
-                            Text(lang.t("vip_badge_title"))
-                                .adaptiveFont(size: 8, weight: .bold)
-                                .padding(.horizontal, 3)
-                                .padding(.vertical, 1)
-                                .background(Color.yellow.opacity(0.3))
-                                .foregroundColor(.yellow)
-                                .cornerRadius(3)
-                        }
                     }
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 7)
@@ -1950,23 +1926,11 @@ public struct FloorplanView: View {
 
             if persistedVirtualSpatialSurvey != nil {
                 Button(action: {
-                    if !iap.hasUnlockedVIP {
-                        return
-                    }
                     showVirtualSpaceViewer = true
                 }) {
                     HStack(spacing: 3) {
-                        Image(systemName: iap.hasUnlockedVIP ? "view.3d" : "lock.fill")
+                        Image(systemName: "view.3d")
                         Text(lang.t("floorplan_3d_recent_vr"))
-                        if !iap.hasUnlockedVIP {
-                            Text(lang.t("vip_badge_title"))
-                                .adaptiveFont(size: 8, weight: .bold)
-                                .padding(.horizontal, 3)
-                                .padding(.vertical, 1)
-                                .background(Color.orange.opacity(0.3))
-                                .foregroundColor(.white)
-                                .cornerRadius(3)
-                        }
                     }
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 7)
@@ -1980,23 +1944,11 @@ public struct FloorplanView: View {
             // 户型图/手工房间编辑没有 RoomPlan 档案时，也应有明确的
             // 3D 入口。该入口是“按比例仿真”，不会冒充 LiDAR 实测结果。
             Button(action: {
-                if !iap.hasUnlockedVIP {
-                    return
-                }
                 showVRSpatialSurvey = true
             }) {
                 HStack(spacing: 3) {
-                    Image(systemName: iap.hasUnlockedVIP ? "view.3d" : "lock.fill")
+                    Image(systemName: "view.3d")
                     Text(lang.t("vr_survey_title"))
-                    if !iap.hasUnlockedVIP {
-                        Text(lang.t("vip_badge_title"))
-                            .adaptiveFont(size: 8, weight: .bold)
-                            .padding(.horizontal, 3)
-                            .padding(.vertical, 1)
-                            .background(Color.orange.opacity(0.3))
-                            .foregroundColor(.white)
-                            .cornerRadius(3)
-                    }
                 }
                 .adaptiveFont(size: 11, weight: .bold)
                 .padding(.horizontal, 7)

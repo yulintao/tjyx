@@ -32,7 +32,6 @@ public struct OwnerKuaReminderPageView: View {
             Section {
                 NavigationLink(lang.t("profile_data_title"), destination: PersonalProfileDataView())
             }
-            if iap.hasUnlockedVIP {
             // 1. 宅主本命卦人宅配卦
             Section(header: Text(SettingsLocalizationHelpers.ownerBirthYearTitle(lang))) {
                 Toggle(SettingsLocalizationHelpers.ownerProfileEnableTitle(lang), isOn: $kuaProfile.isProfileEnabled)
@@ -220,7 +219,6 @@ public struct OwnerKuaReminderPageView: View {
 
             } else {
                 Section { OwnerGuaVIPGate { EmptyView() } }
-            }
 
             // 3. 二十四节气交节与九星换月提醒
             Section(

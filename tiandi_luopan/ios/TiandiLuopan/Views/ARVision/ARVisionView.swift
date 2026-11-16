@@ -1327,19 +1327,16 @@ public struct ARVisionView: View {
 
                     // 勘测存证快照拍照按钮
                     Button(action: {
-                        if !iap.hasUnlockedVIP {
+                        guard pendingCapturePurpose == nil else { return }
+                        if hasCameraPermission && isActive {
+                            capturePropertyID = shaStore.propertyID
+                            pendingCapturePurpose = .snapshot
+                            captureTrigger += 1
                         } else {
-                            guard pendingCapturePurpose == nil else { return }
-                            if hasCameraPermission && isActive {
-                                capturePropertyID = shaStore.propertyID
-                                pendingCapturePurpose = .snapshot
-                                captureTrigger += 1
-                            } else {
-                                // A dark fallback image must never be presented as an
-                                // on-site proof. Ask the user to restore camera access
-                                // and only save a snapshot after a real frame arrives.
-                                aiError = lang.t("ar_ai_camera_required")
-                            }
+                            // A dark fallback image must never be presented as an
+                            // on-site proof. Ask the user to restore camera access
+                            // and only save a snapshot after a real frame arrives.
+                            aiError = lang.t("ar_ai_camera_required")
                         }
                     }) {
                         HStack(spacing: 4) {

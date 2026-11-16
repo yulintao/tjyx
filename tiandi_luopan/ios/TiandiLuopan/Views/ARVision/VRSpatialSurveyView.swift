@@ -523,9 +523,6 @@ public struct VRSpatialSurveyView: View {
 
     private func generateReport() {
         guard ShaSurveyStore.shared.isCurrentProperty(propertyID) else { return }
-        if !iap.hasUnlockedVIP {
-            return
-        }
         validationMessage = nil
         guard !rooms.isEmpty else {
             validationMessage = lang.t("vr_err_no_room")

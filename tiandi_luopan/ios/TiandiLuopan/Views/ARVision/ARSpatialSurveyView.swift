@@ -2913,9 +2913,6 @@ public struct ARSpatialSurveyView: View {
                     }
                     .accessibilityLabel(lang.t("floorplan_3d_recent_actual"))
                     Button(action: {
-                        if !iap.hasUnlockedVIP {
-                            return
-                        }
                         showVRSurvey = true
                     }) {
                         HStack(spacing: 3) {
