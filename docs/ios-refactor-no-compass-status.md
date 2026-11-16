@@ -190,3 +190,25 @@ FileNotFoundError: .../ios/TiandiLuopanWidget/PrivacyInfo.xcprivacy
 没有小组件就跳过；App Group 那段错误文案也不再声称「主 App 与小组件描述文件都要带这个组」。
 改完用 PyYAML 解析过整个 workflow（14 个 step 结构完好），但这只证明 YAML 合法，
 shell 分支要等一次真跑。
+
+### 收尾编译验证（第一次等编译器说话之前的体检）
+
+这一批改动（拆 target、删 11 个分析页、删付费墙、配色 token、P0/P1 界面）在推送前先按仓
+库自带的静态检查逐项过了一遍，因为本机没有 Xcode，编译器要到 CI 上才第一次开口：
+
+- `validate_swift_syntax.py`：53 个 Swift 文件，括号与语法错误 0。
+- `check_swift_target_dependencies.py`：`Checked 1 source phases (52 compilation entries);
+  0 unavailable local types`。
+- `check_identifiable.py`：148 个 struct、40 个 Identifiable，全部有合法 `id`。
+- `check_localization_keys.py`：8 种语言各 827 个 key，缺 key 0、重复 0、未用 292。
+  未用 key 是删页面与删付费墙的必然残留；按「不动中/日/韩三张语言表」的既定偏好，
+  这批死 key 暂不清。
+- pbxproj 登记审计：53/53 配对，唯一报项是 `FunctionalRegressionTests.swift` 的
+  `children = (9602 …,);` 单子项内联写法——脚本按缩进匹配所以误报，条目本身在。
+
+顺手修掉一个真会编译失败的写法：分房面板 `tierColor(_:)` 里原本用
+`case .some:` 兜四个凶位，Swift 的 optional 模式不接受不带子模式的 `.some`，
+改为 `case nil:` 先判空、再用 `default:` 兜凶位。
+
+本轮两个决定（用户拍板）：新增文案**八语一起补**，译文由实现方起草交用户审；
+P3 报告页**暂缓**，先让编译器与真机把 P0/P1 验证过去再谈形态。
