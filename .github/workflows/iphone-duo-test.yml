@@ -243,8 +243,8 @@ jobs:
           cat > "$RUNNER_TEMP/duo_capture.sh" <<'SH'
           # usage: capture_set <close|open> <outer|inner> <file-prefix> <allow-simctl-fallback:0|1>
           BUNDLE_ID="com.tjyx.compass"
-          LANGS=(zh-Hans zh-Hant en ja ko vi th id)
-          LOCALES=(zh_CN zh_TW en_US ja_JP ko_KR vi_VN th_TH id_ID)
+          LANGS=(zh-Hans zh-Hant ja ko)
+          LOCALES=(zh_CN zh_TW ja_JP ko_KR)
           OUT="duo-screenshots"
 
           set_pose() {
@@ -316,8 +316,8 @@ jobs:
           }
           SH
 
-      # 外屏（折叠态）：8 语言 × 5 Tab。selectedTab 由 RootContentView.init 支持。
-      - name: Capture Folded Outer Display (8 langs x 5 tabs)
+      # 外屏（折叠态）：4 语言 × 5 Tab。selectedTab 由 RootContentView.init 支持。
+      - name: Capture Folded Outer Display (4 langs x 5 tabs)
         if: steps.detect_duo.outputs.duo_available == 'true'
         run: |
           set -euo pipefail
@@ -356,7 +356,7 @@ jobs:
           INNER="$(find duo-screenshots/inner -name '*.png' 2>/dev/null | wc -l | tr -d ' ')"
           echo "outer PNG=$OUTER, inner PNG=$INNER"
           if [ "${OUTER:-0}" -lt 1 ]; then
-            echo "::error::折叠外屏 0 张有效截图（8 语言 × 5 Tab 应有 40 张）"
+            echo "::error::折叠外屏 0 张有效截图（4 语言 × 5 Tab 应有 20 张）"
             exit 1
           fi
           python3 .github/scripts/screenshot_guard.py --dir duo-screenshots/outer
@@ -394,5 +394,5 @@ jobs:
               echo "- 因此 **Duo 内屏** 双栏无 CI 覆盖；iPad 分栏由独立 workflow"
               echo "  `capture-ipad-screenshots.yml` 采集（同一套 SwiftUI 双栏代码路径）。"
             fi
-            echo "- 截图范围：8 语言 × 5 Tab（\`-selectedTab\` 由 RootContentView 启动参数支持）"
+            echo "- 截图范围：4 语言 × 5 Tab（\`-selectedTab\` 由 RootContentView 启动参数支持）"
           } >> "$GITHUB_STEP_SUMMARY"

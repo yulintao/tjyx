@@ -19,7 +19,7 @@ public struct LanguagePreferencesPageView: View {
                 Toggle(lang.t("haptic_feedback"), isOn: $motion.isHapticEnabled)
 
                 Picker(lang.t("app_language"), selection: $lang.currentSetting) {
-                    ForEach(AppLanguage.allCases) { item in
+                    ForEach(AppLanguage.selectable) { item in
                         Text(item.displayName).tag(item)
                     }
                 }
