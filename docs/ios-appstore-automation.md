@@ -1,21 +1,28 @@
-# appstore_setup.ps1 配置说明
+# appstore_setup.py 配置说明
 
-`tiandi_luopan/tools/appstore_setup.ps1`，PowerShell 7，无第三方依赖。默认 dry-run，
-加 `-Apply` 才真的写 Apple 账户与 GitHub。
+`tiandi_luopan/tools/appstore_setup.py`，Python 3.9+，唯一外部依赖是 `cryptography`
+（ES256 签名与 PKCS#8 解析）：
+
+```powershell
+python -m pip install cryptography
+```
+
+默认 dry-run，加 `--apply` 才真的写 Apple 账户与 GitHub。原来那版 PowerShell 脚本已删除，
+避免两份实现漂移。
 
 ## 三个作用与实现
 
-**1. 登录 App Store Connect，为每个 App 建唯一的 Bundle ID 及配套资源**
+**1. 用 API 密钥登录 App Store Connect，为每个 App 建唯一的 Bundle ID 及配套资源**
 
 API 密钥就是「登录」。脚本对每个 App 依次做：查 Bundle ID 是否已存在（存在就复用，不重复建）→
 不存在则新建 → 挂 `APP_GROUPS` 能力 → 把配置里的设备 UDID 登记进账户 →
 签发开发描述文件（含设备）与 App Store 描述文件（不含设备）。
 
-「唯一」有两层保证：账户侧按 `filter[identifier]` 查，同 ID 不会建第二份；
-配置侧有守卫，同一份配置里 `bundleId` 出现两次直接抛错——
+「唯一」有两层保证：账户侧按 `filter[identifier]` 查，同 ID 不会建第二份；配置侧有守卫，
+同一份配置里 `bundleId` 出现两次直接退出——
 
 ```
-Exception: 配置里 Bundle ID 重复：com.tjyx.compass。每个 App 的 Bundle ID 必须唯一。
+配置里 Bundle ID 重复：com.tjyx.compass。每个 App 的 Bundle ID 必须唯一。
 ```
 
 **2. 导出到本地，并把值写进 GitHub**
@@ -26,11 +33,11 @@ Exception: 配置里 Bundle ID 重复：com.tjyx.compass。每个 App 的 Bundle
 |---|---|
 | `com_tjyx_compass.dev.mobileprovision` / `.b64` | 开发描述文件及其 base64 |
 | `com_tjyx_compass.appstore.mobileprovision` / `.b64` | 发布描述文件及其 base64 |
-| `manifest.json` | 本次建/复用了哪些东西：App ID 的 id、能力是否挂上、两个描述文件的 id、产物文件名 |
+| `manifest.json` | 本次建/复用了什么：App ID 的 id、能力是否挂上、两个描述文件 id、产物文件名 |
 
-`manifest.json` 是给你对账用的：下次再跑，看它就知道哪个环节被跳过、哪个被复用。
+`manifest.json` 是给你对账用的：下次再跑，看它就知道哪步被跳过、哪步被复用。
 
-`-Command github` 把这些写进仓库，名字与 `build-ios.yml` 实际引用的一致：
+`github` 子命令把这些写进仓库，名字与 `build-ios.yml` 实际引用的一致：
 
 | 类型 | 名字 |
 |---|---|
@@ -74,20 +81,21 @@ Exception: 配置里 Bundle ID 重复：com.tjyx.compass。每个 App 的 Bundle
 Copy-Item tools\appstore_setup.config.example.json tools\appstore_setup.config.json
 
 # 1) 只读：校验配置 + 用你的 .p8 签一次 JWT + 查每个 App 是否已建档
-pwsh -File tools\appstore_setup.ps1 -Command check
+python tools\appstore_setup.py check
 
 # 2) 看计划：POST 只打印 body，不发出去
-pwsh -File tools\appstore_setup.ps1 -Command provision
+python tools\appstore_setup.py provision
 
 # 3) 执行：建档、挂能力、签描述文件、写 manifest.json
-pwsh -File tools\appstore_setup.ps1 -Command provision -Apply -AddDevices
+python tools\appstore_setup.py provision --apply --add-devices
 
-# 4) 写 GitHub：先看它要 set 哪些名字（值只打印长度）
-pwsh -File tools\appstore_setup.ps1 -Command github
-pwsh -File tools\appstore_setup.ps1 -Command github -Apply
+# 4) 写 GitHub：先看它要 set 哪些名字（私钥值只打印字符数）
+python tools\appstore_setup.py github
+python tools\appstore_setup.py github --apply
 ```
 
 `github` 子命令需要 GitHub CLI：`winget install --id GitHub.cli -e`，然后 `gh auth login`。
+脚本用 `shutil.which` 找 gh，`.exe` 与 `.cmd` 两种落地形式都能用。
 
 ## 需要你自己准备的两样东西
 
@@ -108,8 +116,10 @@ pwsh -File tools\appstore_setup.ps1 -Command github -Apply
 
 ## 已验证 / 未验证
 
-- 已验证：脚本可解析；用临时生成的 P-256 私钥签出的 JWT 真的打到了 `api.appstoreconnect.apple.com`
-  并返回 401（因为不是你的密钥），说明签名格式与 claims 正确；多 App 配置能正确展开成各自的描述文件名；
-  重复 Bundle ID 会被拦下。
+- 已验证：`py_compile` 与 `ast.parse` 都通过；用临时生成的 P-256 私钥签出的 JWT 真的打到了
+  `api.appstoreconnect.apple.com`，返回 401（因为不是你的密钥），说明签名格式与 claims 正确；
+  双 App 配置展开成各自的描述文件名；重复 Bundle ID 会被拦下；`github` 在 gh 桩存在时
+  正确打印 9 个 secret、2 个 variable、1 个 environment 的计划，且私钥值只显示字符数；
+  凭证失效时 `provision` 给一句人话而不是 traceback。
 - 未验证：`POST /v1/bundleIdCapabilities` 的 `APP_GROUPS` payload 字段格式，只能在你账户上第一次跑才知道。
   被拒时脚本只警告不中断，App Group 那一步退回 portal 手点一次即可，其余照旧自动化。
