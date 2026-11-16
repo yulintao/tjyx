@@ -56,9 +56,12 @@ function Read-Config {
     }
     $raw = [IO.File]::ReadAllText($ConfigPath)
     $cfg = $raw | ConvertFrom-Json
-    foreach ($key in @('teamId', 'bundleId', 'appGroup', 'apiKeyId', 'issuerId', 'apiKeyPath', 'githubRepo')) {
+    foreach ($key in @('teamId', 'apiKeyId', 'issuerId', 'apiKeyPath', 'githubRepo')) {
         if (-not $cfg.$key) { throw "配置缺字段：$key" }
     }
+    # 两种写法二选一：顶层填一个 App，或 apps 数组里填多个 App
+    if (-not $cfg.bundleId -and -not $cfg.apps) { throw "配置缺字段：bundleId（改用 apps 数组也可以）" }
+    if (-not $cfg.appGroup) { throw "配置缺字段：appGroup（也可以在 apps 的每个条目里单独写）" }
     if (-not (Test-Path -LiteralPath $cfg.apiKeyPath)) {
         throw "找不到 API 私钥文件：$($cfg.apiKeyPath)（App Store Connect → 用户和访问 → 密钥 里下载的 AuthKey_*.p8）"
     }
@@ -141,13 +144,13 @@ function Get-BundleId($Jwt, $Identifier) {
     return $null
 }
 
-function New-BundleId($Jwt, $Cfg) {
+function New-BundleId($Jwt, [string]$BundleId, [string]$AppName) {
     $body = @{
         data = @{
             type = 'bundleIds'
             attributes = @{
-                identifier = $Cfg.bundleId
-                name       = $Cfg.appName
+                identifier = $BundleId
+                name       = $AppName
                 platform   = 'IOS'
             }
         }
@@ -250,81 +253,172 @@ function Save-Profile($Jwt, $ProfileId, [string]$FileName) {
     return $content
 }
 
+function Get-AppEntries($Cfg) {
+    $entries = @()
+    if ($Cfg.apps -and @($Cfg.apps).Count -gt 0) {
+        foreach ($a in @($Cfg.apps)) {
+            $slug = ($a.bundleId -replace '[^A-Za-z0-9]', '_')
+            $entries += [pscustomobject]@{
+                bundleId        = $a.bundleId
+                appName         = ($a.appName ?? $a.bundleId)
+                appGroup        = ($a.appGroup ?? $Cfg.appGroup)
+                devProfileName  = ($a.devProfileName ?? ($slug + '_dev'))
+                distProfileName = ($a.distProfileName ?? ($slug + '_appstore'))
+                devices         = @($a.devices ?? @($Cfg.devices))
+            }
+        }
+    }
+    else {
+        $slug = ($Cfg.bundleId -replace '[^A-Za-z0-9]', '_')
+        $entries += [pscustomobject]@{
+            bundleId        = $Cfg.bundleId
+            appName         = ($Cfg.appName ?? $Cfg.bundleId)
+            appGroup        = $Cfg.appGroup
+            devProfileName  = ($Cfg.devProfileName ?? ($slug + '_dev'))
+            distProfileName = ($Cfg.distProfileName ?? ($slug + '_appstore'))
+            devices         = @($Cfg.devices)
+        }
+    }
+    # 唯一性守卫：同一个 Bundle ID 出现两次，多半是复制条目时忘了改，直接拦下
+    $dupes = @($entries | Group-Object bundleId | Where-Object { $_.Count -gt 1 })
+    if ($dupes.Count -gt 0) {
+        throw ("配置里 Bundle ID 重复：" + ($dupes.Name -join ', ') + "。每个 App 的 Bundle ID 必须唯一。")
+    }
+    return $entries
+}
+
+function Invoke-ProvisionApp($Jwt, $App, $DevCert, $DistCert) {
+    $slug = ($App.bundleId -replace '[^A-Za-z0-9]', '_')
+    $record = [ordered]@{
+        bundleId        = $App.bundleId
+        appName         = $App.appName
+        appGroup        = $App.appGroup
+        appBundleIdId   = ''
+        groupCapability = $false
+        devProfileId    = ''
+        distProfileId   = ''
+        files           = @()
+    }
+
+    Write-Step ("App ID：" + $App.bundleId)
+    $bundle = Get-BundleId $Jwt $App.bundleId
+    if ($bundle) {
+        Write-Ok ("已存在：" + $bundle.id)
+    }
+    elseif ($Apply) {
+        $bundle = New-BundleId $Jwt $App.bundleId $App.appName
+        Write-Ok ("已创建：" + $bundle.data.id)
+    }
+    else {
+        Write-Plan ("将创建 App ID " + $App.bundleId + "（" + $App.appName + "）")
+        Write-Warn2 "dry-run 停在 App ID 之前：没有它的 id 就走不完后面的步骤，加 -Apply 再跑。"
+        return [pscustomobject]$record
+    }
+    $record.appBundleIdId = $bundle.id
+
+    Write-Step ("App Group 能力：" + $App.appGroup)
+    if ($Apply) {
+        try {
+            Set-AppGroupCapability $Jwt $bundle.id $App.appGroup | Out-Null
+            Write-Ok "已挂上（返回 409 说明账户里本来就有，属正常）"
+            $record.groupCapability = $true
+        }
+        catch {
+            Write-Warn2 ("没挂上：" + $_.Exception.Message)
+            Write-Warn2 "到 portal 里手动勾一次 App Groups 也能继续，描述文件照样能签。"
+        }
+    }
+    else {
+        Set-AppGroupCapability $Jwt $bundle.id $App.appGroup | Out-Null
+        Write-Plan "将挂上 App Group 能力（API 若拒收该 payload，退回 portal 手点一次）"
+    }
+
+    Write-Step "设备"
+    $deviceIds = Confirm-Devices $Jwt $App.devices
+
+    Write-Step "描述文件"
+    if ($DevCert) {
+        $existing = @(Get-Profiles $Jwt 'IOS_APP_DEVELOPMENT' | Where-Object { $_.attributes.name -eq $App.devProfileName }) | Select-Object -First 1
+        $profileId = ''
+        if ($existing) {
+            $profileId = $existing.id
+            Write-Ok ("开发描述文件已存在：" + $profileId)
+        }
+        elseif ($Apply) {
+            $created = New-Profile $Jwt $App.devProfileName 'IOS_APP_DEVELOPMENT' $bundle.id $DevCert.id $deviceIds
+            if ($created) { $profileId = $created.data.id; Write-Ok ("已创建开发描述文件：" + $profileId) }
+        }
+        else {
+            Write-Plan ("将创建开发描述文件 " + $App.devProfileName + "（含 " + $deviceIds.Count + " 台设备）")
+        }
+        if ($profileId) {
+            $record.devProfileId = $profileId
+            Save-Profile $Jwt $profileId ($slug + '.dev.mobileprovision') | Out-Null
+            $record.files = @(($slug + '.dev.mobileprovision'), ($slug + '.dev.mobileprovision.b64'))
+        }
+    }
+
+    if ($DistCert) {
+        $existing = @(Get-Profiles $Jwt 'IOS_APP_STORE' | Where-Object { $_.attributes.name -eq $App.distProfileName }) | Select-Object -First 1
+        $profileId = ''
+        if ($existing) {
+            $profileId = $existing.id
+            Write-Ok ("发布描述文件已存在：" + $profileId)
+        }
+        elseif ($Apply) {
+            $created = New-Profile $Jwt $App.distProfileName 'IOS_APP_STORE' $bundle.id $DistCert.id @()
+            if ($created) { $profileId = $created.data.id; Write-Ok ("已创建发布描述文件：" + $profileId) }
+        }
+        else {
+            Write-Plan ("将创建发布描述文件 " + $App.distProfileName)
+        }
+        if ($profileId) {
+            $record.distProfileId = $profileId
+            Save-Profile $Jwt $profileId ($slug + '.appstore.mobileprovision') | Out-Null
+            $record.files = @($record.files) + @(($slug + '.appstore.mobileprovision'), ($slug + '.appstore.mobileprovision.b64'))
+        }
+    }
+
+    return [pscustomobject]$record
+}
+
 function Invoke-Provision {
     $cfg = Read-Config
+    $apps = Get-AppEntries $cfg
+
     Write-Step "校验 API 凭据"
     $jwt = New-AscJwt -KeyId $cfg.apiKeyId -IssuerId $cfg.issuerId -P8Content ([IO.File]::ReadAllText($cfg.apiKeyPath))
     Write-Ok ("JWT 已签发（{0} 字节）" -f $jwt.Length)
 
-    Write-Step "App ID：$($cfg.bundleId)"
-    $bundle = Get-BundleId $jwt $cfg.bundleId
-    if ($bundle) {
-        Write-Ok "已存在：$($bundle.id)"
-    }
-    else {
-        Write-Warn2 "不存在，需要新建"
-        if ($Apply) {
-            $bundle = New-BundleId $jwt $cfg
-            Write-Ok "已创建：$($bundle.data.id)"
-        }
-        else {
-            New-BundleId $jwt $cfg | Out-Null
-            throw "dry-run 到此为止：App ID 尚未创建，创建后再跑一次才能拿到 id 继续配 App Group 与描述文件。"
-        }
+    Write-Step "证书（只挑现有的，不新建；取一次给所有 App 共用）"
+    $devCert = @(Get-Certificates $jwt 'IOS_DEVELOPMENT' | Where-Object { $_.attributes.status -eq 'ACTIVE' }) | Select-Object -First 1
+    $distCert = @(Get-Certificates $jwt 'IOS_DISTRIBUTION' | Where-Object { $_.attributes.status -eq 'ACTIVE' }) | Select-Object -First 1
+    if ($devCert) { Write-Ok ("开发证书：" + $devCert.id) } else { Write-Warn2 "账户里没有可用的开发证书，开发描述文件会被跳过" }
+    if ($distCert) { Write-Ok ("发布证书：" + $distCert.id) } else { Write-Warn2 "账户里没有可用的发布证书，发布描述文件会被跳过" }
+
+    $manifest = @()
+    foreach ($app in $apps) {
+        Write-Host ""
+        Write-Step ("--- " + $app.bundleId + "  (" + $app.appName + ")")
+        $manifest += Invoke-ProvisionApp $jwt $app $devCert $distCert
     }
 
-    Write-Step "App Group 能力：$($cfg.appGroup)"
-    Set-AppGroupCapability $jwt $bundle.id $cfg.appGroup | Out-Null
-    if (-not $Apply) { Write-Plan "（-Apply 时执行上面这条；若账户里已挂过同一个组，API 会返回 409，属正常）" }
-
-    Write-Step "证书（只挑现有的，不新建）"
-    $devCerts = Get-Certificates $jwt 'IOS_DEVELOPMENT'
-    $distCerts = Get-Certificates $jwt 'IOS_DISTRIBUTION'
-    $devCert = @($devCerts | Where-Object { $_.attributes.status -eq 'ACTIVE' }) | Select-Object -First 1
-    $distCert = @($distCerts | Where-Object { $_.attributes.status -eq 'ACTIVE' }) | Select-Object -First 1
-    if (-not $devCert) { Write-Warn2 "账户里没有可用的开发证书；开发描述文件无法签发，请先在 portal 生成并上传 .p12 到 DEV_CERTIFICATE_P。" }
-    else { Write-Ok "开发证书：$($devCert.id)（$($devCert.attributes.displayName)）" }
-    if (-not $distCert) { Write-Warn2 "账户里没有可用的发布证书；发布描述文件无法签发。" }
-    else { Write-Ok "发布证书：$($distCert.id)（$($distCert.attributes.displayName)）" }
-
-    Write-Step "设备"
-    $deviceIds = Confirm-Devices $jwt $cfg.devices
-
-    Write-Step "描述文件"
-    if ($devCert) {
-        $existing = Get-Profiles $jwt 'IOS_APP_DEVELOPMENT' | Where-Object { $_.attributes.name -eq $cfg.devProfileName }
-        if ($existing) {
-            Write-Ok "开发描述文件已存在：$($existing.id)"
-            Save-Profile $jwt $existing.id 'dev_profile.mobileprovision' | Out-Null
-        }
-        else {
-            $created = New-Profile $jwt $cfg.devProfileName 'IOS_APP_DEVELOPMENT' $bundle.id $devCert.id $deviceIds
-            if ($created) {
-                Write-Ok "已创建开发描述文件：$($created.data.id)"
-                Save-Profile $jwt $created.data.id 'dev_profile.mobileprovision' | Out-Null
-            }
-            else { Write-Plan "将创建开发描述文件 $($cfg.devProfileName)（含 $($deviceIds.Count) 台设备）" }
-        }
+    if (-not (Test-Path -LiteralPath $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
+    $manifestPath = Join-Path $OutDir 'manifest.json'
+    $payload = @{
+        generatedAt = (Get-Date).ToString('s')
+        teamId      = $cfg.teamId
+        appCount    = $manifest.Count
+        apps        = $manifest
     }
-    if ($distCert) {
-        $existing = Get-Profiles $jwt 'IOS_APP_STORE' | Where-Object { $_.attributes.name -eq $cfg.distProfileName }
-        if ($existing) {
-            Write-Ok "发布描述文件已存在：$($existing.id)"
-            Save-Profile $jwt $existing.id 'dist_profile.mobileprovision' | Out-Null
-        }
-        else {
-            $created = New-Profile $jwt $cfg.distProfileName 'IOS_APP_STORE' $bundle.id $distCert.id @()
-            if ($created) {
-                Write-Ok "已创建发布描述文件：$($created.data.id)"
-                Save-Profile $jwt $created.data.id 'dist_profile.mobileprovision' | Out-Null
-            }
-            else { Write-Plan "将创建发布描述文件 $($cfg.distProfileName)" }
-        }
-    }
+    [IO.File]::WriteAllText($manifestPath, ($payload | ConvertTo-Json -Depth 8), (New-Object Text.UTF8Encoding $false))
+    Write-Host ""
+    Write-Step "导出清单"
+    Write-Ok $manifestPath
 
     Write-Step "下一步"
-    Write-Host "    描述文件的 base64 在 $OutDir 下。证书的 .p12 base64 与密码不在脚本产出范围内：" -ForegroundColor DarkGray
-    Write-Host "    用你本地导出证书时的那份 .p12，base64 后写进 DEV_CERTIFICATE_P / DIST_CERTIFICATE_P，密码写进 P。" -ForegroundColor DarkGray
+    Write-Host "    描述文件与 base64 都在 $OutDir。" -ForegroundColor DarkGray
+    Write-Host "    证书 .p12 的 base64 与密码不由脚本产出：用你导出的那份，写进 DEV_CERTIFICATE_P / DIST_CERTIFICATE_P，密码写进 P。" -ForegroundColor DarkGray
 }
 
 # ---------------------------------------------------------------- GitHub 侧
@@ -377,8 +471,14 @@ function Invoke-Github {
     Set-RepoSecret $cfg.githubRepo 'APPSTORE_API_KEY_ID' $cfg.apiKeyId
     Set-RepoSecret $cfg.githubRepo 'APPSTORE_API_PRIVATE_KEY' ([IO.File]::ReadAllText($cfg.apiKeyPath))
 
-    $outDev = Join-Path $OutDir 'dev_profile.mobileprovision.b64'
-    $outDist = Join-Path $OutDir 'dist_profile.mobileprovision.b64'
+    $apps = Get-AppEntries $cfg
+    $primary = @($apps)[0]
+    if (@($apps).Count -gt 1) {
+        Write-Warn2 ("配置里有 " + @($apps).Count + " 个 App，但本仓库只构建一个：GitHub 侧按 " + $primary.bundleId + " 的产物填。")
+    }
+    $slug = ($primary.bundleId -replace '[^A-Za-z0-9]', '_')
+    $outDev = Join-Path $OutDir ($slug + '.dev.mobileprovision.b64')
+    $outDist = Join-Path $OutDir ($slug + '.appstore.mobileprovision.b64')
     if (Test-Path -LiteralPath $outDev) { Set-RepoSecret $cfg.githubRepo 'DEV_PROVISION_PROFILE' ([IO.File]::ReadAllText($outDev).Trim()) }
     else { Write-Warn2 "缺少 $outDev：先跑 -Command provision -Apply" }
     if (Test-Path -LiteralPath $outDist) { Set-RepoSecret $cfg.githubRepo 'DIST_PROVISION_PROFILE' ([IO.File]::ReadAllText($outDist).Trim()) }
@@ -411,20 +511,25 @@ function Invoke-Github {
 switch ($Command) {
     'check' {
         $cfg = Read-Config
+        $apps = Get-AppEntries $cfg
         Write-Step "配置"
         Write-Ok "teamId        : $($cfg.teamId)"
-        Write-Ok "bundleId      : $($cfg.bundleId)"
-        Write-Ok "appGroup      : $($cfg.appGroup)"
         Write-Ok "apiKeyPath    : $($cfg.apiKeyPath)"
         Write-Ok "githubRepo    : $($cfg.githubRepo)"
+        Write-Ok ("App 数量      : " + @($apps).Count)
+        foreach ($a in $apps) {
+            Write-Ok ("  - " + $a.bundleId + "  group=" + $a.appGroup + "  dev=" + $a.devProfileName + "  dist=" + $a.distProfileName)
+        }
         Write-Step "JWT 自检"
         $jwt = New-AscJwt -KeyId $cfg.apiKeyId -IssuerId $cfg.issuerId -P8Content ([IO.File]::ReadAllText($cfg.apiKeyPath))
         Write-Ok ("可签发 JWT（{0} 字节），鉴权链路正常" -f $jwt.Length)
         Write-Step "App Store Connect 连通性"
-        $bundle = Get-BundleId $jwt $cfg.bundleId
-        if ($bundle) { Write-Ok "App ID 已存在：$($bundle.id)" } else { Write-Warn2 "App ID 尚未创建" }
+        foreach ($a in $apps) {
+            $bundle = Get-BundleId $jwt $a.bundleId
+            if ($bundle) { Write-Ok ($a.bundleId + " 已存在：" + $bundle.id) } else { Write-Warn2 ($a.bundleId + " 尚未创建") }
+        }
         $certs = @(Get-Certificates $jwt 'IOS_DISTRIBUTION')
-        Write-Ok "发布证书 $($certs.Count) 张"
+        Write-Ok ("发布证书 " + $certs.Count + " 张")
         Write-Step "GitHub CLI"
         if (Get-GhPath) { Write-Ok "已安装" } else { Write-Warn2 "未安装：winget install --id GitHub.cli -e" }
     }

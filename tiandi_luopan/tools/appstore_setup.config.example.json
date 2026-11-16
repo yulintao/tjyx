@@ -1,18 +1,24 @@
 {
   "teamId": "W6QFD6Y86F",
-  "bundleId": "com.tjyx.compass",
-  "appName": "TianJi TJYX",
-  "appGroup": "group.com.tjyx.compass",
   "apiKeyId": "XXXXXXXXXX",
   "issuerId": "00000000-0000-0000-0000-000000000000",
   "apiKeyPath": "C:\\keys\\AuthKey_XXXXXXXXXX.p8",
   "githubRepo": "yulintao/tjyx",
   "githubEnvironment": "ios-build",
   "runnerLabel": "xcode-27",
-  "devProfileName": "tjyx_development",
-  "distProfileName": "tjyx_appstore",
-  "devices": [],
   "certP12Base64Dev": "",
   "certP12Base64Dist": "",
-  "certP12Password": ""
+  "certP12Password": "",
+  "apps": [
+    {
+      "bundleId": "com.tjyx.compass",
+      "appName": "TianJi TJYX",
+      "appGroup": "group.com.tjyx.compass",
+      "devProfileName": "tjyx_development",
+      "distProfileName": "tjyx_appstore",
+      "devices": [
+        "00008110-000000000000000E"
+      ]
+    }
+  ]
 }
