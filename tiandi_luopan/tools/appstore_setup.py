@@ -133,6 +133,8 @@ def expand_apps(cfg: dict) -> list[dict]:
                 "devProfileName": entry.get("devProfileName") or f"{slug}_dev",
                 "distProfileName": entry.get("distProfileName") or f"{slug}_appstore",
                 "devices": list(entry.get("devices") or default_devices),
+                "sku": entry.get("sku") or "",
+                "primaryLocale": entry.get("primaryLocale") or "",
             })
     else:
         bundle_id = cfg["bundleId"]
@@ -144,6 +146,8 @@ def expand_apps(cfg: dict) -> list[dict]:
             "devProfileName": cfg.get("devProfileName") or f"{slug}_dev",
             "distProfileName": cfg.get("distProfileName") or f"{slug}_appstore",
             "devices": list(default_devices),
+            "sku": cfg.get("sku") or "",
+            "primaryLocale": cfg.get("primaryLocale") or "",
         })
 
     seen = {}

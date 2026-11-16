@@ -100,8 +100,10 @@ python tools\appstore_setup.py github --apply
 ## 需要你自己准备的两样东西
 
 1. **App Store Connect API 密钥**（Admin 或 App Manager 角色，要能改 App ID 与描述文件）。
-2. **证书 `.p12` 的 base64 与密码**。脚本不创建证书——新建一张会让同一 Team 下已有构建的签名链失效，
-   还会在账户里堆孤儿证书。base64 命令：
+2. **证书 `.p12` 的 base64 与密码**，或者让 `appstore_bootstrap.py --create-certificates`
+   在账户缺证书时当场生成一套。注意区分两件事：**新增**一张证书只是占用团队额度
+   （发布证书通常上限 2 张），已有构建不受影响；**吊销**旧证书才会让那些构建无法再签名。
+   `appstore_setup.py` 本身不建证书，只挑现有的。自己导出时的 base64 命令：
 
    ```powershell
    [Convert]::ToBase64String([IO.File]::ReadAllBytes('cert.p12')) | Set-Clipboard
@@ -123,3 +125,49 @@ python tools\appstore_setup.py github --apply
   凭证失效时 `provision` 给一句人话而不是 traceback。
 - 未验证：`POST /v1/bundleIdCapabilities` 的 `APP_GROUPS` payload 字段格式，只能在你账户上第一次跑才知道。
   被拒时脚本只警告不中断，App Group 那一步退回 portal 手点一次即可，其余照旧自动化。
+
+## 一条命令建齐新 App：appstore_bootstrap.py
+
+`appstore_setup.py` 是做单件事的工具，`appstore_bootstrap.py` 是把它们串成「新 App 建档」的流程，
+并补上两件 setup 里没有的能力：生成证书、建 App 记录。
+
+```powershell
+python tools\appstore_bootstrap.py selfcheck   # 离线验证 证书→.p12 链路，不联网
+python tools\appstore_bootstrap.py             # 打印全流程计划，不发写请求
+python tools\appstore_bootstrap.py --apply --create-certificates --create-app-record
+```
+
+顺序与每步的产物：
+
+| 步骤 | 做什么 | 失败时 |
+|---|---|---|
+| 1 | Bundle ID（存在则复用） | 查不到就退出，因为后续都要它的 id |
+| 2 | 挂 `APP_GROUPS` 能力 | 只警告；组本身要 portal 建 |
+| 3 | 登记设备 UDID（`--add-devices`） | 缺设备只警告，不影响发布描述文件 |
+| 4 | 证书：账户缺可用证书时生成（`--create-certificates`） | 额度满（发布证书常见上限 2 张）只警告，提示去吊销旧的 |
+| 5 | 开发描述文件 + App Store 描述文件 | 没有对应证书就跳过 |
+| 6 | App 记录（`--create-app-record`，需 `sku`） | 只警告，不影响前面几步 |
+| 7 | 落 `manifest.json` | — |
+| 8 | 写 GitHub secrets / variables / environment（`--skip-github` 可关） | gh 缺失时提示安装 |
+
+**公开 API 建不出来的三样**，只能 portal 手点（不是脚本偷懒，是端点不存在）：
+
+1. **App Group 这个实体**。API 只能在 Bundle ID 上挂 `APP_GROUPS` 能力并引用组名，
+   但 `Identifiers → App Groups` 里那条 `group.com.tjyx.compass` 得自己建。
+2. **StoreKit 商品与订阅**。价格、周期、审核信息都在 portal 里配。
+3. **App Store 版本页面的截图、描述、隐私问卷**。API 有 `appStoreVersions`，
+   但截图上传与本地化元数据的完整流程复杂度远超这个脚本的范围。
+
+`sku` 与 `primaryLocale` 加在 `apps[]` 条目里（`sku` 是 App 记录必填，缺省会用
+`bundleId-时间戳` 兜底，但不建议）。
+
+## 已验证 / 未验证
+
+- 已验证：`appstore_setup.py` 与 `appstore_bootstrap.py` 都能编译；用临时 P-256 私钥签出的 JWT
+  真的打到 `api.appstoreconnect.apple.com`，返回 401（因为不是真实 Key ID），说明签名格式正确；
+  多 App 展开、重复 Bundle ID 拦截、`github` 的计划输出（9 secret / 2 variable / 1 environment，
+  私钥与证书值只显示字符数）都通过；`selfcheck` 证明 RSA 2048 → 自签证书 → PKCS#12 → 回读可用；
+  用一个假客户端把 bootstrap 的 8 步编排在 dry-run 下跑通并落出 manifest。
+- 未验证：`POST /v1/bundleIdCapabilities` 的 `APP_GROUPS` payload 格式；`POST /v1/apps`
+  建 App 记录的字段要求（sku 是否必填、是否需要 `platform`）。这两处只能在你账户上首跑才知道，
+  失败都只警告不中断，按报错补字段即可。
