@@ -390,3 +390,22 @@ URL scheme `com.tjyx.compass.almanac` —— 这些都是标识串而非上架�
 
 旧记录 `6835357727` 与新工程不再对应，它上面那条 `processingState = VALID` 的构建仍留在
 它的 TestFlight 里；App Store Connect 不支持删除 App 记录，只能后续自己决定是否弃用。
+
+### 身份切换后第一次 app-store 构建（run #169）
+
+`714e73b` 推上去之后派了 `app-store` 模式：14 步全绿，5 分 22 秒（此前同模式 5 分 54 秒），
+产物 `tianjiwushe-app-store-IPA` 与 `tianjiwushe-Build-Logs-app-store`，名字和包内
+`Payload/tianjiwushe.app` 都按新身份出来了——这一步同时验证了 `PRODUCT_NAME`、
+`CFBundleExecutable`、`TEST_HOST`、scheme 的 `BuildableName` 是自洽的，否则归档或解包校验会直接报错。
+
+App Store Connect 回读 `GET /v1/builds?filter[app]=6835371832` 得到一条：
+
+```
+id        539f4e47-5cb8-4fa0-bebb-d18e342589be
+version   261116.916
+state     VALID
+uploaded  2026-11-16T01:23:23-08:00
+```
+
+新记录还没有版本页，要进审核得先在「分发」里点「+ 版本」填截屏与隐私问卷；TestFlight 侧
+已经可以直接装。
