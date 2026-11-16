@@ -7,7 +7,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>天机演象</string>
 	<key>CFBundleExecutable</key>
-	<string>TiandiLuopan</string>
+	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.tjyx.compass</string>
 	<key>CFBundleInfoDictionaryVersion</key>

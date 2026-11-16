@@ -598,7 +598,7 @@ jobs:
 
           test -d build/TiandiLuopan.xcarchive
 
-          ARCHIVED_APP="build/TiandiLuopan.xcarchive/Products/Applications/TiandiLuopan.app"
+          ARCHIVED_APP="build/TiandiLuopan.xcarchive/Products/Applications/tianjiwushe.app"
           test -d "$ARCHIVED_APP" || { echo "::error::Archived app not found at $ARCHIVED_APP"; exit 1; }
 
           # 归档产物必须确实链接 iOS 27.1+ SDK（DTSDKName 由构建时 SDK 写入，形如 iphoneos27.1）

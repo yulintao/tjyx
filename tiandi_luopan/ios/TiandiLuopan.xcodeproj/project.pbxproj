@@ -75,7 +75,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2000 /* TiandiLuopan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TiandiLuopan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2000 /* tianjiwushe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tianjiwushe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2090 /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/App/AppTab.swift"; sourceTree = "<group>"; };
 		2091 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/App/AppRoute.swift"; sourceTree = "<group>"; };
@@ -301,7 +301,7 @@
 		4003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2000 /* TiandiLuopan.app */,
+				2000 /* tianjiwushe.app */,
 				9601 /* TiandiLuopanTests.xctest */,
 			);
 			name = Products;
@@ -330,7 +330,7 @@
 			);
 			name = TiandiLuopan;
 			productName = TiandiLuopan;
-			productReference = 2000 /* TiandiLuopan.app */;
+			productReference = 2000 /* tianjiwushe.app */;
 			productType = "com.apple.product-type.application";
 		};
 		9609 /* TiandiLuopanTests */ = {
@@ -514,7 +514,8 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = tianjiwushe;
+				PRODUCT_MODULE_NAME = TiandiLuopan;
 				PROVISIONING_PROFILE_SPECIFIER = "$(APP_PROVISIONING_PROFILE_SPECIFIER)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -544,7 +545,8 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tjyx.compass;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = tianjiwushe;
+				PRODUCT_MODULE_NAME = TiandiLuopan;
 				PROVISIONING_PROFILE_SPECIFIER = "$(APP_PROVISIONING_PROFILE_SPECIFIER)";
 				SWIFT_COMPILATION_MODE = "wholemodule";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -609,7 +611,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TiandiLuopan.app/TiandiLuopan";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tianjiwushe.app/tianjiwushe";
 			};
 			name = Debug;
 		};
@@ -626,7 +628,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TiandiLuopan.app/TiandiLuopan";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tianjiwushe.app/tianjiwushe";
 			};
 			name = Release;
 		};

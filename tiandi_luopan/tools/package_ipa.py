@@ -29,13 +29,13 @@ def package_ipa():
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     build_dir = os.path.join(root_dir, "build-ipa")
     payload_dir = os.path.join(build_dir, "Payload")
-    app_dir = os.path.join(payload_dir, "TiandiLuopan.app")
+    app_dir = os.path.join(payload_dir, "tianjiwushe.app")
     dist_dir = os.path.join(root_dir, "dist-ios")
     ipa_path = os.path.join(dist_dir, "TJYXCompass-v1.3.3.ipa")
 
     # Detect a previously built, real (non-stub) executable so we can reuse it.
     # A real Xcode-built binary is far larger than the ~32-byte placeholder stub.
-    prebuilt_exec = os.path.join(app_dir, "TiandiLuopan")
+    prebuilt_exec = os.path.join(app_dir, "tianjiwushe")
     reuse_real_binary = False
     saved_exec = None
     if os.path.exists(prebuilt_exec) and os.path.getsize(prebuilt_exec) > 4096:
@@ -61,7 +61,7 @@ def package_ipa():
         f.write(b"APPL????")
 
     # 3. Executable binary
-    exec_path = os.path.join(app_dir, "TiandiLuopan")
+    exec_path = os.path.join(app_dir, "tianjiwushe")
     if reuse_real_binary and saved_exec:
         print("Using prebuilt real executable from a previous Xcode build...")
         shutil.copy2(saved_exec, exec_path)
