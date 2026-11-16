@@ -298,3 +298,50 @@ run #167 的 6 条警告里，有 4 条在讲一个不存在的 target：小组�
 现在这两组提示都以「工程里是否真有 appex」为前提：有才检查、有才警告。
 留着的 `WIDGET_CODE_SIGNING_ALLOWED=NO` 等命令行参数对没有该 target 的工程是无害的空操作，
 真正的兜底逻辑（app-store 模式下缺小组件描述文件就拒绝）也还在。
+
+
+## app-store 模式第一次进 TestFlight（run #168）
+
+这一轮之前的失败都停留在「证书/描述文件/App 记录」这几样资源上，而不是代码。补齐它们的过程分三段：
+
+**1. 先把资源和名字对齐**
+
+- 账户里**没有任何发布证书**；三个 App Store 描述文件（`tjyx_appstore_connect` 等）绑的都是
+  已经不存在的证书，签不出来。bootstrap `--create-certificates` 新建 `Q9UX2L7L2J`，
+  `.p12` 与 `.b64` 落在 `tools/appstore_out/certificate.dist.p12`，密码 `Tjyx2026Cert`。
+- `get_bundle_id()` 取 `filter[identifier]` 的第一个结果，而账户里同时有
+  `com.tjyx.compass`（`FB9FYFP4W6`）和 `com.tjyx.compass.9ZK328P458`（`2H2YWNVQPA`），
+  于是第一版发布描述文件 `VMLD28DA7L` 绑到了带团队后缀的**不是这个 App** 的标识上。
+  改成按 identifier 全等过滤后删掉它、重建为 `D77TW36ZQ7`；用
+  `read_profile_metadata()` 回读确认 `application-identifier = 9ZK328P458.com.tjyx.compass`。
+- 「我的 App」里没有 `com.tjyx.compass` 的记录，`POST /v1/apps` 回 403
+  （`does not allow 'CREATE'`）。网页新建记录 `6835357727` 成功，SKU `TJYX-IOS-001`、
+  主要语言 `zh-Hans`。名称 `天机演象` 被拒（与账户里已有的 `天機演象` 判重），
+  记录名暂用 `天机演象罗盘`，App 名称之后可改。
+- GitHub secrets 里那三个键名是**截断的**（`DEV_CERTIFICATE_P` / `DIST_CERTIFICATE_P` / `P`），
+  workflow 读的是 `..._P12` 与 `DIST_P12_PASSWORD`，所以 `github --apply` 从来没写对过。
+  本轮按 `build_secret_bundle()` 逐条写入：`DIST_CERTIFICATE_P12`（4428 字符）、
+  `DIST_P12_PASSWORD`、`DIST_PROVISION_PROFILE`（16072 字符）、`APPSTORE_API_KEY_ID`
+  `V8HURHGAZC`、`APPSTORE_ISSUER_ID`、`APPSTORE_API_PRIVATE_KEY`（PEM 257 字符）、
+  `APPLE_TEAM_ID=9ZK328P458`。
+
+**2. 真跑**
+
+run #168，`app-store` + `upload_to_appstore`，14 步全绿，5 分 54 秒：
+
+| 步骤 | 时长 |
+| --- | --- |
+| Build Archive | 3m 26s |
+| Export IPA | 6s |
+| Upload to App Store Connect (TestFlight) | 1m 45s |
+
+产物 `TiandiLuopan-app-store-IPA` 4.95 MB。
+
+**3. 用 API 回验上传**
+
+`GET /v1/builds?filter[app]=6835357727` → 1 条，`processingState = VALID`，
+`uploadedDate = 2026-11-16T00:33:06-08:00`。这是「真的进了 TestFlight」，不是「命令退出码 0」。
+
+**还没进 TestFlight 的改动**：本地 `eb8c6c9`（户型页最左 + 权限按需）与 `a9cacc4`
+（小组件假警告）当时未推送，所以 #168 编的是 `8950dff`。要验这两个改动，需要推送后再跑一次
+`app-store`。
