@@ -59,6 +59,8 @@
 		1110 /* FloorplanSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2112 /* FloorplanSheets.swift */; };
 		1111 /* FloorplanCanvasDecor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2113 /* FloorplanCanvasDecor.swift */; };
 		1112 /* ShaPanoramaReportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2114 /* ShaPanoramaReportSheet.swift */; };
+		1114 /* FloorplanRoomDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2116 /* FloorplanRoomDetector.swift */; };
+		1115 /* ARProofImageRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2117 /* ARProofImageRenderer.swift */; };
 		1113 /* CameraOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2115 /* CameraOrientation.swift */; };
 		1012 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2013 /* InfoPlist.strings */; };
 		1072 /* ARSpatialSurveyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072 /* ARSpatialSurveyView.swift */; };
@@ -130,6 +132,8 @@
 		2112 /* FloorplanSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanSheets.swift"; sourceTree = "<group>"; };
 		2113 /* FloorplanCanvasDecor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanCanvasDecor.swift"; sourceTree = "<group>"; };
 		2114 /* ShaPanoramaReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ARVision/ShaPanoramaReportSheet.swift"; sourceTree = "<group>"; };
+		2116 /* FloorplanRoomDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/FloorplanRoomDetector.swift"; sourceTree = "<group>"; };
+		2117 /* ARProofImageRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ARVision/ARProofImageRenderer.swift"; sourceTree = "<group>"; };
 		2115 /* CameraOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ARVision/CameraOrientation.swift"; sourceTree = "<group>"; };
 		2015 /* zh-Hans InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		2016 /* zh-Hant InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -236,6 +240,8 @@
 				2113 /* FloorplanCanvasDecor.swift */,
 				2114 /* ShaPanoramaReportSheet.swift */,
 				2115 /* CameraOrientation.swift */,
+				2116 /* FloorplanRoomDetector.swift */,
+				2117 /* ARProofImageRenderer.swift */,
 				2092 /* FamilyRoomAllocation.swift */,
 				2023 /* BaZhaiEngine.swift */,
 				2024 /* SanHeWaterEngine.swift */,
@@ -458,6 +464,8 @@
 				1110 /* FloorplanSheets.swift in Sources */,
 				1111 /* FloorplanCanvasDecor.swift in Sources */,
 				1112 /* ShaPanoramaReportSheet.swift in Sources */,
+				1114 /* FloorplanRoomDetector.swift in Sources */,
+				1115 /* ARProofImageRenderer.swift in Sources */,
 				1113 /* CameraOrientation.swift in Sources */,
 				1072 /* ARSpatialSurveyView.swift in Sources */,
 				1073 /* ARRoomPlanCaptureView.swift in Sources */,

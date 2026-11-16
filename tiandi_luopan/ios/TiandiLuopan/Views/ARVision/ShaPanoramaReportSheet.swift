@@ -13,6 +13,8 @@ struct ShaPanoramaReportSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showClearConfirmAlert = false
+    /// 当前展开的宫位（nil = 八宫矩阵只看分布，不展开明细）
+    @State private var expandedPalace: Int?
 
     init(records: [ExteriorShaRecord]? = nil, heading: Double, shaList: [ExteriorShaItem]) {
         self.heading = heading
@@ -128,8 +130,14 @@ struct ShaPanoramaReportSheet: View {
                             .frame(height: 232)
                             .padding(.vertical, 6)
                             .padding(.horizontal, 8)
-                            .background(Color.black.opacity(0.04))
-                            .cornerRadius(12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(Color.appInkRaised)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(Color.yanGold.opacity(0.14), lineWidth: 0.8)
+                            )
                         severityLegend()
                     }
 
@@ -155,62 +163,51 @@ struct ShaPanoramaReportSheet: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 24)
                     } else {
-                        ForEach(0..<8, id: \.self) { idx in
-                            let palaceRecords = grouped[idx]
-                            if !palaceRecords.isEmpty {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
-                                        Text(lang.t("ar_panorama_palace"))
-                                            .font(.caption.weight(.bold))
-                                        Text(palaceRange(idx))
-                                            .font(.caption.weight(.bold).monospaced())
-                                        Spacer()
-                                        Text("\(palaceRecords.count)")
-                                            .font(.caption.weight(.bold))
-                                    }
-                                    .foregroundColor(.brown)
-                                    ForEach(palaceRecords) { record in
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "mappin.circle.fill")
-                                                .foregroundColor(severityColor(for: record))
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(shaName(for: record))
-                                                    .font(.subheadline.weight(.semibold))
-                                                Text("\(String(format: "%.1f", record.bearingDegrees))° · \(lang.t("ar_panorama_elevation")) \(String(format: "%.0f", record.elevationDegrees))° · \(record.source == .ai ? lang.t("ar_panorama_ai") : lang.t("ar_panorama_manual"))")
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            Spacer()
-                                            if let d = record.distanceMeters {
-                                                Text(String(format: "%.1f m", d))
-                                                    .font(.caption.monospaced())
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            if let sev = effectiveSeverity(for: record) {
-                                                Text(sev.localizedTitle)
-                                                    .font(.caption2.weight(.bold))
-                                                    .padding(.horizontal, 6)
-                                                    .padding(.vertical, 3)
-                                                    .background(sev == .critical ? Color.red.opacity(0.15) : (sev == .warning ? Color.orange.opacity(0.15) : (sev == .minor ? Color.yellow.opacity(0.15) : Color.green.opacity(0.15))))
-                                                    .cornerRadius(6)
-                                            }
-                                            Button(action: {
-                                                shaStore.removeRecord(id: record.id)
-                                            }) {
-                                                Image(systemName: "trash")
-                                                    .adaptiveFont(size: 12)
-                                                    .foregroundColor(.red.opacity(0.75))
-                                                    .padding(6)
-                                                    .contentShape(Rectangle())
-                                            }
-                                            .buttonStyle(BorderlessButtonStyle())
+                        // 八宫矩阵：八个方位一次铺满，空格位也留着。
+                        // 长列表只说「有煞的地方」，留白矩阵还能说「哪些方位干净」——
+                        // 这层信息以前是看不见的，也是这个页面区别于普通清单的地方。
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible(), spacing: 8),
+                                GridItem(.flexible(), spacing: 8)
+                            ],
+                            spacing: 8
+                        ) {
+                            ForEach(0..<8, id: \.self) { idx in
+                                palaceCard(index: idx, records: grouped[idx])
+                            }
+                        }
+                        .padding(.top, 2)
+
+                        if let expanded = expandedPalace, !grouped[expanded].isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 6) {
+                                    Text("\(lang.t("ar_panorama_palace")) \(expanded + 1)")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundColor(Color.yanGoldSoft)
+                                    Text(palaceRange(expanded))
+                                        .font(.caption.monospacedDigit())
+                                        .foregroundColor(.white.opacity(0.45))
+                                    Spacer()
+                                    Button {
+                                        withAnimation(.easeInOut(duration: 0.18)) {
+                                            expandedPalace = nil
                                         }
-                                        .padding(8)
-                                        .background(Color.black.opacity(0.04))
-                                        .cornerRadius(8)
+                                    } label: {
+                                        Image(systemName: "chevron.up")
+                                            .font(.caption.weight(.bold))
+                                            .foregroundColor(.white.opacity(0.5))
                                     }
                                 }
+                                ForEach(grouped[expanded]) { record in
+                                    recordRow(record)
+                                }
                             }
+                            .padding(10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(Color.white.opacity(0.03))
+                            )
                         }
                     }
                 }
@@ -258,6 +255,120 @@ struct ShaPanoramaReportSheet: View {
 // MARK: - 八宫环形分布图
 
 /// 极坐标点：角度是相对基准朝向的顺时针夹角，半径 0…1 由距离决定。
+    // MARK: - 宫位卡
+
+    private func severityRank(_ severity: ShaSeverity?) -> Int {
+        guard let severity = severity else { return -1 }
+        switch severity {
+        case .critical: return 3
+        case .warning: return 2
+        case .minor: return 1
+        case .notice: return 0
+        }
+    }
+
+    /// 该宫最高判级：左侧竖色条就是它，一眼看出「这一宫最重的是极凶还是提醒」
+    private func peakSeverity(_ palaceRecords: [ExteriorShaRecord]) -> ShaSeverity? {
+        palaceRecords
+            .map { effectiveSeverity(for: $0) }
+            .max { severityRank($0) < severityRank($1) }
+    }
+
+    private func palaceCard(index: Int, records palaceRecords: [ExteriorShaRecord]) -> some View {
+        let peak = peakSeverity(palaceRecords)
+        let isOpen = expandedPalace == index
+        return Button {
+            guard !palaceRecords.isEmpty else { return }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                expandedPalace = isOpen ? nil : index
+            }
+        } label: {
+            HStack(spacing: 8) {
+                RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+                    .fill(peak.map { ShaPanoramaPolarChart.color(for: $0) } ?? Color.white.opacity(0.12))
+                    .frame(width: 3)
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 4) {
+                        Text("\(lang.t("ar_panorama_palace")) \(index + 1)")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(palaceRecords.isEmpty ? .white.opacity(0.32) : Color.yanGoldSoft)
+                        Spacer(minLength: 0)
+                        Text(palaceRecords.isEmpty ? "—" : "\(palaceRecords.count)")
+                            .font(.caption.weight(.bold).monospacedDigit())
+                            .foregroundColor(palaceRecords.isEmpty ? .white.opacity(0.22) : .white)
+                        if !palaceRecords.isEmpty {
+                            Image(systemName: isOpen ? "chevron.up" : "chevron.down")
+                                .font(.system(size: 7, weight: .bold))
+                                .foregroundColor(.white.opacity(0.35))
+                        }
+                    }
+                    Text(palaceRange(index))
+                        .font(.caption2.monospacedDigit())
+                        .foregroundColor(.white.opacity(0.42))
+                }
+            }
+            .padding(.horizontal, 9)
+            .padding(.vertical, 9)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.appInkRaised)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(isOpen ? Color.yanGold.opacity(0.55) : Color.yanGold.opacity(0.14), lineWidth: 0.8)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    private func recordRow(_ record: ExteriorShaRecord) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "mappin.circle.fill")
+                .foregroundColor(severityColor(for: record))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(shaName(for: record))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.white.opacity(0.9))
+                Text("\(String(format: "%.1f", record.bearingDegrees))° · \(lang.t("ar_panorama_elevation")) \(String(format: "%.0f", record.elevationDegrees))° · \(record.source == .ai ? lang.t("ar_panorama_ai") : lang.t("ar_panorama_manual"))")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.5))
+            }
+            Spacer()
+            if let distance = record.distanceMeters {
+                Text(String(format: "%.1f m", distance))
+                    .font(.caption.monospacedDigit())
+                    .foregroundColor(.white.opacity(0.55))
+            }
+            if let severity = effectiveSeverity(for: record) {
+                Text(severity.localizedTitle)
+                    .font(.caption2.weight(.bold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(ShaPanoramaPolarChart.color(for: severity).opacity(0.18))
+                    .foregroundColor(ShaPanoramaPolarChart.color(for: severity))
+                    .cornerRadius(6)
+            }
+            Button(action: {
+                shaStore.removeRecord(id: record.id)
+            }) {
+                Image(systemName: "trash")
+                    .adaptiveFont(size: 12)
+                    .foregroundColor(.red.opacity(0.7))
+                    .padding(6)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(BorderlessButtonStyle())
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+        )
+    }
+
+    // MARK: - 极坐标图
+
 struct ShaPanoramaPolarPoint {
     let relativeAngle: Double
     let radiusFraction: CGFloat

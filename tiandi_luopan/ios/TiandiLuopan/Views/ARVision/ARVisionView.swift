@@ -1889,212 +1889,40 @@ public struct ARVisionView: View {
         let baseImage = frame.image
         snapshotGeneration += 1
         let generation = snapshotGeneration
-        // Preserve the exact viewport aspect ratio; a second aspect-fill crop
-        // would shift the target relative to its recorded normalized point.
-        let size = GeometryUtils.aspectFitRect(aspectRatio: baseImage.size.width / max(1, baseImage.size.height),
-                                               in: CGRect(x: 0, y: 0, width: 1920, height: 1920)).size
         // Keep the proof image at its declared pixel dimensions instead of
-        // inheriting a 2x/3x Retina scale and allocating a much larger bitmap.
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1
-        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        // inheriting a 2x/3x Retina scale. 尺寸与 scale 都交给渲染器统一处理，
+        // 这里只算画布规格，避免两处各写一遍 1920 的约定。
+        let size = ARProofRenderInput.canvasSize(for: baseImage)
         
         guard shaList.indices.contains(activeShaIndex) else { return }
-        let currentSha = shaList[activeShaIndex]
-        let currentHeading = pose.heading
-        let mFacing = Mountain24Data.shared.mountain(for: currentHeading)
-        let coordsStr = motion.coordsDesc
-        let language = lang.effectiveLanguage
-        let watermarkTitle = lang.t("ar_watermark_title")
-        let watermarkStamp = lang.t("ar_watermark_stamp")
-        let shaName = currentSha.localizedName
-        let shaAliases = currentSha.localizedAliases
-        let shaSeverity = currentSha.severity.localizedTitle
-        let facingPinyin = mFacing.pinyin
-        let facingName = mFacing.localizedName
-        let facingPalace = mFacing.localizedPalace
-        let targetHeading = pose.bearing(point: currentTargetSamplePoint)
-        let targetMtn = Mountain24Data.shared.mountain(for: targetHeading)
-        let targetMtnName = targetMtn.localizedName
-        let targetPalace = targetMtn.localizedPalace
-        let targetPoint = currentTargetSamplePoint
-        let normTargetX = Double(targetPoint.x)
-        let normTargetY = Double(targetPoint.y)
-        let sampledDist = frame.depth?.sample(at: targetPoint)
-        let isLidar = fusionModel.lidarAvailable
-        let solarTimeStr = motion.trueSolarTimeStr
-        let auditDate = frame.capturedAt
-        
+        let input = ARProofRenderInput(
+            baseImage: baseImage,
+            size: size,
+            shaName: shaList[activeShaIndex].localizedName,
+            shaAliases: shaList[activeShaIndex].localizedAliases,
+            shaSeverity: shaList[activeShaIndex].severity.localizedTitle,
+            facingName: Mountain24Data.shared.mountain(for: pose.heading).localizedName,
+            facingPinyin: Mountain24Data.shared.mountain(for: pose.heading).pinyin,
+            facingPalace: Mountain24Data.shared.mountain(for: pose.heading).localizedPalace,
+            heading: pose.heading,
+            targetHeading: pose.bearing(point: currentTargetSamplePoint),
+            targetMountainName: Mountain24Data.shared.mountain(for: pose.bearing(point: currentTargetSamplePoint)).localizedName,
+            targetPalace: Mountain24Data.shared.mountain(for: pose.bearing(point: currentTargetSamplePoint)).localizedPalace,
+            targetNormX: Double(currentTargetSamplePoint.x),
+            targetNormY: Double(currentTargetSamplePoint.y),
+            distanceMeters: frame.depth?.sample(at: currentTargetSamplePoint),
+            isLidarAvailable: fusionModel.lidarAvailable,
+            coordinates: motion.coordsDesc,
+            solarTime: motion.trueSolarTimeStr,
+            capturedAt: frame.capturedAt,
+            watermarkTitle: lang.t("ar_watermark_title"),
+            watermarkStamp: lang.t("ar_watermark_stamp"),
+            language: lang.effectiveLanguage
+        )
+
+        // 绘制已整体搬到 ARProofImageRenderer：这里只留线程与代次校验
         DispatchQueue.global(qos: .userInitiated).async {
-            let image = renderer.image { ctx in
-                let cg = ctx.cgContext
-            
-            // Only a real camera frame can become an on-site proof image.
-            let imageSize = baseImage.size
-            let fillScale = max(size.width / imageSize.width, size.height / imageSize.height)
-            let drawSize = CGSize(width: imageSize.width * fillScale, height: imageSize.height * fillScale)
-            let drawRect = CGRect(
-                x: (size.width - drawSize.width) / 2,
-                y: (size.height - drawSize.height) / 2,
-                width: drawSize.width,
-                height: drawSize.height
-            )
-            baseImage.draw(in: drawRect)
-
-            // HUD 在相机帧上保持可读性。
-            cg.setFillColor(UIColor.black.withAlphaComponent(0.12).cgColor)
-            cg.fill(CGRect(origin: .zero, size: size))
-            
-            // 十字天心
-            cg.setStrokeColor(UIColor(red: 0.0, green: 0.82, blue: 0.95, alpha: 0.6).cgColor)
-            cg.setLineWidth(3)
-            cg.move(to: CGPoint(x: size.width / 2, y: 0))
-            cg.addLine(to: CGPoint(x: size.width / 2, y: size.height))
-            cg.move(to: CGPoint(x: 0, y: size.height / 2))
-            cg.addLine(to: CGPoint(x: size.width, y: size.height / 2))
-            cg.strokePath()
-
-            // 形煞锁定目标框绘入存证图
-            let boxW: CGFloat = 420
-            let boxH: CGFloat = 220
-            let boxCenter = CGPoint(x: CGFloat(normTargetX) * size.width, y: CGFloat(normTargetY) * size.height)
-            let targetBoxRect = CGRect(
-                x: max(40, min(size.width - boxW - 40, boxCenter.x - boxW / 2)),
-                y: max(120, min(size.height - 440 - boxH, boxCenter.y - boxH / 2)),
-                width: boxW,
-                height: boxH
-            )
-            cg.setFillColor(UIColor(red: 1.0, green: 0.85, blue: 0.15, alpha: 0.16).cgColor)
-            cg.fill(targetBoxRect)
-            cg.setStrokeColor(UIColor(red: 1.0, green: 0.85, blue: 0.15, alpha: 0.95).cgColor)
-            cg.setLineWidth(4)
-            cg.stroke(targetBoxRect)
-
-            let boxHeader = "\(shaName) · \(targetMtnName) (\(String(format: "%.1f°", targetHeading)))"
-            boxHeader.draw(
-                in: CGRect(x: targetBoxRect.minX + 20, y: targetBoxRect.minY + 24, width: boxW - 40, height: 60),
-                withAttributes: [
-                    .font: UIFont.boldSystemFont(ofSize: 30),
-                    .foregroundColor: UIColor(red: 1.0, green: 0.92, blue: 0.35, alpha: 1.0)
-                ]
-            )
-            let distLine: String
-            if let d = sampledDist {
-                distLine = "\(targetPalace) · \(isLidar ? "LiDAR" : "AR") \(String(format: "%.2f m", d))"
-            } else {
-                distLine = "\(targetPalace) · \(shaSeverity)"
-            }
-            distLine.draw(
-                in: CGRect(x: targetBoxRect.minX + 20, y: targetBoxRect.minY + 92, width: boxW - 40, height: 50),
-                withAttributes: [
-                    .font: UIFont.monospacedSystemFont(ofSize: 24, weight: .bold),
-                    .foregroundColor: UIColor.white
-                ]
-            )
-            shaAliases.draw(
-                in: CGRect(x: targetBoxRect.minX + 20, y: targetBoxRect.minY + 148, width: boxW - 40, height: 48),
-                withAttributes: [
-                    .font: UIFont.systemFont(ofSize: 22),
-                    .foregroundColor: UIColor.white.withAlphaComponent(0.85)
-                ]
-            )
-            
-            // 水印卡片
-            let cardRect = CGRect(x: 40, y: size.height - 380, width: size.width - 80, height: 320)
-            cg.setFillColor(UIColor(red: 12/255.0, green: 12/255.0, blue: 16/255.0, alpha: 0.9).cgColor)
-            cg.fill(cardRect)
-            cg.setStrokeColor(UIColor(red: 212/255.0, green: 175/255.0, blue: 55/255.0, alpha: 0.8).cgColor)
-            cg.setLineWidth(2)
-            cg.stroke(cardRect)
-            
-            let titleAttr: [NSAttributedString.Key: Any] = [
-                .font: UIFont.boldSystemFont(ofSize: 36),
-                .foregroundColor: UIColor(red: 242/255.0, green: 217/255.0, blue: 115/255.0, alpha: 1.0)
-            ]
-            watermarkTitle.draw(at: CGPoint(x: 70, y: size.height - 350), withAttributes: titleAttr)
-            
-            let bodyAttr: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 24),
-                .foregroundColor: UIColor.white
-            ]
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            let timeStr = dateFormatter.string(from: auditDate)
-            let distSuffix = sampledDist.map { String(format: " · %@ %.2fm", isLidar ? "LiDAR" : "AR", $0) } ?? ""
-            
-            let infoText: String
-            switch language {
-            case .en:
-                infoText = """
-                Facing Orientation: Mountain \(facingPinyin) (Measured \(String(format: "%.1f", currentHeading))°)\(distSuffix)
-                Identified Sha: [\(shaName)] (\(shaAliases)) · \(shaSeverity)
-                Coordinates: \(coordsStr) · Solar: \(solarTimeStr)
-                Audit Time: \(timeStr) · SN: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            case .zhHant:
-                infoText = """
-                向首方位: \(facingName)山向首 (實測 \(String(format: "%.1f", currentHeading))°) · \(facingPalace)\(distSuffix)
-                識別形煞: 【\(shaName)】(\(shaAliases)) · \(shaSeverity)
-                現場經緯: \(coordsStr) · 真太陽時: \(solarTimeStr)
-                勘察時間: \(timeStr) · 報告編號: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            case .ja:
-                infoText = """
-                向首方位: \(facingName)山向首 (実測 \(String(format: "%.1f", currentHeading))°) · \(facingPalace)\(distSuffix)
-                識別形殺: 【\(shaName)】(\(shaAliases)) · \(shaSeverity)
-                現場経度緯度: \(coordsStr) · 真太陽時: \(solarTimeStr)
-                調査日時: \(timeStr) · レポート番号: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            case .ko:
-                infoText = """
-                향수 방위: \(facingName)산 향수 (실측 \(String(format: "%.1f", currentHeading))°) · \(facingPalace)\(distSuffix)
-                식별 형살: 【\(shaName)】(\(shaAliases)) · \(shaSeverity)
-                현장 좌표: \(coordsStr) · 진태양시: \(solarTimeStr)
-                감정 일시: \(timeStr) · 보고서 번호: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            case .vi:
-                infoText = """
-                Hướng đo: Sơn \(facingName) (Thực đo \(String(format: "%.1f", currentHeading))°) · \(facingPalace)\(distSuffix)
-                Hình sát nhận diện: [\(shaName)] (\(shaAliases)) · \(shaSeverity)
-                Tọa độ: \(coordsStr) · Giờ Mặt Trời: \(solarTimeStr)
-                Thời gian khảo sát: \(timeStr) · Mã báo cáo: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            case .th:
-                infoText = """
-                ทิศทางที่หัน: ขุนเขา \(facingName) (วัดจริง \(String(format: "%.1f", currentHeading))°) · \(facingPalace)\(distSuffix)
-                ลักษณะปะทะที่พบ: [\(shaName)] (\(shaAliases)) · \(shaSeverity)
-                พิกัดพื้นที่: \(coordsStr) · เวลาสุริยะจริง: \(solarTimeStr)
-                เวลาสำรวจ: \(timeStr) · หมายเลขรายงาน: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            case .id:
-                infoText = """
-                Arah Hadap: Gunung \(facingName) (Terukur \(String(format: "%.1f", currentHeading))°) · \(facingPalace)\(distSuffix)
-                Bentuk Sha Terdeteksi: [\(shaName)] (\(shaAliases)) · \(shaSeverity)
-                Koordinat: \(coordsStr) · Waktu Surya: \(solarTimeStr)
-                Waktu Survei: \(timeStr) · No. Laporan: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            case .zhHans, .auto:
-                infoText = """
-                向首方位: \(facingName)山向首 (实测 \(String(format: "%.1f", currentHeading))°) · \(facingPalace)\(distSuffix)
-                识别形煞: 【\(shaName)】(\(shaAliases)) · \(shaSeverity)
-                现场经纬: \(coordsStr) · 真太阳时: \(solarTimeStr)
-                勘察时间: \(timeStr) · 报告编号: YX-AR-\(Int(auditDate.timeIntervalSince1970))
-                """
-            }
-            infoText.draw(in: CGRect(x: 70, y: size.height - 290, width: size.width - 260, height: 210), withAttributes: bodyAttr)
-            
-            // 朱砂印鉴
-            let sealRect = CGRect(x: size.width - 190, y: size.height - 230, width: 120, height: 120)
-            cg.setStrokeColor(UIColor(red: 178/255.0, green: 34/255.0, blue: 34/255.0, alpha: 1.0).cgColor)
-            cg.setLineWidth(3)
-            cg.stroke(sealRect)
-            watermarkStamp.draw(in: sealRect.insetBy(dx: 18, dy: 18), withAttributes: [
-                .font: UIFont.boldSystemFont(ofSize: 26),
-                .foregroundColor: UIColor(red: 178/255.0, green: 34/255.0, blue: 34/255.0, alpha: 1.0)
-            ])
-            }
-        
+            let image = ARProofImageRenderer.render(input)
             DispatchQueue.main.async {
                 guard self.isActive, self.snapshotGeneration == generation,
                       self.shaStore.isCurrentProperty(propertyID) else { return }

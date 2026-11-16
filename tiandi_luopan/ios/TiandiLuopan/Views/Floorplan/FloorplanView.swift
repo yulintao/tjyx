@@ -5,11 +5,6 @@ import ImageIO
 
 // MARK: - 户型空间立极与全屋风水体检视图 (Floorplan View - PRD 5.3)
 
-/// 识别候选：矩形框 + 可选的真实轮廓多边形（相对坐标 0..1）
-private struct RoomCandidate: Equatable {
-    var rect: CGRect
-    var polygonPoints: [CGPoint]?
-}
 
 public struct FloorplanView: View {
     public var isActive: Bool = true
@@ -220,7 +215,7 @@ public struct FloorplanView: View {
 
                     // 左栏内容（画布 + 全部操作工具）：展开态与折叠态共用同一份定义
                     let mainColumn = VStack(spacing: 8) {
-                                topControlBar()
+                                drawingTitleBlock()
                                     .frame(maxWidth: contentMax)
 
                                 headingQualityNotice()
@@ -247,6 +242,11 @@ public struct FloorplanView: View {
                                     .frame(width: isLargeLayout ? canvasSide : nil, height: canvasSide)
                                     .frame(maxWidth: .infinity)
                                     .padding(.horizontal, isLargeLayout ? 0 : 16)
+
+                                // 工具坞压在画布下方：拇指可达，画布上方不再堆按钮
+                                toolDock()
+                                    .frame(maxWidth: contentMax)
+                                    .padding(.top, 4)
 
                                 // 分房从「滚动中段的一个 section」提到操作条上的一个入口，
                                 // 点开即进独立面板。
@@ -1511,59 +1511,111 @@ public struct FloorplanView: View {
     private func acquireFloorplanAccess() -> Bool { true }
     
     // MARK: - 顶栏控制
-    private func topControlBar() -> some View {
-        // 横向按钮组理想宽度很大，与标题同层 HStack 时会把标题压成竖排单字。
-        // 改为纵向：标题 / 副标题 / 按钮组各占整行，按钮组仍可横向滚动。
-        VStack(alignment: .leading, spacing: 6) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(lang.t("floorplan_title"))
-                    .adaptiveFont(size: 15, weight: .bold)
-                    .foregroundColor(Color.yanGoldSoft)
-                    .fixedSize(horizontal: false, vertical: true)
-                // 立极读数：度数单独做成金色胶囊，坐向做成青色胶囊，
-                // 不再挤在一整句 11pt 灰字里（原来那行在 iPhone 上要折行两次）。
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        Text(lang.t("floorplan_current_facing"))
-                            .adaptiveFont(size: 10)
+    /// 图纸式标题栏（Title Block）。
+    ///
+    /// 原来是「标题 / 读数 / 一排横向胶囊按钮」三层堆叠，和任何工具类 App 顶栏都没区别。
+    /// 这里换成建筑图纸右上的信息栏结构：左侧图名块 + 房间数与面积标注，右侧大号立极读数
+    /// 与坐向胶囊，底部一条渐隐金线收口；操作按钮整体下移到底部工具坞，画布因此独占视觉重心。
+    private func drawingTitleBlock() -> some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(alignment: .center, spacing: 11) {
+                LinearGradient(
+                    colors: [Color.yanGoldSoft, Color.yanGold.opacity(0.15)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(width: 3)
+                .clipShape(Capsule())
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(lang.t("floorplan_title"))
+                        .adaptiveFont(size: 16, weight: .bold)
+                        .foregroundColor(Color.yanGoldSoft)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                    HStack(spacing: 8) {
+                        Label("\(rooms.count)", systemImage: "square.grid.2x2")
+                            .labelStyle(.titleAndIcon)
+                            .adaptiveFont(size: 9, weight: .semibold)
                             .foregroundColor(.white.opacity(0.5))
+                        if let area = estimatedAreaSqm {
+                            Label(String(format: "%.1f ㎡", area), systemImage: "ruler")
+                                .labelStyle(.titleAndIcon)
+                                .adaptiveFont(size: 9, weight: .semibold)
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                    }
+                    .lineLimit(1)
+                }
+
+                Spacer(minLength: 6)
+
+                VStack(alignment: .trailing, spacing: 4) {
+                    HStack(alignment: .firstTextBaseline, spacing: 1) {
+                        Text(String(format: "%.1f", floorplanHeadingState.facingAngle))
+                            .adaptiveFont(size: 24, weight: .bold, design: .monospaced)
+                            .foregroundColor(Color.yanGoldSoft)
+                        Text("°")
+                            .adaptiveFont(size: 11, weight: .bold)
+                            .foregroundColor(Color.yanGoldDeep)
+                    }
+                    HStack(spacing: 4) {
+                        Text("\(floorplanHeadingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))")
+                        Image(systemName: "arrow.right")
+                            .adaptiveFont(size: 8, weight: .bold)
+                            .foregroundColor(.white.opacity(0.35))
+                        Text("\(floorplanHeadingState.facingMountain.localizedName)\(lang.t("facing_suffix"))")
+                    }
+                    .adaptiveFont(size: 10, weight: .semibold)
+                    .foregroundColor(Color.yanCyan)
+                    .lineLimit(1)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.yanCyan.opacity(0.10)))
+                    .overlay(Capsule().stroke(Color.yanCyan.opacity(0.28), lineWidth: 0.7))
+                    HStack(spacing: 3) {
+                        Circle()
+                            .fill(isSyncWithCompass ? Color.green : Color.orange)
+                            .frame(width: 4, height: 4)
+                        Text(lang.t(isSyncWithCompass ? "floorplan_sync_compass" : "floorplan_manual_tune"))
+                            .adaptiveFont(size: 8, weight: .medium)
+                            .foregroundColor(.white.opacity(0.55))
                             .lineLimit(1)
-
-                        HStack(spacing: 1) {
-                            Text(String(format: "%.1f", floorplanHeadingState.facingAngle))
-                                .adaptiveFont(size: 14, weight: .bold)
-                                .foregroundColor(Color.yanGoldSoft)
-                            Text("°")
-                                .adaptiveFont(size: 10, weight: .bold)
-                                .foregroundColor(Color.yanGoldDeep)
-                                .padding(.bottom, 4)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.yanGold.opacity(0.13)))
-                        .overlay(Capsule().stroke(Color.yanGoldDeep.opacity(0.45), lineWidth: 0.8))
-
-                        HStack(spacing: 4) {
-                            Text("\(floorplanHeadingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))")
-                                .adaptiveFont(size: 11, weight: .semibold)
-                                .foregroundColor(Color.yanCyan)
-                                .lineLimit(1)
-                            Image(systemName: "arrow.right")
-                                .adaptiveFont(size: 8, weight: .bold)
-                                .foregroundColor(.white.opacity(0.35))
-                            Text("\(floorplanHeadingState.facingMountain.localizedName)\(lang.t("facing_suffix"))")
-                                .adaptiveFont(size: 11, weight: .semibold)
-                                .foregroundColor(Color.yanCyan)
-                                .lineLimit(1)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Capsule().fill(Color.yanCyan.opacity(0.12)))
-                        .overlay(Capsule().stroke(Color.yanCyan.opacity(0.35), lineWidth: 0.8))
                     }
                 }
             }
 
+            // 图纸收口线：渐隐细金线，替代普通分隔线
+            LinearGradient(
+                colors: [Color.yanGold.opacity(0.55), Color.yanGold.opacity(0.06)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 1)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.appInkRaised)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.yanGold.opacity(0.22), lineWidth: 0.8)
+        )
+        .padding(.horizontal, 16)
+    }
+
+    // MARK: - 工具坞
+
+    /// 底部工具坞：原来顶栏那一排横向胶囊按钮整体下移，包进一张「抽屉式」面板。
+    /// 顶部细金线起把手提示作用——这一条可以横滑，不是一组固定按钮。
+    private func toolDock() -> some View {
+        VStack(spacing: 7) {
+            Capsule()
+                .fill(Color.yanGold.opacity(0.35))
+                .frame(width: 34, height: 3)
+                .padding(.top, 7)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
             // AR 空间测绘 / RoomPlan 扫描快速入口 (全景形煞AR实测免费开放)
@@ -1743,11 +1795,20 @@ public struct FloorplanView: View {
                     .clipShape(Circle())
             }
                 }
+                .padding(.horizontal, 12)
             }
         }
+        .padding(.bottom, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.appInkRaised)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.yanGold.opacity(0.18), lineWidth: 0.8)
+        )
         .padding(.horizontal, 16)
     }
-
     private func roomDetectionBar() -> some View {
         HStack(spacing: 8) {
             Button(action: detectRoomLayout) {
@@ -2244,31 +2305,18 @@ public struct FloorplanView: View {
             return
         }
         guard let image = userFloorplanImage,
-              let cgImage = image.cgImage,
+              image.cgImage != nil,
               !isDetectingRooms else { return }
 
         isDetectingRooms = true
         roomDetectionMessage = lang.t("floorplan_detecting")
-        let orientation = Self.cgOrientation(for: image.imageOrientation)
         roomDetectionGeneration &+= 1
         let generation = roomDetectionGeneration
         let sourceImage = image
         DispatchQueue.global(qos: .userInitiated).async {
-            // 通道 1：矩形检测（高置信度矩形，适合规整线稿）
-            let rectCandidates = Self.detectRectCandidates(
-                cgImage: cgImage,
-                orientation: orientation
-            )
-            // 通道 2：闭合轮廓多边形（VNDetectContoursRequest 自带对比度
-            // 增强与灰度化，适配照片拍摄的图纸）
-            let contourCandidates = Self.detectContourCandidates(
-                cgImage: cgImage,
-                orientation: orientation
-            )
-            let merged = Self.mergeCandidates(
-                rectCandidates: rectCandidates,
-                contourCandidates: contourCandidates
-            )
+            // 双通道识别已整体搬到 FloorplanRoomDetector：矩形通道 + 闭合轮廓通道
+            // 加 IoU 去重，这里只负责线程与代次校验。
+            let merged = FloorplanRoomDetector.detect(in: sourceImage)
             DispatchQueue.main.async { [self] in
                 guard generation == roomDetectionGeneration,
                       userFloorplanImage === sourceImage else { return }
@@ -2279,146 +2327,6 @@ public struct FloorplanView: View {
                 }
                 applyRoomCandidates(merged)
             }
-        }
-    }
-
-    /// 矩形通道：VNDetectRectanglesRequest + 归一化/去重
-    private static func detectRectCandidates(cgImage: CGImage, orientation: CGImagePropertyOrientation) -> [CGRect] {
-        let request = VNDetectRectanglesRequest()
-        request.minimumConfidence = 0.35
-        request.minimumSize = 0.04
-        request.minimumAspectRatio = 0.15
-        request.maximumAspectRatio = 6.0
-        request.maximumObservations = 32
-        do {
-            let handler = VNImageRequestHandler(
-                cgImage: cgImage,
-                orientation: orientation,
-                options: [:]
-            )
-            try handler.perform([request])
-            return normalizedRoomCandidates(
-                from: request.results ?? []
-            )
-        } catch {
-            return []
-        }
-    }
-
-    /// 轮廓通道：VNDetectContoursRequest → 近似闭合的顶层轮廓 → 多边形候选
-    private static func detectContourCandidates(cgImage: CGImage, orientation: CGImagePropertyOrientation) -> [(rect: CGRect, points: [CGPoint])] {
-        let request = VNDetectContoursRequest()
-        request.contrastAdjustment = 2.0
-        request.detectsDarkOnLight = true
-        request.maximumImageDimension = 640
-        do {
-            let handler = VNImageRequestHandler(
-                cgImage: cgImage,
-                orientation: orientation,
-                options: [:]
-            )
-            try handler.perform([request])
-            guard let observation = request.results?.first else { return [] }
-            return contourRoomCandidates(from: observation)
-        } catch {
-            return []
-        }
-    }
-
-    /// 把顶层闭合轮廓转成房间候选（面积过滤 + 面积降序）
-    private static func contourRoomCandidates(from observation: VNContoursObservation) -> [(rect: CGRect, points: [CGPoint])] {
-        var result: [(rect: CGRect, points: [CGPoint])] = []
-        for contour in observation.topLevelContours {
-            let rawPoints = contour.normalizedPoints
-            guard rawPoints.count >= 4 else { continue }
-            // Vision 坐标 y 向上（左下原点）→ 翻转为 UIKit y 向下
-            let flipped = rawPoints.map { CGPoint(x: CGFloat($0.x), y: CGFloat(1 - $0.y)) }
-            // 轮廓首尾接近即视为闭合房间边界
-            let first = flipped.first ?? .zero
-            let last = flipped.last ?? .zero
-            guard hypot(last.x - first.x, last.y - first.y) < 0.03 else { continue }
-            guard let bounds = GeometryUtils.polygonBounds(flipped) else { continue }
-            guard bounds.width >= 0.08, bounds.height >= 0.06,
-                  bounds.width * bounds.height >= 0.012,
-                  bounds.width * bounds.height <= 0.78 else { continue }
-            result.append((bounds, flipped))
-        }
-        return result.sorted {
-            ($0.rect.width * $0.rect.height) > ($1.rect.width * $1.rect.height)
-        }
-    }
-
-    /// 双通道候选合并：矩形优先入列，轮廓补齐；IoU > 0.55 视为同区域去重
-    private static func mergeCandidates(
-        rectCandidates: [CGRect],
-        contourCandidates: [(rect: CGRect, points: [CGPoint])]
-    ) -> [RoomCandidate] {
-        var merged: [RoomCandidate] = []
-        for rect in rectCandidates {
-            let overlaps = merged.contains { existing in
-                let intersection = existing.rect.intersection(rect)
-                guard !intersection.isNull else { return false }
-                let unionArea = existing.rect.union(rect).width * existing.rect.union(rect).height
-                return unionArea > 0 && (intersection.width * intersection.height) / unionArea > 0.55
-            }
-            if !overlaps { merged.append(RoomCandidate(rect: rect, polygonPoints: nil)) }
-        }
-        for contour in contourCandidates {
-            let overlaps = merged.contains { existing in
-                let intersection = existing.rect.intersection(contour.rect)
-                guard !intersection.isNull else { return false }
-                let unionArea = existing.rect.union(contour.rect).width * existing.rect.union(contour.rect).height
-                return unionArea > 0 && (intersection.width * intersection.height) / unionArea > 0.55
-            }
-            if !overlaps {
-                merged.append(RoomCandidate(rect: contour.rect, polygonPoints: contour.points))
-            }
-        }
-        return merged.sorted {
-            ($0.rect.width * $0.rect.height) > ($1.rect.width * $1.rect.height)
-        }
-    }
-
-    private static func cgOrientation(for orientation: UIImage.Orientation) -> CGImagePropertyOrientation {
-        switch orientation {
-        case .up: return .up
-        case .down: return .down
-        case .left: return .left
-        case .right: return .right
-        case .upMirrored: return .upMirrored
-        case .downMirrored: return .downMirrored
-        case .leftMirrored: return .leftMirrored
-        case .rightMirrored: return .rightMirrored
-        @unknown default: return .up
-        }
-    }
-
-    private static func normalizedRoomCandidates(from observations: [VNRectangleObservation]) -> [CGRect] {
-        let candidates = observations.compactMap { observation -> CGRect? in
-            let box = observation.boundingBox
-            let rect = CGRect(
-                x: max(0, min(1, box.minX)),
-                y: max(0, min(1, 1 - box.maxY)),
-                width: max(0, min(1, box.width)),
-                height: max(0, min(1, box.height))
-            )
-            guard rect.width >= 0.08, rect.height >= 0.06,
-                  rect.width * rect.height >= 0.012,
-                  rect.width * rect.height <= 0.78 else { return nil }
-            return rect
-        }
-        .sorted { $0.width * $0.height > $1.width * $1.height }
-
-        // Vision may return the same room at several nested scales. Keep the
-        // first (largest) candidate and discard heavily overlapping boxes.
-        return candidates.reduce(into: []) { result, candidate in
-            let overlaps = result.contains { existing in
-                let intersection = existing.intersection(candidate)
-                guard !intersection.isNull else { return false }
-                let unionArea = existing.union(candidate).width * existing.union(candidate).height
-                return unionArea > 0 && (intersection.width * intersection.height) / unionArea > 0.55
-            }
-            if !overlaps { result.append(candidate) }
         }
     }
 
