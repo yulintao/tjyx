@@ -290,6 +290,9 @@ public struct FloorplanView: View {
 
     /// 体检清单里已展开的条目 id。默认收起，点一行展开。
     @State private var expandedAuditIDs: Set<String> = []
+
+    /// 家人分房面板。原来内嵌在滚动中段，现在是独立 sheet。
+    @State private var showFamilyRoomPanel = false
     @State private var floorplanAccessGrantID: String?
     @State private var floorplanAccessGrantSignature: String?
     @State private var auditedRooms: [FloorplanRoom] = []
@@ -496,16 +499,35 @@ public struct FloorplanView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.horizontal, isLargeLayout ? 0 : 16)
 
-                                FamilyRoomAllocationSection(rooms: auditResult.auditedRooms, centroid: centroid,
-                                    heading: effectiveHeading, aspectRatio: floorplanAspectRatio,
-                                    houseContext: floorplanHeadingState, manualAssignments: familyRoomAssignments,
-                                    showLabels: $showFamilyRoomLabels) { updated in
-                                    guard iap.canUseFamilyRoomAllocation, familyProfile.isProfileEnabled else { return }
-                                    familyRoomAssignments = updated
-                                    persistLayout()
+                                // 分房从「滚动中段的一个 section」提到操作条上的一个入口，
+                                // 点开即进独立面板。
+                                Button {
+                                    showFamilyRoomPanel = true
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "person.2.fill")
+                                            .foregroundColor(Color.yanCyan)
+                                        Text(lang.t("fra_title"))
+                                            .adaptiveFont(size: 12, weight: .bold)
+                                            .foregroundColor(.white)
+                                        Spacer(minLength: 0)
+                                        Text(lang.t(familyRoomAssignments == nil ? "fra_suggested" : "fra_assigned"))
+                                            .adaptiveFont(size: 11)
+                                            .foregroundColor(Color.yanGoldSoft)
+                                        Image(systemName: "chevron.right")
+                                            .adaptiveFont(size: 10)
+                                            .foregroundColor(.white.opacity(0.45))
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 11)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color.appInkRaised)
+                                    .cornerRadius(12)
                                 }
-                                .id(workspacePropertyID)
+                                .buttonStyle(PlainButtonStyle())
                                 .frame(maxWidth: contentMax)
+                                .padding(.horizontal, 16)
+                                .id(workspacePropertyID)
 
                                 if !isSyncWithCompass {
                                     manualHeadingControl()
@@ -577,6 +599,17 @@ public struct FloorplanView: View {
                 updateRoomType(roomID: room.id, type: type)
                 roomForTypeEditing = nil
             }
+        }
+        .sheet(isPresented: $showFamilyRoomPanel) {
+            FamilyRoomAllocationPanel(rooms: auditedRooms.isEmpty ? rooms : auditedRooms,
+                centroid: centroid,
+                heading: effectiveHeading, aspectRatio: floorplanAspectRatio,
+                houseContext: floorplanHeadingState, manualAssignments: familyRoomAssignments,
+                onUpdate: { updated in
+                    familyRoomAssignments = updated
+                    persistLayout()
+                },
+                showLabels: $showFamilyRoomLabels)
         }
         .sheet(isPresented: $showImagePicker) {
             FloorplanImagePicker(selectedImage: $userFloorplanImage) {
