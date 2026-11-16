@@ -345,3 +345,15 @@ run #168，`app-store` + `upload_to_appstore`，14 步全绿，5 分 54 秒：
 **还没进 TestFlight 的改动**：本地 `eb8c6c9`（户型页最左 + 权限按需）与 `a9cacc4`
 （小组件假警告）当时未推送，所以 #168 编的是 `8950dff`。要验这两个改动，需要推送后再跑一次
 `app-store`。
+
+## 产物文件名改为 tianjiwushe
+
+workflow 里加了一个 job 级变量 `PACKAGE_NAME: tianjiwushe`，只作用在**打出来的文件名**上：
+
+- `Export IPA` 找到 xcodebuild 产出的 `TiandiLuopan.ipa` 后 `mv` 成 `tianjiwushe.ipa`，
+  再回写 `IPA_FILE` 给后面的签名校验、SHA256、artifact 上传用；
+- artifact 名从 `TiandiLuopan-app-store-IPA` / `TiandiLuopan-Build-Logs-*`
+  改成 `tianjiwushe-app-store-IPA` / `tianjiwushe-Build-Logs-*`。
+
+没有动工程的 target / PRODUCT_NAME / CFBundleExecutable——那会牵动 pbxproj 与包内可执行文件名，
+且与上架身份无关；改名只发生在导出之后的文件层。

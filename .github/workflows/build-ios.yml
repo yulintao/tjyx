@@ -55,6 +55,9 @@ jobs:
       WIDGET_BUNDLE_ID: com.tjyx.compass.widget
       PROJECT_PATH: ios/TiandiLuopan.xcodeproj
       SCHEME_NAME: TiandiLuopan
+      # 打出来的包叫什么：只影响 dist-ios 里的文件名与 artifact 名，
+      # 不动工程里的 target/product（那会牵动 pbxproj 与 CFBundleExecutable）。
+      PACKAGE_NAME: tianjiwushe
       CONFIGURATION: Release
       BUILD_TARGET: ${{ github.event.inputs.build_target || 'development' }}
 
@@ -710,6 +713,14 @@ jobs:
             exit 1
           fi
 
+          # xcodebuild 是按 PRODUCT_NAME 命名的（TiandiLuopan.ipa）。导出之后再改名，
+          # 这样包名叫 tianjiwushe 而不必动工程里的 target 名。
+          if [ "$(basename "$IPA_FILE")" != "${PACKAGE_NAME}.ipa" ]; then
+            mv "$IPA_FILE" "dist-ios/${PACKAGE_NAME}.ipa"
+            IPA_FILE="dist-ios/${PACKAGE_NAME}.ipa"
+            echo "Renamed the package to $(basename "$IPA_FILE")"
+          fi
+
           echo "IPA_FILE=$IPA_FILE" >> "$GITHUB_ENV"
 
       # --------------------------------------------------
@@ -805,7 +816,7 @@ jobs:
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TiandiLuopan-${{ github.event.inputs.build_target || 'development' }}-IPA
+          name: ${{ env.PACKAGE_NAME }}-${{ github.event.inputs.build_target || 'development' }}-IPA
           path: tiandi_luopan/dist-ios/
           if-no-files-found: error
           retention-days: 14
@@ -867,7 +878,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TiandiLuopan-Build-Logs-${{ github.event.inputs.build_target || 'development' }}
+          name: ${{ env.PACKAGE_NAME }}-Build-Logs-${{ github.event.inputs.build_target || 'development' }}
           path: |
             tiandi_luopan/build/*.log
             tiandi_luopan/ExportOptions.plist
