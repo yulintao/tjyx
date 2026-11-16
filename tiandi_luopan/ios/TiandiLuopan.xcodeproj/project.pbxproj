@@ -31,7 +31,6 @@
 		1010 /* StoreKitIAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2011 /* StoreKitIAPManager.swift */; };
 		1011 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2012 /* StoreKit.framework */; };
 		1020 /* Mountain24.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2020 /* Mountain24.swift */; };
-		1021 /* Hexagram64.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2021 /* Hexagram64.swift */; };
 		1022 /* FlyingStarsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2022 /* FlyingStarsEngine.swift */; };
 		1023 /* BaZhaiEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2023 /* BaZhaiEngine.swift */; };
 		1024 /* SanHeWaterEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2024 /* SanHeWaterEngine.swift */; };
@@ -45,10 +44,8 @@
 		1042 /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2042 /* Photos.framework */; };
 		1043 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2043 /* ARKit.framework */; };
 		1044 /* RoomPlan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2044 /* RoomPlan.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		1050 /* Fenjin120Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2050 /* Fenjin120Data.swift */; };
 		1051 /* FloorplanEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2051 /* FloorplanEngine.swift */; };
 		1052 /* PurpleWhiteEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2052 /* PurpleWhiteEngine.swift */; };
-		1053 /* QimenEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2053 /* QimenEngine.swift */; };
 		1055 /* FloorplanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2055 /* FloorplanView.swift */; };
 		1063 /* SolarTermsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2063 /* SolarTermsData.swift */; };
 		1014 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2087 /* PrivacyInfo.xcprivacy */; };
@@ -101,7 +98,6 @@
 		2011 /* StoreKitIAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitIAPManager.swift; sourceTree = "<group>"; };
 		2012 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		2020 /* Mountain24.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/Mountain24.swift"; sourceTree = "<group>"; };
-		2021 /* Hexagram64.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/Hexagram64.swift"; sourceTree = "<group>"; };
 		2022 /* FlyingStarsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/FlyingStarsEngine.swift"; sourceTree = "<group>"; };
 		2023 /* BaZhaiEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/BaZhaiEngine.swift"; sourceTree = "<group>"; };
 		2024 /* SanHeWaterEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/SanHeWaterEngine.swift"; sourceTree = "<group>"; };
@@ -115,10 +111,8 @@
 		2042 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		2043 /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
 		2044 /* RoomPlan.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RoomPlan.framework; path = System/Library/Frameworks/RoomPlan.framework; sourceTree = SDKROOT; };
-		2050 /* Fenjin120Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/Fenjin120Data.swift"; sourceTree = "<group>"; };
 		2051 /* FloorplanEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/FloorplanEngine.swift"; sourceTree = "<group>"; };
 		2052 /* PurpleWhiteEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/PurpleWhiteEngine.swift"; sourceTree = "<group>"; };
-		2053 /* QimenEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/QimenEngine.swift"; sourceTree = "<group>"; };
 		2055 /* FloorplanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanView.swift"; sourceTree = "<group>"; };
 		2063 /* SolarTermsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/SolarTermsData.swift"; sourceTree = "<group>"; };
 		2065 /* FloorplanImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanImagePicker.swift"; sourceTree = "<group>"; };
@@ -226,7 +220,6 @@
 				2005 /* Assets.xcassets */,
 				2010 /* Info.plist */,
 				2020 /* Mountain24.swift */,
-				2021 /* Hexagram64.swift */,
 				2022 /* FlyingStarsEngine.swift */,
 				2079 /* TraditionalEvidence.swift */,
 				2093 /* FamilyRoomAllocationView.swift */,
@@ -240,10 +233,8 @@
 				2033 /* ARVisionView.swift */,
 				2036 /* SettingsView.swift */,
 				2037 /* RootContentView.swift */,
-				2050 /* Fenjin120Data.swift */,
 				2051 /* FloorplanEngine.swift */,
 				2052 /* PurpleWhiteEngine.swift */,
-				2053 /* QimenEngine.swift */,
 				2055 /* FloorplanView.swift */,
 				2063 /* SolarTermsData.swift */,
 				2065 /* FloorplanImagePicker.swift */,
@@ -438,7 +429,6 @@
 				1004 /* CompassMotionManager.swift in Sources */,
 				1010 /* StoreKitIAPManager.swift in Sources */,
 				1020 /* Mountain24.swift in Sources */,
-				1021 /* Hexagram64.swift in Sources */,
 				1022 /* FlyingStarsEngine.swift in Sources */,
 				1023 /* BaZhaiEngine.swift in Sources */,
 				1024 /* SanHeWaterEngine.swift in Sources */,
@@ -447,10 +437,8 @@
 				1033 /* ARVisionView.swift in Sources */,
 				1036 /* SettingsView.swift in Sources */,
 				1037 /* RootContentView.swift in Sources */,
-				1050 /* Fenjin120Data.swift in Sources */,
 				1051 /* FloorplanEngine.swift in Sources */,
 				1052 /* PurpleWhiteEngine.swift in Sources */,
-				1053 /* QimenEngine.swift in Sources */,
 				1055 /* FloorplanView.swift in Sources */,
 				1063 /* SolarTermsData.swift in Sources */,
 				1065 /* FloorplanImagePicker.swift in Sources */,

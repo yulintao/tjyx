@@ -392,40 +392,6 @@ final class FunctionalRegressionTests: XCTestCase {
         XCTAssertEqual(member.effectiveFengShuiYear, 1989)
     }
 
-    @MainActor
-    func testOneZiHourHasOneBureauAndOneHourPillarAcrossMidnight() {
-        let zone = TimeZone(secondsFromGMT: 8 * 3600)!
-        let early = QimenEngine.shared.calculateChart(date: instant("2026-11-10T15:30:00Z"), timeZone: zone)
-        let late = QimenEngine.shared.calculateChart(date: instant("2026-11-10T16:30:00Z"), timeZone: zone)
-        XCTAssertEqual(early.juNumber, 8)
-        XCTAssertEqual(early.juNumber, late.juNumber)
-        XCTAssertEqual(early.title, late.title)
-        XCTAssertEqual(early.cells.map(\.doorName), late.cells.map(\.doorName))
-        XCTAssertEqual(early.cells.map(\.tianStem), late.cells.map(\.tianStem))
-        XCTAssertEqual(early.cells.map(\.diStem), late.cells.map(\.diStem))
-        XCTAssertEqual(early.cells.map(\.starName), late.cells.map(\.starName))
-        XCTAssertEqual(early.cells.map(\.godName), late.cells.map(\.godName))
-    }
-
-    func testQimenCacheInvalidatesForSolarTermCrossingWithinOneHour() {
-        let boundary = liChunBoundary()
-        let zone = TimeZone(secondsFromGMT: 8 * 3600)!
-        let before = QimenEngine.shared.chartTimeKey(for: boundary.addingTimeInterval(-1), timeZone: zone)
-        let after = QimenEngine.shared.chartTimeKey(for: boundary.addingTimeInterval(1), timeZone: zone)
-        XCTAssertEqual(before.hour, after.hour)
-        XCTAssertEqual(before.day, after.day)
-        XCTAssertNotEqual(before.solarTerm, after.solarTerm)
-        XCTAssertNotEqual(before, after)
-    }
-
-    func testQimenCacheDistinguishesRepeatedHourAtDaylightSavingEnd() {
-        let zone = TimeZone(identifier: "America/New_York")!
-        let first = QimenEngine.shared.chartTimeKey(for: instant("2026-11-01T05:30:00Z"), timeZone: zone)
-        let second = QimenEngine.shared.chartTimeKey(for: instant("2026-11-01T06:30:00Z"), timeZone: zone)
-        XCTAssertEqual(first.hour, second.hour)
-        XCTAssertNotEqual(first, second)
-    }
-
     func testChangingMountainRestoresAutomaticModeEvenWhenAutomaticFlagIsUnchanged() {
         var selection = FlyingStarModeSelection()
         selection.toggle(automatic: false)
@@ -2048,21 +2014,6 @@ final class FunctionalRegressionTests: XCTestCase {
         }
     }
 
-    func testQimenSourcesFollowTheSelectedGateInsteadOfListingAllEight() {
-        for (names, key) in [(["休门", "生门", "开门"], "ref_qimen_good"),
-                             (["死门", "惊门", "伤门"], "ref_qimen_bad"),
-                             (["杜门", "景门"], "ref_qimen_neutral")] {
-            for name in names {
-                let door = QimenDoor(name: name, palace: 6, isAuspicious: key == "ref_qimen_good", luckType: "", lore: "")
-                XCTAssertEqual(door.sourceReference.titleKey, key)
-                XCTAssertEqual(door.sourceReference.matches, [door.localizedName + " · 6"])
-                XCTAssertEqual(door.sourceReference.kind, .rule)
-                XCTAssertTrue(door.sourceReference.quotes.isEmpty)
-                XCTAssertTrue(door.localizedLore.contains(door.sourceReference.localizedText))
-            }
-        }
-    }
-
     @MainActor
     func testHuangQuanReferencesFollowFacingAndNonMatchingDirectionsUseTheirOwnRule() {
         let groups = [(Set(["庚", "丁", "坤"]), "ref_hq_kun"), (Set(["乙", "丙", "巽"]), "ref_hq_xun"),
@@ -2149,9 +2100,6 @@ final class FunctionalRegressionTests: XCTestCase {
                 sources.append(HuangQuanWaterResult.reference(facingMountain: mountain, badgeText: "test"))
             }
             sources.append(BaShaResult.reference(sittingMountain: "子", sittingPalace: "坎", shaZhi: "辰"))
-            for name in ["休门", "死门", "杜门", "unknown"] {
-                sources.append(QimenDoor(name: name, palace: 1, isAuspicious: false, luckType: "", lore: "").sourceReference)
-            }
             let keys = Set(sources.map(\.titleKey) + ["ref_classic", "ref_rule", "ref_matches", "ref_read_original",
                 "ref_scope_note", "ref_sanban", "ref_qixing"])
             for key in keys {
