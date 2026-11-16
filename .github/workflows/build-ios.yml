@@ -138,12 +138,22 @@ jobs:
             echo "::warning::Detected ios/Podfile (CocoaPods). This workflow builds with -project and does not run 'pod install'; you probably need -workspace."
           fi
 
-          # 自定义签名变量必须在工程里被引用，否则会被静默忽略
-          for var in APP_PROVISIONING_PROFILE_SPECIFIER WIDGET_PROVISIONING_PROFILE_SPECIFIER WIDGET_CODE_SIGNING_ALLOWED; do
+          # 自定义签名变量必须在工程里被引用，否则会被静默忽略。
+          # 小组件 target 已经从工程移除，所以那两个 WIDGET_ 变量只在工程里还有 appex 时才值得检查，
+          # 否则每跑一次都会报两条「未被引用」的假警告。
+          for var in APP_PROVISIONING_PROFILE_SPECIFIER; do
             if ! grep -rqs --include=project.pbxproj --include='*.xcconfig' "$var" ios; then
               echo "::warning::$var is not referenced in project.pbxproj / *.xcconfig; the command-line override will have no effect."
             fi
           done
+
+          if grep -qs 'TiandiLuopanWidget.appex' ios/TiandiLuopan.xcodeproj/project.pbxproj; then
+            for var in WIDGET_PROVISIONING_PROFILE_SPECIFIER WIDGET_CODE_SIGNING_ALLOWED; do
+              if ! grep -rqs --include=project.pbxproj --include='*.xcconfig' "$var" ios; then
+                echo "::warning::$var is not referenced in project.pbxproj / *.xcconfig; the command-line override will have no effect."
+              fi
+            done
+          fi
 
       # --------------------------------------------------
       # 4. 根据模式导入证书和描述文件
@@ -459,8 +469,12 @@ jobs:
               echo "::error::Configure DIST_WIDGET_PROVISION_PROFILE in GitHub Secrets, or use a wildcard distribution profile."
               exit 1
             fi
-            echo "::warning::No widget provisioning profile secret found for $BUILD_TARGET mode."
-            echo "::warning::Expected App ID: $EXPECTED_WIDGET_APP_ID. The widget will be signed off and stripped from this development build."
+            # 只有工程里真的有小组件时，缺描述文件才值得警告；
+            # 否则这两条「widget 会被剥离」的警告在每次构建里都出现，而工程里根本没有 widget。
+            if [ "$HAS_WIDGET_TARGET" = "true" ]; then
+              echo "::warning::No widget provisioning profile secret found for $BUILD_TARGET mode."
+              echo "::warning::Expected App ID: $EXPECTED_WIDGET_APP_ID. The widget will be signed off and stripped from this build."
+            fi
           fi
 
           # --------------------------------------------------

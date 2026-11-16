@@ -258,3 +258,43 @@ OwnerKuaReminderPageView.swift:220:15: error: Expected expression
 
 这也说明：**此前的静态检查抓不到这一类问题**。`validate_swift_syntax.py` 只验括号配平，
 而这个文件的括号本来就是配平的，错在语义层。真正的验收只能靠一次真编译。
+
+## 第一次出包（run #167，2026-11-16）
+
+`8950dff` 之后派发的 run #167 在 5 分 35 秒内 **Success**，14 个步骤全绿，
+产出 `TiandiLuopan-development-IPA`（2.52 MB）。之前一次 run #166 只用了 1 秒就死：
+
+```
+line 22: TEAM_ID: unbound variable
+```
+
+签名步骤把 `TEAM_ID` 写进 `GITHUB_ENV` 的语句原本只在「secret 为空」和「secret 冲突」
+两个分支里，于是 secret 恰好与描述文件一致时反而什么都不导出，下一步
+`DEVELOPMENT_TEAM="$TEAM_ID"` 在 `set -u` 下直接炸。改成无条件导出后即通过；
+同时把整份 workflow 的 shell 变量可见性审计了一遍（job env / step env / 本步赋值 /
+`GITHUB_ENV` 写回），除 `for` 循环变量外没有第二处裸引用。
+
+包内实际内容（对下载回来的 IPA 解包读 Info.plist）：
+
+| 字段 | 值 |
+| --- | --- |
+| CFBundleIdentifier | `com.tjyx.compass` |
+| CFBundleDisplayName | 天机演象 |
+| CFBundleShortVersionString | 1.3.4 |
+| CFBundleVersion | 261116.752 |
+| MinimumOSVersion | 16.0 |
+| DTSDKName | `iphoneos27.2` |
+| embedded.mobileprovision | 存在 |
+
+`DTSDKName` 是 `iphoneos27.2`，所以「必须 iOS 27.1+ SDK 编译」这条断言是真实通过而不是被跳过。
+
+## 小组件残留的假警告
+
+run #167 的 6 条警告里，有 4 条在讲一个不存在的 target：小组件目录早已删除，
+`project.pbxproj` 里也搜不到 `TiandiLuopanWidget.appex`，但 workflow 仍然
+无条件打印「Expected App ID: …widget」「No widget provisioning profile secret found」，
+并检查两个在工程里根本没被引用的 `WIDGET_` 覆盖变量。
+
+现在这两组提示都以「工程里是否真有 appex」为前提：有才检查、有才警告。
+留着的 `WIDGET_CODE_SIGNING_ALLOWED=NO` 等命令行参数对没有该 target 的工程是无害的空操作，
+真正的兜底逻辑（app-store 模式下缺小组件描述文件就拒绝）也还在。
