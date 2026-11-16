@@ -227,3 +227,34 @@ P3 报告页**暂缓**，先让编译器与真机把 P0/P1 验证过去再谈形
 仍未定：账户里注册的到底是 `com.tjyx.compass` 还是只有改名前的 `com.yanxiang.compass`。
 前者只需为新 ID 签一个开发描述文件；后者要在 portal 新建 ID，或把工程与 CI 一起回滚成旧 ID
 （能沿用现有 App Store 记录）。哪一种都没动手，等确认。
+
+## 第一次真正跑到 xcodebuild（2026-11-16，run #165）
+
+之前两次都死在签名前。这次在浏览器里把门户和仓库都核实了一遍：
+
+- App ID `com.tjyx.compass` **早就注册了**（Identifiers 里叫 `tjyx`），不必新建；
+- 描述文件 `tjyx_dev_profile`（Development，1 台设备）与 `tjyx_appstore_connect`（App Store）
+  同样已经存在，App ID 都对；
+- **实际团队是 `9ZK328P458`**，而证书 CN 里写的是 `W6QFD6Y86F`——两个值不是一回事，
+  secret 里存哪个都可能让 `EXPECTED_APP_ID` 对不上；
+- App Groups 一个都没注册，工程也没有 entitlements 文件，App Group 只剩
+  `LocalizationManager.appGroupID` 一个没人读的字符串，属小组件时期残留。
+
+据此改了两处 CI 逻辑：Bundle ID 与 Team ID 都以「工程 / 描述文件」为准，
+secret 只在冲突时给出警告并被覆盖（`f8f0560`、`b3b677e`）。
+
+随后把 `DEV_PROVISION_PROFILE` / `DIST_PROVISION_PROFILE` 用浏览器写进仓库 secrets
+（base64 分别 18884 / 16120 字节），派发 run #165：**描述文件校验通过，进入 `xcodebuild`**，
+16 秒后以退出码 65 失败，日志（Build-Logs artifact）里只有一处真错误：
+
+```
+OwnerKuaReminderPageView.swift:220:14: error: Consecutive statements on a line must be separated by ';'
+OwnerKuaReminderPageView.swift:220:15: error: Expected expression
+```
+
+原因是删付费墙时留下了 `} else {` 而没有配对的 `if`：那个 `}` 把 `List` 提前闭合，
+后面的「节气提醒」Section 落到了语句层。删掉这个孤立 else 及其空的 VIP 占位 Section
+（`c9a9586`），括号深度回到 0，`validate_swift_syntax.py` 53 文件 0 错。
+
+这也说明：**此前的静态检查抓不到这一类问题**。`validate_swift_syntax.py` 只验括号配平，
+而这个文件的括号本来就是配平的，错在语义层。真正的验收只能靠一次真编译。
