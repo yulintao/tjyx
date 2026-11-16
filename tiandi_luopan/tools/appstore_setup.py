@@ -668,11 +668,62 @@ def check(cfg: dict) -> int:
     return 0
 
 
+# ------------------------------------------------------------------ 手工描述文件
+
+def write_profile_b64(cfg: dict, out_dir: Path, dev_profile: Path | None,
+                      dist_profile: Path | None) -> int:
+    """校验手工下载的描述文件，并写出可直接粘进 GitHub secrets 的 base64 文件。
+
+    这条路径不需要 gh，也不需要 API 密钥 —— 在 portal 能下载、但 API 还登不进去的时候用。
+    """
+    apps = expand_apps(cfg)
+    primary = apps[0]
+    slug = slug_of(primary["bundleId"])
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    tasks = [("dev", dev_profile, f"{slug}.dev.mobileprovision"),
+             ("appstore", dist_profile, f"{slug}.appstore.mobileprovision")]
+    produced = 0
+    for label, path, name in tasks:
+        if not path:
+            continue
+        if not path.is_file():
+            raise SystemExit(f"找不到描述文件：{path}")
+        covers, info = describe_profile(path, primary["bundleId"])
+        step(f"描述文件 {path.name}")
+        ok(f"Name={info['name']}  UUID={info['uuid']}  AppID={info['appIdentifier']}")
+        ok(f"设备 {info['devices']} 台  get-task-allow={info['getTaskAllow']}  App Group={info['appGroups']}")
+        if not covers:
+            raise SystemExit(
+                f"这个描述文件的 App ID 是 {info['appIdentifier']}，覆盖不到 {primary['bundleId']}。"
+                "在 portal 里为当前 Bundle ID 重新生成一个。"
+            )
+        if label == "dev" and not info["getTaskAllow"]:
+            warn("这是发布描述文件，get-task-allow=false，不能用来装到测试设备。")
+        if label == "dev" and info["devices"] == 0:
+            warn("开发描述文件里没有设备，装不到真机。")
+        if info["appGroups"] and primary["appGroup"] not in info["appGroups"]:
+            warn(f"描述文件没带 {primary['appGroup']}，App Group 会失效。")
+
+        target = out_dir / f"{name}.b64"
+        target.write_text(base64.b64encode(path.read_bytes()).decode(), encoding="utf-8")
+        ok(f"写出 {target}（{target.stat().st_size} 字节）")
+        produced += 1
+
+    if not produced:
+        raise SystemExit("没给 --dev-profile 也没给 --dist-profile，没有可写的东西。")
+    print()
+    step("下一步")
+    ok("GitHub → Settings → Secrets and variables → Actions → New repository secret，")
+    ok("名字用 DEV_PROVISION_PROFILE（或 DIST_PROVISION_PROFILE），值粘贴上面 .b64 文件的全部内容。")
+    return 0
+
+
 # ------------------------------------------------------------------ 入口
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="App Store 开发者账户与 GitHub 配置")
-    parser.add_argument("command", choices=("check", "provision", "github"))
+    parser.add_argument("command", choices=("check", "provision", "github", "profile"))
     parser.add_argument("--apply", action="store_true", help="真正执行写操作（默认只打印计划）")
     parser.add_argument("--add-devices", action="store_true", help="允许在账户里登记配置中缺失的设备 UDID")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -688,6 +739,8 @@ def main(argv: list[str] | None = None) -> int:
         return check(cfg)
     if args.command == "provision":
         return provision(cfg, args.apply, args.out_dir, args.add_devices)
+    if args.command == "profile":
+        return write_profile_b64(cfg, args.out_dir, args.dev_profile, args.dist_profile)
     return github(cfg, args.apply, args.out_dir, args.dev_profile, args.dist_profile)
 
 

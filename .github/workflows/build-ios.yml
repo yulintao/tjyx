@@ -152,8 +152,9 @@ jobs:
         id: setup_signing
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          # 可选：App Group ID（仓库变量）。设置后强制使用它；不设置则从描述文件里自动挑
-          APP_GROUP_ID: ${{ vars.APP_GROUP_ID }}
+          # 可选：App Group ID（仓库变量）。设置后强制使用它；不设置则从描述文件里自动挑。
+          # 但提示文案里会用到它，所以给个默认值，别让错误信息出现「App Group  enabled」这种空档。
+          APP_GROUP_ID: ${{ vars.APP_GROUP_ID || 'group.com.tjyx.compass' }}
           # 开发者模式凭证 (含 fallback)
           DEV_P12: ${{ secrets.DEV_CERTIFICATE_P12 || secrets.BUILD_CERTIFICATE_P12 }}
           DEV_P12_PWD: ${{ secrets.DEV_P12_PASSWORD || secrets.P12_PASSWORD }}
