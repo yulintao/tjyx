@@ -163,3 +163,30 @@ grant 签名与持久化）。它已走不到——门禁恒真时 `hasFloorplan
 `didConsumeFloorplanCredit`、`floorplanCreditsCount`、`FloorplanCreditPurchase` 与
 grant 存档字段都留着——它们参与布局档案格式，动它们要以能编译为前提。
 
+
+### 删掉小组件之后，CI 里还留着三道「必须有小组件」的硬门槛
+
+target 删掉之后的第一次 CI 立刻失败，失败点不是编译，是 `tools` 里的回归测试：
+
+```
+test_both_manifests_declare_app_group_defaults
+FileNotFoundError: .../ios/TiandiLuopanWidget/PrivacyInfo.xcprivacy
+```
+
+两处代码把小组件目录写死在名字里——`check_swift_target_dependencies.py` 的 `ROOTS`
+固定扫 App + Widget 两个目录，并在 `source_phases` 里硬要求 `{"Sources","Widget Sources"}`
+两个阶段都存在；对应测试则遍历 `["TiandiLuopan","TiandiLuopanWidget"]`。删掉 target 后
+前者直接抛 `App and widget source phases must both be checked`，后者报错找不到私隐清单。
+
+改法都是「按实际存在的 target 校验」：`ROOTS` 在导入时按目录是否存在过滤，Widget 源阶段
+只在小组件目录还在时才要求；清单测试改成 `glob("*/PrivacyInfo.xcprivacy")` 走一遍实际存在的清单，
+不再硬写两个目录名。本地复跑 CI 同款两步：13 个测试 OK，检查脚本输出
+`Checked 1 source phases (52 compilation entries); 0 unavailable local types`。
+
+`build-ios.yml` 里还有三处更隐蔽的：app-store 模式缺小组件描述文件 `exit 1`、导出后的 IPA 里
+找不到 `*.appex` 就 `exit 1`、以及 `WIDGET_PROV_RAW` 分支去装旧的小组件描述文件——
+第三处会在 App Store 开通里留下一个指向已不存在 target 的配置。现在三处都以
+「工程里是否还有 `TiandiLuopanWidget.appex`」为前提（运行时 grep `project.pbxproj`），
+没有小组件就跳过；App Group 那段错误文案也不再声称「主 App 与小组件描述文件都要带这个组」。
+改完用 PyYAML 解析过整个 workflow（14 个 step 结构完好），但这只证明 YAML 合法，
+shell 分支要等一次真跑。
