@@ -69,7 +69,7 @@ public struct OwnerLifeGuaView: View {
                     .padding(.vertical, 16)
                 }
             }
-            .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+            .background(Color.appInk.ignoresSafeArea())
             .navigationTitle(lang.t("bz_tool_owner"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) {
@@ -179,10 +179,10 @@ public struct OwnerLifeGuaView: View {
         return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "person.text.rectangle.fill")
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 Text(titleLabel)
                     .adaptiveFont(size: 13, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 Spacer()
 
                 // 点击修改生辰日期与命卦按钮
@@ -193,7 +193,7 @@ public struct OwnerLifeGuaView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
                             .font(.system(size: 9))
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.yanGoldSoft)
                         Text("\(yearPrefix) \(String(kua.birthYear))")
                         Image(systemName: "pencil")
                             .font(.system(size: 8, weight: .bold))
@@ -242,7 +242,7 @@ public struct OwnerLifeGuaView: View {
                         .cornerRadius(4)
                     Image(systemName: "pencil.circle.fill")
                         .font(.system(size: 11))
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.85))
+                        .foregroundColor(Color.yanGoldSoft.opacity(0.85))
                 }
             }
             .buttonStyle(PlainButtonStyle())
@@ -256,7 +256,7 @@ public struct OwnerLifeGuaView: View {
             HStack(spacing: 8) {
                 Text("💰 \(wealthLabel): \(compat.wealthDirection)")
                     .adaptiveFont(size: 11, weight: .semibold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 Spacer()
                 Text("📚 \(studyLabel): \(compat.studyDirection)")
                     .adaptiveFont(size: 11, weight: .semibold)
@@ -269,11 +269,11 @@ public struct OwnerLifeGuaView: View {
             familyMembersSection(maleLabel: maleLabel, femaleLabel: femaleLabel)
         }
         .padding(12)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .background(Color.appInkRaised)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.25), lineWidth: 1)
+                .stroke(Color.yanGoldSoft.opacity(0.25), lineWidth: 1)
         )
         .padding(.horizontal, 16)
     }
@@ -412,7 +412,7 @@ public struct OwnerLifeGuaView: View {
                                     .foregroundColor(.white)
                                 Text("【\(member.localizedGuaBadge)】")
                                     .adaptiveFont(size: 10, weight: .bold)
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.yanGoldSoft)
                                 Spacer()
                                 Menu {
                                     ForEach((1900...UserKuaProfileManager.gregorianCalendar().component(.year, from: Date())).reversed(), id: \.self) { yr in
@@ -661,7 +661,7 @@ public struct AddFamilyMemberDialog: View {
 
     public var body: some View {
         ZStack {
-            Color(red: 0.11, green: 0.11, blue: 0.15)
+            Color.appInkRaised
                 .ignoresSafeArea()
 
             ScrollView {
@@ -692,7 +692,7 @@ public struct AddFamilyMemberDialog: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(roleSectionTitle)
                             .adaptiveFont(size: 11, weight: .bold)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.yanGoldSoft)
 
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 6)], spacing: 6) {
                             ForEach(FamilyRole.allCases) { role in
@@ -785,14 +785,14 @@ public struct AddFamilyMemberDialog: View {
                         VStack(spacing: 6) {
                             HStack {
                                 Image(systemName: "calendar")
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.yanGoldSoft)
                                 Text(datePickerHint)
                                     .adaptiveFont(size: 12, weight: .semibold)
                                     .foregroundColor(.white.opacity(0.85))
                                 Spacer()
                                 Text(selectedDateFormatted)
                                     .adaptiveFont(size: 13, weight: .bold)
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.yanGoldSoft)
                             }
                             .padding(.horizontal, 4)
 
@@ -878,7 +878,7 @@ public struct AddFamilyMemberDialog: View {
                                     HStack(spacing: 3) {
                                         Text("\(String(selectedYear))年")
                                             .adaptiveFont(size: 13, weight: .bold)
-                                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                            .foregroundColor(Color.yanGoldSoft)
                                         Image(systemName: "chevron.down")
                                             .font(.system(size: 9, weight: .bold))
                                             .foregroundColor(.white.opacity(0.6))
@@ -931,7 +931,7 @@ public struct AddFamilyMemberDialog: View {
                         HStack {
                             Text("【\(previewGuaBadge)】")
                                 .adaptiveFont(size: 11, weight: .bold)
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.yanGoldSoft)
                             Spacer()
                         }
                         Text(previewDirectionsSummary)
@@ -1272,7 +1272,7 @@ public struct EditOwnerKuaDialog: View {
 
     public var body: some View {
         ZStack {
-            Color(red: 0.11, green: 0.11, blue: 0.15)
+            Color.appInkRaised
                 .ignoresSafeArea()
 
             ScrollView {
@@ -1281,7 +1281,7 @@ public struct EditOwnerKuaDialog: View {
                     HStack(spacing: 8) {
                         Image(systemName: "person.crop.circle.badge.checkmark")
                             .font(.system(size: 16))
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.yanGoldSoft)
                         Text(dialogTitle)
                             .adaptiveFont(size: 15, weight: .bold)
                             .foregroundColor(.white)
@@ -1307,14 +1307,14 @@ public struct EditOwnerKuaDialog: View {
                     VStack(spacing: 6) {
                         HStack {
                             Image(systemName: "calendar")
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.yanGoldSoft)
                             Text(datePickerHint)
                                 .adaptiveFont(size: 12, weight: .semibold)
                                 .foregroundColor(.white.opacity(0.85))
                             Spacer()
                             Text(selectedDateFormatted)
                                 .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.yanGoldSoft)
                         }
                         .padding(.horizontal, 4)
 
@@ -1395,7 +1395,7 @@ public struct EditOwnerKuaDialog: View {
                                 HStack(spacing: 4) {
                                     Text("\(String(selectedYear))年")
                                         .adaptiveFont(size: 14, weight: .bold)
-                                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                        .foregroundColor(Color.yanGoldSoft)
                                     Image(systemName: "chevron.up.chevron.down")
                                         .font(.system(size: 10))
                                         .foregroundColor(.secondary)
@@ -1485,7 +1485,7 @@ public struct EditOwnerKuaDialog: View {
                     HStack {
                         Text("【\(calculatedGuaKey)卦 · \(isEastLife ? eastLifeText : westLifeText) · \(ganzhiAndZodiac)】")
                             .adaptiveFont(size: 12, weight: .bold)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.yanGoldSoft)
                         Spacer()
                         Text(isMatched ? matchedBadgeText : unmatchedBadgeText)
                             .adaptiveFont(size: 10, weight: .bold)
@@ -1557,7 +1557,7 @@ public struct EditOwnerKuaDialog: View {
                             .padding(.vertical, 10)
                             .background(
                                 LinearGradient(
-                                    colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                    colors: [Color.yanGold, Color.yanGoldDeep],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )

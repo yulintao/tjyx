@@ -705,7 +705,7 @@ public struct ARVisionView: View {
                             .padding(.bottom, 12)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(red: 0.07, green: 0.07, blue: 0.09))
+                    .background(Color.appInk)
                 }
                 // AR 页不经过 FoldableTwoPane，需单独抵消 regular 宽屏字号放大，
                 // 否则窄栏里国际化长标题与徽章会互相穿插。
@@ -1020,7 +1020,7 @@ public struct ARVisionView: View {
         GeometryReader { geo in
             let scale = min(max(geo.size.height / 480.0, 0.5), 1.0)
             ZStack {
-                Color(red: 0.08, green: 0.09, blue: 0.12)
+                Color.appInk
                 
                 // 仿真网格与室外建筑剪影（按可用高度等比缩放，避免横屏/矮屏溢出）
                 VStack {
@@ -1165,7 +1165,7 @@ public struct ARVisionView: View {
                         .foregroundColor(.white)
                     Text("\(lang.t("ar_target_bearing")): \(String(format: "%.1f", targetCalculatedHeading))° (\(m.localizedPalace))")
                         .adaptiveFont(size: 10, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                         .lineLimit(2)
                         .minimumScaleFactor(0.6)
                         .fixedSize(horizontal: false, vertical: true)
@@ -1229,7 +1229,7 @@ public struct ARVisionView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(lang.t("ar_title"))
                         .adaptiveFont(size: 15, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                     let liveFacingM = Mountain24Data.shared.mountain(for: arCameraFacingAngle)
                     let sittingSuffix = motion.isLocked ? " · 🏠\(motion.headingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))" : ""
                     Text("\(lang.t("ar_physical_facing")): \(liveFacingM.localizedName)\(lang.t("mountain_suffix")) (\(String(format: "%.1f", arCameraFacingAngle))°)\(sittingSuffix)")
@@ -1363,7 +1363,7 @@ public struct ARVisionView: View {
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 6)
-                        .background(Color(red: 0.83, green: 0.68, blue: 0.21))
+                        .background(Color.yanGoldDeep)
                         .foregroundColor(.black)
                         .cornerRadius(14)
                     }
@@ -1431,7 +1431,7 @@ public struct ARVisionView: View {
                 VStack(spacing: 1) {
                     Text("\(m.localizedName)\(isCenter ? "▲" : "")")
                         .adaptiveFont(size: isCenter ? 11 : 10, weight: .bold)
-                        .foregroundColor(isCenter ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white)
+                        .foregroundColor(isCenter ? Color.yanGoldSoft : .white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                     if let water = water {
@@ -1443,7 +1443,7 @@ public struct ARVisionView: View {
                     if isWealthGod {
                         Text(wealthTag)
                             .adaptiveFont(size: 7.5, weight: .bold)
-                            .foregroundColor(Color(red: 0.98, green: 0.85, blue: 0.35))
+                            .foregroundColor(Color.yanGold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.65)
                     } else if isJoyGod {
@@ -1466,7 +1466,7 @@ public struct ARVisionView: View {
                 .cornerRadius(6)
                 .overlay(
                     RoundedRectangle(cornerRadius: 6)
-                        .stroke(isCenter ? Color.yanCyan.opacity(0.75) : (isWealthGod ? Color(red: 0.95, green: 0.82, blue: 0.35).opacity(0.55) : Color.clear), lineWidth: 1)
+                        .stroke(isCenter ? Color.yanCyan.opacity(0.75) : (isWealthGod ? Color.yanGold.opacity(0.55) : Color.clear), lineWidth: 1)
                 )
             }
         }
@@ -1504,7 +1504,7 @@ public struct ARVisionView: View {
                 
                 Text("\(lang.t("ar_current_facing")): \(targetMountain.localizedPalace) · \(targetMountain.localizedName)\(lang.t("mountain_suffix"))")
                     .adaptiveFont(size: 10, weight: .medium)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
             }
@@ -1579,7 +1579,7 @@ public struct ARVisionView: View {
                 HStack {
                     Text("【\(sha.localizedName)】\(aiResult == nil ? lang.t("ar_manual_analysis") : lang.t("ar_ai_candidate")):")
                         .adaptiveFont(size: 12, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                     Spacer()
                     Text(sha.severity.localizedTitle)
                         .adaptiveFont(size: 10, weight: .bold)
@@ -2204,7 +2204,7 @@ public struct ShaRemedyDetailSheet: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
             }
-            .background(Color(red: 0.08, green: 0.08, blue: 0.1).ignoresSafeArea())
+            .background(Color.appInk.ignoresSafeArea())
             .navigationBarTitle(lang.t("remedy_guide"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()
@@ -2236,7 +2236,7 @@ public struct ShaRemedyDetailSheet: View {
                             HStack(spacing: 4) {
                                 if isSelected {
                                     Circle()
-                                        .fill(Color(red: 0.95, green: 0.8, blue: 0.3))
+                                        .fill(Color.yanGold)
                                         .frame(width: 5, height: 5)
                                 }
                                 Text(item.localizedName)
@@ -2246,13 +2246,13 @@ public struct ShaRemedyDetailSheet: View {
                             .padding(.vertical, 7)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(isSelected ? Color(red: 0.85, green: 0.7, blue: 0.2).opacity(0.25) : Color.white.opacity(0.08))
+                                    .fill(isSelected ? Color.yanGold.opacity(0.25) : Color.white.opacity(0.08))
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(isSelected ? Color(red: 0.95, green: 0.8, blue: 0.3) : Color.clear, lineWidth: 1)
+                                    .stroke(isSelected ? Color.yanGold : Color.clear, lineWidth: 1)
                             )
-                            .foregroundColor(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white.opacity(0.8))
+                            .foregroundColor(isSelected ? Color.yanGoldSoft : .white.opacity(0.8))
                         }
                     }
                 }
@@ -2267,7 +2267,7 @@ public struct ShaRemedyDetailSheet: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(currentSha.localizedName)
                         .adaptiveFont(size: 22, weight: .bold, design: .serif)
-                        .foregroundColor(Color(red: 0.96, green: 0.88, blue: 0.55))
+                        .foregroundColor(Color.yanGoldSoft)
                     Text(currentSha.localizedAliases)
                         .adaptiveFont(size: 12)
                         .foregroundColor(.white.opacity(0.65))
@@ -2371,14 +2371,14 @@ public struct ShaRemedyDetailSheet: View {
             HStack {
                 Label(lang.t("ar_sha_adv_title"), systemImage: "text.book.closed.fill")
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.0, green: 1.0, blue: 1.0))
+                    .foregroundColor(Color.yanCyan)
                 Spacer()
                 Text(lang.t("ar_sha_free_badge"))
                     .adaptiveFont(size: 10, weight: .medium)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color(red: 0.0, green: 1.0, blue: 1.0).opacity(0.18))
-                    .foregroundColor(Color(red: 0.0, green: 1.0, blue: 1.0))
+                    .background(Color.yanCyan.opacity(0.18))
+                    .foregroundColor(Color.yanCyan)
                     .cornerRadius(6)
             }
             
@@ -2400,7 +2400,7 @@ public struct ShaRemedyDetailSheet: View {
         .padding(14)
         .background(Color(red: 0.10, green: 0.13, blue: 0.16))
         .cornerRadius(12)
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(red: 0.0, green: 1.0, blue: 1.0).opacity(0.3), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.yanCyan.opacity(0.3), lineWidth: 1))
     }
     
     // MARK: - 5. 进阶法物参考（VIP 可选：材质规格与挂法）
@@ -2409,14 +2409,14 @@ public struct ShaRemedyDetailSheet: View {
             HStack {
                 Label(lang.t("ar_sha_talisman_section"), systemImage: "shield.checkered")
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.8, blue: 0.3))
+                    .foregroundColor(Color.yanGold)
                 Spacer()
                 Text(lang.t("ar_sha_vip_optional"))
                     .adaptiveFont(size: 10, weight: .medium)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color.yellow.opacity(0.15))
-                    .foregroundColor(Color(red: 0.95, green: 0.8, blue: 0.3))
+                    .foregroundColor(Color.yanGold)
                     .cornerRadius(6)
             }
             
@@ -2448,7 +2448,7 @@ public struct ShaRemedyDetailSheet: View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title)
                 .adaptiveFont(size: 12, weight: .bold)
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .foregroundColor(Color.yanGoldSoft)
             Text(content)
                 .adaptiveFont(size: 11)
                 .foregroundColor(.white.opacity(0.9))

@@ -12,6 +12,7 @@
 		1091 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2091 /* AppRoute.swift */; };
 		1092 /* AppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2094 /* AppStateStore.swift */; };
 		1093 /* SensorPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2095 /* SensorPolicy.swift */; };
+		1000 /* AppPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2006 /* AppPalette.swift */; };
 		1094 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2096 /* ServiceProtocols.swift */; };
 		1095 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2097 /* SettingsViewModel.swift */; };
 		1096 /* SettingsLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2098 /* SettingsLinks.swift */; };
@@ -80,6 +81,7 @@
 		2091 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/App/AppRoute.swift"; sourceTree = "<group>"; };
 		2094 /* AppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/State/AppStateStore.swift"; sourceTree = "<group>"; };
 		2095 /* SensorPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/Services/SensorPolicy.swift"; sourceTree = "<group>"; };
+		2006 /* AppPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/AppPalette.swift"; sourceTree = "<group>"; };
 		2096 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/Services/ServiceProtocols.swift"; sourceTree = "<group>"; };
 		2097 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsViewModel.swift"; sourceTree = "<group>"; };
 		2098 /* SettingsLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/SettingsLinks.swift"; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				2091 /* AppRoute.swift */,
 				2094 /* AppStateStore.swift */,
 				2095 /* SensorPolicy.swift */,
+				2006 /* AppPalette.swift */,
 				2096 /* ServiceProtocols.swift */,
 				2097 /* SettingsViewModel.swift */,
 				2098 /* SettingsLinks.swift */,
@@ -420,6 +423,7 @@
 				1091 /* AppRoute.swift in Sources */,
 				1092 /* AppStateStore.swift in Sources */,
 				1093 /* SensorPolicy.swift in Sources */,
+		1000 /* AppPalette.swift in Sources */,
 				1094 /* ServiceProtocols.swift in Sources */,
 				1095 /* SettingsViewModel.swift in Sources */,
 				1096 /* SettingsLinks.swift in Sources */,

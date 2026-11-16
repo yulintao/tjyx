@@ -1870,13 +1870,13 @@ public struct OnboardingGuideSheet: View {
 
     public var body: some View {
         ZStack {
-            Color(red: 0.07, green: 0.07, blue: 0.10).ignoresSafeArea()
+            Color.appInk.ignoresSafeArea()
 
             VStack(spacing: 20) {
                 HStack {
                     Text("✦ \(headerTitle)")
                         .adaptiveFont(size: 16, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                     Spacer()
                     Button(action: finish) {
                         Text(skipTitle)
@@ -1891,7 +1891,7 @@ public struct OnboardingGuideSheet: View {
                 HStack(spacing: 8) {
                     ForEach(0..<3, id: \.self) { idx in
                         Capsule()
-                            .fill(idx <= step ? Color(red: 0.95, green: 0.85, blue: 0.45) : Color.white.opacity(0.15))
+                            .fill(idx <= step ? Color.yanGoldSoft : Color.white.opacity(0.15))
                             .frame(height: 5)
                     }
                 }
@@ -1931,7 +1931,7 @@ public struct OnboardingGuideSheet: View {
                                     }
                                 }
                                 .pickerStyle(.menu)
-                                .accentColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .accentColor(Color.yanGoldSoft)
 
                                 Picker("", selection: $kua.isMale) {
                                     Text(maleLabel).tag(true)
@@ -1979,7 +1979,7 @@ public struct OnboardingGuideSheet: View {
                         .padding(.vertical, 14)
                         .background(
                             LinearGradient(
-                                colors: [Color(red: 0.95, green: 0.82, blue: 0.38), Color(red: 0.78, green: 0.58, blue: 0.20)],
+                                colors: [Color.yanGold, Color.yanGoldDeep],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -2004,7 +2004,7 @@ public struct OnboardingGuideSheet: View {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 Text(title)
                     .adaptiveFont(size: 20, weight: .bold)
                     .foregroundColor(.white)
@@ -2019,7 +2019,7 @@ public struct OnboardingGuideSheet: View {
                 ForEach(bullets, id: \.self) { b in
                     HStack(alignment: .top, spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.yanGoldSoft)
                             .font(.system(size: 14))
                         Text(b)
                             .adaptiveFont(size: 13)

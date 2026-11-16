@@ -105,7 +105,7 @@ public struct SettingsView: View {
                         message: alert.message,
                         confirmTitle: lang.t("done"),
                         cancelTitle: nil,
-                        confirmColor: Color(red: 0.83, green: 0.68, blue: 0.21),
+                        confirmColor: Color.yanGoldDeep,
                         onConfirm: { viewModel.dismissAlert() },
                         onCancel: { viewModel.dismissAlert() }
                     )

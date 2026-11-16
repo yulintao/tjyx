@@ -2935,7 +2935,7 @@ public struct ARSpatialSurveyView: View {
                             .adaptiveFont(size: 13, weight: .bold)
                             .foregroundColor(model.groundBaguaProjected ? .black : .white)
                             .padding(9)
-                            .background(model.groundBaguaProjected ? Color(red: 0.95, green: 0.80, blue: 0.25) : Color.black.opacity(0.55))
+                            .background(model.groundBaguaProjected ? Color.yanGold : Color.black.opacity(0.55))
                             .clipShape(Circle())
                     }
                     .accessibilityLabel(lang.t("xuankong_stars"))
@@ -3138,11 +3138,11 @@ public struct ARSpatialSurveyView: View {
             if let standing = model.currentStandingPalace {
                 HStack(spacing: 6) {
                     Image(systemName: "safari.fill")
-                        .foregroundColor(Color(red: 0.95, green: 0.80, blue: 0.25))
+                        .foregroundColor(Color.yanGold)
                         .adaptiveFont(size: 11)
                     Text(standing)
                         .adaptiveFont(size: 10, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                     Spacer()
@@ -3197,7 +3197,7 @@ public struct ARSpatialSurveyView: View {
                             .adaptiveFont(size: 10, weight: .bold)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 3)
-                            .background(Color(red: 0.95, green: 0.80, blue: 0.25).opacity(0.9))
+                            .background(Color.yanGold.opacity(0.9))
                             .foregroundColor(.black)
                             .cornerRadius(6)
                     }

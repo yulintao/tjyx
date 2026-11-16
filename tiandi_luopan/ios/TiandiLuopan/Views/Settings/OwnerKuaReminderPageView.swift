@@ -47,7 +47,7 @@ public struct OwnerKuaReminderPageView: View {
                             HStack(spacing: 4) {
                                 Text("\(kuaProfile.birthYear) · \(kuaProfile.localizedZodiac(language: lang.effectiveLanguage)) · \(kuaProfile.localizedLifeKuaName(language: lang.effectiveLanguage))")
                                     .adaptiveFont(size: 12, weight: .bold)
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.yanGoldSoft)
                                 Image(systemName: "pencil.circle.fill")
                                     .font(.system(size: 12))
                                     .foregroundColor(Color.yanCyan)
@@ -129,7 +129,7 @@ public struct OwnerKuaReminderPageView: View {
                                         .foregroundColor(.white)
                                     Text("【\(member.localizedGuaBadge)】")
                                         .adaptiveFont(size: 11, weight: .bold)
-                                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                        .foregroundColor(Color.yanGoldSoft)
                                     Spacer()
 
                                     // 出生年份微调菜单
@@ -275,7 +275,7 @@ public struct OwnerKuaReminderPageView: View {
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "person.text.rectangle.fill")
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 Text(compat.localizedOwnerGuaName)
                     .adaptiveFont(size: 14, weight: .bold)
                     .foregroundColor(.white)

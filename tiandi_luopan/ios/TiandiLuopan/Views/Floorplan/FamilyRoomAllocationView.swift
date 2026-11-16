@@ -85,7 +85,7 @@ struct FamilyRoomAllocationSection: View {
                 .toolbar { ToolbarItem(placement: .navigationBarTrailing) {
                     Button(lang.t("done")) { showEditor = false }
                 } }
-                .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+                .background(Color.appInk.ignoresSafeArea())
                 .foregroundColor(.white)
             }
             .navigationViewStyle(StackNavigationViewStyle())

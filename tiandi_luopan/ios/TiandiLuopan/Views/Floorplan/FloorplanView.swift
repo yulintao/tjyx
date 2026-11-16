@@ -440,7 +440,7 @@ public struct FloorplanView: View {
             : (rooms, [])
         
         return ZStack {
-            Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea()
+            Color.appInk.ignoresSafeArea()
             
             if isActive {
                 GeometryReader { geo in
@@ -1316,7 +1316,7 @@ public struct FloorplanView: View {
 
         return NavigationView {
             ZStack {
-                Color(red: 0.08, green: 0.08, blue: 0.11).ignoresSafeArea()
+                Color.appInk.ignoresSafeArea()
 
                 VStack(spacing: 14) {
                     VStack(spacing: 10) {
@@ -1338,7 +1338,7 @@ public struct FloorplanView: View {
                             .adaptiveFont(size: 13, weight: .bold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 11)
-                            .background(Color(red: 0.83, green: 0.68, blue: 0.21))
+                            .background(Color.yanGoldDeep)
                             .foregroundColor(.black)
                             .cornerRadius(8)
                         }
@@ -1365,7 +1365,7 @@ public struct FloorplanView: View {
                         }
                     }
                     .padding(14)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .background(Color.appInkRaised)
                     .cornerRadius(12)
                     .padding(.horizontal, 16)
                     .padding(.top, 10)
@@ -1396,8 +1396,8 @@ public struct FloorplanView: View {
                                                         .adaptiveFont(size: 9, weight: .bold)
                                                         .padding(.horizontal, 5)
                                                         .padding(.vertical, 1.5)
-                                                        .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.22))
-                                                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                                        .background(Color.yanGoldSoft.opacity(0.22))
+                                                        .foregroundColor(Color.yanGoldSoft)
                                                         .cornerRadius(4)
                                                 }
                                             }
@@ -1423,7 +1423,7 @@ public struct FloorplanView: View {
                                         }) {
                                             Image(systemName: "doc.on.doc")
                                                 .font(.system(size: 13))
-                                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                                .foregroundColor(Color.yanGoldSoft)
                                                 .padding(6)
                                         }
                                         Button(action: {
@@ -1436,7 +1436,7 @@ public struct FloorplanView: View {
                                         }
                                     }
                                     .padding(12)
-                                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                                    .background(Color.appInkRaised)
                                     .cornerRadius(10)
                                 }
                             }
@@ -1451,13 +1451,13 @@ public struct FloorplanView: View {
                 ToolbarItem(placement: .principal) {
                     Text(sheetTitle)
                         .adaptiveFont(size: 15, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(lang.t("done")) {
                         showCaseArchiveSheet = false
                     }
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 }
             }
         }
@@ -1570,10 +1570,10 @@ public struct FloorplanView: View {
         return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "chart.bar.xaxis")
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 Text(pkHeaderTitle)
                     .adaptiveFont(size: 13, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                 Spacer()
             }
 
@@ -1613,7 +1613,7 @@ public struct FloorplanView: View {
                     Spacer()
                     Text("\(m.score)")
                         .adaptiveFont(size: 18, weight: .bold, design: .monospaced)
-                        .foregroundColor(isTop ? .green : Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(isTop ? .green : Color.yanGoldSoft)
                 }
                 .padding(8)
                 .background(isTop ? Color.green.opacity(0.08) : Color.white.opacity(0.04))
@@ -1625,7 +1625,7 @@ public struct FloorplanView: View {
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.3), lineWidth: 1)
+                .stroke(Color.yanGoldSoft.opacity(0.3), lineWidth: 1)
         )
     }
 
@@ -1733,7 +1733,7 @@ public struct FloorplanView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(lang.t("floorplan_title"))
                     .adaptiveFont(size: 15, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("\(lang.t("floorplan_current_facing"))\(String(format: "%.1f", floorplanHeadingState.facingAngle))° (\(floorplanHeadingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(floorplanHeadingState.facingMountain.localizedName)\(lang.t("facing_suffix")))")
                     .adaptiveFont(size: 11)
@@ -1750,8 +1750,8 @@ public struct FloorplanView: View {
                 Image(systemName: "viewfinder")
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(6)
-                    .background(Color(red: 0.95, green: 0.80, blue: 0.25).opacity(0.22))
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .background(Color.yanGold.opacity(0.22))
+                    .foregroundColor(Color.yanGoldSoft)
                     .cornerRadius(6)
             }
             .accessibilityLabel(lang.t("ar_spatial_survey"))
@@ -1792,8 +1792,8 @@ public struct FloorplanView: View {
                 .adaptiveFont(size: 11, weight: .bold)
                 .padding(.horizontal, 7)
                 .padding(.vertical, 5)
-                .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.22))
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .background(Color.yanGoldSoft.opacity(0.22))
+                .foregroundColor(Color.yanGoldSoft)
                 .cornerRadius(6)
             }
 
@@ -3165,7 +3165,7 @@ public struct FloorplanView: View {
                     let rad = boundaryAngle * .pi / 180.0
                     p.addLine(to: CGPoint(x: centerPt.x + CGFloat(sin(rad)) * r, y: centerPt.y - CGFloat(cos(rad)) * r))
                 }
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.35), lineWidth: 1)
+                .stroke(Color.yanGoldDeep.opacity(0.35), lineWidth: 1)
             }
 
             // 十字天心红线
@@ -3179,7 +3179,7 @@ public struct FloorplanView: View {
 
             // 外圈金环
             Circle()
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.4), lineWidth: 1)
+                .stroke(Color.yanGoldDeep.opacity(0.4), lineWidth: 1)
                 .frame(width: r * 2, height: r * 2)
                 .position(centerPt)
 
@@ -3193,7 +3193,7 @@ public struct FloorplanView: View {
                 VStack(spacing: 0) {
                     Text(item.title)
                         .adaptiveFont(size: 8, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                     Text(item.star)
                         .adaptiveFont(size: 7, weight: .semibold)
                         .foregroundColor(item.isAuspicious ? .green : .orange.opacity(0.9))
@@ -3211,7 +3211,7 @@ public struct FloorplanView: View {
     private func centroidHandle(centerPt: CGPoint, layoutRect: CGRect) -> some View {
         ZStack {
             Circle()
-                .fill(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .fill(Color.yanGoldSoft)
                 .frame(width: 18, height: 18)
                 .shadow(color: .black.opacity(0.6), radius: 3)
             Circle()
@@ -3254,7 +3254,7 @@ public struct FloorplanView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("🏠 \(lang.t("audit_checklist")) (\(report.count))")
                     .adaptiveFont(size: 13, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.yanGoldSoft)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(lang.t("drag_center_hint"))
                     .adaptiveFont(size: 10)
@@ -3273,8 +3273,8 @@ public struct FloorplanView: View {
                     .adaptiveFont(size: 10, weight: .bold)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 4)
-                    .background(Color(red: 0.95, green: 0.80, blue: 0.25).opacity(0.22))
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .background(Color.yanGold.opacity(0.22))
+                    .foregroundColor(Color.yanGoldSoft)
                     .cornerRadius(6)
                 }
             }
@@ -3327,7 +3327,7 @@ public struct FloorplanView: View {
 
                 Text("\(lang.t("floorplan_solution_prefix")) \(item.solution)")
                     .adaptiveFont(size: 10)
-                    .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                    .foregroundColor(Color.yanGoldDeep)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -3335,7 +3335,7 @@ public struct FloorplanView: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .background(Color.appInkRaised)
         .cornerRadius(8)
     }
 
@@ -3729,7 +3729,7 @@ public struct RoomAuditDetailSheet: View {
     public var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 0.08, green: 0.08, blue: 0.11).ignoresSafeArea()
+                Color.appInk.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
@@ -3737,7 +3737,7 @@ public struct RoomAuditDetailSheet: View {
                         HStack(spacing: 12) {
                             Image(systemName: room.type.iconName)
                                 .adaptiveFont(size: 24)
-                                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                                .foregroundColor(Color.yanGoldDeep)
                                 .frame(width: 44, height: 44)
                                 .background(Color.white.opacity(0.08))
                                 .clipShape(Circle())
@@ -3763,7 +3763,7 @@ public struct RoomAuditDetailSheet: View {
                                 .cornerRadius(6)
                         }
                         .padding(14)
-                        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                        .background(Color.appInkRaised)
                         .cornerRadius(12)
 
                         if let onEditType = onEditType {
@@ -3799,7 +3799,7 @@ public struct RoomAuditDetailSheet: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Image(systemName: "sparkles")
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.yanGoldSoft)
                                 Text("\(lang.t("floorplan_diag_prefix"))\(room.inspectionTitle)")
                                     .adaptiveFont(size: 14, weight: .bold)
                                     .foregroundColor(.white)
@@ -3811,21 +3811,21 @@ public struct RoomAuditDetailSheet: View {
                                 .lineSpacing(3)
                         }
                         .padding(14)
-                        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                        .background(Color.appInkRaised)
                         .cornerRadius(12)
 
                         if !room.inspectionLore.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(lang.t("floorplan_impact_scope"))
                                     .adaptiveFont(size: 13, weight: .bold)
-                                    .foregroundColor(Color(red: 0.95, green: 0.82, blue: 0.4))
+                                    .foregroundColor(Color.yanGold)
                                 Text(room.inspectionLore)
                                     .adaptiveFont(size: 12)
                                     .foregroundColor(.white.opacity(0.85))
                                     .lineSpacing(3)
                             }
                             .padding(14)
-                            .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                            .background(Color.appInkRaised)
                             .cornerRadius(12)
                         }
                         
@@ -3833,7 +3833,7 @@ public struct RoomAuditDetailSheet: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(lang.t("floorplan_classic_origin"))
                                 .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(Color(red: 0.95, green: 0.82, blue: 0.4))
+                                .foregroundColor(Color.yanGold)
                             
                             Text(lang.t("floorplan_yangzhai_quote"))
                                 .adaptiveFont(size: 12, design: .serif)
@@ -3841,7 +3841,7 @@ public struct RoomAuditDetailSheet: View {
                                 .lineSpacing(2)
                         }
                         .padding(14)
-                        .background(Color(red: 0.11, green: 0.11, blue: 0.14))
+                        .background(Color.appInkRaised)
                         .cornerRadius(12)
                         
                         // 4. 生旺化煞秘笈

@@ -21,7 +21,7 @@ public struct CalibrationSheet: View {
     
     public var body: some View {
         return ZStack {
-            Color(red: 0.08, green: 0.08, blue: 0.11)
+            Color.appInk
                 .ignoresSafeArea()
             
             ScrollView {
@@ -29,7 +29,7 @@ public struct CalibrationSheet: View {
                     // 1. 顶部标题栏
                     HStack {
                         Image(systemName: "safari.fill")
-                            .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                            .foregroundColor(Color.yanGoldDeep)
                         Text(lang.t("calib_sheet_title"))
                             .adaptiveFont(size: 16, weight: .bold)
                             .foregroundColor(.white)
@@ -77,11 +77,11 @@ public struct CalibrationSheet: View {
                             title: lang.t("calib_declination_title"),
                             value: declinationDisplay,
                             isOk: true,
-                            customColor: Color(red: 0.95, green: 0.82, blue: 0.4)
+                            customColor: Color.yanGold
                         )
                     }
                     .padding(14)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .background(Color.appInkRaised)
                     .cornerRadius(12)
                     
                     // 3. 双针系统与易学考据说明卡
@@ -90,7 +90,7 @@ public struct CalibrationSheet: View {
                             Text("🧭")
                             Text(lang.t("calib_dual_needle_section"))
                                 .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.yanGoldSoft)
                         }
                         
                         VStack(alignment: .leading, spacing: 6) {
@@ -103,7 +103,7 @@ public struct CalibrationSheet: View {
                             }
                             
                             HStack(alignment: .top, spacing: 4) {
-                                Circle().fill(Color(red: 0.95, green: 0.82, blue: 0.4)).frame(width: 6, height: 6).padding(.top, 4)
+                                Circle().fill(Color.yanGold).frame(width: 6, height: 6).padding(.top, 4)
                                 Text(lang.t("calib_true_needle_desc"))
                                     .adaptiveFont(size: 12)
                                     .foregroundColor(.white.opacity(0.85))
@@ -120,7 +120,7 @@ public struct CalibrationSheet: View {
                         }
                     }
                     .padding(14)
-                    .background(Color(red: 0.11, green: 0.11, blue: 0.14))
+                    .background(Color.appInkRaised)
                     .cornerRadius(12)
                     
                     // 4. “8”字形翻转校准引导卡
@@ -128,7 +128,7 @@ public struct CalibrationSheet: View {
                         HStack {
                             Image(systemName: "infinity")
                                 .adaptiveFont(size: 24, weight: .bold)
-                                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                                .foregroundColor(Color.yanGoldDeep)
                                 .rotationEffect(.degrees(rotateDegree))
                             
                             VStack(alignment: .leading, spacing: 3) {
@@ -147,7 +147,7 @@ public struct CalibrationSheet: View {
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.3), lineWidth: 1)
+                            .stroke(Color.yanGoldDeep.opacity(0.3), lineWidth: 1)
                     )
                     
                     // 5. 操作按键
@@ -171,7 +171,7 @@ public struct CalibrationSheet: View {
                             .padding(.vertical, 12)
                             .background(
                                 LinearGradient(
-                                    colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                    colors: [Color.yanGold, Color.yanGoldDeep],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )

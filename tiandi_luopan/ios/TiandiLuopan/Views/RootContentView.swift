@@ -2,12 +2,6 @@ import SwiftUI
 import UIKit
 
 // MARK: - iOS 14.0 颜色向下兼容扩展
-extension Color {
-    public static let yanCyan = Color(red: 0.0, green: 0.82, blue: 0.95)
-    public static let yanBrown = Color(red: 0.65, green: 0.45, blue: 0.25)
-    public static let yanGold = Color(red: 0.95, green: 0.80, blue: 0.25)
-}
-
 // MARK: - iPad 与多设备全景屏幕字体自适应扩展 (Adaptive Typography)
 extension Font {
     /// 当前前台窗口的 trait collection：字号（Dynamic Type）与尺寸类都取自同一个快照，
@@ -384,7 +378,7 @@ public struct FoldableTwoPane<Main: View, Analysis: View>: View {
 
     public init(mainColumnRatio: CGFloat? = nil,
                 compactSpacing: CGFloat = 8,
-                analysisBackground: Color = Color(red: 0.07, green: 0.07, blue: 0.09),
+                analysisBackground: Color = Color.appInk,
                 analysisAlignment: Alignment = .top,
                 independentScroll: Bool = false,
                 @ViewBuilder main: () -> Main,
@@ -691,7 +685,7 @@ public struct RootContentView: View {
                 }
                 .tag(AppTab.settings)
         }
-        .accentColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+        .accentColor(Color.yanGoldSoft)
         .preferredColorScheme(.dark)
         // 采集真实窗口尺寸并同步注入 Environment：iPad 旋转不改变 size class，
         // 各页靠 interfaceOrientation + 尺寸切换「横屏双栏 / 竖屏单列」。
@@ -966,7 +960,7 @@ public struct CameraExclusiveGate<Content: View>: View {
                 deniedCard
             case .pending:
                 // 等窗口场景标识的一帧：用与相机页一致的深色底，避免闪白。
-                Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea()
+                Color.appInk.ignoresSafeArea()
             }
         }
         .background(
@@ -1003,7 +997,7 @@ public struct CameraExclusiveGate<Content: View>: View {
                 .padding(.horizontal, 28)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+        .background(Color.appInk.ignoresSafeArea())
     }
 
     private func tryAcquire(onReturn: Bool = false) {

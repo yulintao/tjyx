@@ -20,7 +20,7 @@ public struct AboutPageView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "compass.drawing")
                         .font(.system(size: 42))
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanGoldSoft)
                     Text(appNameTitle)
                         .adaptiveFont(size: 16, weight: .bold)
                         .foregroundColor(.white)
@@ -65,7 +65,7 @@ public struct AboutPageView: View {
                 }) {
                     HStack {
                         Label(SettingsLocalizationHelpers.rateAppTitle(lang), systemImage: "star.bubble.fill")
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.yanGoldSoft)
                         Spacer()
                         Image(systemName: "chevron.right")
                             .adaptiveFont(size: 11)
@@ -136,7 +136,7 @@ public struct AboutPageView: View {
                         message: SettingsLocalizationHelpers.testFlightRateAlertMessage(lang),
                         confirmTitle: lang.t("done"),
                         cancelTitle: nil,
-                        confirmColor: Color(red: 0.83, green: 0.68, blue: 0.21),
+                        confirmColor: Color.yanGoldDeep,
                         onConfirm: { showTestFlightRateTip = false },
                         onCancel: { showTestFlightRateTip = false }
                     )
