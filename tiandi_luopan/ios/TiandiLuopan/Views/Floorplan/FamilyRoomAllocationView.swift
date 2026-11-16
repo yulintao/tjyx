@@ -200,10 +200,11 @@ struct FamilyRoomAllocationPanel: View {
             return Color.yanGold
         case .fuWei?:
             return Color.yanCyan
-        case .some:
-            return Color(red: 0.97, green: 0.48, blue: 0.58)
         case nil:
             return Color.white.opacity(0.45)
+        default:
+            // 绝命、五鬼、六煞、祸害
+            return Color(red: 0.97, green: 0.48, blue: 0.58)
         }
     }
 }
