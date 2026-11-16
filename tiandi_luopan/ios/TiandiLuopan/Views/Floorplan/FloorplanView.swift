@@ -3370,6 +3370,9 @@ public struct FloorplanView: View {
 
     // MARK: - 一键导出全屋户型立极与堪舆全案长图 (PRD 5.3)
     private func exportFloorplanReport() {
+        // 报告里含真太阳时与磁偏角，这两个量要经纬度；第一次导出时才去申请位置权限，
+        // 用户如果只摆房间、不看报告，就永远不会被问。
+        CompassMotionManager.shared.requestLocationPermissionIfNeeded()
         // 主线程快照渲染所需状态，绘制移到后台队列，避免 1080×1920 全页
         // 同步渲染（含全尺寸户型图）阻塞主线程导致点击导出卡顿。
         reportExportGeneration &+= 1

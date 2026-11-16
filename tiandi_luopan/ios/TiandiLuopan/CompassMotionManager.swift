@@ -265,9 +265,10 @@ public final class CompassMotionManager: NSObject, ObservableObject, CLLocationM
         
         let status = locationManager.authorizationStatus
         locationAuthorizationStatus = status
-        if status == .notDetermined {
-            locationManager.requestWhenInUseAuthorization()
-        } else if (status == .authorizedWhenInUse || status == .authorizedAlways), headingUpdatesEnabled {
+        // 这里不再主动弹位置授权。磁航向本身不需要定位授权，而磁偏角、真太阳时
+        // 这些需要经纬度的结果只有 AR 页和真北/报告场景才会用到——它们各自在
+        // 真正需要的那一刻调用 requestLocationPermissionIfNeeded()。
+        if (status == .authorizedWhenInUse || status == .authorizedAlways) && headingUpdatesEnabled {
             // 位置仅被实时罗盘/AR 页消费（磁偏角、真太阳时、速度）。在不需要
             // 渲染方位的页面（如设置页）保持 GPS 关闭，避免无谓耗电。
             locationManager.startUpdatingLocation()
@@ -393,6 +394,13 @@ public final class CompassMotionManager: NSObject, ObservableObject, CLLocationM
     }
     
     public func requestLocationPermission() {
+        locationManager.requestWhenInUseAuthorization()
+    }
+
+    /// 只在「还没决定」时弹系统询问：功能入口调用它，用户已拒绝过就不再骚扰，
+    /// 而是由设置页的「打开系统设置」兜底。
+    public func requestLocationPermissionIfNeeded() {
+        guard locationManager.authorizationStatus == .notDetermined else { return }
         locationManager.requestWhenInUseAuthorization()
     }
 

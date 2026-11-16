@@ -562,7 +562,9 @@ public struct RootContentView: View {
     @State private var layoutForm = AdaptiveLayoutForm.current()
     
     public init() {
-        var initialTab: AppTab = .ar
+        // 启动页是户型页（最左 Tab）。-selectedTab 仍按 AppTab 的原始 rawValue 解释，
+        // 所以 UI 测试/深链传 1 依然落到 AR，不受本页顺序变化影响。
+        var initialTab: AppTab = .floorplan
         if let tabArgIndex = CommandLine.arguments.firstIndex(of: "-selectedTab"),
            tabArgIndex + 1 < CommandLine.arguments.count,
            let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]),
@@ -661,15 +663,8 @@ public struct RootContentView: View {
     
     public var body: some View {
         TabView(selection: $app.selectedTab) {
-            // Tab 1: AR 实景天心透视与形煞智能标注（前后镜头翻转、靶心动态测角、水印快照存证）
-            ARVisionView(isActive: selectedTab == .ar)
-                .tabItem {
-                    Image(systemName: AppTab.ar.symbol)
-                    Text(lang.t(AppTab.ar.titleKey))
-                }
-                .tag(AppTab.ar)
-
-            // Tab 2: 户型空间立极与全屋风水体检（中宫重心立极、罗盘半透明叠透、火烧天门/鬼门体检）
+            // Tab 1（最左）: 户型空间立极与全屋风水体检（中宫重心立极、罗盘半透明叠透、火烧天门/鬼门体检）
+            // 这一页只用「方位」，不碰相机、不碰动作传感器，所以它当启动页时不会弹出任何权限请求。
             FloorplanView(isActive: selectedTab == .floorplan)
                 .tabItem {
                     Image(systemName: AppTab.floorplan.symbol)
@@ -677,7 +672,16 @@ public struct RootContentView: View {
                 }
                 .tag(AppTab.floorplan)
 
-            // Tab 4: 系统设置与会员中心（四档 StoreKit 内购、特权矩阵、传感器校准）
+            // Tab 2: AR 实景天心透视与形煞智能标注（前后镜头翻转、靶心动态测角、水印快照存证）
+            // 相机与位置（磁偏角/真北）都在这一页真正被用到时才申请。
+            ARVisionView(isActive: selectedTab == .ar)
+                .tabItem {
+                    Image(systemName: AppTab.ar.symbol)
+                    Text(lang.t(AppTab.ar.titleKey))
+                }
+                .tag(AppTab.ar)
+
+            // Tab 3: 系统设置（传感器校准、权限状态、隐私与法律条款）
             SettingsView(isActive: selectedTab == .settings)
                 .tabItem {
                     Image(systemName: AppTab.settings.symbol)
@@ -722,7 +726,8 @@ public struct RootContentView: View {
             // onChange(of:) 只在尺寸类“变化”时触发，不会补首帧。此处用
             // 已建立的 environment 值重新应用一次，保证 iPad 启动即为 13pt。
             Self.applyTabBarAppearance(isLargeLayout: horizontalSizeClass == .regular)
-            motion.start()
+            // 启动时只按当前页面真正需要的传感器起步（updateResourceUsage 内部决定），
+            // 不再无条件 motion.start()：那会让冷启动直接弹位置/运动权限。
             updateResourceUsage()
             RetentionServiceManager.shared.registerSystemShortcutsAndSpotlight()
             if OnboardingGuideSheet.shouldPresentOnLaunch() {

@@ -748,11 +748,14 @@ public struct ARVisionView: View {
         .onAppear {
             guard isActive else { return }
             checkCameraPermission()
+            // AR 页要用磁偏角把磁北折成真北，这一页才是位置权限的真正使用者。
+            CompassMotionManager.shared.requestLocationPermissionIfNeeded()
             startScanAnimation()
         }
         .onChange(of: isActive) { active in
             if active {
                 checkCameraPermission()
+                CompassMotionManager.shared.requestLocationPermissionIfNeeded()
                 startScanAnimation()
             } else {
                 stopScanAnimation()
