@@ -212,3 +212,18 @@ shell 分支要等一次真跑。
 
 本轮两个决定（用户拍板）：新增文案**八语一起补**，译文由实现方起草交用户审；
 P3 报告页**暂缓**，先让编译器与真机把 P0/P1 验证过去再谈形态。
+
+## CI 里的 Bundle ID 只有一处来源（2026-11-16）
+
+`APP_BUNDLE_ID` 原来在 workflow 里另存了一份 `com.tjyx.compass`。它和工程一旦分家，报错会落在
+「描述文件不覆盖」上，看起来像证书/描述文件的问题，实际是 CI 自己记错了 ID。现在：
+
+- workflow 里的 `APP_BUNDLE_ID` 默认留空，签名步骤从 `project.pbxproj` 的
+  `PRODUCT_BUNDLE_IDENTIFIER` 读出真值（实测提取到 `com.tjyx.compass`），
+  与 env 不一致时给 warning 并以工程为准，写进 `$GITHUB_ENV` 供后续步骤使用；
+- 描述文件错配的提示补上了「该塞进哪个 secret」（`DEV_PROVISION_PROFILE` /
+  `DIST_PROVISION_PROFILE`），原来说的 `PROVISIONING_PROFILE` 没有任何步骤读取。
+
+仍未定：账户里注册的到底是 `com.tjyx.compass` 还是只有改名前的 `com.yanxiang.compass`。
+前者只需为新 ID 签一个开发描述文件；后者要在 portal 新建 ID，或把工程与 CI 一起回滚成旧 ID
+（能沿用现有 App Store 记录）。哪一种都没动手，等确认。
