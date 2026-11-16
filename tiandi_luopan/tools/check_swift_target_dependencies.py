@@ -13,7 +13,10 @@ from validate_swift_syntax import clean_code
 
 IOS = Path(__file__).resolve().parents[1] / "ios"
 PROJECT = IOS / "TiandiLuopan.xcodeproj" / "project.pbxproj"
-ROOTS = [IOS / "TiandiLuopan", IOS / "TiandiLuopanWidget"]
+APP_TARGET = IOS / "TiandiLuopan"
+WIDGET_TARGET = IOS / "TiandiLuopanWidget"
+# The widget target is gone from the project; scan it only while the folder exists.
+ROOTS = [root for root in (APP_TARGET, WIDGET_TARGET) if root.is_dir()]
 
 
 def validate_project_structure(project):
@@ -83,8 +86,10 @@ def source_phases(project):
         if len(paths) != len(set(paths)):
             raise ValueError("{}: duplicate compilation entries".format(name))
         result[name] = set(paths)
-    if not {"Sources", "Widget Sources"}.issubset(result):
-        raise ValueError("App and widget source phases must both be checked")
+    if "Sources" not in result:
+        raise ValueError("App source phase must be checked")
+    if WIDGET_TARGET.is_dir() and "Widget Sources" not in result:
+        raise ValueError("Widget target exists but its source phase is not checked")
     return result
 
 

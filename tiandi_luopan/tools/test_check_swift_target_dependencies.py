@@ -82,13 +82,17 @@ class ProjectStructureTests(unittest.TestCase):
                    for entry in manifest["NSPrivacyAccessedAPITypes"]}
         self.assertIn("35F9.1", reasons.get("NSPrivacyAccessedAPICategorySystemBootTime", []))
 
-    def test_both_manifests_declare_app_group_defaults(self):
+    def test_every_target_manifest_declares_app_group_defaults(self):
+        # The widget target was removed; check the manifests that actually exist.
         ios = PROJECT.parent.parent
-        for target in ["TiandiLuopan", "TiandiLuopanWidget"]:
-            manifest = plistlib.loads((ios / target / "PrivacyInfo.xcprivacy").read_bytes())
+        manifests = sorted(ios.glob("*/PrivacyInfo.xcprivacy"))
+        self.assertIn(ios / "TiandiLuopan" / "PrivacyInfo.xcprivacy", manifests)
+        for path in manifests:
+            manifest = plistlib.loads(path.read_bytes())
             reasons = {entry["NSPrivacyAccessedAPIType"]: entry["NSPrivacyAccessedAPITypeReasons"]
                        for entry in manifest["NSPrivacyAccessedAPITypes"]}
-            self.assertIn("1C8F.1", reasons.get("NSPrivacyAccessedAPICategoryUserDefaults", []), target)
+            self.assertIn("1C8F.1", reasons.get("NSPrivacyAccessedAPICategoryUserDefaults", []),
+                          path.parent.name)
 
     def test_public_terms_are_complete_in_all_supported_languages(self):
         from html.parser import HTMLParser

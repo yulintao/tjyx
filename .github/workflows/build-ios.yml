@@ -348,16 +348,24 @@ jobs:
           # 小组件描述文件处理（兼容通配符 Wildcard / 独立描述文件）
           # --------------------------------------------------
           EXPECTED_WIDGET_APP_ID="$TEAM_ID.$WIDGET_BUNDLE_ID"
+          # 小组件 target 已从工程移除；没有它就不该再要求小组件描述文件。
+          HAS_WIDGET_TARGET="false"
+          if grep -q 'TiandiLuopanWidget.appex' "$PROJECT_PATH/project.pbxproj" 2>/dev/null; then
+            HAS_WIDGET_TARGET="true"
+          else
+            echo "No widget target in project; widget profile handling is skipped."
+          fi
+          echo "has_widget_target=$HAS_WIDGET_TARGET" >> "$GITHUB_OUTPUT"
           HAS_WIDGET_PROFILE="false"
           WIDGET_PROFILE_UUID=""
           WIDGET_PROFILE_PLIST=""
 
           # shellcheck disable=SC2053
-          if [[ "$EXPECTED_WIDGET_APP_ID" == $PROFILE_APP_ID ]]; then
+          if [ "$HAS_WIDGET_TARGET" = "true" ] && [[ "$EXPECTED_WIDGET_APP_ID" == $PROFILE_APP_ID ]]; then
             echo "Main profile is a wildcard that covers the widget ($PROFILE_APP_ID)."
             HAS_WIDGET_PROFILE="true"
             WIDGET_PROFILE_UUID="$PROFILE_UUID"
-          elif [ -n "$WIDGET_PROV_RAW" ]; then
+          elif [ "$HAS_WIDGET_TARGET" = "true" ] && [ -n "$WIDGET_PROV_RAW" ]; then
             echo "==== Configuring Widget Provisioning Profile ===="
             WIDGET_PP_PATH="$RUNNER_TEMP/signing/widget_profile.mobileprovision"
             WIDGET_PROFILE_PLIST="$RUNNER_TEMP/signing/widget_profile.plist"
@@ -400,7 +408,7 @@ jobs:
             HAS_WIDGET_PROFILE="true"
             echo "Widget profile installed successfully: $WIDGET_PROFILE_NAME ($WIDGET_PROFILE_UUID)"
           else
-            if [ "$BUILD_TARGET" = "app-store" ]; then
+            if [ "$BUILD_TARGET" = "app-store" ] && [ "$HAS_WIDGET_TARGET" = "true" ]; then
               echo "::error::No widget provisioning profile for app-store mode (expected App ID: $EXPECTED_WIDGET_APP_ID). Refusing to ship a build without the widget."
               echo "::error::Configure DIST_WIDGET_PROVISION_PROFILE in GitHub Secrets, or use a wildcard distribution profile."
               exit 1
@@ -427,7 +435,7 @@ jobs:
             if printf '%s\n' "$MAIN_GROUPS" | grep -qxF "$APP_GROUP_ID" && printf '%s\n' "$WIDGET_GROUPS" | grep -qxF "$APP_GROUP_ID"; then
               SELECTED_GROUP="$APP_GROUP_ID"
             else
-              echo "ERROR: APP_GROUP_ID ($APP_GROUP_ID) is not present in both the app and widget provisioning profiles."
+              echo "ERROR: APP_GROUP_ID ($APP_GROUP_ID) is not present in the provisioning profiles used for this build."
               echo "Main groups: $MAIN_GROUPS"
               echo "Widget groups: $WIDGET_GROUPS"
               exit 1
@@ -715,7 +723,7 @@ jobs:
               security cms -D -i "$WIDGET_APPEX/embedded.mobileprovision" > "$VERIFY_DIR/widget-profile.plist"
               echo "Widget Profile Name: $(/usr/libexec/PlistBuddy -c "Print :Name" "$VERIFY_DIR/widget-profile.plist" 2>/dev/null || true)"
             fi
-          elif [ "$BUILD_TARGET" = "app-store" ]; then
+          elif [ "$BUILD_TARGET" = "app-store" ] && grep -q 'TiandiLuopanWidget.appex' "$PROJECT_PATH/project.pbxproj" 2>/dev/null; then
             echo "::error::app-store IPA contains no widget extension."
             exit 1
           fi
