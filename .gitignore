@@ -29,3 +29,8 @@ __pycache__/
 
 # 官网生成的发布包
 /dist/
+
+# App Store 配置：含团队标识与本机密钥路径，每人一份，不入库
+/tiandi_luopan/tools/appstore_setup.config.json
+# 描述文件、.p12 与 manifest 的落盘目录
+/tiandi_luopan/tools/appstore_out/
