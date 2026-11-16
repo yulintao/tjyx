@@ -2423,31 +2423,21 @@ public struct ShaRemedyDetailSheet: View {
                     .cornerRadius(6)
             }
             
-            if !iap.hasUnlockedVIP {
-                VIPLockCardView(
-                    title: lang.t("ar_vip_remedy_title"),
-                    featureDesc: lang.t("ar_sha_vip_lock_desc"),
-                    badge: lang.t("vip_badge_title"),
-                    targetProductId: .vipYearly,
-                    onUnlockTap: {}
+            VStack(alignment: .leading, spacing: 8) {
+                talismanItemRow(
+                    title: lang.t("ar_sha_talisman_usage_title"),
+                    content: currentSha.localizedRemedySolution
                 )
-            } else {
-                VStack(alignment: .leading, spacing: 8) {
-                    talismanItemRow(
-                        title: lang.t("ar_sha_talisman_usage_title"),
-                        content: currentSha.localizedRemedySolution
-                    )
-                    
-                    talismanItemRow(
-                        title: lang.t("ar_sha_talisman_material_title"),
-                        content: lang.t("ar_sha_talisman_material_desc")
-                    )
-                    
-                    talismanItemRow(
-                        title: lang.t("ar_sha_talisman_hang_title"),
-                        content: lang.t("ar_sha_talisman_hang_desc")
-                    )
-                }
+                
+                talismanItemRow(
+                    title: lang.t("ar_sha_talisman_material_title"),
+                    content: lang.t("ar_sha_talisman_material_desc")
+                )
+                
+                talismanItemRow(
+                    title: lang.t("ar_sha_talisman_hang_title"),
+                    content: lang.t("ar_sha_talisman_hang_desc")
+                )
             }
         }
         .padding(14)

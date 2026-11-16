@@ -141,3 +141,17 @@ ARVisionView              → SanHeWaterEngine、ZeRiEngine、BaZhaiEngine
 `@State showPaywall`、`paywallDefaultProduct` 及其全部赋值、关于页的「恢复购买」行
 一并删除；文件剩 `VIPLockCardView`，改名为 `VIPLockCardView.swift`，工程登记四处同步。
 锁卡仍被 AR 与户型页的 `hasUnlockedVIP` 分支引用，分支今天是死的——等门禁彻底去掉时一起删。
+
+### 锁卡与门禁分支的收尾
+
+上一节留着 `VIPLockCardView`，因为它被三处 `if !iap.hasUnlockedVIP` /
+`if !hasFloorplanAccess` 分支引用。这三处分支现在恒真，锁卡永不渲染，所以直接解开：
+AR 页的形煞补救段与户型页的体检清单都保留 `else` 那一支内容、变成无条件渲染；
+`OwnerGuaVIPGate` 退化成 `var body: some View { content() }` 并丢掉 `iap`/`lang` 依赖。
+锁卡本身再无人引用，文件删除，工程里 `1068`/`2068` 四处登记一并摘除。
+审计回到 52/52 配对，`VIPLockCardView`/`showPaywall`/`paywallDefaultProduct` 三个符号全树零命中。
+
+仍未动的是 `hasFloorplanAccess` 的额度授予链（`acquireFloorplanAccess`、`didConsumeFloorplanCredit`、
+grant 签名与持久化）。它已走不到——门禁恒真时 `hasFloorplanAccess` 恒为真是因为
+`iap.hasUnlockedVIP` 恒真——但牵动布局持久化格式，留待有编译反馈的一轮再收。
+

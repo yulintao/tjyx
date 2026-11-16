@@ -4,23 +4,11 @@ import SwiftUI
 // 八宅页删除后仍被家人分房与宅主命卦提醒使用，因此原样搬到本文件。
 
 struct OwnerGuaVIPGate<Content: View>: View {
-    @ObservedObject private var iap = StoreKitIAPManager.shared
-    @ObservedObject private var lang = LocalizationManager.shared
     private let content: () -> Content
 
     init(@ViewBuilder content: @escaping () -> Content) { self.content = content }
 
-    var body: some View {
-        Group {
-            if iap.hasUnlockedVIP { content() }
-            else {
-                VIPLockCardView(title: lang.t("bz_tool_owner"), featureDesc: lang.t("bz_owner_vip_desc"),
-                                badge: lang.t("vip_badge_title"), targetProductId: .vipYearly,
-                                onUnlockTap: {})
-                    .padding(16)
-            }
-        }
-    }
+    var body: some View { content() }
 }
 
 public struct OwnerLifeGuaView: View {

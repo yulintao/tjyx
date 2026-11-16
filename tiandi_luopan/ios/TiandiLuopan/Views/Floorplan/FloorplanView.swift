@@ -3357,25 +3357,8 @@ public struct FloorplanView: View {
             .padding(.horizontal, 16)
             
             VStack(spacing: 8) {
-                if !hasFloorplanAccess {
-                    VIPLockCardView(
-                        title: lang.t("privilege_floorplan_title"),
-                        featureDesc: lang.t("privilege_floorplan_desc"),
-                        badge: lang.t("vip_badge_title"),
-                        targetProductId: .floorplanSingle,
-                        onUnlockTap: {
-                        }
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    // 免费展示首条体检概览
-                    if let firstItem = report.first {
-                        auditItemRow(item: firstItem)
-                    }
-                } else {
-                    ForEach(report) { item in
-                        auditItemRow(item: item)
-                    }
+                ForEach(report) { item in
+                    auditItemRow(item: item)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

@@ -54,7 +54,6 @@
 		1065 /* FloorplanImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2065 /* FloorplanImagePicker.swift */; };
 		1066 /* ZeRiEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2066 /* ZeRiEngine.swift */; };
 		1067 /* CalibrationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2067 /* CalibrationSheet.swift */; };
-		1068 /* VIPLockCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2068 /* VIPLockCardView.swift */; };
 		1069 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2069 /* LocalizationManager.swift */; };
 		1070 /* WorldMagneticModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2070 /* WorldMagneticModel.swift */; };
 		1071 /* OnDeviceShaAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2071 /* OnDeviceShaAnalyzer.swift */; };
@@ -123,7 +122,6 @@
 		2065 /* FloorplanImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FloorplanImagePicker.swift"; sourceTree = "<group>"; };
 		2066 /* ZeRiEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/ZeRiEngine.swift"; sourceTree = "<group>"; };
 		2067 /* CalibrationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/CalibrationSheet.swift"; sourceTree = "<group>"; };
-		2068 /* VIPLockCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Settings/VIPLockCardView.swift"; sourceTree = "<group>"; };
 		2069 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/LocalizationManager.swift"; sourceTree = "<group>"; };
 		2070 /* WorldMagneticModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/WorldMagneticModel.swift"; sourceTree = "<group>"; };
 		2071 /* OnDeviceShaAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/OnDeviceShaAnalyzer.swift"; sourceTree = "<group>"; };
@@ -248,7 +246,6 @@
 				2065 /* FloorplanImagePicker.swift */,
 				2066 /* ZeRiEngine.swift */,
 				2067 /* CalibrationSheet.swift */,
-				2068 /* VIPLockCardView.swift */,
 				2069 /* LocalizationManager.swift */,
 				2070 /* WorldMagneticModel.swift */,
 				2071 /* OnDeviceShaAnalyzer.swift */,
@@ -455,7 +452,6 @@
 				1065 /* FloorplanImagePicker.swift in Sources */,
 				1066 /* ZeRiEngine.swift in Sources */,
 				1067 /* CalibrationSheet.swift in Sources */,
-				1068 /* VIPLockCardView.swift in Sources */,
 				1069 /* LocalizationManager.swift in Sources */,
 				1070 /* WorldMagneticModel.swift in Sources */,
 				1071 /* OnDeviceShaAnalyzer.swift in Sources */,
