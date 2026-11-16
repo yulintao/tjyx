@@ -357,3 +357,36 @@ workflow 里加了一个 job 级变量 `PACKAGE_NAME: tianjiwushe`，只作用�
 
 没有动工程的 target / PRODUCT_NAME / CFBundleExecutable——那会牵动 pbxproj 与包内可执行文件名，
 且与上架身份无关；改名只发生在导出之后的文件层。
+
+## 身份换成 tianjiwushe（com.tianjiwushe.app）
+
+按「新建记录 + 新 Bundle ID」的方案把上架身份整体换掉，不是只改名字：
+
+| 项 | 旧 | 新 |
+| --- | --- | --- |
+| Bundle ID | `com.tjyx.compass` | `com.tianjiwushe.app`（测试 target `com.tianjiwushe.app.tests`） |
+| 包内 `.app` / 可执行文件 | `TiandiLuopan.app` / `TiandiLuopan` | `tianjiwushe.app` / `tianjiwushe` |
+| 桌面显示名（CFBundleDisplayName） | 天机演象 | tianjiwushe |
+| App Store Connect 记录 | `6835357727`（现名「天机屋舍」，绑旧 Bundle ID） | `6835371832`（tianjiwushe，SKU `TIANJIWUSHE-001`，zh-Hans） |
+| Bundle ID 资源 | `FB9FYFP4W6` | `P38GDA8XXN` |
+| App Store 描述文件 | `D77TW36ZQ7` | `H6F97C5FV8`（`9ZK328P458.com.tianjiwushe.app`，get-task-allow=false） |
+
+改动落点：`PRODUCT_BUNDLE_IDENTIFIER` 两处、`PRODUCT_NAME = tianjiwushe`（并钉住
+`PRODUCT_MODULE_NAME = TiandiLuopan`，否则 `@testable import TiandiLuopan` 会断）、
+`Info.plist` 的 `CFBundleExecutable` 改 `$(EXECUTABLE_NAME)`、`CFBundleIdentifier` 改
+`$(PRODUCT_BUNDLE_IDENTIFIER)`、`CFBundleDisplayName` / `CFBundleName` 改 `tianjiwushe`、
+测试 target 的 `TEST_HOST`、scheme 的 `BuildableName`、pbxproj 的 productReference、
+CI 里解包校验的 `.app` 路径、本地 `package_ipa.py`。
+
+**没有跟着换的**：`group.com.tjyx.compass`（工程无 entitlements，没有实际使用的共享容器；
+要换得在 portal 建新组并加 entitlements）、StoreKit 商品 ID、通知名、`UserDefaults` 键、
+URL scheme `com.tjyx.compass.almanac` —— 这些都是标识串而非上架身份，换掉会牵动深链与
+老数据兼容。
+
+**开发描述文件暂时建不了**：iOS 开发描述文件必须至少含一台已登记设备，而账号里没有任何
+设备 UDID（配置里那条 `00008110-0000000000000000E` 是占位符）。所以 `DEV_PROVISION_PROFILE`
+仍是旧 Bundle ID 的那份，`development` 模式会签名失败；要签开发包，把真机 UDID 填进
+`apps[].devices` 再跑 `--add-devices`。
+
+旧记录 `6835357727` 与新工程不再对应，它上面那条 `processingState = VALID` 的构建仍留在
+它的 TestFlight 里；App Store Connect 不支持删除 App 记录，只能后续自己决定是否弃用。
