@@ -287,6 +287,9 @@ public struct FloorplanView: View {
     @State private var showEditingRoomDeleteConfirmation = false
     @State private var centroidDragStart: CGPoint? = nil
     @State private var didConsumeFloorplanCredit: Bool = false
+
+    /// 体检清单里已展开的条目 id。默认收起，点一行展开。
+    @State private var expandedAuditIDs: Set<String> = []
     @State private var floorplanAccessGrantID: String?
     @State private var floorplanAccessGrantSignature: String?
     @State private var auditedRooms: [FloorplanRoom] = []
@@ -1856,20 +1859,49 @@ public struct FloorplanView: View {
                 .cornerRadius(6)
             }
             
-            // Always build this view from the rooms currently shown in 户型立极.
-            // The previous button opened the last persisted AR/VR snapshot,
-            // which could belong to a different floorplan.
-            Button(action: {
-                guard let survey = buildCurrentFloorplanSurvey() else { return }
-                currentFloorplanSurvey = survey
-                // Make the exact snapshot shown by this button available to
-                // 福宅天机长卷 and the AR archive while keeping its推演来源标记.
-                guard ShaSurveyStore.shared.updateInterior(survey, propertyID: workspacePropertyID) else { return }
-                showCurrentFloorplan3D = true
-            }) {
+            // 3D / VR 入口收成一个菜单。四个入口同权重并排时，用户分不清
+            // 「当前户型」和「最近实景 / 仿真」的区别；菜单里第一项永远是当前户型，
+            // 其余按已存在的档案动态出现。
+            Menu {
+                Button {
+                    guard let survey = buildCurrentFloorplanSurvey() else { return }
+                    currentFloorplanSurvey = survey
+                    // 该快照同时供 AR 档案与分房结果引用，保留推演来源标记。
+                    guard ShaSurveyStore.shared.updateInterior(survey, propertyID: workspacePropertyID) else { return }
+                    showCurrentFloorplan3D = true
+                } label: {
+                    Label(lang.t("floorplan_3d_current"), systemImage: "cube.transparent")
+                }
+
+                if let survey = persistedSpatialSurvey {
+                    let isVR = survey.scanMethod.contains("VR") || survey.scanMethod.contains("仿真")
+                    Button {
+                        show3DSpaceViewer = true
+                    } label: {
+                        Label(isVR ? lang.t("floorplan_3d_recent_vr") : lang.t("floorplan_3d_recent_actual"),
+                              systemImage: "cube.transparent")
+                    }
+                }
+
+                if persistedVirtualSpatialSurvey != nil {
+                    Button {
+                        showVirtualSpaceViewer = true
+                    } label: {
+                        Label(lang.t("floorplan_3d_recent_vr"), systemImage: "view.3d")
+                    }
+                }
+
+                Button {
+                    showVRSpatialSurvey = true
+                } label: {
+                    Label(lang.t("vr_survey_title"), systemImage: "view.3d")
+                }
+            } label: {
                 HStack(spacing: 3) {
                     Image(systemName: "cube.transparent")
                     Text(lang.t("floorplan_3d_current"))
+                    Image(systemName: "chevron.down")
+                        .adaptiveFont(size: 9)
                 }
                 .adaptiveFont(size: 11, weight: .bold)
                 .padding(.horizontal, 7)
@@ -1878,59 +1910,6 @@ public struct FloorplanView: View {
                 .foregroundColor(.black)
                 .cornerRadius(6)
             }
-
-            if let survey = persistedSpatialSurvey {
-                let isVR = survey.scanMethod.contains("VR") || survey.scanMethod.contains("仿真")
-                Button(action: {
-                    show3DSpaceViewer = true
-                }) {
-                    HStack(spacing: 3) {
-                        Image(systemName: "cube.transparent")
-                        Text(isVR ? lang.t("floorplan_3d_recent_vr") : lang.t("floorplan_3d_recent_actual"))
-                    }
-                    .adaptiveFont(size: 11, weight: .bold)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 5)
-                    .background(Color.yanGold.opacity(0.85))
-                    .foregroundColor(.black)
-                    .cornerRadius(6)
-                }
-            }
-
-            if persistedVirtualSpatialSurvey != nil {
-                Button(action: {
-                    showVirtualSpaceViewer = true
-                }) {
-                    HStack(spacing: 3) {
-                        Image(systemName: "view.3d")
-                        Text(lang.t("floorplan_3d_recent_vr"))
-                    }
-                    .adaptiveFont(size: 11, weight: .bold)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 5)
-                    .background(Color.orange.opacity(0.78))
-                    .foregroundColor(.black)
-                    .cornerRadius(6)
-                }
-            }
-
-            // 户型图/手工房间编辑没有 RoomPlan 档案时，也应有明确的
-            // 3D 入口。该入口是“按比例仿真”，不会冒充 LiDAR 实测结果。
-            Button(action: {
-                showVRSpatialSurvey = true
-            }) {
-                HStack(spacing: 3) {
-                    Image(systemName: "view.3d")
-                    Text(lang.t("vr_survey_title"))
-                }
-                .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 7)
-                .padding(.vertical, 5)
-                .background(Color.orange.opacity(0.78))
-                .foregroundColor(.black)
-                .cornerRadius(6)
-            }
-            .accessibilityLabel(lang.t("vr_survey_title"))
 
             // 重置立极点
             Button(action: {
@@ -3293,50 +3272,67 @@ public struct FloorplanView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
+    /// 一行一条：默认只给判定，点开才展开解释与化解。右栏本来就窄，
+    /// 十几条全展开会把画布一起挤出可视区。
     private func auditItemRow(item: FloorplanAuditItem) -> some View {
-        HStack(alignment: .top, spacing: isLargeLayout ? 10 : 8) {
-            Circle()
-                .fill(item.isSevere ? Color.red : (item.isGood ? Color.green : Color.orange))
-                .frame(width: isLargeLayout ? 10 : 8, height: isLargeLayout ? 10 : 8)
-                .padding(.top, 4)
-            
-            VStack(alignment: .leading, spacing: isLargeLayout ? 4 : 3) {
-                // 标题与判级徽章不再横排：窄右栏里长标题会被徽章压成竖排单字。
+        let isExpanded = expandedAuditIDs.contains(item.id)
+        return Button(action: {
+            if isExpanded {
+                expandedAuditIDs.remove(item.id)
+            } else {
+                expandedAuditIDs.insert(item.id)
+            }
+        }) {
+            HStack(alignment: .top, spacing: isLargeLayout ? 10 : 8) {
+                Circle()
+                    .fill(item.isSevere ? Color.red : (item.isGood ? Color.green : Color.orange))
+                    .frame(width: isLargeLayout ? 10 : 8, height: isLargeLayout ? 10 : 8)
+                    .padding(.top, 3)
+
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title)
-                        .adaptiveFont(size: 12, weight: .bold)
-                        .foregroundColor(.white)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text(item.isSevere ? lang.t("floorplan_severe_sha") : (item.isGood ? lang.t("grade_auspicious") : lang.t("floorplan_warn_sha")))
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
-                        .background(item.isSevere ? Color.red.opacity(0.2) : (item.isGood ? Color.green.opacity(0.2) : Color.orange.opacity(0.2)))
-                        .foregroundColor(item.isSevere ? .red : (item.isGood ? .green : .orange))
-                        .cornerRadius(4)
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(item.title)
+                            .adaptiveFont(size: 12, weight: .bold)
+                            .foregroundColor(.white)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(item.isSevere ? lang.t("floorplan_severe_sha")
+                             : (item.isGood ? lang.t("grade_auspicious") : lang.t("floorplan_warn_sha")))
+                            .adaptiveFont(size: 10, weight: .bold)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(item.isSevere ? Color.red.opacity(0.2)
+                                        : (item.isGood ? Color.green.opacity(0.2) : Color.orange.opacity(0.2)))
+                            .foregroundColor(item.isSevere ? .red : (item.isGood ? .green : .orange))
+                            .cornerRadius(4)
+                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                            .adaptiveFont(size: 9)
+                            .foregroundColor(.white.opacity(0.45))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    if isExpanded {
+                        Text(item.lore)
+                            .adaptiveFont(size: 11)
+                            .foregroundColor(.white.opacity(0.75))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Text("\(lang.t("floorplan_solution_prefix")) \(item.solution)")
+                            .adaptiveFont(size: 10)
+                            .foregroundColor(Color.yanGoldDeep)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-
-                Text(item.lore)
-                    .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.75))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Text("\(lang.t("floorplan_solution_prefix")) \(item.solution)")
-                    .adaptiveFont(size: 10)
-                    .foregroundColor(Color.yanGoldDeep)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.appInkRaised)
+            .cornerRadius(8)
         }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.appInkRaised)
-        .cornerRadius(8)
+        .buttonStyle(PlainButtonStyle())
     }
 
     // MARK: - 一键导出全屋户型立极与堪舆全案长图 (PRD 5.3)
