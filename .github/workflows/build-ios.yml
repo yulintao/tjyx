@@ -306,6 +306,10 @@ jobs:
           # shellcheck disable=SC2053
           if [[ "$EXPECTED_APP_ID" != $PROFILE_APP_ID ]]; then
             echo "ERROR: Profile App ID ($PROFILE_APP_ID) does not cover $EXPECTED_APP_ID"
+            echo "::error::The provisioning profile in the secret belongs to a different bundle id."
+            echo "::error::Expected: $EXPECTED_APP_ID"
+            echo "::error::Fix: in Apple Developer portal create (or reuse) the App ID $APP_BUNDLE_ID with App Group $APP_GROUP_ID enabled, generate a $BUILD_TARGET profile that includes the test device UDID, then store base64 of the .mobileprovision in the PROVISIONING_PROFILE secret."
+            echo "::error::PowerShell: [Convert]::ToBase64String([IO.File]::ReadAllBytes('profile.mobileprovision')) | Set-Clipboard"
             exit 1
           fi
 
