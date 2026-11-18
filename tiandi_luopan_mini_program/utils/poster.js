@@ -6,6 +6,7 @@
 
 const MOUNTAINS_24 = ['子', '癸', '丑', '艮', '寅', '甲', '卯', '乙', '辰', '巽', '巳', '丙', '午', '丁', '未', '坤', '申', '庚', '酉', '辛', '戌', '乾', '亥', '壬'];
 const TRIGRAM_LABEL = ['坎', '艮', '震', '巽', '离', '坤', '兑', '乾'];
+const SK = require('./paper-skin');
 
 /**
  * 绘制海报
@@ -137,6 +138,10 @@ function draw(ctx, W, H, data) {
   ctx.fillStyle = 'rgba(143,155,179,0.8)';
   ctx.font = '22px sans-serif';
   ctx.fillText(`${d.dateText || ''}　仅供传统文化研究参考`, W / 2, H - 72);
+
+  // 与长卷、存证报告同源的朱白双印（海报底色深，印色提亮一档）
+  SK.seal(ctx, 56, H - 126, 50, '演象', 'zhu', 'rgba(214,80,64,0.95)');
+  SK.seal(ctx, 118, H - 126, 50, '时空', 'bai', 'rgba(196,56,44,0.95)');
 
   return true;
 }

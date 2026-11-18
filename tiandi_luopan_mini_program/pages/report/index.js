@@ -97,9 +97,10 @@ Page({
       const ctx = canvas.getContext('2d');
       const W = RC.W;
       const H = this.payload ? this.payload.height : 1334;
-      const scale = 2;
-      canvas.width = W * scale;
-      canvas.height = H * scale;
+      // 报告是可变高度长图：dpr 固定 2 时高图会顶到平台单边上限，这里按 4096 反算
+      const scale = Math.max(1.2, Math.min(2, 4096 / Math.max(W, H)));
+      canvas.width = Math.round(W * scale);
+      canvas.height = Math.round(H * scale);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(scale, scale);
       ctx.clearRect(0, 0, W, H);
@@ -108,10 +109,10 @@ Page({
         canvas,
         x: 0,
         y: 0,
-        width: W * scale,
-        height: H * scale,
-        destWidth: W * scale,
-        destHeight: H * scale,
+        width: Math.round(W * scale),
+        height: Math.round(H * scale),
+        destWidth: Math.round(W * scale),
+        destHeight: Math.round(H * scale),
         success: (r) => this.setData({ cardPath: r.tempFilePath }),
         fail: () => wx.showToast({ title: '报告图生成失败', icon: 'none' })
       });

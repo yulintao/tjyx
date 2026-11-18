@@ -895,6 +895,67 @@ ok('三合兼向水法：双山定局 / 同双山不换局 / 跨双山出卦 / �
   assert.strictEqual(S.nextMountain('子', 1), '癸');
 });
 
+ok('AR 稳持锁定：停住锁定、偏离解锁、手动解锁后不立刻回锁', () => {
+  const H = require('../utils/heading-lock');
+  let st = H.create();
+  // 抖动中不锁
+  st = H.step(st, 10, 0).state;
+  st = H.step(st, 12.5, 300).state;
+  assert.strictEqual(st.locked, false, '抖动时不应锁定');
+  // 稳定 1.5s 后锁
+  let r = null;
+  [10, 10.4, 10.8, 11].forEach((h, i) => {
+    r = H.step(st, h, 1000 + i * 500);
+    st = r.state;
+  });
+  assert.ok(st.locked || (r && r.justLocked), '稳定 1.5s 后应锁定');
+  const lockedAt = st.lockHeading;
+  assert.ok(typeof lockedAt === 'number');
+  // 偏离 19° 持续 0.9s 解锁
+  let s1 = H.step(st, ((lockedAt + 19) % 360), 4000).state;
+  const r2 = H.step(s1, ((lockedAt + 19) % 360), 5000);
+  assert.strictEqual(r2.state.locked, false, '偏离超过阈值应解锁');
+  assert.ok(r2.justUnlocked, '应报告 justUnlocked');
+  // 手动解锁后原地不动，不恢复自动锁定
+  const u = H.unlock(st, lockedAt);
+  let s3 = H.step(u, lockedAt, 6000).state;
+  s3 = H.step(s3, lockedAt, 9000).state;
+  assert.strictEqual(s3.locked, false, '手动解锁后原地不应回锁');
+  // 转头 >8° 后恢复锁定
+  let s4 = H.step(s3, ((lockedAt + 20) % 360), 9500).state;
+  s4 = H.step(s4, ((lockedAt + 20) % 360), 11000).state;
+  assert.strictEqual(s4.locked, true, '真正转头后应恢复自动锁定');
+});
+
+ok('纸墨皮肤：长卷/报告/海报共用一套纸底与双印', () => {
+  const SK = require('../utils/paper-skin');
+  ['paper', 'frame', 'seal', 'verticalText', 'sectionHeader', 'divider'].forEach((k) => {
+    assert.strictEqual(typeof SK[k], 'function', '缺绘制原语：' + k);
+  });
+  ['text', 'zhu', 'good', 'bad', 'seal'].forEach((k) => {
+    assert.ok(SK.INK[k], '缺色值：' + k);
+  });
+
+  // 用极简假 ctx 跑一遍报告绘制，确认新皮肤不依赖真画布也不会抛错
+  const calls = { fillText: 0, fillRect: 0, strokeRect: 0, gradient: 0 };
+  const grad = { addColorStop() {} };
+  const ctx = {
+    createLinearGradient() { calls.gradient++; return grad; },
+    fillRect() { calls.fillRect++; },
+    strokeRect() { calls.strokeRect++; },
+    fillText() { calls.fillText++; },
+    beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, arc() {},
+    save() {}, restore() {}, scale() {}, setTransform() {},
+    measureText() { return { width: 0 }; }
+  };
+  const RC = require('../utils/reportcard');
+  const p = RC.build({ sit: '子', face: '午', widthMeters: 12, rooms: [{ name: '客厅', palace: '坎', x: 1, y: 1, w: 4, h: 3 }] });
+  RC.draw(ctx, RC.W, p.height, p);
+  assert.ok(calls.gradient >= 3, '应绘制宣纸渐变与暗角');
+  assert.ok(calls.fillText >= 10, '报告正文应实际落字');
+  assert.ok(calls.strokeRect >= 2, '应有朱丝栏双框');
+});
+
 ok('长卷排版：双栏折行、自动分页、章号连续', () => {
   const SP = require('../utils/scroll-painter');
   const TJ = require('../utils/tianji');

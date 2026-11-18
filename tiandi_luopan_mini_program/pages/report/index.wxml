@@ -44,7 +44,7 @@
 
     <view class="card">
       <view class="card-title">报告长图</view>
-      <canvas type="2d" id="reportCanvas" style="width:100%;height:{{canvasH}}rpx;border-radius:16rpx;background:#0a0c11;"></canvas>
+      <canvas type="2d" id="reportCanvas" style="width:100%;height:{{canvasH}}rpx;border-radius:16rpx;background:#f3ead6;"></canvas>
       <view style="display:flex;gap:16rpx;margin-top:16rpx;">
         <view class="btn" style="flex:1;" bindtap="save">{{saved ? '已存相册' : '存入相册'}}</view>
         <view class="btn" style="flex:1;" bindtap="preview">查看大图</view>

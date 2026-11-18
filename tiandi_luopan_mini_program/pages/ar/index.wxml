@@ -8,23 +8,26 @@
   >
     <cover-view class="hud-back" style="top:{{statusBarHeight + 6}}px;left:24rpx;" bindtap="back">← 返回</cover-view>
 
+    <!-- 点画面取方位：透明层压在相机上、HUD 之下，不挡按钮与解锁徽标 -->
+    <cover-view class="pick-layer" bindtap="onPickTap"></cover-view>
+    <cover-view wx:if="{{pick}}" class="pick-mark" style="left:{{pickLeft}}%;">
+      <cover-view class="pick-mark-dot"></cover-view>
+      <cover-view class="pick-mark-line"></cover-view>
+    </cover-view>
+
     <cover-view class="hud-top" style="top:{{statusBarHeight + 42}}px;left:40rpx;">
       <cover-view class="hud-heading">{{headingText}}</cover-view>
       <cover-view class="hud-sub">{{sitText}} · {{fenjinText}}</cover-view>
       <cover-view class="hud-sub" wx:if="{{shaText}}" style="color:#e8a87c;">主应形煞：{{shaText}}</cover-view>
       <cover-view class="hud-sub" wx:if="{{shaRemedy}}" style="color:#7fd3a0;font-size:20rpx;">{{shaRemedy}}</cover-view>
+      <cover-view wx:if="{{locked}}" class="lock-badge" bindtap="onUnlockTap">已稳持锁定 {{lockText}} · 点击解锁</cover-view>
     </cover-view>
 
     <cover-view class="cross cross-h"></cover-view>
     <cover-view class="cross cross-v"></cover-view>
     <cover-view class="cross cross-ring"></cover-view>
 
-    <!-- 点画面取方位：透明层在 HUD 之下，不挡按钮 -->
-    <cover-view class="pick-layer" bindtap="onPickTap"></cover-view>
-    <cover-view wx:if="{{pick}}" class="pick-mark" style="left:{{pickLeft}}%;">
-      <cover-view class="pick-mark-dot"></cover-view>
-      <cover-view class="pick-mark-line"></cover-view>
-    </cover-view>
+    <!-- 点画面取方位（透明层已前置到顶部） -->
 
     <cover-view class="bubble-box">
       <cover-view class="bubble-dot" style="left:{{bubbleLeft}}%;top:{{bubbleTop}}%;"></cover-view>

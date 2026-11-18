@@ -2,6 +2,7 @@ const SF = require('../../utils/sitface');
 const FENJIN = require('../../utils/fenjin');
 const VK = require('../../utils/visionkit-measure');
 const SHA = require('../../utils/sha');
+const HL = require('../../utils/heading-lock');
 
 // 二十四山在盘面上的角度：子 = 0°，顺时针每山 15°
 Page({
@@ -27,11 +28,15 @@ Page({
     vkMeasuring: false,
     // 点画面取方位：把屏幕横向位置换算成镜头偏角，出该方位的结论
     pick: null,
-    pickLeft: 50
+    pickLeft: 50,
+    // 稳持锁定：镜头在 ±1.2° 内保持 1.5s 即锁定读数，避免近楼反光让数字一直跳
+    locked: false,
+    lockText: ''
   },
 
   onLoad() {
     this.offsetDeg = 0;
+    this._lock = HL.create();
     const vkInfo = VK.detect();
     this.setData({ vkSupported: vkInfo.supported, vkReason: vkInfo.reason });
     // 相机是全屏 fixed 容器，自定义导航栏下需要自己避开状态栏/刘海，
@@ -67,6 +72,20 @@ Page({
     wx.onCompassChange((res) => {
       const heading = ((res.direction + this.offsetDeg) % 360 + 360) % 360;
       this._heading = heading;
+
+      // ---- 稳持锁定（状态机在 utils/heading-lock.js） ----
+      // 停住 1.5s 锁定读数；锁定后偏离 >12° 且持续 0.8s 自动解锁；手动解锁后需转动 >8° 才恢复
+      const lockRes = HL.step(this._lock, heading, Date.now());
+      this._lock = lockRes.state;
+      if (lockRes.justLocked) {
+        this.setData({ locked: true, lockText: heading.toFixed(1) + '°' });
+        return;
+      }
+      if (lockRes.justUnlocked) {
+        this.setData({ locked: false, lockText: '' });
+      }
+      if (this._lock.locked) return;
+
       const sit = SF.fromHeading(heading).sit;
       const face = SF.opposite(sit);
       const fj = FENJIN.resolve(heading);
@@ -107,7 +126,13 @@ Page({
     this.setData({ cameraReady: true });
   },
 
-  /** 画面横向位置 → 镜头偏角（水平视场按 62° 估算，右为顺时针加角） */
+  /** 手动解锁：先压住自动锁定，等真正转头 >8° 再恢复 */
+  onUnlockTap() {
+    this._lock = HL.unlock(this._lock, this._heading || 0);
+    this.setData({ locked: false, lockText: '' });
+  },
+
+  /** 点画面取方位：把屏幕横向位置换算成镜头偏角，出该方位的结论 */
   onPickTap(e) {
     let w = 375;
     try {
@@ -115,7 +140,8 @@ Page({
       if (info && info.windowWidth) w = info.windowWidth;
     } catch (err) { w = 375; }
     const detail = (e && e.detail) || {};
-    // cover-view 的 tap 在部分机型不带坐标，此时退回靶心（屏幕中心）方位
+    // 点选时先解锁，读数回到实时；cover-view 的 tap 在部分机型不带坐标，退回靶心方位
+    if (this.data.locked) this.onUnlockTap();
     const x = typeof detail.x === 'number' ? detail.x
       : (typeof detail.clientX === 'number' ? detail.clientX : w / 2);
     this.applyPick(((this._heading || 0) + ((x - w / 2) / w) * 62 + 360) % 360, (x / w) * 100);

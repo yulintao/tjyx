@@ -1,5 +1,6 @@
 const FP = require('./floorplan');
 const XK = require('./xuankong');
+const SK = require('./paper-skin');
 
 /**
  * 空间测绘报告长图（对齐 iOS `SurveyReportRenderer.renderReportImage`）
@@ -126,7 +127,7 @@ function build(plan, opts) {
 /** 文本换行绘制 */
 function drawLines(ctx, lines, x, y, size, color, lineHeight) {
   ctx.fillStyle = color;
-  ctx.font = `${size}px "PingFang SC", "Noto Sans SC", sans-serif`;
+  ctx.font = `${size}px "PingFang SC", "Noto Sans SC", serif`;
   let cur = y;
   lines.forEach((ln) => {
     ctx.fillText(ln, x, cur);
@@ -135,21 +136,8 @@ function drawLines(ctx, lines, x, y, size, color, lineHeight) {
   return cur;
 }
 
-function sectionHeader(ctx, text, x, y) {
-  ctx.fillStyle = '#e9d8a6';
-  ctx.font = 'bold 26px "PingFang SC", "Noto Sans SC", sans-serif';
-  ctx.fillText(text, x, y);
-  ctx.strokeStyle = 'rgba(233,216,166,0.35)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(x, y + 12);
-  ctx.lineTo(W - PAD, y + 12);
-  ctx.stroke();
-  return y + 44;
-}
-
 /**
- * 绘制报告长图
+ * 绘制报告长图（纸墨版：与天机长卷同一套宣纸底、朱丝栏、朱白双印）
  * @param {CanvasRenderingContext2D} ctx
  * @param {number} W 逻辑宽（750）
  * @param {number} H 逻辑高（payload.height）
@@ -159,96 +147,94 @@ function draw(ctx, W_, H, payload) {
   const P = payload || build(null, {});
   const width = W_ || W;
 
-  // 底：墨色 + 顶部金线
-  ctx.fillStyle = '#0a0c11';
-  ctx.fillRect(0, 0, width, H);
-  ctx.fillStyle = 'rgba(233,216,166,0.10)';
-  ctx.fillRect(0, 0, width, 6);
+  SK.paper(ctx, width, H);
+  SK.frame(ctx, width, H, { pad: PAD });
+  // 右侧竖排卷名，与长卷同一门面
+  SK.verticalText(ctx, '空间存证', width - PAD - 22, 96, 26, 34, 'rgba(138,31,31,0.85)');
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 
-  let y = 88;
-  ctx.fillStyle = '#e9d8a6';
-  ctx.font = 'bold 34px "PingFang SC", "Noto Sans SC", sans-serif';
+  let y = 92;
+  ctx.fillStyle = SK.INK.text;
+  ctx.font = 'bold 32px "PingFang SC", "Noto Sans SC", serif';
   ctx.fillText(P.title, PAD, y);
-  y += 42;
-  ctx.fillStyle = '#8f9bb3';
-  ctx.font = '20px "PingFang SC", "Noto Sans SC", sans-serif';
+  y += 40;
+  ctx.fillStyle = SK.INK.textSoft;
+  ctx.font = '19px "PingFang SC", "Noto Sans SC", serif';
   ctx.fillText(P.subtitle, PAD, y);
   y += 26;
-  // 得分条
-  const barW = width - PAD * 2;
-  ctx.fillStyle = 'rgba(255,255,255,0.08)';
-  ctx.fillRect(PAD, y, barW, 8);
-  ctx.fillStyle = P.score >= 80 ? '#7fd3a0' : (P.metrics.score >= 60 ? '#e9d8a6' : '#e88b8b');
-  ctx.fillRect(PAD, y, Math.max(6, barW * Math.min(1, Math.max(0, P.metrics.score) / 100)), 8);
-  y += 40;
 
-  y = sectionHeader(ctx, '【房屋全维物理测绘参数】', PAD, y);
-  ctx.fillStyle = '#c9d1e0';
-  ctx.font = '22px "PingFang SC", "Noto Sans SC", sans-serif';
+  // 得分条（纸面上用淡朱底槽 + 深色填充）
+  const barW = width - PAD * 2;
+  ctx.fillStyle = 'rgba(150,30,30,0.12)';
+  ctx.fillRect(PAD, y, barW, 8);
+  const score = Math.max(0, Math.min(100, P.metrics.score));
+  ctx.fillStyle = score >= 80 ? SK.INK.good : (score >= 60 ? '#b3822f' : SK.INK.bad);
+  ctx.fillRect(PAD, y, Math.max(6, barW * (score / 100)), 8);
+  y += 42;
+
+  y = SK.sectionHeader(ctx, { pad: PAD, right: width - PAD, y, title: '房屋全维物理测绘参数' });
+  ctx.fillStyle = SK.INK.text;
+  ctx.font = '21px "PingFang SC", "Noto Sans SC", serif';
   P.dims.forEach((ln) => {
     ctx.fillText(ln, PAD, y);
     y += 34;
   });
-  y += 26;
+  y += 18;
 
-  y = sectionHeader(ctx, '【九宫完整度与缺角断语】', PAD, y);
+  y = SK.sectionHeader(ctx, { pad: PAD, right: width - PAD, y, title: '九宫完整度与缺角断语' });
   if (!P.corners.length) {
-    ctx.fillStyle = '#7fd3a0';
-    ctx.font = '22px "PingFang SC", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = SK.INK.good;
+    ctx.font = '21px "PingFang SC", "Noto Sans SC", serif';
     ctx.fillText('九宫无缺角，宅形完整。', PAD, y);
     y += 40;
   }
   P.corners.forEach((c) => {
-    ctx.fillStyle = '#e88b8b';
-    ctx.font = 'bold 22px "PingFang SC", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = SK.INK.bad;
+    ctx.font = 'bold 21px "PingFang SC", "Noto Sans SC", serif';
     ctx.fillText(c.title, PAD, y);
     y += 32;
-    y = drawLines(ctx, c.hurt, PAD, y, 20, '#c9d1e0', 30);
-    y = drawLines(ctx, c.remedy, PAD, y, 20, '#7fd3a0', 30);
-    if (c.source && c.source.length) y = drawLines(ctx, c.source, PAD, y, 18, '#6f7a8f', 26);
-    y += 14;
+    y = drawLines(ctx, c.hurt, PAD, y, 19, SK.INK.text, 30);
+    y = drawLines(ctx, c.remedy, PAD, y, 19, SK.INK.good, 30);
+    if (c.source && c.source.length) y = drawLines(ctx, c.source, PAD, y, 17, SK.INK.faint, 26);
+    y += 12;
   });
-  y += 20;
+  y += 16;
 
-  y = sectionHeader(ctx, '【玄空九宫凶星与化解】', PAD, y);
+  y = SK.sectionHeader(ctx, { pad: PAD, right: width - PAD, y, title: '玄空九宫凶星与化解' });
   if (!P.xiong.length) {
-    ctx.fillStyle = '#8f9bb3';
-    ctx.font = '22px "PingFang SC", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = SK.INK.textSoft;
+    ctx.font = '21px "PingFang SC", "Noto Sans SC", serif';
     ctx.fillText('当前坐向元运下无凶宫房间，或未录入房间。', PAD, y);
     y += 40;
   }
   P.xiong.forEach((lines) => {
-    y = drawLines(ctx, lines, PAD, y, 20, '#c9d1e0', 30);
+    y = drawLines(ctx, lines, PAD, y, 19, SK.INK.text, 30);
     y += 6;
   });
-  y += 24;
+  y += 20;
 
-  y = sectionHeader(ctx, '【评分口径与免责】', PAD, y);
-  y = drawLines(ctx, wrapByChars(P.scoreNote, 34, 5), PAD, y, 18, '#8f9bb3', 28);
-  y += 10;
-  y = drawLines(ctx, P.footer, PAD, y, 18, '#8f9bb3', 28);
+  y = SK.sectionHeader(ctx, { pad: PAD, right: width - PAD, y, title: '评分口径与免责' });
+  y = drawLines(ctx, wrapByChars(P.scoreNote, 34, 5), PAD, y, 17, SK.INK.textSoft, 27);
+  y += 8;
+  y = drawLines(ctx, P.footer, PAD, y, 17, SK.INK.textSoft, 27);
 
-  // 页脚印章
-  ctx.save();
-  ctx.strokeStyle = 'rgba(200,60,50,0.9)';
-  ctx.fillStyle = 'rgba(200,60,50,0.9)';
-  ctx.lineWidth = 2;
+  // 卷尾：双线 + 朱白双印 + 日期
+  const footY = H - 132;
+  ctx.strokeStyle = 'rgba(150,30,30,0.30)';
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(width - PAD - 44, H - 84, 42, 0, Math.PI * 2);
+  ctx.moveTo(PAD, footY);
+  ctx.lineTo(width - PAD, footY);
   ctx.stroke();
-  ctx.font = 'bold 22px "PingFang SC", serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('演', width - PAD - 44, H - 92);
-  ctx.fillText('象', width - PAD - 44, H - 62);
-  ctx.restore();
+  SK.seal(ctx, PAD, footY + 22, 54, '演象', 'zhu');
+  SK.seal(ctx, PAD + 70, footY + 22, 54, '时空', 'bai');
+  ctx.textAlign = 'right';
+  ctx.fillStyle = SK.INK.faint;
+  ctx.font = '16px "PingFang SC", "Noto Sans SC", serif';
+  ctx.fillText(`${P.subtitle.split('·')[0] || ''}　演象时空罗盘 · 空间存证`, width - PAD, footY + 52);
   ctx.textAlign = 'left';
-
-  // 底部金线
-  ctx.fillStyle = 'rgba(233,216,166,0.10)';
-  ctx.fillRect(0, H - 6, width, 6);
 }
 
 /** 报告纯文本（复制/分享兜底） */
