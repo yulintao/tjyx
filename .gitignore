@@ -29,3 +29,12 @@ __pycache__/
 
 # 官网生成的发布包
 /dist/
+
+# iOS 签名与上架密钥（证书 / 描述文件 / API Key，绝不可入库）
+/tiandi_luopan/tools/appstore_out/
+/tiandi_luopan/tools/appstore_setup.config.json
+*.p12
+*.p12.b64
+*.mobileprovision
+*.mobileprovision.b64
+github_secrets.json
