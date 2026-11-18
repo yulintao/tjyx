@@ -1,6 +1,7 @@
 const TJ = require('../../utils/tianji');
 const SF = require('../../utils/sitface');
 const SP = require('../../utils/scroll-painter');
+const store = require('../../utils/store');
 
 Page({
   data: {
@@ -40,7 +41,17 @@ Page({
   recompute() {
     const sit = SF.MOUNTAINS_24[this.data.sitIdx];
     const face = SF.opposite(sit);
-    const scroll = TJ.buildScroll({ sitMountain: sit, faceMountain: face, date: new Date() });
+    // 带出最近一次户型（含门窗），长卷才有「户型审计」一章
+    const plan = store.read('yj_report_draft', null) || (store.getFloorplans() || [])[0] || null;
+    const rooms = plan && plan.rooms ? plan.rooms : [];
+    const openings = plan && plan.openings ? plan.openings : [];
+    const scroll = TJ.buildScroll({
+      sitMountain: sit,
+      faceMountain: face,
+      date: new Date(),
+      rooms,
+      openings
+    });
     const deep = TJ.deepAnalysis(scroll);
     this.setData({
       sit,

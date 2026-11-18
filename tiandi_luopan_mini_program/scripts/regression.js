@@ -895,6 +895,72 @@ ok('三合兼向水法：双山定局 / 同双山不换局 / 跨双山出卦 / �
   assert.strictEqual(S.nextMountain('子', 1), '癸');
 });
 
+ok('户型门窗开口：落宫、入户门判向、DXF 图层、宅谱往返', () => {
+  const F = require('../utils/floorplan');
+  const rooms = [
+    { name: '客厅', type: '客厅', x: 0, y: 50, w: 50, h: 50 },
+    { name: '主卧', type: '主卧', x: 50, y: 0, w: 50, h: 50 }
+  ];
+  const opens = [
+    { room: 0, side: 'south', type: 'door', pos: 0.4, width: 0.3 },
+    { room: 1, side: 'north', type: 'window', pos: 0.2, width: 0.4 },
+    { room: 9, side: 'south', type: 'door' } // 越界房间应被丢弃
+  ];
+  const norm = F.normalizeOpenings(opens, rooms);
+  assert.strictEqual(norm.length, 2, '越界房间的开口应被过滤');
+  const sum = F.openingSummary(norm);
+  assert.deepStrictEqual([sum.doors, sum.windows, sum.total], [1, 1, 2]);
+
+  const sites = F.openingSites(opens, rooms);
+  assert.strictEqual(sites[0].palaceName, '坤', '南侧门应落坤宫（西南）');
+  assert.strictEqual(sites[0].typeText, '门');
+  assert.ok(sites[0].x > 0 && sites[0].x < 50, '门应在房间边上');
+  assert.ok(sites[0].y === 100, '南侧门应贴在房间下边');
+
+  const faced = F.facingFromDoor(opens, rooms);
+  assert.strictEqual(faced.face, '午', '朝南开门 → 向首午');
+  assert.strictEqual(faced.sit, '子', '朝南开门 → 坐子');
+
+  // 门窗写进宅谱并能读回
+  const plan = { sit: '子', face: '午', widthMeters: '10', rooms, openings: norm, pivot: null };
+  const json = F.planToJSON(plan);
+  const back = F.parsePlanJSON(json);
+  assert.ok(!back.error, '宅谱应可解析');
+  assert.strictEqual(back.openings.length, 2, '门窗应随宅谱往返');
+
+  // DXF：门/窗分别落在 DOORS / WINDOWS 图层
+  const dxf = F.toDXF(rooms, { widthMeters: 10, sit: '子', face: '午', openings: norm });
+  assert.ok(dxf.indexOf('DOORS') >= 0, 'DXF 应含 DOORS 图层');
+  assert.ok(dxf.indexOf('WINDOWS') >= 0, 'DXF 应含 WINDOWS 图层');
+
+  // 录了门窗就视为已采集，报告不再写「未采集」
+  const metrics = F.surveyMetrics(plan, null);
+  assert.strictEqual(metrics.measured.openings, true);
+  assert.ok(metrics.openings && metrics.openings.doors === 1);
+  assert.ok(metrics.facingByDoor && metrics.facingByDoor.face === '午');
+  const none = F.surveyMetrics({ rooms, openings: [] }, null);
+  assert.strictEqual(none.measured.openings, false, '未录入时应标未采集');
+});
+
+ok('AR 水平刻度带：以朝向居中、15° 一山、含细刻度', () => {
+  const M = require('../utils/mountain-ribbon');
+  const items = M.ribbonOf(0);
+  const majors = items.filter((i) => !i.tick);
+  assert.strictEqual(majors.length, 9, '±60° 应有 9 个山名刻度');
+  assert.strictEqual(items.filter((i) => i.tick).length, 8, '应夹 8 个细刻度');
+  assert.strictEqual(items.filter((i) => i.active)[0].label, '子', '正北朝前时应高亮子');
+  assert.ok(Math.abs(items.filter((i) => i.active)[0].left - 50) < 0.01, '高亮刻度应居中');
+  // 每个刻度都在 0–100 之间，且角度与山名对应
+  items.forEach((i) => {
+    assert.ok(i.left >= -2 && i.left <= 102, '刻度越界：' + i.left);
+    if (!i.tick) assert.strictEqual(i.label, M.mountainAt(i.angle));
+  });
+  // 转到 200° 时，居中的山名应变化
+  const at200 = M.ribbonOf(200).filter((i) => i.active)[0];
+  assert.strictEqual(at200.left, 50);
+  assert.notStrictEqual(at200.label, '子');
+});
+
 ok('AR 稳持锁定：停住锁定、偏离解锁、手动解锁后不立刻回锁', () => {
   const H = require('../utils/heading-lock');
   let st = H.create();

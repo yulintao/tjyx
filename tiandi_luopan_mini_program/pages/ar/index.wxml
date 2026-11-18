@@ -23,6 +23,16 @@
       <cover-view wx:if="{{locked}}" class="lock-badge" bindtap="onUnlockTap">已稳持锁定 {{lockText}} · 点击解锁</cover-view>
     </cover-view>
 
+    <cover-view class="ribbon" style="top:{{statusBarHeight + 150}}px;">
+      <cover-view
+        wx:for="{{ribbon}}"
+        wx:key="key"
+        class="ribbon-item {{item.active ? 'ribbon-active' : ''}} {{item.tick ? 'ribbon-tick' : ''}}"
+        style="left:{{item.left}}%;"
+      >{{item.label}}</cover-view>
+      <cover-view class="ribbon-center"></cover-view>
+    </cover-view>
+
     <cover-view class="cross cross-h"></cover-view>
     <cover-view class="cross cross-v"></cover-view>
     <cover-view class="cross cross-ring"></cover-view>

@@ -1,7 +1,12 @@
 {
   "description": "演象时空罗盘 - 微信小程序",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "/minitest"
+      }
+    ],
     "include": []
   },
   "setting": {
@@ -40,5 +45,6 @@
   "projectname": "演象时空罗盘",
   "condition": {},
   "simulatorPluginLibVersion": {},
-  "editorSetting": {}
+  "editorSetting": {},
+  "testRoot": "minitest/"
 }

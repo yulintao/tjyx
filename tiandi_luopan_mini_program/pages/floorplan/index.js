@@ -75,7 +75,20 @@ Page({
     tmplIdx: 0,
     // 3D 体块旋转
     isoRot: 0,
-    isoZoom: 1
+    isoZoom: 1,
+
+    // 门窗开口（手工录入，替代 iOS RoomPlan 扫出的 opening）
+    openings: [],
+    openingRows: [],
+    openingRoomIdx: 0,
+    openingRoomNames: [],
+    openingSideIdx: 0,
+    openingSides: ['北（上）', '东（右）', '南（下）', '西（左）'],
+    openingSideKeys: ['north', 'east', 'south', 'west'],
+    openingTypeIdx: 0,
+    openingTypes: ['门', '窗'],
+    doorHint: '',
+    openingCountText: ''
   },
 
   onLoad(options) {
@@ -226,6 +239,28 @@ Page({
     const orient = orientation.display();
     const counts = audit.levelCount || { ji: 0, ping: 0, xiong: 0 };
 
+    // 门窗开口：手工录入即视为已采集；入户门可反推坐向（前提：图上方为北）
+    const sites = FP.openingSites(this.data.openings, rooms);
+    const openingRows = sites.map((s, i) => ({
+      key: s.key,
+      idx: i,
+      text: `${s.typeText}｜${s.roomName} ${s.sideText}侧 · ${s.palaceName}宫（${s.dir}）`,
+      isDoor: s.type === 'door'
+    }));
+    const doorFace = FP.facingFromDoor(this.data.openings, rooms);
+    const doorHint = doorFace ? doorFace.note : '尚未录入入户门；录一扇「门」后可按其朝外法线反推坐向。';
+    const openSum = FP.openingSummary(FP.normalizeOpenings(this.data.openings, rooms));
+    const openingDots = FP.normalizeOpenings(this.data.openings, rooms).map((o, i) => {
+      const site = FP.openingSites([o], [rooms[o.room]])[0];
+      return {
+        key: `${i}-${o.room}-${o.side}`,
+        isDoor: o.type === 'door',
+        glyph: o.type === 'door' ? '门' : '窗',
+        len: Math.max(16, Math.round((o.width || 0.3) * 100)),
+        style: `left:${site.x}%;top:${site.y}%;`
+      };
+    });
+
     // iOS computeSpatialFengshuiFindings：由户型平面几何自动判煞（水火冲等）
     const spatialPlan = { rooms, widthMeters: this.data.widthMeters, aspectRatio: null };
     const spatialFindings = SFIND.computeSpatialFindings(spatialPlan)
@@ -269,7 +304,12 @@ Page({
       planRows,
       planReviews,
       planUnassigned,
-      planHint
+      planHint,
+      openingRows,
+      openingDots,
+      openingRoomNames: rooms.map((r, i) => `${i + 1}. ${r.name}`),
+      doorHint,
+      openingCountText: openSum.total ? `门 ${openSum.doors} · 窗 ${openSum.windows}` : '未录入'
     });
     if (this.data.show3D) this.drawIso();
   },
@@ -277,6 +317,65 @@ Page({
   onWidth(e) {
     this.setData({ widthMeters: e.detail.value });
     this.recompute(this._rooms);
+  },
+
+  // ============ 门窗开口 ============
+  onOpeningRoom(e) {
+    this.setData({ openingRoomIdx: Number(e.detail.value) || 0 });
+  },
+
+  onOpeningSide(e) {
+    this.setData({ openingSideIdx: Number(e.detail.value) || 0 });
+  },
+
+  onOpeningType(e) {
+    this.setData({ openingTypeIdx: Number(e.detail.value) || 0 });
+  },
+
+  addOpening() {
+    const rooms = this._rooms || [];
+    if (!rooms.length) {
+      wx.showToast({ title: '先录入房间', icon: 'none' });
+      return;
+    }
+    const room = Math.min(this.data.openingRoomIdx, rooms.length - 1);
+    const side = this.data.openingSideKeys[this.data.openingSideIdx] || 'south';
+    const type = this.data.openingTypeIdx === 1 ? 'window' : 'door';
+    const list = (this.data.openings || []).concat([{ room, side, type, pos: 0.35, width: 0.3 }]);
+    this.setData({ openings: FP.normalizeOpenings(list, rooms) });
+    this.recompute(rooms);
+  },
+
+  removeOpening(e) {
+    const idx = Number(e.currentTarget.dataset.idx);
+    const list = (this.data.openings || []).filter((o, i) => i !== idx);
+    this.setData({ openings: FP.normalizeOpenings(list, this._rooms || []) });
+    this.recompute(this._rooms || []);
+  },
+
+  /** 按入户门朝外法线反推坐向（图上方为北为前提，结果可再用手动坐向覆盖） */
+  applyDoorFacing() {
+    const rooms = this._rooms || [];
+    const res = FP.facingFromDoor(this.data.openings, rooms);
+    if (!res) {
+      wx.showToast({ title: '先录一扇门', icon: 'none' });
+      return;
+    }
+    const sitIdx = Math.max(0, SF.MOUNTAINS_24.indexOf(res.sit));
+    this.setData({ sitIdx });
+    orientation.fromManual(res.sit);
+    this.recompute(rooms);
+    wx.showModal({
+      title: '已按入户门判向',
+      content: `${res.note}\n\n如与罗盘实测不符，请直接改顶部「坐山」。`,
+      showCancel: false
+    });
+  },
+
+  clearOpenings() {
+    this.setData({ openings: [] });
+    this.recompute(this._rooms || []);
+    wx.showToast({ title: '已清空门窗', icon: 'none' });
   },
 
   // ============ 房间拖动 ============
@@ -548,6 +647,7 @@ Page({
       sit,
       widthMeters: this.data.widthMeters,
       rooms,
+      openings: this.data.openings || [],
       at: Date.now()
     };
     const list = store.saveFloorplan(plan);
@@ -567,7 +667,7 @@ Page({
         const plan = list[res.tapIndex];
         if (!plan) return;
         const sitIdx = Math.max(0, SF.MOUNTAINS_24.indexOf(plan.sit));
-        this.setData({ widthMeters: plan.widthMeters || '12', sitIdx });
+        this.setData({ widthMeters: plan.widthMeters || '12', sitIdx, openings: plan.openings || [] });
         this.recompute(plan.rooms || FP.sampleRooms());
         wx.showToast({ title: '已载入', icon: 'success' });
       }
@@ -593,7 +693,7 @@ Page({
   },
 
   resetSample() {
-    this.setData({ bgImage: '' });
+    this.setData({ bgImage: '', openings: [] });
     this._pivot = null;
     this._rooms = null;
     this.recompute(FP.sampleRooms());
@@ -660,6 +760,7 @@ Page({
       face: SF.opposite(sit),
       widthMeters: this.data.widthMeters,
       pivot: this._pivot || null,
+      openings: this.data.openings || [],
       rooms
     };
   },
@@ -700,7 +801,7 @@ Page({
   exportDXF() {
     const plan = this.currentPlan();
     const text = FP.toDXF(plan.rooms, {
-      widthMeters: plan.widthMeters, sit: plan.sit, face: plan.face
+      widthMeters: plan.widthMeters, sit: plan.sit, face: plan.face, openings: plan.openings
     });
     this._writeAndShare(`宅谱_${plan.sit}山${plan.face}向_${Date.now()}.dxf`, text);
   },
@@ -729,7 +830,7 @@ Page({
         let sitIdx = SF.MOUNTAINS_24.indexOf(plan.sit);
         if (sitIdx < 0) sitIdx = this.data.sitIdx;
         this._pivot = plan.pivot || null;
-        this.setData({ widthMeters: plan.widthMeters, sitIdx });
+        this.setData({ widthMeters: plan.widthMeters, sitIdx, openings: plan.openings || [] });
         this.recompute(plan.rooms);
         wx.showToast({ title: '已导入宅谱', icon: 'success' });
       },
@@ -749,7 +850,7 @@ Page({
             this._pivot = plan.pivot || null;
             let sitIdx = SF.MOUNTAINS_24.indexOf(plan.sit);
             if (sitIdx < 0) sitIdx = this.data.sitIdx;
-            this.setData({ widthMeters: plan.widthMeters, sitIdx });
+            this.setData({ widthMeters: plan.widthMeters, sitIdx, openings: plan.openings || [] });
             this.recompute(plan.rooms);
             wx.showToast({ title: '已从剪贴板导入', icon: 'success' });
           },

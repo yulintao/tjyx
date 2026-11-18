@@ -6,6 +6,18 @@
 
 const { PALACE_INFO } = require('./xuankong');
 
+/** 二十四山（子居中 0°，顺时针 15° 一山），与 sitface 同一口径，此处内联避免循环依赖 */
+const MOUNTAIN_24 = ['子', '癸', '丑', '艮', '寅', '甲', '卯', '乙', '辰', '巽', '巳', '丙', '午', '丁', '未', '坤', '申', '庚', '酉', '辛', '戌', '乾', '亥', '壬'];
+
+/** 门窗开口：图上方为北（正北朝上），边法线角度按此换算 */
+const OPENING_SIDE = {
+  north: { label: '北（上）', normal: 0 },
+  east: { label: '东（右）', normal: 90 },
+  south: { label: '南（下）', normal: 180 },
+  west: { label: '西（左）', normal: 270 }
+};
+const OPENING_TYPE = { door: '门', window: '窗' };
+
 const PALACE_BY_CELL = {
   '0-0': 6, '1-0': 1, '2-0': 8,
   '0-1': 7, '1-1': 5, '2-1': 3,
@@ -464,6 +476,99 @@ function missingCornerAudits(rooms) {
  * @param {object} opts { widthMeters, sit, face, title }
  * @returns {string} DXF 文本
  */
+/** 规整门窗开口：room 为房间下标，side 取四边，pos 为边上起点占比，width 为占边比例 */
+function normalizeOpenings(list, rooms) {
+  const arr = Array.isArray(list) ? list : [];
+  const roomArr = Array.isArray(rooms) ? rooms : [];
+  const out = [];
+  arr.forEach((o) => {
+    const idx = Number(o && o.room);
+    if (!(idx >= 0 && idx < roomArr.length)) return;
+    const side = String((o && o.side) || '');
+    if (!OPENING_SIDE[side]) return;
+    const type = o && o.type === 'window' ? 'window' : 'door';
+    const pos = Math.max(0, Math.min(0.95, Number(o.pos) || 0));
+    const width = Math.max(0.05, Math.min(0.9, Number(o.width) || 0.3));
+    out.push({ room: idx, side, type, pos, width });
+  });
+  return out;
+}
+
+/** 门窗计数 */
+function openingSummary(list) {
+  const arr = Array.isArray(list) ? list : [];
+  return {
+    doors: arr.filter((o) => o.type === 'door').length,
+    windows: arr.filter((o) => o.type === 'window').length,
+    total: arr.length
+  };
+}
+
+/**
+ * 开口落点：算出每扇门窗的中心坐标、朝外法线角度、所属九宫
+ * 图上方为北（0°），右为东（90°），下为南（180°），左为西（270°）
+ */
+function openingSites(list, rooms) {
+  const arr = normalizeOpenings(list, rooms);
+  const roomArr = Array.isArray(rooms) ? rooms : [];
+  return arr.map((o, i) => {
+    const r = roomArr[o.room];
+    const along = o.pos + o.width / 2;
+    let x;
+    let y;
+    if (o.side === 'north') {
+      x = r.x + r.w * along;
+      y = r.y;
+    } else if (o.side === 'south') {
+      x = r.x + r.w * along;
+      y = r.y + r.h;
+    } else if (o.side === 'west') {
+      x = r.x;
+      y = r.y + r.h * along;
+    } else {
+      x = r.x + r.w;
+      y = r.y + r.h * along;
+    }
+    const angle = OPENING_SIDE[o.side].normal;
+    const palace = palaceOfPoint(x, y);
+    return {
+      key: `${o.room}-${o.side}-${i}`,
+      room: o.room,
+      roomName: r.name,
+      type: o.type,
+      typeText: OPENING_TYPE[o.type],
+      side: o.side,
+      sideText: OPENING_SIDE[o.side].label,
+      x: Math.round(x * 10) / 10,
+      y: Math.round(y * 10) / 10,
+      angle,
+      palace,
+      palaceName: PALACE_INFO[palace] ? PALACE_INFO[palace].name.replace('宫', '') : '',
+      dir: PALACE_INFO[palace] ? PALACE_INFO[palace].dir : ''
+    };
+  });
+}
+
+/**
+ * 以入户门朝外法线判向首（图上方为北的前提下）
+ * @returns {{angle:number, face:string, sit:string, roomName:string, note:string}|null}
+ */
+function facingFromDoor(list, rooms) {
+  const sites = openingSites(list, rooms).filter((s) => s.type === 'door');
+  if (!sites.length) return null;
+  const door = sites[0];
+  const idx = Math.round((((door.angle % 360) + 360) % 360) / 15) % 24;
+  const faceM = MOUNTAIN_24[idx];
+  const sitM = MOUNTAIN_24[(idx + 12) % 24];
+  return {
+    angle: door.angle,
+    face: faceM,
+    sit: sitM,
+    roomName: door.roomName,
+    note: `按「${door.roomName}」${door.sideText}侧入户门朝外法线判定：图上方为北，向首 ${faceM}、坐 ${sitM}；若底图上方不是正北，请以罗盘实测的坐向为准。`
+  };
+}
+
 function toDXF(rooms, opts) {
   const o = opts || {};
   const wm = Number(o.widthMeters) > 0 ? Number(o.widthMeters) : 10;
@@ -541,6 +646,33 @@ function toDXF(rooms, opts) {
     push('11', ((r.x + r.w / 2) * s).toFixed(2), '21', ((r.y + r.h / 2) * s).toFixed(2), '31', '0.0');
   });
 
+  // 门窗开口：DOORS / WINDOWS 图层，按房间边上的 pos/width 折算线段
+  openingSites(o.openings, rooms).forEach((site) => {
+    const layer = site.type === 'window' ? 'WINDOWS' : 'DOORS';
+    const room = rooms[site.room];
+    const half = (site.type === 'window' ? 0.18 : 0.12) / 2;
+    let p1;
+    let p2;
+    if (site.side === 'north' || site.side === 'south') {
+      const y = site.side === 'north' ? room.y : room.y + room.h;
+      p1 = [(site.x - room.w * half) * s, y * s];
+      p2 = [(site.x + room.w * half) * s, y * s];
+    } else {
+      const x = site.side === 'west' ? room.x : room.x + room.w;
+      p1 = [x * s, (site.y - room.h * half) * s];
+      p2 = [x * s, (site.y + room.h * half) * s];
+    }
+    push('0', 'LINE', '8', layer);
+    push('10', p1[0].toFixed(2), '20', p1[1].toFixed(2), '30', '0.0');
+    push('11', p2[0].toFixed(2), '21', p2[1].toFixed(2), '31', '0.0');
+    push('0', 'TEXT', '8', layer);
+    push('10', ((p1[0] + p2[0]) / 2).toFixed(2), '20', ((p1[1] + p2[1]) / 2).toFixed(2), '30', '0.0');
+    push('40', String(Math.max(80, Math.round(wm * 20))));
+    push('1', site.typeText);
+    push('72', '1');
+    push('11', ((p1[0] + p2[0]) / 2).toFixed(2), '21', ((p1[1] + p2[1]) / 2).toFixed(2), '31', '0.0');
+  });
+
   // 坐向标注
   if (o.sit && o.face) {
     push('0', 'TEXT', '8', 'ORIENT');
@@ -567,6 +699,7 @@ function planToJSON(plan) {
     face: p.face || '',
     widthMeters: p.widthMeters || '10',
     pivot: p.pivot || null,
+    openings: normalizeOpenings(p.openings, p.rooms || []),
     rooms: p.rooms || []
   }, null, 2);
 }
@@ -597,6 +730,7 @@ function parsePlanJSON(text) {
     face: obj.face || '',
     widthMeters: String(obj.widthMeters || '10'),
     pivot: obj.pivot && typeof obj.pivot.x === 'number' ? obj.pivot : null,
+    openings: normalizeOpenings(obj.openings, rooms),
     rooms
   };
 }
@@ -651,6 +785,10 @@ function surveyMetrics(plan, chart) {
   const centerCell = coverage.filter((c) => c.palace === 5)[0] || null;
   const fullCount = coverage.filter((c) => c.status === 'full').length;
 
+  // 门窗开口：手工录入即视为已采集（不再写「未采集」）
+  const opens = normalizeOpenings(p.openings, rooms);
+  const openSum = openingSummary(opens);
+
   let xiongRooms = [];
   if (chart && rooms.length) {
     try {
@@ -685,7 +823,9 @@ function surveyMetrics(plan, chart) {
     grossFloorArea: gross,
     ceilingHeight: null, // 未采集
     wallSegments: null, // 未采集
-    openings: null, // 未采集
+    openings: openSum.total ? openSum : null,
+    openingSites: openingSites(p.openings, rooms),
+    facingByDoor: facingFromDoor(p.openings, rooms),
     palacesFull: fullCount,
     palacesPart: partial.length,
     palacesMissing: missing.length,
@@ -695,8 +835,8 @@ function surveyMetrics(plan, chart) {
     xiongRooms,
     score,
     scoreNote:
-      '基准 92 分，按缺角（每宫 −6，上限 −24）、中宫受压（缺 −10 / 气偏 −5）、进深面宽比（>1.8 −4，>2.2 −8）、凶宫房间（每间 −4，上限 −16）、九宫完整度（满宫 <6 再 −6）扣分；净层高、墙体段数、门窗开孔小程序无 LiDAR/RoomPlan 采集，标注「未采集」不计分。',
-    measured: { ceiling: false, walls: false, openings: false }
+      '基准 92 分，按缺角（每宫 −6，上限 −24）、中宫受压（缺 −10 / 气偏 −5）、进深面宽比（>1.8 −4，>2.2 −8）、凶宫房间（每间 −4，上限 −16）、九宫完整度（满宫 <6 再 −6）扣分；净层高、墙体段数小程序无 LiDAR 采集，标注「未采集」不计分；门窗开口为手工录入，录了才计入清单、不参与扣分。',
+    measured: { ceiling: false, walls: false, openings: opens.length > 0 }
   };
 }
 
@@ -752,6 +892,12 @@ module.exports = {
   templateRooms,
   templateList,
   toDXF,
+  normalizeOpenings,
+  openingSummary,
+  openingSites,
+  facingFromDoor,
+  OPENING_SIDE,
+  OPENING_TYPE,
   planToJSON,
   parsePlanJSON
 };

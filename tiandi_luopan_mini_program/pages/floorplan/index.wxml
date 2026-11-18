@@ -96,6 +96,16 @@
           <view style="color:#9aa6bd;">{{item.palaceName}} {{item.combo}}</view>
         </view>
 
+        <!-- 门窗开口（手工录入）：门为金色短杠，窗为青色短杠 -->
+        <view
+          wx:for="{{openingDots}}"
+          wx:key="key"
+          style="position:absolute;{{item.style}}transform:translate(-50%,-50%);pointer-events:none;font-size:18rpx;color:{{item.isDoor ? '#e9d8a6' : '#7fd3d0'}};"
+        >
+          <view style="width:{{item.len}}rpx;height:6rpx;background:{{item.isDoor ? '#e9d8a6' : '#7fd3d0'}};border-radius:2rpx;"></view>
+          <view style="font-size:16rpx;">{{item.glyph}}</view>
+        </view>
+
         <!-- 中宫立极点 -->
         <view style="position:absolute;{{pivotStyle}}transform:translate(-50%,-50%);width:24rpx;height:24rpx;pointer-events:none;">
           <view style="position:absolute;left:50%;top:0;width:2rpx;height:24rpx;margin-left:-1rpx;background:#e74c3c;"></view>
@@ -115,6 +125,31 @@
       <view class="btn" wx:if="{{hasPivot}}" style="margin-top:12rpx;" bindtap="resetPivot">立极点复位到面积重心</view>
       <view class="btn" wx:if="{{bgImage}}" style="margin-top:12rpx;" bindtap="clearImage">移除底图</view>
       <view class="footnote">按住房间可直接拖动改位置（不会跳格、不会越出户型框），松手即重算九宫与吉凶；点按房间可改用途、调宽深或删除。罗盘叠透把八宫方位与坐向轴线压在平面上，便于看「某间落在何宫、坐向是否正对某墙」；缺角宫位以红色标注。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">门窗开口（{{openingCountText}}）</view>
+      <view style="display:flex;gap:12rpx;">
+        <picker mode="selector" range="{{openingRoomNames}}" value="{{openingRoomIdx}}" bindchange="onOpeningRoom" style="flex:1.4;">
+          <view class="input-box">{{openingRoomNames.length ? openingRoomNames[openingRoomIdx] : '先录入房间'}}</view>
+        </picker>
+        <picker mode="selector" range="{{openingSides}}" value="{{openingSideIdx}}" bindchange="onOpeningSide" style="flex:1;">
+          <view class="input-box">{{openingSides[openingSideIdx]}}</view>
+        </picker>
+        <picker mode="selector" range="{{openingTypes}}" value="{{openingTypeIdx}}" bindchange="onOpeningType" style="flex:0.7;">
+          <view class="input-box">{{openingTypes[openingTypeIdx]}}</view>
+        </picker>
+      </view>
+      <view style="display:flex;gap:12rpx;margin-top:12rpx;">
+        <view class="btn" style="flex:1;" bindtap="addOpening">录入一扇</view>
+        <view class="btn" style="flex:1;" bindtap="applyDoorFacing">按入户门判坐向</view>
+        <view class="btn" style="flex:0.7;" bindtap="clearOpenings">清空</view>
+      </view>
+      <view wx:for="{{openingRows}}" wx:key="key" class="row" style="align-items:center;">
+        <text class="row-k" style="flex:1;color:{{item.isDoor ? '#e9d8a6' : '#9aa6bd'}};">{{item.text}}</text>
+        <text class="row-v" data-idx="{{item.idx}}" bindtap="removeOpening" style="color:#e88b8b;">删除</text>
+      </view>
+      <view class="footnote">{{doorHint}} 图示上北下南：北在上、东在右；门窗落在何宫随房间位置实时重算，并进入宅谱、DXF 与存证报告的清单。</view>
     </view>
 
     <view class="card" wx:if="{{show3D}}">

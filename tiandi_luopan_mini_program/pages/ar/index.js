@@ -3,6 +3,7 @@ const FENJIN = require('../../utils/fenjin');
 const VK = require('../../utils/visionkit-measure');
 const SHA = require('../../utils/sha');
 const HL = require('../../utils/heading-lock');
+const MNT = require('../../utils/mountain-ribbon');
 
 // 二十四山在盘面上的角度：子 = 0°，顺时针每山 15°
 Page({
@@ -31,7 +32,9 @@ Page({
     pickLeft: 50,
     // 稳持锁定：镜头在 ±1.2° 内保持 1.5s 即锁定读数，避免近楼反光让数字一直跳
     locked: false,
-    lockText: ''
+    lockText: '',
+    // 水平罗盘刻度带：中心为当前朝向，向两侧展开 15° 一山
+    ribbon: []
   },
 
   onLoad() {
@@ -97,7 +100,8 @@ Page({
         sitText: `坐${sit}向${face}`,
         fenjinText: `${fj.jiazi} 分金 · ${fj.grade}`,
         shaText: sha.name ? `${sha.dir}${sha.palace}宫 · ${sha.name}` : '',
-        shaRemedy: sha.remedy || ''
+        shaRemedy: sha.remedy || '',
+        ribbon: MNT.ribbonOf(heading)
       });
     });
     wx.onDeviceMotionChange((res) => {

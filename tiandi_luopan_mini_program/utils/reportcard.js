@@ -72,8 +72,13 @@ function build(plan, opts) {
     `室内净层高 未采集　·　进深面宽比 ${m.aspectRatio.toFixed(2)}`,
     `套内净面积 ${m.usableFloorArea.toFixed(1)} ㎡　·　建筑估算 ${m.grossFloorArea.toFixed(1)} ㎡`,
     `房间 ${m.roomCount} 间　·　九宫满宫 ${m.palacesFull}/9　·　缺角 ${m.palacesMissing} 宫　·　气偏 ${m.palacesPart} 宫`,
-    '墙体段数 未采集　·　门窗开孔 未采集（小程序无 LiDAR / RoomPlan 采集）'
+    m.openings
+      ? `门 ${m.openings.doors} 扇　·　窗 ${m.openings.windows} 扇（手工录入，落宫见后）`
+      : '门窗开孔 未录入（可回户型页手工补录）　·　墙体段数 未采集（小程序无 LiDAR）'
   ];
+
+  const openingRows = (m.openingSites || []).slice(0, 10).map((s) =>
+    `${s.typeText}：${s.roomName} ${s.sideText}侧 → ${s.palaceName}宫（${s.dir}）`);
 
   const corners = (m.missingCorners || []).slice(0, 6).map((a) => ({
     title: `${a.name}（${a.dir}）缺角 · 覆盖 ${Math.round((a.ratio || 0) * 100)}%`,
@@ -101,6 +106,7 @@ function build(plan, opts) {
   corners.forEach((c) => {
     h += 38 + c.hurt.length * 30 + c.remedy.length * 30 + c.source.length * 26 + 18;
   });
+  h += 70 + Math.max(1, openingRows.length) * 32; // 门窗区
   h += 70; // 凶宫区标题
   if (!xiong.length) h += 36;
   xiong.forEach((lines) => (h += lines.length * 30 + 8));
@@ -114,6 +120,7 @@ function build(plan, opts) {
     subtitle,
     dims,
     corners,
+    openingRows,
     xiong,
     footer,
     metrics: m,
@@ -199,6 +206,21 @@ function draw(ctx, W_, H, payload) {
     y = drawLines(ctx, c.remedy, PAD, y, 19, SK.INK.good, 30);
     if (c.source && c.source.length) y = drawLines(ctx, c.source, PAD, y, 17, SK.INK.faint, 26);
     y += 12;
+  });
+  y += 16;
+
+  y = SK.sectionHeader(ctx, { pad: PAD, right: width - PAD, y, title: '门窗开口与落宫' });
+  if (!P.openingRows || !P.openingRows.length) {
+    ctx.fillStyle = SK.INK.textSoft;
+    ctx.font = '21px "PingFang SC", "Noto Sans SC", serif';
+    ctx.fillText('未录入门窗；可回「户型九宫」手工补录门/窗，再回本页出报告。', PAD, y);
+    y += 40;
+  }
+  (P.openingRows || []).forEach((row) => {
+    ctx.fillStyle = SK.INK.text;
+    ctx.font = '19px "PingFang SC", "Noto Sans SC", serif';
+    ctx.fillText(row, PAD, y);
+    y += 32;
   });
   y += 16;
 

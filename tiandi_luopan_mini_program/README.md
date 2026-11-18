@@ -48,7 +48,7 @@ tiandi_luopan_mini_program/
 │   ├── calib-modal/         # 校准弹窗（用时注入组件，见下文）
 │   └── ctx-bar/             # 四格上下文条：方位 / 位置 / 时令 / 生辰（app.json 全局注册）
 ├── scripts/
-│   ├── regression.js        # 全量算法回归（17 组 70 项断言）
+│   ├── regression.js        # 全量算法回归（17 组 72 项断言）
 │   ├── check-assets.js      # app.json 资源引用校验（tabBar 图标等）
 │   ├── check-keys.js       # 存储键是否都登记在 store.KEYS（备份/清空不漏）
 │   ├── check-handlers.js    # wxml 绑定与 js 方法静态比对

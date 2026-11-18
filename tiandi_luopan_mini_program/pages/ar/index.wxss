@@ -245,3 +245,40 @@
   color: #e9d8a6;
   font-size: 19rpx;
 }
+/* 水平罗盘刻度带 */
+.ribbon {
+  position: fixed;
+  left: 0;
+  width: 100vw;
+  height: 64rpx;
+}
+.ribbon-item {
+  position: absolute;
+  top: 0;
+  width: 64rpx;
+  margin-left: -32rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: rgba(207, 216, 230, 0.75);
+}
+.ribbon-item.ribbon-active {
+  color: #e9d8a6;
+  font-weight: bold;
+  font-size: 32rpx;
+}
+.ribbon-item.ribbon-tick {
+  top: 4rpx;
+  width: 2rpx;
+  height: 16rpx;
+  margin-left: -1rpx;
+  background: rgba(207, 216, 230, 0.45);
+}
+.ribbon-center {
+  position: absolute;
+  left: 50%;
+  top: 34rpx;
+  width: 2rpx;
+  height: 20rpx;
+  margin-left: -1rpx;
+  background: #e9d8a6;
+}

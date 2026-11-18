@@ -244,13 +244,21 @@ function buildScroll(opts) {
   if (opts.rooms && opts.rooms.length) {
     const fpAudit = FP.audit(opts.rooms, xk);
     const fpMissing = FP.missingCornerAudits(opts.rooms).filter((m) => m.status === 'missing');
+    const sites = FP.openingSites(opts.openings, opts.rooms);
+    const openSum = FP.openingSummary(FP.normalizeOpenings(opts.openings, opts.rooms));
+    const doorFace = FP.facingFromDoor(opts.openings, opts.rooms);
     sections.push({
       key: 'floorplan',
       title: '户型审计',
       rows: [
         `房间 ${opts.rooms.length} 间，图形面积 ${fpAudit.area}，吉 ${fpAudit.levelCount.ji} / 平 ${fpAudit.levelCount.ping} / 凶 ${fpAudit.levelCount.xiong}。`,
         ...fpAudit.summary,
-        ...fpMissing.map((m) => `${m.dir}缺角：${m.hurt}化解：${m.remedy}`)
+        ...fpMissing.map((m) => `${m.dir}缺角：${m.hurt}化解：${m.remedy}`),
+        ...(openSum.total
+          ? [`门窗：门 ${openSum.doors} 扇、窗 ${openSum.windows} 扇，落宫见下。`]
+            .concat(sites.slice(0, 8).map((s) => `${s.typeText}｜${s.roomName} ${s.sideText}侧 → ${s.palaceName}宫（${s.dir}）`))
+          : ['门窗未录入：可在户型页手工补录，补录后本卷自动带出落宫清单。']),
+        ...(doorFace ? [`入户门判向：${doorFace.note}`] : [])
       ]
     });
   }
