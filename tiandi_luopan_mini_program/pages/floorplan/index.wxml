@@ -45,7 +45,7 @@
         <input class="input-box" type="digit" value="{{widthMeters}}" bindinput="onWidth" placeholder="如 12" />
       </view>
       <view class="row"><text class="row-k">坐向来源</text><text class="row-v"><text class="tag tag-ji">{{orientationLabel}}</text></text></view>
-      <view class="footnote">{{orientationHint}}</view>
+      <view class="footnote" style="margin-top:6rpx;margin-bottom:10rpx;">{{orientationHint}}</view>
       <view class="row"><text class="row-k">建筑面积</text><text class="row-v">{{areaSqm}} ㎡（图形占比 {{area}}）</text></view>
       <view class="row"><text class="row-k">中宫立极</text><text class="row-v">{{centroidText}}</text></view>
       <picker mode="selector" range="{{templates}}" value="{{tmplIdx}}" bindchange="onTemplate">
@@ -61,24 +61,25 @@
       <view class="card-title">户型示意（上北下南{{showOverlay ? ' · 罗盘叠透' : ''}}）</view>
       <view
         id="planBox"
+        class="plan-canvas-box"
         bindtouchstart="onPlanTouchStart"
         bindtouchmove="onPlanTouchMove"
-        style="position:relative;width:100%;height:620rpx;background:rgba(16,20,29,0.9);border:1rpx solid rgba(120,140,180,0.18);border-radius:12rpx;overflow:hidden;"
       >
-        <image wx:if="{{bgImage}}" src="{{bgImage}}" mode="aspectFill" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0.35;"></image>
-        <view style="position:absolute;left:33.33%;top:0;width:1rpx;height:100%;background:rgba(120,140,180,0.22);"></view>
-        <view style="position:absolute;left:66.66%;top:0;width:1rpx;height:100%;background:rgba(120,140,180,0.22);"></view>
-        <view style="position:absolute;top:33.33%;left:0;height:1rpx;width:100%;background:rgba(120,140,180,0.22);"></view>
-        <view style="position:absolute;top:66.66%;left:0;height:1rpx;width:100%;background:rgba(120,140,180,0.22);"></view>
+        <image wx:if="{{bgImage}}" src="{{bgImage}}" mode="aspectFill" class="plan-bg-img"></image>
+        <view class="plan-grid-v1"></view>
+        <view class="plan-grid-v2"></view>
+        <view class="plan-grid-h1"></view>
+        <view class="plan-grid-h2"></view>
+        <view class="plan-compass-badge">↑ 北</view>
 
         <!-- 罗盘叠透：八宫方位 + 坐向轴线 -->
-        <view wx:if="{{showOverlay}}" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:{{overlayOpacity}};pointer-events:none;">
-          <view style="position:absolute;left:14%;top:14%;width:72%;height:72%;border:1rpx solid rgba(233,216,166,0.28);border-radius:50%;"></view>
-          <view style="position:absolute;left:50%;top:50%;width:72%;height:2rpx;background:linear-gradient(90deg,rgba(233,216,166,0.15),rgba(233,216,166,0.85));transform-origin:0 50%;{{overlayLineStyle}}"></view>
-          <view wx:for="{{overlayMarks}}" wx:key="palace" style="position:absolute;{{item.style}}transform:translate(-50%,-50%);font-size:18rpx;color:{{item.color}};white-space:nowrap;">
+        <view wx:if="{{showOverlay}}" class="plan-overlay" style="opacity:{{overlayOpacity}};">
+          <view class="plan-overlay-ring"></view>
+          <view class="plan-overlay-axis" style="{{overlayLineStyle}}"></view>
+          <view wx:for="{{overlayMarks}}" wx:key="palace" class="plan-overlay-mark" style="{{item.style}}color:{{item.color}};">
             {{item.label}}{{item.missing ? '缺' : ''}}
           </view>
-          <view style="position:absolute;left:50%;top:50%;width:10rpx;height:10rpx;margin-left:-5rpx;margin-top:-5rpx;border-radius:50%;background:#e9d8a6;opacity:0.75;"></view>
+          <view class="plan-overlay-center"></view>
         </view>
 
         <view
@@ -90,37 +91,39 @@
           catchtouchend="onRoomTouchEnd"
           catchtouchcancel="onRoomTouchEnd"
           bindtap="onRoomTap"
-          style="{{item.style}}position:absolute;padding:6rpx;font-size:20rpx;border:1rpx solid rgba(140,160,200,0.35);background:{{item.level === 'xiong' ? 'rgba(190,80,80,0.16)' : (item.level === 'ji' ? 'rgba(90,160,120,0.16)' : 'rgba(90,110,150,0.12)')}};"
+          class="plan-room {{item.level === 'xiong' ? 'plan-room-xiong' : (item.level === 'ji' ? 'plan-room-ji' : 'plan-room-ping')}}"
+          style="{{item.style}}"
         >
-          <view style="color:#e9d8a6;">{{item.name}}</view>
-          <view style="color:#9aa6bd;">{{item.palaceName}} {{item.combo}}</view>
+          <view class="plan-room-name">{{item.name}}</view>
+          <view class="plan-room-meta">{{item.palaceName}} {{item.combo}}</view>
         </view>
 
         <!-- 门窗开口（手工录入）：门为金色短杠，窗为青色短杠 -->
         <view
           wx:for="{{openingDots}}"
           wx:key="key"
-          style="position:absolute;{{item.style}}transform:translate(-50%,-50%);pointer-events:none;font-size:18rpx;color:{{item.isDoor ? '#e9d8a6' : '#7fd3d0'}};"
+          class="plan-opening"
+          style="{{item.style}}color:{{item.isDoor ? '#e9d8a6' : '#7fd3d0'}};"
         >
-          <view style="width:{{item.len}}rpx;height:6rpx;background:{{item.isDoor ? '#e9d8a6' : '#7fd3d0'}};border-radius:2rpx;"></view>
-          <view style="font-size:16rpx;">{{item.glyph}}</view>
+          <view class="plan-opening-bar" style="width:{{item.len}}rpx;background:{{item.isDoor ? '#e9d8a6' : '#7fd3d0'}};"></view>
+          <view class="plan-opening-glyph">{{item.glyph}}</view>
         </view>
 
         <!-- 中宫立极点 -->
-        <view style="position:absolute;{{pivotStyle}}transform:translate(-50%,-50%);width:24rpx;height:24rpx;pointer-events:none;">
-          <view style="position:absolute;left:50%;top:0;width:2rpx;height:24rpx;margin-left:-1rpx;background:#e74c3c;"></view>
-          <view style="position:absolute;top:50%;left:0;height:2rpx;width:24rpx;margin-top:-1rpx;background:#e74c3c;"></view>
+        <view class="plan-pivot" style="{{pivotStyle}}">
+          <view class="plan-pivot-v"></view>
+          <view class="plan-pivot-h"></view>
         </view>
       </view>
 
-      <view style="display:flex;gap:16rpx;margin-top:16rpx;">
-        <view class="btn" style="flex:1;" bindtap="addRoom">新增房间</view>
-        <view class="btn" style="flex:1;" bindtap="chooseImage">{{bgImage ? '换底图' : '导入底图'}}</view>
-        <view class="btn" style="flex:1;" bindtap="toggle3D">{{show3D ? '关闭 3D' : '3D 示意'}}</view>
+      <view class="plan-btn-row">
+        <view class="btn" bindtap="addRoom">新增房间</view>
+        <view class="btn" bindtap="chooseImage">{{bgImage ? '换底图' : '导入底图'}}</view>
+        <view class="btn" bindtap="toggle3D">{{show3D ? '关闭 3D' : '3D 示意'}}</view>
       </view>
-      <view style="display:flex;gap:16rpx;margin-top:12rpx;">
-        <view class="btn" style="flex:1;{{dragPivot ? 'border-color:#e74c3c;color:#ff8b7a;' : ''}}" bindtap="toggleDragPivot">{{dragPivot ? '拖动中 · 点击结束' : '拖动中宫立极'}}</view>
-        <view class="btn" style="flex:1;{{showOverlay ? 'border-color:#e9d8a6;color:#e9d8a6;' : ''}}" bindtap="toggleOverlay">{{showOverlay ? '关闭罗盘叠透' : '罗盘叠透'}}</view>
+      <view class="plan-btn-row">
+        <view class="btn {{dragPivot ? 'plan-btn-active-red' : ''}}" bindtap="toggleDragPivot">{{dragPivot ? '拖动中 · 点击结束' : '拖动中宫立极'}}</view>
+        <view class="btn {{showOverlay ? 'plan-btn-active-gold' : ''}}" bindtap="toggleOverlay">{{showOverlay ? '关闭罗盘叠透' : '罗盘叠透'}}</view>
       </view>
       <view class="btn" wx:if="{{hasPivot}}" style="margin-top:12rpx;" bindtap="resetPivot">立极点复位到面积重心</view>
       <view class="btn" wx:if="{{bgImage}}" style="margin-top:12rpx;" bindtap="clearImage">移除底图</view>
@@ -129,7 +132,7 @@
 
     <view class="card">
       <view class="card-title">门窗开口（{{openingCountText}}）</view>
-      <view style="display:flex;gap:12rpx;">
+      <view class="opening-picker-row">
         <picker mode="selector" range="{{openingRoomNames}}" value="{{openingRoomIdx}}" bindchange="onOpeningRoom" style="flex:1.4;">
           <view class="input-box">{{openingRoomNames.length ? openingRoomNames[openingRoomIdx] : '先录入房间'}}</view>
         </picker>
@@ -140,9 +143,9 @@
           <view class="input-box">{{openingTypes[openingTypeIdx]}}</view>
         </picker>
       </view>
-      <view style="display:flex;gap:12rpx;margin-top:12rpx;">
-        <view class="btn" style="flex:1;" bindtap="addOpening">录入一扇</view>
-        <view class="btn" style="flex:1;" bindtap="applyDoorFacing">按入户门判坐向</view>
+      <view class="plan-btn-row">
+        <view class="btn" bindtap="addOpening">录入一扇</view>
+        <view class="btn" bindtap="applyDoorFacing">按入户门判坐向</view>
         <view class="btn" style="flex:0.7;" bindtap="clearOpenings">清空</view>
       </view>
       <view wx:for="{{openingRows}}" wx:key="key" class="row" style="align-items:center;">
@@ -154,7 +157,7 @@
 
     <view class="card" wx:if="{{show3D}}">
       <view class="card-title">3D 体块示意（可拖动旋转）</view>
-      <canvas type="2d" id="isoCanvas" style="width:100%;height:520rpx;background:#0f1117;border-radius:12rpx;"
+      <canvas type="2d" id="isoCanvas" class="iso-canvas"
         bindtouchstart="onIsoTouchStart" bindtouchmove="onIsoTouchMove" bindtouchend="onIsoTouchEnd" bindtouchcancel="onIsoTouchEnd"></canvas>
       <view style="display:flex;gap:16rpx;margin-top:12rpx;">
         <view class="btn" style="flex:1;" bindtap="resetIso">复位视角</view>
@@ -224,7 +227,7 @@
           <text>{{item.name}} · {{item.dir}}</text>
           <text class="tag {{item.status === 'missing' ? 'tag-xiong' : (item.status === 'full' ? 'tag-ji' : 'tag-ping')}}">{{item.percent}}%</text>
         </view>
-      <view class="list-desc">{{item.status === 'missing' ? '覆盖不足 40%，视作缺角' : (item.status === 'full' ? '本宫完整' : '部分覆盖，气略偏')}}</view>
+        <view class="list-desc">{{item.status === 'missing' ? '覆盖不足 40%，视作缺角' : (item.status === 'full' ? '本宫完整' : '部分覆盖，气略偏')}}</view>
       </view>
     </view>
 
@@ -271,9 +274,9 @@
     <view class="card">
       <view class="card-title">户型存档（{{plans.length}}）</view>
       <view class="btn" bindtap="savePlan">保存当前户型</view>
-      <view style="display:flex;gap:16rpx;margin-top:12rpx;">
-        <view class="btn" style="flex:1;" bindtap="loadPlan">载入存档</view>
-        <view class="btn" style="flex:1;" bindtap="deletePlan">删除存档</view>
+      <view class="plan-btn-row">
+        <view class="btn" bindtap="loadPlan">载入存档</view>
+        <view class="btn" bindtap="deletePlan">删除存档</view>
       </view>
       <view class="list-item" wx:for="{{plans}}" wx:key="id">
         <view class="list-main"><text>{{item.label}}</text></view>
@@ -283,12 +286,12 @@
 
     <view class="card">
       <view class="card-title">宅谱导出 / 导入</view>
-      <view style="display:flex;gap:16rpx;">
-        <view class="btn" style="flex:1;" bindtap="exportJSON">导出宅谱 JSON</view>
-        <view class="btn" style="flex:1;" bindtap="exportDXF">导出 DXF 图纸</view>
+      <view class="plan-btn-row" style="margin-top:0;">
+        <view class="btn" bindtap="exportJSON">导出宅谱 JSON</view>
+        <view class="btn" bindtap="exportDXF">导出 DXF 图纸</view>
       </view>
       <view class="btn" style="margin-top:12rpx;" bindtap="importJSON">导入宅谱 JSON</view>
-      <view class="btn" style="margin-top:12rpx;" bindtap="goReport">生成空间测绘报告图</view>
+      <view class="btn btn-primary" style="margin-top:12rpx;" bindtap="goReport">生成空间测绘报告图</view>
       <view class="footnote">
         宅谱 JSON 含坐向、宅宽、房间与立极点，可跨设备/跨人交接；DXF 为 AutoCAD R12 ASCII，按宅宽换算为毫米（1 坐标单位 = 宅宽/100 米），可直接用 CAD 或酷家乐打开。
       </view>
@@ -329,7 +332,7 @@
         </view>
       </block>
       <view class="footnote" wx:if="{{!roomDetail.audit}}">该房间尚未纳入九宫审计，请确认房间矩形有效。</view>
-      <view class="btn" style="margin-top:16rpx;" bindtap="editRoomFromDetail">改用途 / 尺寸 / 删除</view>
+      <view class="btn btn-primary" style="margin-top:16rpx;" bindtap="editRoomFromDetail">改用途 / 尺寸 / 删除</view>
     </view>
   </view>
 </view>

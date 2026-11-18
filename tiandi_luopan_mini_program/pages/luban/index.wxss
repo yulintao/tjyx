@@ -1,1 +1,80 @@
 /* pages/luban/index.wxss */
+
+.luban-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.luban-preset-chip {
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(34, 42, 60, 0.72);
+  border: 1rpx solid rgba(233, 216, 166, 0.24);
+  color: #e6d39c;
+  font-size: 22rpx;
+}
+
+.luban-preset-chip:active {
+  background: rgba(233, 216, 166, 0.18);
+  border-color: rgba(233, 216, 166, 0.6);
+}
+
+.scale-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 14rpx;
+  margin-bottom: 8rpx;
+  border-radius: 14rpx;
+  background: rgba(12, 15, 24, 0.62);
+  border: 1rpx solid rgba(130, 152, 196, 0.12);
+}
+
+.scale-row-active {
+  background: linear-gradient(90deg, rgba(233, 216, 166, 0.18), rgba(201, 162, 74, 0.08));
+  border-color: rgba(240, 217, 153, 0.65);
+  box-shadow: 0 4rpx 14rpx rgba(212, 175, 55, 0.15);
+}
+
+.scale-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.scale-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #edf1f8;
+}
+
+.scale-badge {
+  font-size: 19rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  font-weight: 600;
+}
+
+.scale-badge-ji {
+  background: rgba(66, 179, 118, 0.18);
+  border: 1rpx solid rgba(127, 211, 160, 0.38);
+  color: #84dba6;
+}
+
+.scale-badge-xiong {
+  background: rgba(214, 94, 94, 0.18);
+  border: 1rpx solid rgba(232, 139, 139, 0.38);
+  color: #f09595;
+}
+
+.scale-range {
+  font-size: 23rpx;
+  color: #a4b0c7;
+}
+
+.scale-row-active .scale-range {
+  color: #f3e1af;
+  font-weight: 600;
+}

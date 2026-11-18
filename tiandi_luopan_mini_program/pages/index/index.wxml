@@ -1,18 +1,11 @@
 <!-- pages/index/index.wxml -->
 <view class="page-container">
-  <!--
-    自定义顶部导航栏：navigationStyle 设为 custom 后系统导航栏被移除，
-    标题需自行绘制。padding-top 由 JS 按实际状态栏高度注入，避免被系统状态栏遮挡；
-    右侧胶囊按钮由微信原生渲染，无法隐藏，故标题居中即可与其共存。
-  -->
+  <!-- 自定义顶部导航栏 -->
   <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
     <text class="nav-title">演象时空罗盘</text>
   </view>
 
-  <!-- 上下文条：方位已在盘面，这里只留 位置 / 时令 / 生辰，避免重复与堆字 -->
-  <ctx-bar hide-dir="{{true}}" />
-
-  <!-- 顶部标题与综合状态栏（时间 · 速度 · 方向） -->
+  <!-- 顶部时令与实时状态胶囊 -->
   <view class="header-section">
     <view class="subtitle">{{todayLine}}</view>
     <view class="status-line">
@@ -23,23 +16,51 @@
       <text class="status-dir">{{nowDir}}</text>
     </view>
 
-    <!-- 十字天心瞄准模式提示 -->
+    <!-- 上下文条：位置 / 时令 / 生辰 -->
+    <view class="idx-wrap">
+      <ctx-bar hide-dir="{{true}}" />
+    </view>
+
+    <!-- 强磁干扰悬浮告警条 -->
+    <view class="mag-alert-banner idx-wrap" wx:if="{{showMagAlert}}" bindtap="toggleCalibModal" data-show="true">
+      {{magAlertText}}
+    </view>
+  </view>
+
+  <!-- ============ 主视觉焦点：罗盘视口（Canvas 2D + 十字天心瞄准线） ============ -->
+  <view class="compass-container">
+    <view class="compass-halo">
+      <view class="compass-viewport">
+        <!--
+          画布在弹出任何弹窗时临时隐藏：<canvas type="2d"> 在部分机型/基础库下会作为
+          原生层组件渲染在所有 WebView 内容之上，忽略 z-index，导致弹窗被画布遮挡。
+          使用 hidden 属性而非 wx:if，避免画布节点被卸载后 this.canvas 失效。
+        -->
+        <canvas
+          type="2d"
+          id="compassCanvas"
+          class="compass-canvas"
+          hidden="{{showCalibModal || showLayerModal || showMountainPicker || showKongwangModal || showFenjinModal || showFengshuiModal}}"
+          bindtouchstart="onTouchStart"
+          bindtouchmove="onTouchMove"
+          bindtouchend="onTouchEnd"
+        ></canvas>
+        <!-- 风水罗盘天心十道十字瞄准线与准星（坐向同论） -->
+        <view class="crosshair-vertical"></view>
+        <view class="crosshair-horizontal"></view>
+        <view class="crosshair-front-pointer">▲ 向</view>
+        <view class="crosshair-back-pointer">▼ 坐</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 瞄准提示与罗盘快捷操作坞 -->
+  <view class="idx-wrap compass-dock-area">
     <view class="direction-mark">
       {{compassMode === 'rotateDisk' ? '🎯 十字天心瞄准 · 正前实测立向 (红线所指为当前山向)' : '↑南 | ↓北 | ←东 | →西 (固定盘面模式)'}}
     </view>
 
-    <!-- 盘面设置抽屉：模式 / 图层 / 选山向 / 校准默认收起，首屏只留给方位与结论 -->
-    <view class="panel-toggle" bindtap="togglePanel">
-      <text class="panel-toggle-text">{{panelOpen ? '收起盘面设置 ▲' : '盘面设置 · 模式 / 图层 / 选山向 / 校准 ▾'}}</text>
-    </view>
-
-    <block wx:if="{{panelOpen}}">
-    <!-- 模式与功能 Tab -->
-    <view class="tab-bar">
-      <view class="tab-btn {{currentMode === 'post' ? 'active' : ''}}" bindtap="onSwitchMode" data-mode="post">后天八卦</view>
-      <view class="tab-btn {{currentMode === 'pre' ? 'active' : ''}}" bindtap="onSwitchMode" data-mode="pre">先天八卦</view>
-    </view>
-    <view class="tab-bar">
+    <view class="tab-bar dock-bar">
       <view class="tab-btn fn {{compassMode === 'rotateDisk' ? 'fn-gold' : ''}}" bindtap="toggleCompassMode">
         {{compassMode === 'rotateDisk' ? '🔄 盘随向转' : '🧭 固定盘面'}}
       </view>
@@ -48,44 +69,74 @@
       </view>
       <view class="tab-btn fn fn-gold" bindtap="toggleMountainPicker" data-show="true">🎯 选山向</view>
       <view class="tab-btn fn fn-cyan" bindtap="toggleLayerModal" data-show="true">⚙️ 图层</view>
-      <!-- 好友/群聊分享：微信仅提供 open-type="share" 按钮入口；
-           分享到朋友圈无对应 open-type，仍需从右上角菜单发起 -->
+      <!-- 好友/群聊分享 -->
       <button class="tab-btn fn fn-share" open-type="share" hover-class="none">📤 分享</button>
     </view>
 
-    <!-- 今日吉方导引条：财神 / 喜神（随日干换宫，可直接照盘转向） -->
-    <view class="daily-god-bar" wx:if="{{dailyGodsText}}">
-      <text class="daily-god-line">{{dailyGodsText}}</text>
-      <text class="daily-god-tip">{{dailyGodsTip}}</text>
+    <!-- 盘面扩展设置抽屉：八卦模式 / 财喜神 / 节气 / 磁偏角校准 -->
+    <view class="panel-toggle" bindtap="togglePanel">
+      <text class="panel-toggle-text">{{panelOpen ? '收起盘面设置与校准 ▲' : '更多盘面设置 · 先后天 / 财喜神 / 磁偏角校准 ▾'}}</text>
     </view>
 
-    <!-- 节气进度：当前节气 + 距下一节气天数，点按进入择日日课自检 -->
-    <view class="term-strip" wx:if="{{termBadge}}" bindtap="goZeri">
-      <text class="term-strip-text">{{termBadge}}</text>
-      <text class="term-strip-go">日课自检 ›</text>
-    </view>
+    <block wx:if="{{panelOpen}}">
+      <view class="drawer-card">
+        <view class="tab-bar mode-switch-bar">
+          <view class="tab-btn {{currentMode === 'post' ? 'active' : ''}}" bindtap="onSwitchMode" data-mode="post">后天八卦</view>
+          <view class="tab-btn {{currentMode === 'pre' ? 'active' : ''}}" bindtap="onSwitchMode" data-mode="pre">先天八卦</view>
+        </view>
 
-    <!-- 磁北 / 真北朝向胶囊栏 -->
-    <view class="compass-bar" bindtap="toggleCalibModal" data-show="true">
-      <view class="compass-info-box">
-        <view class="calib-dot {{calibClass}}"></view>
-        <text class="compass-info-mag">磁: {{headingDescMag}}</text>
-        <text class="compass-info-divider">|</text>
-        <text class="compass-info-true">真: {{headingDescTrue}}</text>
-        <text class="compass-info-decl">({{declSummary}})</text>
+        <!-- 今日吉方导引条：财神 / 喜神（随日干换宫，可直接照盘转向） -->
+        <view class="daily-god-bar" wx:if="{{dailyGodsText}}">
+          <text class="daily-god-line">{{dailyGodsText}}</text>
+          <text class="daily-god-tip">{{dailyGodsTip}}</text>
+        </view>
+
+        <!-- 节气进度：当前节气 + 距下一节气天数，点按进入择日日课自检 -->
+        <view class="term-strip" wx:if="{{termBadge}}" bindtap="goZeri">
+          <text class="term-strip-text">{{termBadge}}</text>
+          <text class="term-strip-go">日课自检 ›</text>
+        </view>
+
+        <!-- 磁北 / 真北朝向胶囊栏 -->
+        <view class="compass-bar" bindtap="toggleCalibModal" data-show="true">
+          <view class="compass-info-box">
+            <view class="calib-dot {{calibClass}}"></view>
+            <text class="compass-info-mag">磁: {{headingDescMag}}</text>
+            <text class="compass-info-divider">|</text>
+            <text class="compass-info-true">真: {{headingDescTrue}}</text>
+            <text class="compass-info-decl">({{declSummary}})</text>
+          </view>
+        </view>
       </view>
-    </view>
-
     </block>
+  </view>
 
-    <!-- 强磁干扰悬浮告警条 -->
-    <view class="mag-alert-banner" wx:if="{{showMagAlert}}" bindtap="toggleCalibModal" data-show="true">
-      {{magAlertText}}
+  <!-- ============ 四大高频入口：盘解 / 择日 / 户型 / 化解 ============ -->
+  <view class="quick-grid">
+    <view class="quick" hover-class="quick-active" bindtap="goAnalysis">
+      <view class="quick-glyph">卦</view>
+      <view class="quick-name">盘解</view>
+      <view class="quick-desc">九宫 · 飞星</view>
+    </view>
+    <view class="quick" hover-class="quick-active" bindtap="goZeri">
+      <view class="quick-glyph">曆</view>
+      <view class="quick-name">择日</view>
+      <view class="quick-desc">日课 · 吉时</view>
+    </view>
+    <view class="quick" hover-class="quick-active" bindtap="goFloorplan">
+      <view class="quick-glyph">宅</view>
+      <view class="quick-name">户型</view>
+      <view class="quick-desc">九宫 · 缺角</view>
+    </view>
+    <view class="quick" hover-class="quick-active" bindtap="goRemedy">
+      <view class="quick-glyph">化</view>
+      <view class="quick-name">化解</view>
+      <view class="quick-desc">待办清单</view>
     </view>
   </view>
 
-  <!-- ============ 结论看板：一屏看尽时间 / 位置 / 方位 + 四类结论 ============ -->
-  <view class="conclusion">
+  <!-- ============ 核心结论看板：此刻 · 此地 · 此向 ============ -->
+  <view class="conclusion idx-conclusion">
     <view class="conclusion-eyebrow">此 刻 · 此 地 · 此 向</view>
     <view class="conclusion-head">{{concSitFace}} · {{concHeading}}</view>
     <view class="conclusion-sub">{{concDate}} {{concTime}}</view>
@@ -122,52 +173,7 @@
     <view class="conclusion-note">盘面金色扇区为坐山、红色为向首；详细盘面与依据见下方「展开详情」。</view>
   </view>
 
-  <!-- 四个常用入口：首屏就能点进盘解 / 择日 / 户型 / 化解 -->
-  <view class="quick-grid">
-    <view class="quick" hover-class="quick-active" bindtap="goAnalysis">
-      <view class="quick-name">盘解</view>
-      <view class="quick-desc">九宫 · 飞星</view>
-    </view>
-    <view class="quick" hover-class="quick-active" bindtap="goZeri">
-      <view class="quick-name">择日</view>
-      <view class="quick-desc">日课 · 吉时</view>
-    </view>
-    <view class="quick" hover-class="quick-active" bindtap="goFloorplan">
-      <view class="quick-name">户型</view>
-      <view class="quick-desc">九宫 · 缺角</view>
-    </view>
-    <view class="quick" hover-class="quick-active" bindtap="goRemedy">
-      <view class="quick-name">化解</view>
-      <view class="quick-desc">待办清单</view>
-    </view>
-  </view>
-
-  <!-- 罗盘视口：Canvas 2D + 十字天心瞄准线 -->
-  <view class="compass-container">
-    <view class="compass-viewport">
-      <!--
-        画布在弹出任何弹窗时临时隐藏：<canvas type="2d"> 在部分机型/基础库下会作为
-        原生层组件渲染在所有 WebView 内容之上，忽略 z-index，导致弹窗被画布遮挡。
-        使用 hidden 属性而非 wx:if，避免画布节点被卸载后 this.canvas 失效。
-      -->
-      <canvas
-        type="2d"
-        id="compassCanvas"
-        class="compass-canvas"
-        hidden="{{showCalibModal || showLayerModal || showMountainPicker || showKongwangModal || showFenjinModal || showFengshuiModal}}"
-        bindtouchstart="onTouchStart"
-        bindtouchmove="onTouchMove"
-        bindtouchend="onTouchEnd"
-      ></canvas>
-      <!-- 风水罗盘天心十道十字瞄准线与准星（坐向同论） -->
-      <view class="crosshair-vertical"></view>
-      <view class="crosshair-horizontal"></view>
-      <view class="crosshair-front-pointer">▲ 向</view>
-      <view class="crosshair-back-pointer">▼ 坐</view>
-    </view>
-  </view>
-
-  <!-- 底部卦象与风水立向详情面板 -->
+  <!-- ============ 底部卦象与风水立向详情面板 ============ -->
   <view class="info-panel">
     <view class="info-title">[{{modeLabel}}] {{currentMountain.name}}山 ({{currentPalaceName}})</view>
 
@@ -185,142 +191,135 @@
 
     <view wx:if="{{showDetail}}" class="fold-body">
 
-    <view class="info-item">
-      <text class="info-label">立向格局</text>
-      <text class="info-val" style="color:#f1c40f">{{sitFacePattern}}</text>
-    </view>
-
-    <view class="info-item info-item-clickable" bindtap="toggleKongwangModal" data-show="true">
-      <text class="info-label">空亡诊断<text class="info-hint-icon">?</text></text>
-      <text class="kw-badge {{kongwangClass}}">{{kongwangText}}</text>
-    </view>
-
-    <view class="info-item info-item-clickable" bindtap="toggleFenjinModal" data-show="true">
-      <text class="info-label">一百二十分金<text class="info-hint-icon">?</text></text>
-      <text class="info-val" style="color:{{fenjinColor}}">{{fenjinText}}</text>
-    </view>
-
-    <!-- 风水方位详解入口：点击打开居家风水八方全鉴 -->
-    <view class="info-item info-item-clickable" bindtap="toggleFengshuiModal" data-show="true">
-      <text class="info-label">风水方位详解<text class="info-hint-icon">?</text></text>
-      <text class="info-val" style="color:#f39c12">{{fengshuiSummary}}</text>
-    </view>
-
-    <!-- 实时方位风水与居家布置速查看板 -->
-    <view class="fs-live-card" bindtap="toggleFengshuiModal" data-show="true">
-      <view class="fs-live-header">
-        <text class="fs-live-badge">{{fsLivePalace}}</text>
-        <text class="fs-live-role">{{fsLiveRole}}</text>
-        <text class="fs-live-btn">八方详解 ❯</text>
+      <view class="info-item">
+        <text class="info-label">立向格局</text>
+        <text class="info-val" style="color:#f1c40f">{{sitFacePattern}}</text>
       </view>
-      <view class="fs-live-body">
-        <view class="fs-live-row">
-          <text class="fs-pill warn">⚠️ 注意问题</text>
-          <text class="fs-live-text">{{fsLiveWarn}}</text>
+
+      <view class="info-item info-item-clickable" bindtap="toggleKongwangModal" data-show="true">
+        <text class="info-label">空亡诊断<text class="info-hint-icon">?</text></text>
+        <text class="kw-badge {{kongwangClass}}">{{kongwangText}}</text>
+      </view>
+
+      <view class="info-item info-item-clickable" bindtap="toggleFenjinModal" data-show="true">
+        <text class="info-label">一百二十分金<text class="info-hint-icon">?</text></text>
+        <text class="info-val" style="color:{{fenjinColor}}">{{fenjinText}}</text>
+      </view>
+
+      <!-- 风水方位详解入口：点击打开居家风水八方全鉴 -->
+      <view class="info-item info-item-clickable" bindtap="toggleFengshuiModal" data-show="true">
+        <text class="info-label">风水方位详解<text class="info-hint-icon">?</text></text>
+        <text class="info-val" style="color:#f39c12">{{fengshuiSummary}}</text>
+      </view>
+
+      <!-- 实时方位风水与居家布置速查看板 -->
+      <view class="fs-live-card" bindtap="toggleFengshuiModal" data-show="true">
+        <view class="fs-live-header">
+          <text class="fs-live-badge">{{fsLivePalace}}</text>
+          <text class="fs-live-role">{{fsLiveRole}}</text>
+          <text class="fs-live-btn">八方详解 ❯</text>
         </view>
-        <view class="fs-live-row">
-          <text class="fs-pill layout">🏡 居家布置</text>
-          <text class="fs-live-text">{{fsLiveLayout}}</text>
+        <view class="fs-live-body">
+          <view class="fs-live-row">
+            <text class="fs-pill warn">⚠️ 注意问题</text>
+            <text class="fs-live-text">{{fsLiveWarn}}</text>
+          </view>
+          <view class="fs-live-row">
+            <text class="fs-pill layout">🏡 居家布置</text>
+            <text class="fs-live-text">{{fsLiveLayout}}</text>
+          </view>
         </view>
       </view>
-    </view>
 
-    <view class="info-item">
-      <text class="info-label">电子水准倾角</text>
-      <text class="info-val" style="color:{{levelColor}}">{{levelText}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">四柱天干地支</text>
-      <text class="info-val" style="color:#50e3c2">{{ganzhiStr}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">真太阳时 ☀️</text>
-      <text class="info-val">
-        <text style="color:#e74c3c">{{solarTimeStr}}</text>
-        <text class="sub-desc"> {{solarTimeDelta}}</text>
-      </text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">地理方位</text>
-      <text class="info-val">{{geoDirStr}} · {{currentMountain.deg}}°</text>
-    </view>
-
-    <view class="info-item" bindtap="onCalibReset">
-      <text class="info-label">经纬坐标 ⟳</text>
-      <text class="info-val" style="color:#50e3c2">{{coordsDisplayStr}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">移动速度</text>
-      <text class="info-val" style="color:#50e3c2">{{nowSpeed}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">地磁强度 / 磁倾角</text>
-      <text class="info-val" style="color:#9b59b6">{{magStrengthStr}} · {{magInclStr}}</text>
-    </view>
-
-    <!-- 临时诊断行：定位抖动用，稳定后删除 -->
-    <view class="info-item">
-      <text class="info-label">诊断</text>
-      <text class="info-val" style="color:#e67e22;font-size:20rpx">{{debugLine}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">后天八卦</text>
-      <text class="info-val">{{currentMountain.post}} {{currentMountain.postSym}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">先天八卦</text>
-      <text class="info-val">{{currentMountain.pre}} {{currentMountain.preSym}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">五行属性</text>
-      <text class="info-val" style="color:{{elemColor}}">{{currentMountain.elem}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">对应山向</text>
-      <text class="info-val">{{currentMountain.name}}山</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">当令节气</text>
-      <text class="info-val">{{currentMountain.solar}}</text>
-    </view>
-
-    <view class="info-item">
-      <text class="info-label">主应消息卦</text>
-      <text class="info-val">{{currentMountain.gua}}</text>
-    </view>
-
-    <!-- 罗盘图例说明 -->
-    <view class="legend">
-      <view class="legend-title">五行配色说明：</view>
-      <view class="legend-row">
-        <text style="color:#4a90e2">■ 水 (黑蓝)</text> |
-        <text style="color:#50e3c2">■ 木 (青绿)</text>
+      <view class="info-item">
+        <text class="info-label">电子水准倾角</text>
+        <text class="info-val" style="color:{{levelColor}}">{{levelText}}</text>
       </view>
-      <view class="legend-row">
-        <text style="color:#e74c3c">■ 火 (赤红)</text> |
-        <text style="color:#f5a623">■ 土 (黄褐)</text>
+
+      <view class="info-item">
+        <text class="info-label">四柱天干地支</text>
+        <text class="info-val" style="color:#50e3c2">{{ganzhiStr}}</text>
       </view>
-      <view class="legend-row"><text style="color:#e0e0e0">■ 金 (白银)</text></view>
-      <view class="legend-row"><text style="color:#d4af37">▣ 金色弧 = 今日当令之山</text></view>
-      <view class="legend-row"><text style="color:#ffd166">💎 外数第三环 = 一百二十分金 (金色为旺相珠宝线)</text></view>
-      <view class="legend-row"><text style="color:#aaa">时间圈 = 24小时制（12时正南·0时正北）</text></view>
-      <view class="legend-row"><text style="color:#c8b88a">最外环 = 先天六十四卦圆图（乾南坤北）</text></view>
-      <view class="legend-row"><text style="color:#888899">手势：单指点击选山 · 双指捏合缩放 (1.0~4.5x) · 放大后单指拖拽平移 · 双击放大/还原</text></view>
-      <view class="legend-row"><text style="color:#e74c3c">● 红色指针 = 当前北京时间</text></view>
-      <view class="legend-row"><text style="color:#f1c40f">☀ 金色虚线针 = 真太阳时（经度 + 日行差修正）</text></view>
-      <view class="legend-row"><text style="color:#2ecc71">▲ 绿色指针 = 地磁北（磁北·标“磁”·地盘正针）</text></view>
-      <view class="legend-row"><text style="color:#f1c40f">▲ 金色指针 = 地理真北（真北·标“真”·GPS磁偏角校正）</text></view>
-    </view>
+
+      <view class="info-item">
+        <text class="info-label">真太阳时 ☀️</text>
+        <text class="info-val">
+          <text style="color:#e74c3c">{{solarTimeStr}}</text>
+          <text class="sub-desc"> {{solarTimeDelta}}</text>
+        </text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">地理方位</text>
+        <text class="info-val">{{geoDirStr}} · {{currentMountain.deg}}°</text>
+      </view>
+
+      <view class="info-item" bindtap="onCalibReset">
+        <text class="info-label">经纬坐标 ⟳</text>
+        <text class="info-val" style="color:#50e3c2">{{coordsDisplayStr}}</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">移动速度</text>
+        <text class="info-val" style="color:#50e3c2">{{nowSpeed}}</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">地磁强度 / 磁倾角</text>
+        <text class="info-val" style="color:#9b59b6">{{magStrengthStr}} · {{magInclStr}}</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">后天八卦</text>
+        <text class="info-val">{{currentMountain.post}} {{currentMountain.postSym}}</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">先天八卦</text>
+        <text class="info-val">{{currentMountain.pre}} {{currentMountain.preSym}}</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">五行属性</text>
+        <text class="info-val" style="color:{{elemColor}}">{{currentMountain.elem}}</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">对应山向</text>
+        <text class="info-val">{{currentMountain.name}}山</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">当令节气</text>
+        <text class="info-val">{{currentMountain.solar}}</text>
+      </view>
+
+      <view class="info-item">
+        <text class="info-label">主应消息卦</text>
+        <text class="info-val">{{currentMountain.gua}}</text>
+      </view>
+
+      <!-- 罗盘图例说明（双列网格徽标） -->
+      <view class="legend">
+        <view class="legend-title">五行与指针图例</view>
+        <view class="legend-grid">
+          <view class="legend-chip"><text class="legend-dot" style="background:#4a90e2"></text><text style="color:#7fb5ff">水 (黑蓝)</text></view>
+          <view class="legend-chip"><text class="legend-dot" style="background:#50e3c2"></text><text style="color:#69e8cb">木 (青绿)</text></view>
+          <view class="legend-chip"><text class="legend-dot" style="background:#e74c3c"></text><text style="color:#f0867d">火 (赤红)</text></view>
+          <view class="legend-chip"><text class="legend-dot" style="background:#f5a623"></text><text style="color:#f7bd5c">土 (黄褐)</text></view>
+          <view class="legend-chip"><text class="legend-dot" style="background:#e0e0e0"></text><text style="color:#e6e9f0">金 (白银)</text></view>
+          <view class="legend-chip"><text class="legend-dot" style="background:#d4af37"></text><text style="color:#e9d8a6">当令之山金弧</text></view>
+          <view class="legend-chip"><text class="legend-dot" style="background:#2ecc71"></text><text style="color:#6ee7b7">绿针 · 地磁北</text></view>
+          <view class="legend-chip"><text class="legend-dot" style="background:#f1c40f"></text><text style="color:#f6d365">金针 · 地理真北</text></view>
+        </view>
+        <view class="legend-notes">
+          <view class="legend-row">• 💎 外数第三环 = 一百二十分金（金色为旺相珠宝线）</view>
+          <view class="legend-row">• ⏰ 时间圈 = 24小时制（红针北京时间 · 金虚针真太阳时）</view>
+          <view class="legend-row">• ䷀ 最外环 = 先天六十四卦圆图（乾南坤北）</view>
+          <view class="legend-row">• ✋ 手势：单指点击选山 · 双指捏合缩放(1~4.5x) · 双击还原</view>
+        </view>
+        <view class="legend-debug">传感器诊断：{{debugLine}}</view>
+      </view>
 
     </view>
   </view>
@@ -346,7 +345,7 @@
       <text class="modal-title">⚙️ 罗盘圈层图层自定义</text>
       <text class="modal-close" bindtap="toggleLayerModal" data-show="false">✕</text>
     </view>
-    <view class="card-sub" style="margin-bottom:12rpx;">当前盘式：{{activePresetName}}（按图层开关实时判定，与 iOS 四套预设一致）</view>
+    <view class="card-sub" style="margin-bottom:14rpx;">当前盘式：{{activePresetName}}（按图层开关实时判定，与 iOS 四套预设一致）</view>
 
     <view class="layer-preset-bar">
       <view class="layer-preset-btn" bindtap="applyLayerPreset" data-preset="all">全功能盘</view>

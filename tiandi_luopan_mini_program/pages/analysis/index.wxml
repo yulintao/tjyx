@@ -71,6 +71,10 @@
       <view class="card-title">盘解工具 · 点开即用</view>
       <view class="grid-entries">
         <view class="entry" hover-class="entry-active" wx:for="{{entries}}" wx:key="url" data-url="{{item.url}}" bindtap="onEntry">
+          <view class="entry-top">
+            <view class="entry-glyph">{{item.glyph}}</view>
+            <view class="entry-badge">{{item.badge}}</view>
+          </view>
           <view class="entry-name">{{item.name}}</view>
           <view class="entry-desc">{{item.desc}}</view>
         </view>

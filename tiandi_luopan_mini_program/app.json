@@ -31,10 +31,10 @@
   "window": {
     "backgroundTextStyle": "dark",
     "navigationStyle": "custom",
-    "navigationBarBackgroundColor": "#12131a",
+    "navigationBarBackgroundColor": "#0b0d14",
     "navigationBarTitleText": "",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#12131a"
+    "backgroundColor": "#0b0d14"
   },
   "permission": {
     "scope.userLocation": {
@@ -47,9 +47,9 @@
     "startLocationUpdate"
   ],
   "tabBar": {
-    "color": "#6f7a8f",
-    "selectedColor": "#e9d8a6",
-    "backgroundColor": "#12131a",
+    "color": "#6e7b94",
+    "selectedColor": "#f0d999",
+    "backgroundColor": "#0d1018",
     "borderStyle": "black",
     "list": [
       {

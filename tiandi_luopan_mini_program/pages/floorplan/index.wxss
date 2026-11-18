@@ -1,0 +1,249 @@
+/* pages/floorplan/index.wxss */
+
+.plan-canvas-box {
+  position: relative;
+  width: 100%;
+  height: 620rpx;
+  background-color: #0b111e;
+  background-image:
+    linear-gradient(rgba(100, 145, 220, 0.08) 1rpx, transparent 1rpx),
+    linear-gradient(90deg, rgba(100, 145, 220, 0.08) 1rpx, transparent 1rpx);
+  background-size: 31rpx 31rpx;
+  border: 1rpx solid rgba(212, 175, 55, 0.28);
+  border-radius: 18rpx;
+  overflow: hidden;
+  box-shadow: inset 0 0 36rpx rgba(0, 0, 0, 0.72), 0 8rpx 24rpx rgba(0, 0, 0, 0.35);
+}
+
+.plan-bg-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.35;
+}
+
+.plan-grid-v1,
+.plan-grid-v2 {
+  position: absolute;
+  top: 0;
+  width: 1rpx;
+  height: 100%;
+  background: rgba(233, 216, 166, 0.22);
+}
+
+.plan-grid-v1 { left: 33.33%; }
+.plan-grid-v2 { left: 66.66%; }
+
+.plan-grid-h1,
+.plan-grid-h2 {
+  position: absolute;
+  left: 0;
+  height: 1rpx;
+  width: 100%;
+  background: rgba(233, 216, 166, 0.22);
+}
+
+.plan-grid-h1 { top: 33.33%; }
+.plan-grid-h2 { top: 66.66%; }
+
+.plan-compass-badge {
+  position: absolute;
+  right: 12rpx;
+  top: 10rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  background: rgba(12, 16, 26, 0.78);
+  border: 1rpx solid rgba(233, 216, 166, 0.25);
+  color: #e9d8a6;
+  font-size: 17rpx;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.plan-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.plan-overlay-ring {
+  position: absolute;
+  left: 14%;
+  top: 14%;
+  width: 72%;
+  height: 72%;
+  border: 1rpx dashed rgba(233, 216, 166, 0.36);
+  border-radius: 50%;
+}
+
+.plan-overlay-axis {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72%;
+  height: 2rpx;
+  background: linear-gradient(90deg, rgba(233, 216, 166, 0.15), rgba(233, 216, 166, 0.9));
+  transform-origin: 0 50%;
+}
+
+.plan-overlay-mark {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 18rpx;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.85);
+}
+
+.plan-overlay-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12rpx;
+  height: 12rpx;
+  margin-left: -6rpx;
+  margin-top: -6rpx;
+  border-radius: 50%;
+  background: #e9d8a6;
+  opacity: 0.85;
+}
+
+/* 房间色块 */
+.plan-room {
+  position: absolute;
+  padding: 8rpx;
+  font-size: 20rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid rgba(140, 165, 210, 0.42);
+  backdrop-filter: blur(4rpx);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.plan-room-ji {
+  background: linear-gradient(160deg, rgba(66, 179, 118, 0.24), rgba(30, 88, 58, 0.18));
+  border-color: rgba(127, 211, 160, 0.48);
+}
+
+.plan-room-xiong {
+  background: linear-gradient(160deg, rgba(214, 94, 94, 0.26), rgba(105, 34, 34, 0.2));
+  border-color: rgba(232, 139, 139, 0.52);
+}
+
+.plan-room-ping {
+  background: linear-gradient(160deg, rgba(96, 120, 168, 0.2), rgba(38, 48, 72, 0.22));
+  border-color: rgba(140, 165, 210, 0.36);
+}
+
+.plan-room-name {
+  color: #f3e2b3;
+  font-weight: 600;
+  font-size: 21rpx;
+  line-height: 28rpx;
+}
+
+.plan-room-meta {
+  color: #b4c0d6;
+  font-size: 18rpx;
+  line-height: 24rpx;
+}
+
+/* 门窗开口标记 */
+.plan-opening {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  font-size: 18rpx;
+}
+
+.plan-opening-bar {
+  height: 6rpx;
+  border-radius: 3rpx;
+  box-shadow: 0 0 8rpx rgba(0, 0, 0, 0.6);
+}
+
+.plan-opening-glyph {
+  font-size: 16rpx;
+  text-align: center;
+  text-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.9);
+}
+
+/* 中宫立极十字准星 */
+.plan-pivot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 28rpx;
+  height: 28rpx;
+  pointer-events: none;
+}
+
+.plan-pivot-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2rpx;
+  height: 28rpx;
+  margin-left: -1rpx;
+  background: #ff6b6b;
+  box-shadow: 0 0 8rpx rgba(231, 76, 60, 0.8);
+}
+
+.plan-pivot-h {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 2rpx;
+  width: 28rpx;
+  margin-top: -1rpx;
+  background: #ff6b6b;
+  box-shadow: 0 0 8rpx rgba(231, 76, 60, 0.8);
+}
+
+/* 操作栏 */
+.plan-btn-row {
+  display: flex;
+  gap: 14rpx;
+  margin-top: 14rpx;
+}
+
+.plan-btn-row .btn {
+  flex: 1;
+  margin-top: 0;
+}
+
+.plan-btn-active-red {
+  border-color: rgba(231, 76, 60, 0.72) !important;
+  color: #ff9c90 !important;
+  background: rgba(231, 76, 60, 0.16) !important;
+}
+
+.plan-btn-active-gold {
+  border-color: rgba(233, 216, 166, 0.72) !important;
+  color: #f3e2b3 !important;
+  background: rgba(233, 216, 166, 0.14) !important;
+}
+
+.opening-picker-row {
+  display: flex;
+  gap: 10rpx;
+}
+
+.opening-picker-row .input-box {
+  min-width: 0;
+  width: 100%;
+  padding: 12rpx 8rpx;
+  font-size: 24rpx;
+}
+
+.iso-canvas {
+  width: 100%;
+  height: 520rpx;
+  background: #0b0e16;
+  border: 1rpx solid rgba(130, 152, 196, 0.18);
+  border-radius: 16rpx;
+}

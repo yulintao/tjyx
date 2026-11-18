@@ -1,8 +1,8 @@
 /** app.wxss **/
 page {
-  background-color: #0f1117;
-  color: #e3e6ee;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #0b0d14;
+  color: #e4e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
 }
@@ -14,7 +14,9 @@ view, text, button, input, picker {
 /* ---------- 通用外壳 ---------- */
 .screen {
   min-height: 100vh;
-  background: radial-gradient(120% 60% at 50% 0%, #182033 0%, #0f1117 60%);
+  background:
+    radial-gradient(120% 45% at 50% 0%, rgba(201, 162, 74, 0.13) 0%, rgba(24, 34, 56, 0.65) 45%, #0b0d14 100%),
+    #0b0d14;
   /* 状态栏安全区由外壳统一承担：自定义导航栏（navigationStyle: custom）没有系统栏，
      若把 env(safe-area-inset-top) 加在 .topbar 的 height 上，由于全局 view 是 border-box，
      刘海机型 96rpx≈44px 正好等于安全区高度，内容区会被压成 0，返回箭头既看不见也点不中。
@@ -23,82 +25,116 @@ view, text, button, input, picker {
   padding-top: constant(safe-area-inset-top);
   padding-top: env(safe-area-inset-top);
   padding-top: max(20px, env(safe-area-inset-top));
-  padding-bottom: 40rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
 }
 
 .topbar {
   display: flex;
   align-items: center;
-  height: 88rpx;
+  height: 92rpx;
   padding: 0 24rpx;
   position: relative;
   z-index: 20;
+  border-bottom: 1rpx solid rgba(233, 216, 166, 0.08);
+  margin-bottom: 12rpx;
 }
 
 .topbar-back {
-  /* 返回热区放大到 88×88rpx（44px），并负边距贴住左边，避免「看得到点不中」；
-     用 min-width 而非定宽，容得下「跳过」这类文字按钮 */
-  min-width: 88rpx;
-  height: 88rpx;
-  margin-left: -16rpx;
-  padding: 0 8rpx;
+  /* 返回热区放大到 88×88rpx（44px），保证指触易点 */
+  min-width: 76rpx;
+  height: 64rpx;
+  margin-left: -4rpx;
+  padding: 0 14rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8f9bb3;
-  font-size: 36rpx;
+  color: #d6c38d;
+  font-size: 32rpx;
   white-space: nowrap;
+  border-radius: 999rpx;
+  background: rgba(233, 216, 166, 0.06);
+  border: 1rpx solid rgba(233, 216, 166, 0.14);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.topbar-back:active {
+  transform: scale(0.94);
+  background: rgba(233, 216, 166, 0.14);
 }
 
 .topbar-title {
   flex: 1;
   text-align: center;
-  font-size: 30rpx;
-  letter-spacing: 2rpx;
-  color: #e9d8a6;
+  font-size: 31rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
+  color: #f2dfb0;
+  text-shadow: 0 2rpx 12rpx rgba(212, 175, 55, 0.22);
 }
 
 .topbar-right {
   min-width: 88rpx;
   text-align: right;
-  color: #8f9bb3;
+  color: #b7c2d6;
   font-size: 24rpx;
   white-space: nowrap;
+  padding: 8rpx 4rpx;
 }
 
 .body {
-  padding: 0 28rpx 32rpx;
+  padding: 8rpx 28rpx 36rpx;
 }
 
 /* ---------- 卡片 ---------- */
 .card {
-  background: rgba(26, 31, 44, 0.86);
-  border: 1rpx solid rgba(120, 140, 180, 0.14);
-  border-radius: 20rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
+  background: linear-gradient(165deg, rgba(26, 32, 46, 0.92) 0%, rgba(17, 21, 32, 0.96) 100%);
+  border: 1rpx solid rgba(140, 165, 210, 0.16);
+  border-radius: 22rpx;
+  padding: 26rpx;
+  margin-bottom: 22rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.4), inset 0 1rpx 0 rgba(255, 255, 255, 0.04);
 }
 
 .card-title {
-  font-size: 26rpx;
-  color: #e9d8a6;
-  margin-bottom: 12rpx;
-  letter-spacing: 1rpx;
+  position: relative;
+  padding-left: 16rpx;
+  font-size: 27rpx;
+  font-weight: 600;
+  color: #f0dfa8;
+  margin-bottom: 14rpx;
+  letter-spacing: 1.5rpx;
+  line-height: 36rpx;
+}
+
+.card-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6rpx;
+  width: 6rpx;
+  height: 24rpx;
+  border-radius: 3rpx;
+  background: linear-gradient(180deg, #f3e0a8 0%, #b88c32 100%);
 }
 
 .card-sub {
-  font-size: 22rpx;
-  color: #8f9bb3;
-  line-height: 34rpx;
+  font-size: 23rpx;
+  color: #97a5bd;
+  line-height: 36rpx;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 8rpx 0;
+  padding: 10rpx 0;
   font-size: 24rpx;
   line-height: 36rpx;
+  border-bottom: 1rpx solid rgba(120, 140, 180, 0.06);
+}
+
+.row:last-child {
+  border-bottom: none;
 }
 
 .row-k {
@@ -109,57 +145,70 @@ view, text, button, input, picker {
 .row-v {
   flex: 1;
   text-align: right;
-  color: #dfe4ee;
+  color: #e6ebf4;
 }
 
 /* ---------- 九宫 ---------- */
 .grid9 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10rpx;
-  margin-top: 8rpx;
+  gap: 12rpx;
+  margin-top: 10rpx;
+  padding: 12rpx;
+  background: rgba(11, 14, 22, 0.72);
+  border: 1rpx solid rgba(212, 175, 55, 0.2);
+  border-radius: 20rpx;
 }
 
 .cell {
-  background: rgba(30, 37, 53, 0.9);
-  border: 1rpx solid rgba(120, 140, 180, 0.16);
-  border-radius: 12rpx;
-  padding: 14rpx 10rpx;
-  min-height: 168rpx;
+  background: linear-gradient(180deg, rgba(32, 39, 57, 0.95) 0%, rgba(22, 27, 40, 0.95) 100%);
+  border: 1rpx solid rgba(130, 152, 196, 0.18);
+  border-radius: 14rpx;
+  padding: 16rpx 12rpx;
+  min-height: 170rpx;
   position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.cell:active {
+  transform: scale(0.97);
 }
 
 .cell-center {
-  background: rgba(40, 46, 64, 0.9);
+  background: linear-gradient(180deg, rgba(48, 42, 30, 0.72) 0%, rgba(28, 32, 46, 0.95) 100%);
+  border-color: rgba(233, 216, 166, 0.28);
 }
 
 .cell-alarm {
-  border-color: rgba(226, 100, 100, 0.6);
+  border-color: rgba(232, 108, 108, 0.68);
+  box-shadow: inset 0 0 18rpx rgba(226, 100, 100, 0.22);
 }
 
 /* 点选中的宫位：与结论卡同色描边，做出「可点、已选中」的反馈 */
 .cell-picked {
-  border-color: rgba(233, 216, 166, 0.75);
-  background: rgba(233, 216, 166, 0.1);
+  border-color: rgba(240, 217, 153, 0.85);
+  background: linear-gradient(180deg, rgba(233, 216, 166, 0.16) 0%, rgba(45, 38, 22, 0.48) 100%);
+  box-shadow: 0 0 20rpx rgba(233, 216, 166, 0.25);
 }
 
 .cell-name {
   font-size: 20rpx;
-  color: #8f9bb3;
+  color: #97a6c0;
 }
 
 .cell-triple {
   display: flex;
   justify-content: space-between;
-  margin-top: 6rpx;
-  font-size: 28rpx;
-  color: #e9d8a6;
+  margin-top: 8rpx;
+  font-size: 29rpx;
+  font-weight: 600;
+  color: #f3e1af;
 }
 
 .cell-sub {
-  margin-top: 4rpx;
+  margin-top: 6rpx;
   font-size: 18rpx;
-  color: #9aa6bd;
+  color: #a4b0c7;
   line-height: 26rpx;
 }
 
@@ -168,28 +217,44 @@ view, text, button, input, picker {
   right: 10rpx;
   top: 10rpx;
   font-size: 16rpx;
+  font-weight: 600;
   padding: 2rpx 8rpx;
   border-radius: 8rpx;
-  background: rgba(226, 100, 100, 0.18);
-  color: #e88b8b;
+  background: rgba(226, 100, 100, 0.22);
+  border: 1rpx solid rgba(232, 139, 139, 0.35);
+  color: #f29b9b;
 }
 
 /* ---------- 标签 / 列表 ---------- */
 .tag {
   display: inline-block;
   font-size: 20rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
+  font-weight: 500;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
   margin-right: 8rpx;
   margin-bottom: 8rpx;
+  border: 1rpx solid transparent;
 }
 
-.tag-ji { background: rgba(94, 170, 120, 0.16); color: #7fd3a0; }
-.tag-xiong { background: rgba(214, 94, 94, 0.16); color: #e88b8b; }
-.tag-ping { background: rgba(120, 140, 180, 0.14); color: #9fb0cb; }
+.tag-ji {
+  background: rgba(66, 179, 118, 0.15);
+  border-color: rgba(127, 211, 160, 0.28);
+  color: #84dba6;
+}
+.tag-xiong {
+  background: rgba(214, 94, 94, 0.16);
+  border-color: rgba(232, 139, 139, 0.3);
+  color: #f09595;
+}
+.tag-ping {
+  background: rgba(120, 140, 180, 0.14);
+  border-color: rgba(159, 176, 203, 0.22);
+  color: #adc0dc;
+}
 
 .list-item {
-  padding: 14rpx 0;
+  padding: 16rpx 0;
   border-bottom: 1rpx solid rgba(120, 140, 180, 0.1);
 }
 
@@ -200,15 +265,17 @@ view, text, button, input, picker {
 .list-main {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 25rpx;
-  color: #e3e6ee;
+  font-weight: 500;
+  color: #eaedf5;
 }
 
 .list-desc {
-  margin-top: 6rpx;
-  font-size: 21rpx;
-  color: #8f9bb3;
-  line-height: 32rpx;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #93a1ba;
+  line-height: 34rpx;
 }
 
 /* ---------- 表单 ---------- */
@@ -216,44 +283,55 @@ view, text, button, input, picker {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10rpx 0;
+  padding: 12rpx 0;
 }
 
 .input-row label {
   font-size: 24rpx;
-  color: #8f9bb3;
+  color: #9aa7bf;
 }
 
 .input-box {
-  background: rgba(18, 22, 32, 0.9);
-  border: 1rpx solid rgba(120, 140, 180, 0.18);
-  border-radius: 10rpx;
-  padding: 12rpx 16rpx;
+  background: rgba(11, 14, 22, 0.92);
+  border: 1rpx solid rgba(212, 175, 55, 0.24);
+  border-radius: 12rpx;
+  padding: 12rpx 18rpx;
   font-size: 26rpx;
-  color: #e9d8a6;
-  min-width: 200rpx;
+  color: #f0dfa8;
+  min-width: 210rpx;
   text-align: center;
+  box-shadow: inset 0 2rpx 8rpx rgba(0, 0, 0, 0.35);
 }
 
 .btn {
-  height: 76rpx;
-  line-height: 76rpx;
-  border-radius: 14rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 16rpx;
   font-size: 26rpx;
-  background: rgba(60, 72, 96, 0.5);
-  color: #dfe4ee;
+  font-weight: 500;
+  background: linear-gradient(180deg, rgba(48, 58, 80, 0.65) 0%, rgba(32, 39, 55, 0.85) 100%);
+  color: #e6ebf4;
   text-align: center;
   margin-top: 16rpx;
-  border: 1rpx solid rgba(120, 140, 180, 0.2);
+  border: 1rpx solid rgba(135, 158, 200, 0.24);
+  box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.24);
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.985);
+  opacity: 0.9;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #8a6f2d, #c9a94f);
-  color: #191b22;
+  background: linear-gradient(135deg, #e2c16b 0%, #b58d34 100%);
+  color: #16181f;
   border: none;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 8rpx 22rpx rgba(201, 162, 74, 0.32), inset 0 1rpx 0 rgba(255, 245, 210, 0.5);
 }
 
+/* ---------- Bento 工具入口宫格 ---------- */
 .grid-entries {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -261,27 +339,62 @@ view, text, button, input, picker {
 }
 
 .entry {
-  background: rgba(30, 37, 53, 0.86);
-  border: 1rpx solid rgba(120, 140, 180, 0.16);
-  border-radius: 16rpx;
+  position: relative;
+  background: linear-gradient(155deg, rgba(31, 38, 56, 0.92) 0%, rgba(20, 25, 38, 0.96) 100%);
+  border: 1rpx solid rgba(130, 152, 196, 0.18);
+  border-radius: 18rpx;
   padding: 20rpx 18rpx;
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.14s ease, border-color 0.14s ease;
+}
+
+.entry-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+
+.entry-glyph {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 12rpx;
+  background: linear-gradient(145deg, rgba(233, 216, 166, 0.18), rgba(201, 162, 74, 0.06));
+  border: 1rpx solid rgba(233, 216, 166, 0.3);
+  color: #f2dfb0;
+  font-size: 24rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entry-badge {
+  font-size: 18rpx;
+  color: #9cb0ce;
+  background: rgba(120, 140, 180, 0.12);
+  border: 1rpx solid rgba(120, 140, 180, 0.18);
+  padding: 2rpx 10rpx;
+  border-radius: 999rpx;
 }
 
 .entry-name {
   font-size: 28rpx;
-  color: #e9d8a6;
+  font-weight: 600;
+  color: #f0dfa8;
 }
 
 .entry-desc {
   margin-top: 6rpx;
   font-size: 20rpx;
-  color: #8f9bb3;
+  color: #93a1ba;
   line-height: 28rpx;
 }
 
 .entry-active {
-  background: rgba(233, 216, 166, 0.1);
-  border-color: rgba(233, 216, 166, 0.42);
+  background: linear-gradient(155deg, rgba(233, 216, 166, 0.14) 0%, rgba(45, 38, 22, 0.72) 100%);
+  border-color: rgba(233, 216, 166, 0.5);
+  transform: scale(0.98);
 }
 
 /* 罗盘首页首屏四入口 */
@@ -289,25 +402,45 @@ view, text, button, input, picker {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12rpx;
-  margin: 0 24rpx 18rpx;
+  width: 700rpx;
+  margin: 0 auto 20rpx;
 }
 
 .quick {
-  padding: 16rpx 0 14rpx;
+  padding: 18rpx 6rpx 14rpx;
   text-align: center;
-  border: 1rpx solid rgba(120, 140, 180, 0.18);
-  border-radius: 14rpx;
-  background: rgba(26, 32, 46, 0.72);
+  border: 1rpx solid rgba(233, 216, 166, 0.2);
+  border-radius: 18rpx;
+  background: linear-gradient(180deg, rgba(28, 35, 51, 0.92) 0%, rgba(18, 23, 35, 0.95) 100%);
+  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.3), inset 0 1rpx 0 rgba(255, 255, 255, 0.05);
+  transition: transform 0.14s ease, border-color 0.14s ease;
 }
 
 .quick-active {
-  background: rgba(233, 216, 166, 0.1);
-  border-color: rgba(233, 216, 166, 0.42);
+  background: linear-gradient(180deg, rgba(233, 216, 166, 0.18) 0%, rgba(42, 35, 20, 0.85) 100%);
+  border-color: rgba(233, 216, 166, 0.55);
+  transform: scale(0.96);
+}
+
+.quick-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 12rpx;
+  margin-bottom: 8rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #f3e1af;
+  background: rgba(212, 175, 55, 0.14);
+  border: 1rpx solid rgba(233, 216, 166, 0.26);
 }
 
 .quick-name {
   font-size: 26rpx;
-  color: #e9d8a6;
+  font-weight: 600;
+  color: #f2dfb0;
 }
 
 .quick-desc {
@@ -320,16 +453,20 @@ view, text, button, input, picker {
 .week-strip {
   display: flex;
   align-items: center;
-  gap: 6rpx;
-  margin-bottom: 18rpx;
+  gap: 8rpx;
+  margin-bottom: 20rpx;
+  padding: 10rpx 8rpx;
+  background: rgba(16, 20, 30, 0.86);
+  border: 1rpx solid rgba(130, 152, 196, 0.16);
+  border-radius: 18rpx;
 }
 
 .week-nav {
-  width: 40rpx;
+  width: 42rpx;
   text-align: center;
-  color: #8f9bb3;
-  font-size: 32rpx;
-  line-height: 64rpx;
+  color: #c9a24a;
+  font-size: 34rpx;
+  line-height: 76rpx;
 }
 
 .week-list {
@@ -340,16 +477,17 @@ view, text, button, input, picker {
 
 .week-day {
   flex: 1;
-  padding: 10rpx 0 8rpx;
+  padding: 12rpx 0 10rpx;
   text-align: center;
-  border: 1rpx solid rgba(120, 140, 180, 0.18);
-  border-radius: 12rpx;
+  border: 1rpx solid rgba(120, 140, 180, 0.14);
+  border-radius: 14rpx;
   background: rgba(255, 255, 255, 0.03);
 }
 
 .week-day.week-on {
-  border-color: rgba(233, 216, 166, 0.55);
-  background: rgba(233, 216, 166, 0.12);
+  border-color: rgba(240, 217, 153, 0.65);
+  background: linear-gradient(180deg, rgba(233, 216, 166, 0.2) 0%, rgba(138, 111, 45, 0.16) 100%);
+  box-shadow: 0 4rpx 14rpx rgba(212, 175, 55, 0.18);
 }
 
 .week-w {
@@ -358,22 +496,24 @@ view, text, button, input, picker {
 }
 
 .week-day.week-on .week-w {
-  color: #c9a24a;
+  color: #f0dfa8;
+  font-weight: 600;
 }
 
 .week-d {
-  margin-top: 2rpx;
+  margin-top: 4rpx;
   font-size: 26rpx;
-  color: #e3e6ee;
+  font-weight: 600;
+  color: #e8ecf5;
 }
 
 .week-jc {
-  margin-top: 2rpx;
+  margin-top: 4rpx;
   font-size: 18rpx;
 }
 
 .week-good {
-  color: #7fd3a0;
+  color: #84dba6;
 }
 
 .week-dim {
@@ -383,14 +523,14 @@ view, text, button, input, picker {
 .footnote {
   margin-top: 18rpx;
   font-size: 20rpx;
-  color: #6f7a8f;
+  color: #77839b;
   line-height: 32rpx;
 }
 
 .empty {
-  padding: 40rpx 0;
+  padding: 44rpx 0;
   text-align: center;
-  color: #6f7a8f;
+  color: #77839b;
   font-size: 24rpx;
 }
 
@@ -399,62 +539,71 @@ view, text, button, input, picker {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-bottom: 12rpx;
+  margin-bottom: 14rpx;
 }
 
 .chip {
-  padding: 8rpx 18rpx;
+  padding: 9rpx 20rpx;
   border-radius: 999rpx;
-  border: 1rpx solid rgba(120, 140, 180, 0.25);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1rpx solid rgba(130, 152, 196, 0.24);
+  background: rgba(255, 255, 255, 0.04);
   font-size: 22rpx;
-  color: #9fb0cb;
+  color: #a6b7d4;
 }
 
 .chip-on {
-  border-color: rgba(233, 216, 166, 0.6);
-  background: rgba(233, 216, 166, 0.14);
-  color: #f1c40f;
+  border-color: rgba(240, 217, 153, 0.68);
+  background: linear-gradient(135deg, rgba(233, 216, 166, 0.2), rgba(201, 162, 74, 0.1));
+  color: #f5d87e;
+  font-weight: 600;
 }
 
 /* 节气进度条（日课自检卡共用） */
 .term-bar {
   margin-top: 14rpx;
-  height: 8rpx;
-  border-radius: 4rpx;
+  height: 10rpx;
+  border-radius: 5rpx;
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
 .term-bar-fill {
-  height: 8rpx;
-  border-radius: 4rpx;
-  background: linear-gradient(90deg, #c8a24a, #e8d9a6);
+  height: 10rpx;
+  border-radius: 5rpx;
+  background: linear-gradient(90deg, #b88c32, #f2dfb0);
+  box-shadow: 0 0 10rpx rgba(233, 216, 166, 0.45);
 }
 
 /* ---------- 结论式界面：置顶结论卡 ---------- */
 .conclusion {
-  background: linear-gradient(150deg, rgba(74, 62, 30, 0.55), rgba(26, 31, 44, 0.92));
-  border: 1rpx solid rgba(233, 216, 166, 0.36);
-  border-radius: 20rpx;
+  background: linear-gradient(145deg, rgba(78, 60, 26, 0.62) 0%, rgba(26, 32, 48, 0.94) 55%, rgba(15, 19, 29, 0.98) 100%);
+  border: 1rpx solid rgba(233, 216, 166, 0.42);
+  border-radius: 24rpx;
   padding: 28rpx 26rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 22rpx;
+  box-shadow: 0 16rpx 44rpx rgba(0, 0, 0, 0.55), inset 0 1rpx 0 rgba(255, 236, 184, 0.22);
 }
 .conclusion-eyebrow {
-  font-size: 20rpx;
-  color: #c9a24a;
+  display: inline-block;
+  font-size: 19rpx;
+  color: #e6c677;
   letter-spacing: 2rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(201, 162, 74, 0.16);
+  border: 1rpx solid rgba(233, 216, 166, 0.28);
 }
 .conclusion-head {
-  font-size: 38rpx;
+  font-size: 40rpx;
   font-weight: 700;
-  color: #f0dfa8;
-  line-height: 50rpx;
-  margin-top: 6rpx;
+  color: #f6e7be;
+  line-height: 52rpx;
+  margin-top: 10rpx;
+  letter-spacing: 1rpx;
 }
 .conclusion-sub {
   font-size: 22rpx;
-  color: #9aa6bd;
+  color: #a6b3c9;
   line-height: 34rpx;
   margin-top: 8rpx;
 }
@@ -465,10 +614,11 @@ view, text, button, input, picker {
   margin-top: 20rpx;
 }
 .conclusion-cell {
-  background: rgba(12, 15, 22, 0.5);
-  border: 1rpx solid rgba(233, 216, 166, 0.14);
-  border-radius: 14rpx;
+  background: rgba(10, 13, 20, 0.58);
+  border: 1rpx solid rgba(233, 216, 166, 0.16);
+  border-radius: 16rpx;
   padding: 16rpx 18rpx;
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.04);
 }
 .conclusion-cell.wide {
   grid-column: span 2;
@@ -479,16 +629,17 @@ view, text, button, input, picker {
 }
 .conclusion-v {
   font-size: 28rpx;
-  color: #e9d8a6;
+  font-weight: 500;
+  color: #f0dfa8;
   line-height: 38rpx;
   margin-top: 6rpx;
 }
-.conclusion-v.ji { color: #7fd3a0; }
-.conclusion-v.xiong { color: #e88b8b; }
-.conclusion-v.gold { color: #f1c40f; }
+.conclusion-v.ji { color: #84dba6; }
+.conclusion-v.xiong { color: #f09595; }
+.conclusion-v.gold { color: #f6d365; }
 .conclusion-note {
   font-size: 22rpx;
-  color: #c9a24a;
+  color: #d4b05c;
   line-height: 36rpx;
   margin-top: 18rpx;
   padding-top: 16rpx;
@@ -502,22 +653,23 @@ view, text, button, input, picker {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(5, 7, 12, 0.8);
+  backdrop-filter: blur(8rpx);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .modal {
-  background: #1e1f2b;
-  border: 1rpx solid #3c3e54;
+  background: linear-gradient(170deg, #212536 0%, #161822 100%);
+  border: 1rpx solid rgba(233, 216, 166, 0.28);
   border-radius: 28rpx;
   width: 92vw;
   max-width: 640rpx;
   max-height: 85vh;
   overflow-y: auto;
   padding: 32rpx;
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.8);
+  box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.85);
 }
 .modal-header {
   display: flex;
@@ -528,11 +680,11 @@ view, text, button, input, picker {
 .modal-title {
   font-size: 28rpx;
   font-weight: bold;
-  color: #d4af37;
+  color: #f0dfa8;
 }
 .modal-close {
   font-size: 32rpx;
-  color: #888888;
+  color: #93a1ba;
   padding: 8rpx;
 }
 
@@ -541,20 +693,20 @@ view, text, button, input, picker {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8rpx 4rpx 0;
-  margin-top: 4rpx;
+  padding: 10rpx 4rpx 0;
+  margin-top: 6rpx;
 }
 .fold-label {
   font-size: 22rpx;
-  color: #8f9bb3;
+  color: #93a1ba;
 }
 .fold-toggle {
-  font-size: 24rpx;
-  color: #e9d8a6;
+  font-size: 23rpx;
+  color: #f0dfa8;
   padding: 10rpx 22rpx;
-  border: 1rpx solid rgba(233, 216, 166, 0.34);
-  border-radius: 30rpx;
-  background: rgba(233, 216, 166, 0.06);
+  border: 1rpx solid rgba(233, 216, 166, 0.36);
+  border-radius: 999rpx;
+  background: rgba(233, 216, 166, 0.08);
 }
 .fold-body {
   margin-top: 16rpx;

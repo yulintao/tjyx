@@ -12,51 +12,58 @@
         <label>宽度（厘米）</label>
         <input class="input-box" type="digit" value="{{cmInput}}" bindinput="onInput" placeholder="如 90" />
       </view>
-      <slider min="0" max="300" value="{{cmInput}}" activeColor="#e9d8a6" block-size="20" bindchange="onSlider" bindchanging="onSlider" style="margin-top:8rpx;" />
-      <view style="display:flex;flex-wrap:wrap;gap:12rpx;margin-top:12rpx;">
-        <view class="btn" wx:for="{{presets}}" wx:key="label" data-cm="{{item.cm}}" bindtap="onPreset" style="flex:0 0 auto;padding:10rpx 18rpx;">{{item.label}}</view>
+      <slider min="0" max="300" value="{{cmInput}}" activeColor="#e9d8a6" backgroundColor="rgba(130,152,196,0.22)" block-size="20" bindchange="onSlider" bindchanging="onSlider" style="margin-top:12rpx;" />
+      <view class="luban-presets">
+        <view class="luban-preset-chip" wx:for="{{presets}}" wx:key="label" data-cm="{{item.cm}}" bindtap="onPreset">{{item.label}}</view>
       </view>
       <view class="footnote">iOS 版用 AR 打点量取门窗实际宽度后即时判定；小程序无 AR 测距，改为此处输入卷尺实测值，判定口径与 iOS 一致（门光尺 42.9cm 八格、丁兰尺 39.0cm 十格）。</view>
     </view>
 
-    <view class="card" wx:if="{{result}}">
-      <view class="card-title">评定结果</view>
-      <view class="row"><text class="row-k">实测</text><text class="row-v">{{result.cmText}}</text></view>
-      <view class="row">
-        <text class="row-k">门光尺（阳宅）</text>
-        <text class="row-v">{{result.yangName}} · {{result.yangTag}}</text>
+    <view class="conclusion" wx:if="{{result}}">
+      <view class="conclusion-eyebrow">鲁班尺双口径评定</view>
+      <view class="conclusion-head">{{result.cmText}} · 门光「{{result.yangName}}」</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">门光尺（阳宅）</view>
+          <view class="conclusion-v {{result.yangAuspicious ? 'ji' : 'xiong'}}">{{result.yangName}} · {{result.yangTag}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">丁兰尺（阴宅）</view>
+          <view class="conclusion-v {{result.yinAuspicious ? 'ji' : 'xiong'}}">{{result.yinName}} · {{result.yinTag}}</view>
+        </view>
+        <view class="conclusion-cell wide" wx:if="{{nearest}}">
+          <view class="conclusion-k">最近吉度推荐</view>
+          <view class="conclusion-v gold">{{nearest.name}} · {{nearest.cm}} cm（差 {{nearest.diff}} cm）</view>
+        </view>
       </view>
-      <view class="list-desc">{{result.yangMeaning}}</view>
-      <view class="row">
-        <text class="row-k">丁兰尺（阴宅）</text>
-        <text class="row-v">{{result.yinName}} · {{result.yinTag}}</text>
-      </view>
-      <view class="list-desc">{{result.yinMeaning}}</view>
-      <view class="row" wx:if="{{nearest}}">
-        <text class="row-k">最近吉度</text>
-        <text class="row-v">{{nearest.name}} · {{nearest.cm}} cm（差 {{nearest.diff}} cm）</text>
-      </view>
-      <view class="btn" wx:if="{{nearest}}" style="margin-top:12rpx;" bindtap="applyNearest">改取最近吉度 {{nearest.cm}} cm</view>
-      <view class="btn" style="margin-top:16rpx;" bindtap="copyResult">复制结论到剪贴板</view>
+      <view class="conclusion-note">{{result.yangMeaning}}；{{result.yinMeaning}}</view>
+      <view class="btn btn-primary" wx:if="{{nearest}}" style="margin-top:18rpx;" bindtap="applyNearest">改取最近吉度 {{nearest.cm}} cm</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="copyResult">复制结论到剪贴板</view>
       <view class="footnote">{{source}}</view>
     </view>
 
     <view class="card">
       <view class="card-title">门光尺八格（42.9cm 一循环）</view>
-      <view class="row" wx:for="{{yangScale}}" wx:key="name" style="{{item.active ? 'background:rgba(233,216,166,0.10);border-radius:8rpx;' : ''}}">
-        <text class="row-k">{{item.name}} · {{item.auspicious ? '吉' : '凶'}}</text>
-        <text class="row-v">{{item.from}}–{{item.to}} cm{{item.active ? ' ← 当前' : ''}}</text>
+      <view class="scale-row {{item.active ? 'scale-row-active' : ''}}" wx:for="{{yangScale}}" wx:key="name">
+        <view class="scale-left">
+          <text class="scale-name">{{item.name}}</text>
+          <text class="scale-badge {{item.auspicious ? 'scale-badge-ji' : 'scale-badge-xiong'}}">{{item.auspicious ? '吉' : '凶'}}</text>
+        </view>
+        <text class="scale-range">{{item.from}}–{{item.to}} cm{{item.active ? ' · 当前' : ''}}</text>
       </view>
-      <view class="card-sub">其余循环按 42.9cm 递推；取门框中到框中实测净宽。</view>
+      <view class="card-sub" style="margin-top:8rpx;">其余循环按 42.9cm 递推；取门框中到框中实测净宽。</view>
     </view>
 
     <view class="card">
       <view class="card-title">丁兰尺十格（39.0cm 一循环）</view>
-      <view class="row" wx:for="{{yinScale}}" wx:key="name" style="{{item.active ? 'background:rgba(233,216,166,0.10);border-radius:8rpx;' : ''}}">
-        <text class="row-k">{{item.name}} · {{item.auspicious ? '吉' : '凶'}}</text>
-        <text class="row-v">{{item.from}}–{{item.to}} cm{{item.active ? ' ← 当前' : ''}}</text>
+      <view class="scale-row {{item.active ? 'scale-row-active' : ''}}" wx:for="{{yinScale}}" wx:key="name">
+        <view class="scale-left">
+          <text class="scale-name">{{item.name}}</text>
+          <text class="scale-badge {{item.auspicious ? 'scale-badge-ji' : 'scale-badge-xiong'}}">{{item.auspicious ? '吉' : '凶'}}</text>
+        </view>
+        <text class="scale-range">{{item.from}}–{{item.to}} cm{{item.active ? ' · 当前' : ''}}</text>
       </view>
-      <view class="card-sub">丁兰尺多用于阴宅、神龛、牌位；阳宅门窗以门光尺为主。</view>
+      <view class="card-sub" style="margin-top:8rpx;">丁兰尺多用于阴宅、神龛、牌位；阳宅门窗以门光尺为主。</view>
     </view>
   </view>
 </view>

@@ -1,70 +1,107 @@
 /* 六爻爻线：阳爻一整条、阴爻两段；动爻高亮 */
 .yao-board {
-  margin: 16rpx 0 8rpx;
+  margin: 18rpx 0 12rpx;
+  padding: 18rpx 16rpx;
+  background: rgba(11, 14, 22, 0.72);
+  border: 1rpx solid rgba(212, 175, 55, 0.22);
+  border-radius: 18rpx;
 }
 
 .yao-row {
   display: flex;
   align-items: center;
-  padding: 8rpx 0;
+  padding: 10rpx 12rpx;
+  margin-bottom: 4rpx;
+  border-radius: 10rpx;
+  border: 1rpx solid transparent;
+}
+
+.yao-row:last-child {
+  margin-bottom: 0;
 }
 
 .yao-moving {
-  background: rgba(233, 216, 166, 0.08);
-  border-radius: 8rpx;
+  background: linear-gradient(90deg, rgba(233, 216, 166, 0.14), rgba(232, 139, 139, 0.12));
+  border-color: rgba(233, 216, 166, 0.38);
 }
 
 .yao-name {
   width: 96rpx;
   font-size: 22rpx;
-  color: #9aa6bd;
+  color: #a4b0c7;
+}
+
+.yao-moving .yao-name {
+  color: #f3e1af;
+  font-weight: 600;
 }
 
 .yao-bar {
   flex: 1;
   display: flex;
   align-items: center;
-  height: 26rpx;
+  height: 28rpx;
 }
 
 .bar-solid {
   width: 100%;
-  height: 14rpx;
-  background: #e9d8a6;
-  border-radius: 4rpx;
+  height: 15rpx;
+  background: linear-gradient(90deg, #c9a24a 0%, #f3e1af 50%, #c9a24a 100%);
+  border-radius: 6rpx;
+  box-shadow: 0 2rpx 8rpx rgba(212, 175, 55, 0.28);
 }
 
 .bar-half {
   flex: 1;
-  height: 14rpx;
-  background: #e9d8a6;
-  border-radius: 4rpx;
+  height: 15rpx;
+  background: linear-gradient(90deg, #b8913a 0%, #ead49b 100%);
+  border-radius: 6rpx;
+  box-shadow: 0 2rpx 8rpx rgba(212, 175, 55, 0.22);
+}
+
+.yao-moving .bar-solid,
+.yao-moving .bar-half {
+  background: linear-gradient(90deg, #e88b8b 0%, #f6d365 100%);
+  box-shadow: 0 2rpx 12rpx rgba(232, 139, 139, 0.35);
 }
 
 .bar-gap {
-  width: 32rpx;
-  height: 14rpx;
+  width: 34rpx;
+  height: 15rpx;
 }
 
 .yao-flag {
-  width: 44rpx;
+  width: 52rpx;
   text-align: right;
   font-size: 22rpx;
-  color: #e88b8b;
+  font-weight: 700;
+  color: #f29b9b;
 }
 
 /* 京房八宫六爻表 */
-.yao-list { margin-top: 12rpx; }
+.yao-list {
+  margin-top: 14rpx;
+  padding: 6rpx 14rpx;
+  background: rgba(11, 14, 22, 0.65);
+  border: 1rpx solid rgba(130, 152, 196, 0.14);
+  border-radius: 16rpx;
+}
+
 .yao-line {
   display: flex;
   align-items: center;
   gap: 14rpx;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid rgba(255, 255, 255, 0.06);
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid rgba(130, 152, 196, 0.1);
   font-size: 22rpx;
-  color: #9fb0cb;
+  color: #a6b7d4;
 }
-.yao-pos { width: 70rpx; color: #c9a24a; }
-.yao-gz { width: 160rpx; color: #e8e2d4; }
-.yao-qin { width: 100rpx; }
-.yao-shen { width: 90rpx; color: #7f8fa6; }
+
+.yao-line:last-child {
+  border-bottom: none;
+}
+
+.yao-pos { width: 72rpx; color: #e2c16b; font-weight: 600; }
+.yao-gz { width: 164rpx; color: #eef2fa; }
+.yao-qin { width: 98rpx; }
+.yao-shen { width: 90rpx; color: #8b98b2; }
