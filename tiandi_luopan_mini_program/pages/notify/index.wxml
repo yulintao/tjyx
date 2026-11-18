@@ -1,0 +1,78 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">提醒中心</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <view class="card">
+      <view class="card-title">今日提醒 · {{todayItems.length}} 条</view>
+      <view class="list-item" wx:for="{{todayItems}}" wx:key="key">
+        <view class="list-main">
+          <text>{{item.title}}</text>
+          <text class="tag {{item.level === 'warning' ? 'tag-xiong' : (item.level === 'good' ? 'tag-ji' : 'tag-ping')}}">{{item.typeLabel}}</text>
+        </view>
+        <view class="list-desc">{{item.detail}}</view>
+      </view>
+      <view class="list-desc" wx:if="{{!todayItems.length}}">今日无提醒事项。可下拉调整提醒类型与天数。</view>
+      <view class="footnote">依据{{sit ? '已锁坐山 ' + sit + ' 山' : '通用日课（未锁坐山）'}}计算：节气交节、换月、岁破/月破/冲山、建除吉日。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">提醒类型</view>
+      <view class="row">
+        <view class="row-k">节气交节</view>
+        <view class="row-v"><switch checked="{{prefs.term}}" data-key="term" bindchange="onToggle" color="#c8a24a" /></view>
+      </view>
+      <view class="row">
+        <view class="row-k">月建换月</view>
+        <view class="row-v"><switch checked="{{prefs.month}}" data-key="month" bindchange="onToggle" color="#c8a24a" /></view>
+      </view>
+      <view class="row">
+        <view class="row-k">岁破 / 月破 / 冲山</view>
+        <view class="row-v"><switch checked="{{prefs.clash}}" data-key="clash" bindchange="onToggle" color="#c8a24a" /></view>
+      </view>
+      <view class="row">
+        <view class="row-k">未来吉日</view>
+        <view class="row-v"><switch checked="{{prefs.good}}" data-key="good" bindchange="onToggle" color="#c8a24a" /></view>
+      </view>
+      <view class="row">
+        <view class="row-k">预见天数</view>
+        <view class="row-v">
+          <picker mode="selector" range="{{[3,7,15]}}" bindchange="onDays">
+            <view class="input-box">{{days}} 天</view>
+          </picker>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">订阅消息（可选）</view>
+      <view class="row">
+        <view class="row-k">授权状态</view>
+        <view class="row-v">{{subscribeState}}</view>
+      </view>
+      <input class="input-box" style="margin-top:12rpx;" placeholder="粘贴订阅消息模板 ID，多个用逗号分隔" value="{{tmplInput}}" bindinput="onTmplInput" />
+      <view class="btn" style="margin-top:16rpx;" bindtap="saveTmpl">保存模板 ID</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="subscribe">请求订阅授权</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="cloudUpload">同步到云端推送队列</view>
+      <view class="footnote">小程序无法在后台自行弹通知：需在公众平台配置订阅消息模板，并部署云函数 almanac-notify（每日 8:00 扫描 luopan_notify_plan 下发；模板字段映射见云函数注释）。未配置时，本页提醒卡与「复制到剪贴板」可用。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">未来 {{days}} 天 · {{list.length}} 条</view>
+      <view class="list-item" wx:for="{{list}}" wx:key="key">
+        <view class="list-main">
+          <text>{{item.day}} · {{item.title}}</text>
+          <text class="tag {{item.level === 'warning' ? 'tag-xiong' : (item.level === 'good' ? 'tag-ji' : 'tag-ping')}}">{{item.typeLabel}}</text>
+        </view>
+        <view class="list-desc">{{item.detail}}</view>
+      </view>
+      <view class="btn" style="margin-top:16rpx;" bindtap="copyList">复制全部提醒到剪贴板</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="addShortcut">添加到桌面快捷方式</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="goZeri">查看日课自检</view>
+    </view>
+  </view>
+</view>

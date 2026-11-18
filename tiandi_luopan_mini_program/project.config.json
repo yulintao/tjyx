@@ -1,5 +1,5 @@
 {
-  "description": "演象 · 时空罗盘 - 微信小程序",
+  "description": "演象时空罗盘 - 微信小程序",
   "packOptions": {
     "ignore": [],
     "include": []
@@ -34,9 +34,10 @@
     }
   },
   "compileType": "miniprogram",
+  "cloudfunctionRoot": "cloudfunctions/",
   "libVersion": "3.3.4",
   "appid": "wxf9824efecd917ff0",
-  "projectname": "yiijing_compass",
+  "projectname": "演象时空罗盘",
   "condition": {},
   "simulatorPluginLibVersion": {},
   "editorSetting": {}

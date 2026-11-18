@@ -1,0 +1,80 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">化解清单</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">化解清单 · {{sit}}山{{face}}向</view>
+      <view class="conclusion-head">{{openCount ? '还剩 ' + openCount + ' 项未做' : '全部已处理'}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">完成度</view>
+          <view class="conclusion-v gold">{{percent}}%</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">已办 / 共</view>
+          <view class="conclusion-v">{{doneCount}} / {{total}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">极凶</view>
+          <view class="conclusion-v {{criticalCount ? 'xiong' : 'ji'}}">{{criticalCount}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">来源</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{counts.length}} 类</view>
+        </view>
+      </view>
+      <view class="term-bar">
+        <view class="term-bar-fill" style="width:{{percent}}%;"></view>
+      </view>
+      <view class="conclusion-note" wx:for="{{cycleNotes}}" wx:key="*this">{{item}}</view>
+      <view class="conclusion-note">点条目看化解做法与应期；勾选即记入本机，可随时取消。</view>
+    </view>
+
+    <view class="card" wx:if="{{total}}">
+      <view class="chips">
+        <view class="chip {{activeSource === 'all' ? 'chip-on' : ''}}" data-key="all" bindtap="onSourceFilter">全部 {{total}}</view>
+        <view
+          class="chip {{activeSource === item.key ? 'chip-on' : ''}}"
+          wx:for="{{counts}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onSourceFilter"
+        >{{item.label}} {{item.done}}/{{item.count}}</view>
+      </view>
+      <view class="footnote">当前筛选 {{filteredCount}} 项</view>
+
+      <view class="list-item" wx:for="{{visible}}" wx:key="id">
+        <view class="list-main" data-id="{{item.id}}" bindtap="toggleTaskDetail">
+          <text>{{item.done ? '✅' : '⬜'}} {{item.title}}</text>
+          <text class="tag {{item.level === 'critical' ? 'tag-xiong' : (item.level === 'warning' ? 'tag-ping' : 'tag-ji')}}" style="margin-left:8rpx;">{{item.sourceLabel}}</text>
+        </view>
+        <view class="list-desc" data-id="{{item.id}}" bindtap="toggleTaskDetail">
+          {{item.place}} · {{expandedId === item.id ? '收起做法 ▲' : '看做法与应期 ▼'}}
+        </view>
+        <block wx:if="{{expandedId === item.id}}">
+          <view class="list-desc">{{item.detail}}</view>
+          <view class="list-desc" style="color:#8f9bb3;">应期：{{item.cycle}}</view>
+        </block>
+        <view class="list-desc">
+          <text class="btn-inline" data-id="{{item.id}}" catchtap="onToggle" style="color:#f1c40f;">{{item.done ? '取消完成' : '标记完成'}}</text>
+          <text class="btn-inline" data-id="{{item.id}}" catchtap="onClear" style="color:#e88b8b;margin-left:20rpx;">移除</text>
+        </view>
+      </view>
+
+      <view class="chips" style="margin-top:12rpx;">
+        <view class="chip" wx:for="{{counts}}" wx:key="key" data-key="{{item.key}}" bindtap="goModule">查看{{item.label}}详解</view>
+      </view>
+    </view>
+
+    <view class="card" wx:else>
+      <view class="card-title">本宅暂无凶星需要化解</view>
+      <view class="footnote">当前坐向下没有需要动手的凶星方位。若要逐宫复核，可进入玄空飞星与流年紫白查看完整盘面。</view>
+    </view>
+  </view>
+</view>

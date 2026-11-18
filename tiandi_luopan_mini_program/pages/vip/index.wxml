@@ -1,0 +1,33 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">功能权益</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <view class="card">
+      <view class="card-title">本版全部功能开放</view>
+      <view class="list-desc">iOS 原版把部分模块放在会员付费墙后（StoreKit 内购）。微信小程序不允许虚拟支付与 iOS 内购，因此本版**不做付费墙**：原会员权益全部开放，仅保留内容说明与数据管理入口。</view>
+      <view class="footnote">本页仅作权益对照，不涉及任何购买行为；如后续需要商业化解锁，须走微信支付并具备相应资质，届时会在此页说明。</view>
+    </view>
+
+    <view class="card" wx:for="{{benefits}}" wx:key="name">
+      <view class="list-main">
+        <text>{{item.name}}</text>
+        <text class="tag tag-ji">开放</text>
+      </view>
+      <view class="list-desc">iOS：{{item.ios}}</view>
+      <view class="list-desc" style="color:#7fd3a0;">本版：{{item.now}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">数据与账号</view>
+      <view class="row"><view class="row-k">当前版本</view><view class="row-v">{{version}}</view></view>
+      <view class="row"><view class="row-k">云开发环境</view><view class="row-v">{{cloudEnv ? cloudEnv : '未配置'}}</view></view>
+      <view class="btn" style="margin-top:16rpx;" bindtap="goBackup">备份与恢复</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="goRemedy">打开化解清单</view>
+      <view class="btn" style="margin-top:12rpx;color:#e88b8b;" bindtap="onClear">清除本机数据</view>
+    </view>
+  </view>
+</view>

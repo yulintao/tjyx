@@ -1,12 +1,561 @@
 /** app.wxss **/
 page {
-  background-color: #12131a;
-  color: #e0e0e0;
+  background-color: #0f1117;
+  color: #e3e6ee;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
 }
 
-view, text, button {
+view, text, button, input, picker {
   box-sizing: border-box;
+}
+
+/* ---------- 通用外壳 ---------- */
+.screen {
+  min-height: 100vh;
+  background: radial-gradient(120% 60% at 50% 0%, #182033 0%, #0f1117 60%);
+  /* 状态栏安全区由外壳统一承担：自定义导航栏（navigationStyle: custom）没有系统栏，
+     若把 env(safe-area-inset-top) 加在 .topbar 的 height 上，由于全局 view 是 border-box，
+     刘海机型 96rpx≈44px 正好等于安全区高度，内容区会被压成 0，返回箭头既看不见也点不中。
+     这里按「兜底 px → iOS11 constant → iOS11.2 env → 支持 max() 时取较大值」四段降级。 */
+  padding-top: 20px;
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: 40rpx;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 24rpx;
+  position: relative;
+  z-index: 20;
+}
+
+.topbar-back {
+  /* 返回热区放大到 88×88rpx（44px），并负边距贴住左边，避免「看得到点不中」；
+     用 min-width 而非定宽，容得下「跳过」这类文字按钮 */
+  min-width: 88rpx;
+  height: 88rpx;
+  margin-left: -16rpx;
+  padding: 0 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8f9bb3;
+  font-size: 36rpx;
+  white-space: nowrap;
+}
+
+.topbar-title {
+  flex: 1;
+  text-align: center;
+  font-size: 30rpx;
+  letter-spacing: 2rpx;
+  color: #e9d8a6;
+}
+
+.topbar-right {
+  min-width: 88rpx;
+  text-align: right;
+  color: #8f9bb3;
+  font-size: 24rpx;
+  white-space: nowrap;
+}
+
+.body {
+  padding: 0 28rpx 32rpx;
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: rgba(26, 31, 44, 0.86);
+  border: 1rpx solid rgba(120, 140, 180, 0.14);
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 26rpx;
+  color: #e9d8a6;
+  margin-bottom: 12rpx;
+  letter-spacing: 1rpx;
+}
+
+.card-sub {
+  font-size: 22rpx;
+  color: #8f9bb3;
+  line-height: 34rpx;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8rpx 0;
+  font-size: 24rpx;
+  line-height: 36rpx;
+}
+
+.row-k {
+  color: #8f9bb3;
+  flex: 0 0 34%;
+}
+
+.row-v {
+  flex: 1;
+  text-align: right;
+  color: #dfe4ee;
+}
+
+/* ---------- 九宫 ---------- */
+.grid9 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10rpx;
+  margin-top: 8rpx;
+}
+
+.cell {
+  background: rgba(30, 37, 53, 0.9);
+  border: 1rpx solid rgba(120, 140, 180, 0.16);
+  border-radius: 12rpx;
+  padding: 14rpx 10rpx;
+  min-height: 168rpx;
+  position: relative;
+}
+
+.cell-center {
+  background: rgba(40, 46, 64, 0.9);
+}
+
+.cell-alarm {
+  border-color: rgba(226, 100, 100, 0.6);
+}
+
+/* 点选中的宫位：与结论卡同色描边，做出「可点、已选中」的反馈 */
+.cell-picked {
+  border-color: rgba(233, 216, 166, 0.75);
+  background: rgba(233, 216, 166, 0.1);
+}
+
+.cell-name {
+  font-size: 20rpx;
+  color: #8f9bb3;
+}
+
+.cell-triple {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6rpx;
+  font-size: 28rpx;
+  color: #e9d8a6;
+}
+
+.cell-sub {
+  margin-top: 4rpx;
+  font-size: 18rpx;
+  color: #9aa6bd;
+  line-height: 26rpx;
+}
+
+.cell-tag {
+  position: absolute;
+  right: 10rpx;
+  top: 10rpx;
+  font-size: 16rpx;
+  padding: 2rpx 8rpx;
+  border-radius: 8rpx;
+  background: rgba(226, 100, 100, 0.18);
+  color: #e88b8b;
+}
+
+/* ---------- 标签 / 列表 ---------- */
+.tag {
+  display: inline-block;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  margin-right: 8rpx;
+  margin-bottom: 8rpx;
+}
+
+.tag-ji { background: rgba(94, 170, 120, 0.16); color: #7fd3a0; }
+.tag-xiong { background: rgba(214, 94, 94, 0.16); color: #e88b8b; }
+.tag-ping { background: rgba(120, 140, 180, 0.14); color: #9fb0cb; }
+
+.list-item {
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid rgba(120, 140, 180, 0.1);
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-main {
+  display: flex;
+  justify-content: space-between;
+  font-size: 25rpx;
+  color: #e3e6ee;
+}
+
+.list-desc {
+  margin-top: 6rpx;
+  font-size: 21rpx;
+  color: #8f9bb3;
+  line-height: 32rpx;
+}
+
+/* ---------- 表单 ---------- */
+.input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 0;
+}
+
+.input-row label {
+  font-size: 24rpx;
+  color: #8f9bb3;
+}
+
+.input-box {
+  background: rgba(18, 22, 32, 0.9);
+  border: 1rpx solid rgba(120, 140, 180, 0.18);
+  border-radius: 10rpx;
+  padding: 12rpx 16rpx;
+  font-size: 26rpx;
+  color: #e9d8a6;
+  min-width: 200rpx;
+  text-align: center;
+}
+
+.btn {
+  height: 76rpx;
+  line-height: 76rpx;
+  border-radius: 14rpx;
+  font-size: 26rpx;
+  background: rgba(60, 72, 96, 0.5);
+  color: #dfe4ee;
+  text-align: center;
+  margin-top: 16rpx;
+  border: 1rpx solid rgba(120, 140, 180, 0.2);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8a6f2d, #c9a94f);
+  color: #191b22;
+  border: none;
+  font-weight: 600;
+}
+
+.grid-entries {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14rpx;
+}
+
+.entry {
+  background: rgba(30, 37, 53, 0.86);
+  border: 1rpx solid rgba(120, 140, 180, 0.16);
+  border-radius: 16rpx;
+  padding: 20rpx 18rpx;
+}
+
+.entry-name {
+  font-size: 28rpx;
+  color: #e9d8a6;
+}
+
+.entry-desc {
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  color: #8f9bb3;
+  line-height: 28rpx;
+}
+
+.entry-active {
+  background: rgba(233, 216, 166, 0.1);
+  border-color: rgba(233, 216, 166, 0.42);
+}
+
+/* 罗盘首页首屏四入口 */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+  margin: 0 24rpx 18rpx;
+}
+
+.quick {
+  padding: 16rpx 0 14rpx;
+  text-align: center;
+  border: 1rpx solid rgba(120, 140, 180, 0.18);
+  border-radius: 14rpx;
+  background: rgba(26, 32, 46, 0.72);
+}
+
+.quick-active {
+  background: rgba(233, 216, 166, 0.1);
+  border-color: rgba(233, 216, 166, 0.42);
+}
+
+.quick-name {
+  font-size: 26rpx;
+  color: #e9d8a6;
+}
+
+.quick-desc {
+  margin-top: 4rpx;
+  font-size: 18rpx;
+  color: #8f9bb3;
+}
+
+/* 七日历条：择日页顶部，一眼看这七天哪天可办 */
+.week-strip {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-bottom: 18rpx;
+}
+
+.week-nav {
+  width: 40rpx;
+  text-align: center;
+  color: #8f9bb3;
+  font-size: 32rpx;
+  line-height: 64rpx;
+}
+
+.week-list {
+  flex: 1;
+  display: flex;
+  gap: 6rpx;
+}
+
+.week-day {
+  flex: 1;
+  padding: 10rpx 0 8rpx;
+  text-align: center;
+  border: 1rpx solid rgba(120, 140, 180, 0.18);
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.week-day.week-on {
+  border-color: rgba(233, 216, 166, 0.55);
+  background: rgba(233, 216, 166, 0.12);
+}
+
+.week-w {
+  font-size: 18rpx;
+  color: #8f9bb3;
+}
+
+.week-day.week-on .week-w {
+  color: #c9a24a;
+}
+
+.week-d {
+  margin-top: 2rpx;
+  font-size: 26rpx;
+  color: #e3e6ee;
+}
+
+.week-jc {
+  margin-top: 2rpx;
+  font-size: 18rpx;
+}
+
+.week-good {
+  color: #7fd3a0;
+}
+
+.week-dim {
+  color: #6f7a8f;
+}
+
+.footnote {
+  margin-top: 18rpx;
+  font-size: 20rpx;
+  color: #6f7a8f;
+  line-height: 32rpx;
+}
+
+.empty {
+  padding: 40rpx 0;
+  text-align: center;
+  color: #6f7a8f;
+  font-size: 24rpx;
+}
+
+/* 筛选胶囊（历史 / 分类列表共用） */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.chip {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid rgba(120, 140, 180, 0.25);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 22rpx;
+  color: #9fb0cb;
+}
+
+.chip-on {
+  border-color: rgba(233, 216, 166, 0.6);
+  background: rgba(233, 216, 166, 0.14);
+  color: #f1c40f;
+}
+
+/* 节气进度条（日课自检卡共用） */
+.term-bar {
+  margin-top: 14rpx;
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.term-bar-fill {
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: linear-gradient(90deg, #c8a24a, #e8d9a6);
+}
+
+/* ---------- 结论式界面：置顶结论卡 ---------- */
+.conclusion {
+  background: linear-gradient(150deg, rgba(74, 62, 30, 0.55), rgba(26, 31, 44, 0.92));
+  border: 1rpx solid rgba(233, 216, 166, 0.36);
+  border-radius: 20rpx;
+  padding: 28rpx 26rpx;
+  margin-bottom: 20rpx;
+}
+.conclusion-eyebrow {
+  font-size: 20rpx;
+  color: #c9a24a;
+  letter-spacing: 2rpx;
+}
+.conclusion-head {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #f0dfa8;
+  line-height: 50rpx;
+  margin-top: 6rpx;
+}
+.conclusion-sub {
+  font-size: 22rpx;
+  color: #9aa6bd;
+  line-height: 34rpx;
+  margin-top: 8rpx;
+}
+.conclusion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14rpx;
+  margin-top: 20rpx;
+}
+.conclusion-cell {
+  background: rgba(12, 15, 22, 0.5);
+  border: 1rpx solid rgba(233, 216, 166, 0.14);
+  border-radius: 14rpx;
+  padding: 16rpx 18rpx;
+}
+.conclusion-cell.wide {
+  grid-column: span 2;
+}
+.conclusion-k {
+  font-size: 20rpx;
+  color: #8f9bb3;
+}
+.conclusion-v {
+  font-size: 28rpx;
+  color: #e9d8a6;
+  line-height: 38rpx;
+  margin-top: 6rpx;
+}
+.conclusion-v.ji { color: #7fd3a0; }
+.conclusion-v.xiong { color: #e88b8b; }
+.conclusion-v.gold { color: #f1c40f; }
+.conclusion-note {
+  font-size: 22rpx;
+  color: #c9a24a;
+  line-height: 36rpx;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid rgba(233, 216, 166, 0.18);
+}
+
+/* ---------- 全局弹层（房间详勘等） ---------- */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: #1e1f2b;
+  border: 1rpx solid #3c3e54;
+  border-radius: 28rpx;
+  width: 92vw;
+  max-width: 640rpx;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 32rpx;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.8);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+.modal-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #d4af37;
+}
+.modal-close {
+  font-size: 32rpx;
+  color: #888888;
+  padding: 8rpx;
+}
+
+/* ---------- 结论式界面：折叠详情 ---------- */
+.fold-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 4rpx 0;
+  margin-top: 4rpx;
+}
+.fold-label {
+  font-size: 22rpx;
+  color: #8f9bb3;
+}
+.fold-toggle {
+  font-size: 24rpx;
+  color: #e9d8a6;
+  padding: 10rpx 22rpx;
+  border: 1rpx solid rgba(233, 216, 166, 0.34);
+  border-radius: 30rpx;
+  background: rgba(233, 216, 166, 0.06);
+}
+.fold-body {
+  margin-top: 16rpx;
 }

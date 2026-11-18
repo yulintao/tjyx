@@ -7,8 +7,5 @@
   "disableScroll": false,
   "usingComponents": {
     "calib-modal": "/components/calib-modal/calib-modal"
-  },
-  "componentPlaceholder": {
-    "calib-modal": "view"
   }
 }

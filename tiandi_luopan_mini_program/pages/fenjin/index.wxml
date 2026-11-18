@@ -1,0 +1,72 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">一百二十分金</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <view class="card">
+      <view class="card-title">当前分金</view>
+      <view class="row"><text class="row-k">朝向</text><text class="row-v">{{heading}}°（{{mountainName}}）</text></view>
+      <view class="row"><text class="row-k">分金</text><text class="row-v">{{current.jiazi}} 分金</text></view>
+      <view class="row"><text class="row-k">纳音</text><text class="row-v">{{current.nayin}}</text></view>
+      <view class="row"><text class="row-k">度数</text><text class="row-v">{{current.start}}° – {{current.end}}°</text></view>
+      <view class="row"><text class="row-k">吉凶</text><text class="row-v">{{current.grade}}</text></view>
+      <view class="list-desc" style="margin-top:12rpx;">{{current.lore}}</view>
+      <slider min="0" max="359" value="{{heading}}" activeColor="#e9d8a6" block-size="20" bindchange="onSlide" style="margin-top:20rpx;" />
+    </view>
+
+    <view class="card">
+      <view class="card-title">逐度细断<text style="font-size:22rpx;color:#9fb0cb;margin-left:10rpx;">这一度到底能不能用</text></view>
+      <view class="row"><text class="row-k">兼向</text><text class="row-v">{{detail.jian.text}}（偏 {{detail.jian.offset}}°）</text></view>
+      <view class="row"><text class="row-k">空亡判级</text><text class="row-v">{{kongwang.text}} · 距山心 {{detail.jian.offset}}°</text></view>
+      <view class="row"><text class="row-k">分金内位置</text><text class="row-v">{{detail.cellPos}}</text></view>
+      <view class="row"><text class="row-k">可用性</text><text class="row-v" style="color:{{detail.usable ? '#7fd3a0' : '#e88b8b'}};">{{detail.usable ? '可用' : '不可用'}}</text></view>
+      <view class="list-desc" style="margin-top:12rpx;color:#e9d8a6;">{{detail.verdict}}</view>
+      <view class="list-desc">{{detail.advice}}</view>
+      <view class="list-desc" wx:if="{{kongwang.explain}}" style="color:#9fb0cb;">{{kongwang.explain}}</view>
+      <view class="btn" style="margin-top:16rpx;" bindtap="onTakeNearest">
+        {{detail.nearest ? (detail.nearest.delta === 0 ? '当前度数即吉度（' + detail.nearest.jiazi + '·' + detail.nearest.nayin + '）' : '取最近吉度 ' + detail.nearest.deg + '°（' + detail.nearest.jiazi + '·' + detail.nearest.nayin + '，调 ' + detail.nearest.delta + '°）') : '附近 ±8° 内没有可用吉度'}}
+      </view>
+      <view class="footnote">判级与 iOS 的 KongWangDetailSheet 同口径：正针 &lt;1.5°、兼向 1.5–6.5°、贴山界 ≥6.5°（近出卦线为出卦大空亡）。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">本山五位分金<text style="font-size:22rpx;color:#9fb0cb;margin-left:10rpx;">点一行即跳到该位</text></view>
+      <view class="list-item" wx:for="{{mountainRows}}" wx:key="index" data-start="{{item.start}}" data-end="{{item.end}}" bindtap="onFenjinPick">
+        <view class="list-main">
+          <text>{{item.jiazi}}</text>
+          <text class="tag {{item.usable ? 'tag-ji' : 'tag-xiong'}}" style="margin-left:12rpx;">{{item.grade}}</text>
+        </view>
+        <view class="list-desc">{{item.start}}° – {{item.end}}° ｜ {{item.nayin}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">二十四山吉度<text style="font-size:22rpx;color:#9fb0cb;margin-left:10rpx;">点一山即跳到该山吉度</text></view>
+      <view class="list-item" wx:for="{{auspicious}}" wx:key="mountain" data-mountain="{{item.mountain}}" bindtap="onMountainPick">
+        <view class="list-main">
+          <text>{{item.mountain}}山</text>
+          <text class="tag {{item.count > 0 ? 'tag-ji' : 'tag-xiong'}}" style="margin-left:12rpx;">{{item.count}} 吉度</text>
+        </view>
+        <view class="list-desc">{{item.names}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="btn" bindtap="toggleAll">{{showAll ? '收起全部 120 位' : '展开全部 120 位分金'}}</view>
+      <block wx:if="{{showAll}}">
+        <view class="list-item" wx:for="{{allRows}}" wx:key="index">
+          <view class="list-main">
+            <text>{{item.jiazi}}（{{item.mountain}}山）</text>
+            <text class="tag {{item.usable ? 'tag-ji' : 'tag-xiong'}}" style="margin-left:12rpx;">{{item.grade}}</text>
+          </view>
+          <view class="list-desc">{{item.start}}° – {{item.end}}° ｜ {{item.nayin}}</view>
+        </view>
+      </block>
+      <view class="footnote">分级依《地理五诀》：丙丁庚辛为旺相珠宝可用，戊己龟甲空亡、甲乙孤虚、壬癸虚度皆不宜立向。</view>
+    </view>
+  </view>
+</view>

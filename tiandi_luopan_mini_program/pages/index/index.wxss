@@ -70,6 +70,21 @@
   text-align: center;
 }
 
+/* 盘面设置抽屉开关：一条细栏，点开才出现模式 / 图层 / 校准 */
+.panel-toggle {
+  margin: 4rpx 0 12rpx;
+  padding: 12rpx 16rpx;
+  border: 1rpx solid rgba(120, 140, 180, 0.22);
+  border-radius: 10rpx;
+  background: rgba(20, 26, 38, 0.72);
+  text-align: center;
+}
+
+.panel-toggle-text {
+  font-size: 22rpx;
+  color: #9fb0cb;
+}
+
 /* Tab 模式切换 */
 .tab-bar {
   display: flex;
@@ -165,6 +180,54 @@
 .compass-info-divider { color: #555566; }
 .compass-info-true { color: #f1c40f; }
 .compass-info-decl { color: #888899; font-size: 20rpx; }
+
+/* 今日吉方导引条（财神 / 喜神） */
+.daily-god-bar {
+  width: 100%;
+  margin-bottom: 10rpx;
+  padding: 10rpx 16rpx;
+  border-radius: 16rpx;
+  background: rgba(38, 30, 12, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-sizing: border-box;
+}
+.daily-god-line {
+  display: block;
+  font-size: 21rpx;
+  color: #ffd166;
+  line-height: 30rpx;
+}
+.daily-god-tip {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 19rpx;
+  color: #9aa0ae;
+  line-height: 26rpx;
+}
+
+/* 节气进度条（当前节气 + 距下一节气） */
+.term-strip {
+  width: 100%;
+  margin-bottom: 10rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 14rpx;
+  background: rgba(20, 26, 38, 0.8);
+  border: 1px solid rgba(120, 140, 180, 0.28);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.term-strip-text {
+  font-size: 19rpx;
+  color: #aab6cc;
+  line-height: 26rpx;
+}
+.term-strip-go {
+  font-size: 19rpx;
+  color: #c8a24a;
+  line-height: 26rpx;
+}
 
 /* 强磁干扰悬浮告警条 */
 .mag-alert-banner {

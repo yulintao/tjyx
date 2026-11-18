@@ -1,6 +1,6 @@
 /**
  * pages/index/index.js
- * 演象 · 时空罗盘 微信小程序主逻辑
+ * 演象时空罗盘 微信小程序主逻辑
  * 与 Android 版 yiijing_map.html 完全对齐
  */
 
@@ -15,7 +15,8 @@ const {
   ELEM_BG_DARK
 } = require('../../utils/compass-data');
 
-const { getTodayMountainInfo } = require('../../utils/solar-terms');
+const { getTodayMountainInfo, solarTermProgress } = require('../../utils/solar-terms');
+const nav = require('../../utils/nav');
 const {
   computeGeomagneticField,
   formatLocationAndDeclination
@@ -29,6 +30,12 @@ const {
   FS_PALACE_ORDER,
   getFengshuiOrientationInfo
 } = require('../../utils/fengshui-palace');
+const ZR = require('../../utils/zeri');
+const orientation = require('../../utils/orientation');
+const CL = require('../../utils/compass-layer');
+const SHA = require('../../utils/sha');
+const CF = require('../../utils/compass-filter');
+const HAPTIC = require('../../utils/haptic');
 
 const DEFAULT_LAYERS = {
   bubbleLevel: true,  // 太极双轴电子水准仪气泡
@@ -38,7 +45,10 @@ const DEFAULT_LAYERS = {
   solarRing: true,    // 二十四节气与消息卦
   timeDial: true,     // 24 小时时间圈与真太阳时针
   hex64: true,        // 先天六十四卦圆图
-  fengshui: true      // 八宫风水职能与宜忌环（盘面指示）
+  fengshui: true,     // 八宫风水职能与宜忌环（盘面指示）
+  degreeTicks: true,  // 360° 度数刻度环
+  trueNorthNeedle: true, // 真北针（磁偏角校正后）
+  dailyGods: true     // 今日财神 / 喜神金标
 };
 
 Page({
@@ -61,6 +71,13 @@ Page({
     headingDescMag: '正北 0° · 子山',
     headingDescTrue: '正北 0°',
     declSummary: '无偏',
+
+    // 今日吉方（财神 / 喜神）
+    dailyWealthDir: '—',
+    dailyJoyDir: '—',
+    dailyGodsText: '',
+    dailyGodsTip: '',
+    termBadge: '',
 
     // 风水立向
     sitFacePattern: '坐午向子 · 正针',
@@ -95,8 +112,15 @@ Page({
     // 弹窗
     showCalibModal: false,
     showLayerModal: false,
+    showMountainPicker: false,
     showKongwangModal: false,
     showFenjinModal: false,
+    pickerSitIdx: 0,
+    pickerFaceIdx: 12,
+    pickerSitText: '子 山',
+    pickerFaceText: '午 向',
+    pickerHeadingText: '0.0°',
+    pickerNames: MOUNTAINS_DATA.map((m) => `${m.name} 山`),
     calibAccuracyText: '✓ 极高 (已自动校准)',
     calibAccClass: '',
     calibClass: '',
@@ -125,6 +149,32 @@ Page({
     fsLiveRole: '中男 (次子) · 事业官运位',
     fsLiveWarn: '—',
     fsLiveLayout: '—',
+
+    // ===== 结论式看板：默认展开，详情折叠 =====
+    concDate: '',
+    concTime: '',
+    concSolar: '',
+    concLocation: '',
+    concHeading: '',
+    concYi: '',
+    concJi: '',
+    concBest: '',
+    concGod: '',
+    concWealth: '',
+    concJoy: '',
+    concSitFace: '',
+    concKongwang: '',
+    concKongwangClass: 'pure',
+    concFenjin: '',
+    concFenjinColor: '#2ecc71',
+    concFengshui: '',
+    concFengshuiNote: '',
+    concSha: '',
+    concShaNote: '',
+    activePresetName: '综合全息盘',
+    showDetail: false,
+    // 盘面设置抽屉：模式 / 图层 / 选山向 / 校准，默认收起，首屏只留方位与结论
+    panelOpen: false,
 
     // 自定义导航栏顶部留白，onLoad 时按实际状态栏高度注入
     statusBarHeight: 20
@@ -215,12 +265,40 @@ Page({
   isGyroRunning: false,
 
   // ==================== 生命周期 ====================
+  goAnalysis() {
+    const h = (this.data.isHeadingLocked ? this.lockedHeading : this.currentHeading);
+    const heading = (h === null || h === undefined || isNaN(h)) ? 0 : h;
+    const diag = getSitAndFaceDiagnosis(heading);
+    // 分析页现在是 tabBar 页，只能 switchTab，参数走 globalData 中转
+    nav.go('/pages/analysis/index', { sit: diag.sitMt, heading });
+  },
+
+  /** 节气条点按：带当前坐山跳到择日页做日课自检 */
+  goZeri() {
+    const h = (this.data.isHeadingLocked ? this.lockedHeading : this.currentHeading);
+    const heading = (h === null || h === undefined || isNaN(h)) ? 0 : h;
+    const diag = getSitAndFaceDiagnosis(heading);
+    nav.go('/pages/zeri/index', { sit: diag.sitMt, heading });
+  },
+
+  /** 首屏快捷入口：户型 tab 与化解清单 */
+  goFloorplan() {
+    nav.go('/pages/floorplan/index', {});
+  },
+
+  goRemedy() {
+    nav.go('/pages/remedy/index', {});
+  },
+
   onLoad() {
     this.initStatusBarHeight();
     this.initTodayInfo();
     this.startClockTimer();
     this.initLocation();
     this.enableShareMenu();
+    this.restoreLockState();
+    // 图层开关立即还原；缩放/平移等画布就绪后再套用
+    this.restoreViewState();
   },
 
   onReady() {
@@ -230,14 +308,45 @@ Page({
   },
 
   onShow() {
+    // iOS RootContentView：罗盘/盘解页保持屏幕常亮，便于现场持机测绘
+    if (typeof wx.setKeepScreenOn === 'function') wx.setKeepScreenOn({ keepScreenOn: true });
+    // 回到罗盘即恢复传感器驱动，解除业务页的手动坐山覆盖
+    orientation.releaseManual();
     if (!this.isCompassRunning && this.canvas) {
       this.startCompassListener();
       this.startMotionListener();
       this.startGyroListener();
     }
+    this.maybeShowGuide();
+  },
+
+  /** 首次进入自动弹新手引导；引导页会写回 guideSeen，之后不再自动弹 */
+  maybeShowGuide() {
+    if (this._guideChecked) return;
+    this._guideChecked = true;
+    try {
+      const store = require('../../utils/store');
+      const s = store.getSettings() || {};
+      if (s.guideSeen) return;
+      setTimeout(() => {
+        wx.navigateTo({
+          url: '/pages/guide/index',
+          fail: () => {
+            const s2 = store.getSettings() || {};
+            s2.guideSeen = true;
+            store.saveSettings(s2);
+          }
+        });
+      }, 600);
+    } catch (e) {
+      console.warn('maybeShowGuide error:', e);
+    }
   },
 
   onHide() {
+    if (typeof wx.setKeepScreenOn === 'function') wx.setKeepScreenOn({ keepScreenOn: false });
+    // 离开罗盘页即记住当前图层与缩放现场，下次进入原样恢复
+    this.persistViewState();
     this.stopCompassListener();
     this.stopMotionListener();
     this.stopGyroListener();
@@ -296,6 +405,7 @@ Page({
       }
       // 画布在弹窗打开时会被 hidden 临时隐藏，此时导出会得到空白图，跳过本次
       if (this.data.showCalibModal || this.data.showLayerModal
+        || this.data.showMountainPicker
         || this.data.showKongwangModal || this.data.showFenjinModal
         || this.data.showFengshuiModal) {
         resolve('');
@@ -320,8 +430,8 @@ Page({
     const line = this.data && this.data.todayLine;
     const matched = typeof line === 'string' ? /主应\s*([^\s·]+?)山/.exec(line) : null;
     return matched
-      ? `演象·时空罗盘 · 今日主应 ${matched[1]}山`
-      : '演象·时空罗盘 · 磁北真北双针校准 · 一百二十分金';
+      ? `演象时空罗盘 · 今日主应 ${matched[1]}山`
+      : '演象时空罗盘 · 磁北真北双针校准 · 一百二十分金';
   },
 
   /**
@@ -389,6 +499,114 @@ Page({
     } else {
       this.setData({ todayLine: '—' });
     }
+    this.initDailyGods();
+  },
+
+  /**
+   * 今日吉方（财神 / 喜神）初始化：取日干定宫，按罗盘角度落到盘面
+   */
+  initDailyGods() {
+    try {
+      const dirs = ZR.dailyCompassDirections(new Date());
+      let termBadge = '';
+      try {
+        const tp = solarTermProgress(new Date());
+        termBadge = `${tp.name} · 距${tp.nextName} ${tp.daysToNext} 天`;
+      } catch (e2) {
+        termBadge = '';
+      }
+      this.dailyGods = dirs;
+      this._dailyGodsDay = new Date().toDateString();
+      this.setData({
+        dailyWealthDir: `${dirs.wealth.dir} ${dirs.wealth.name}`,
+        dailyJoyDir: `${dirs.joy.dir} ${dirs.joy.name}`,
+        dailyGodsText: dirs.text,
+        termBadge,
+        dailyGodsTip: dirs.samePalace
+          ? `今日财神喜神同宫，转盘至 ${dirs.wealth.angle}° 即对准`
+          : `求财转 ${dirs.wealth.angle}° 对准财神；会客转 ${dirs.joy.angle}° 对准喜神`
+      });
+    } catch (e) {
+      console.warn('initDailyGods error:', e);
+    }
+  },
+
+  /** 结论看板：把时间 / 位置 / 方位 + 四类结论汇总，供一屏速览 */
+  refreshConclusion() {
+    try {
+      const d = this.data;
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const sit = d.currentMountain ? d.currentMountain.name : '子';
+      // 结论按「分钟 + 坐山 + 方位摘要」缓存，时钟每秒触发时避免重算整日课
+      const cacheKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${pad(now.getHours())}:${pad(now.getMinutes())}|${sit}|${d.headingDescTrue}|${d.kongwangText}|${d.fenjinText}|${d.fsLiveWarn}|${d.coordsDisplayStr}`;
+      if (this._concCacheKey === cacheKey) return;
+      this._concCacheKey = cacheKey;
+
+      let yi = '—'; let ji = '—'; let best = '—'; let jianChu = '';
+      try {
+        const r = ZR.analyze(now, sit);
+        yi = r.yi || '—';
+        ji = r.ji || '—';
+        best = (r.bestShichen || []).map((s) => s.name).join('、') || '无';
+        jianChu = r.jianChu ? r.jianChu.name : '';
+      } catch (e) {}
+
+      const term = d.todayLine || '';
+      let solar = '';
+      const m = term.match(/当令节气「([^」]+)」/);
+      if (m) solar = m[1];
+
+      const wealth = d.dailyWealthDir && d.dailyWealthDir !== '—' ? d.dailyWealthDir : '—';
+      const joy = d.dailyJoyDir && d.dailyJoyDir !== '—' ? d.dailyJoyDir : '—';
+      const sitFace = d.sitFacePattern || '—';
+      const warn = d.fsLiveWarn && d.fsLiveWarn !== '—' ? d.fsLiveWarn : '';
+      const layout = d.fsLiveLayout && d.fsLiveLayout !== '—' ? d.fsLiveLayout : '';
+      const fengshui = [warn, layout].filter(Boolean).join('；');
+
+      // 方位 → 主应形煞（iOS ARVisionView.resolvedShaIndex 口径）
+      let shaObj = null;
+      try {
+        const trueDeg = parseFloat((d.headingDescTrue || '0').replace(/[^\d.\-]/g, '')) || 0;
+        shaObj = SHA.resolveShaByHeading(trueDeg);
+      } catch (e) {}
+      const shaText = shaObj && shaObj.name
+        ? `${shaObj.dir}${shaObj.palace}宫主应：${shaObj.name}` : '';
+      const shaNote = shaObj && shaObj.remedy ? `化解：${shaObj.remedy}` : '';
+
+      this.setData({
+        concDate: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+        concTime: d.nowTime || `${pad(now.getHours())}:${pad(now.getMinutes())}`,
+        concSolar: solar || term,
+        concLocation: d.coordsDisplayStr || '定位中…',
+        concHeading: `${d.headingDescTrue || ''} · ${sit}山`,
+        concYi: yi,
+        concJi: ji,
+        concBest: `吉时 ${best}${jianChu ? ' · ' + jianChu + '日' : ''}`,
+        concGod: `财神 ${wealth} ｜ 喜神 ${joy}`,
+        concWealth: wealth,
+        concJoy: joy,
+        concSitFace: sitFace,
+        concKongwang: d.kongwangText || '—',
+        concKongwangClass: d.kongwangClass || 'pure',
+        concFenjin: d.fenjinText || '—',
+        concFenjinColor: d.fenjinColor || '#2ecc71',
+        concFengshui: fengshui || `${d.fsLivePalace || ''} · ${d.fsLiveRole || ''}`,
+        concFengshuiNote: d.fsLivePalace ? `${d.fsLivePalace} · ${d.fsLiveRole || ''}` : '',
+        concSha: shaText,
+        concShaNote: shaNote
+      });
+    } catch (e) {
+      console.warn('refreshConclusion error:', e);
+    }
+  },
+
+  toggleDetail() {
+    this.setData({ showDetail: !this.data.showDetail });
+  },
+
+  togglePanel() {
+    this.setData({ panelOpen: !this.data.panelOpen });
   },
 
   startClockTimer() {
@@ -398,6 +616,14 @@ Page({
     this.clockTimer = setInterval(() => {
       this.refreshAstronomicalData();
       this.updateHeaderStatus();
+      // 跨日自动刷新今日吉方（财神 / 喜神随日干变化）
+      const todayKey = new Date().toDateString();
+      if (this._dailyGodsDay !== todayKey) {
+        this._dailyGodsDay = todayKey;
+        this.initDailyGods();
+        this.isDialDirty = true;
+        this.scheduleCompassDraw();
+      }
     }, 1000);
   },
 
@@ -548,6 +774,18 @@ Page({
 
       this.isDialDirty = true;
       this.drawCompass();
+
+      // 还原上次的缩放/平移（图层已在 onLoad 还原）
+      if (this._pendingView) {
+        this.viewScale = this._pendingView.scale;
+        this.viewTX = this._pendingView.tx;
+        this.viewTY = this._pendingView.ty;
+        this.applyViewTransform();
+        this.isDialDirty = true;
+        this.drawCompass();
+        this._pendingView = null;
+      }
+
       this.startCompassListener();
       this.startMotionListener();
       this.startGyroListener();
@@ -748,8 +986,8 @@ Page({
   checkMagneticDisturbance(heading) {
     let jolt = false;
     if (this.lastCompassSample >= 0) {
-      let d = Math.abs(heading - this.lastCompassSample);
-      if (d > 180) d = 360 - d;
+      // iOS CompassMotionManager.shortestAngleDelta：跨 0/360 的最短角差
+      const d = Math.abs(CF.shortestAngleDelta(this.lastCompassSample, heading));
       // 静止状态下单次采样跳变超过 2.5° 视为磁扰动
       jolt = (this.gyroAngularSpeed < 0.08 && d > 2.5);
     }
@@ -870,7 +1108,8 @@ Page({
     this.lastTiltMag = tiltMag;
     this.lastTiltUpdateAt = now;
 
-    if (tiltMag < 2.5) {
+    if (CF.isLevel(this.currentPitch, this.currentRoll)) {
+      // iOS CompassHeadingState.isLevel：俯仰/横滚合角 < 2°
       this.setData({ levelText: `${tiltMag.toFixed(1)}° · 水平良好 ✓`, levelColor: '#2ecc71' });
     } else if (tiltMag < 7.0) {
       this.setData({ levelText: `${tiltMag.toFixed(1)}° · 轻微倾斜`, levelColor: '#f39c12' });
@@ -911,6 +1150,7 @@ Page({
     if (this.data.compassMode === 'rotateDisk' && !this.isTouching && this.hoveredIndex !== nearestIdx) {
       this.hoveredIndex = nearestIdx;
       this.updateMountainDetails(nearestIdx);
+      HAPTIC.fire('tick'); // iOS UIImpactFeedbackGenerator(style:.light) 过山反馈
     }
 
     const declAbs = Math.abs(this.currentDeclination).toFixed(1);
@@ -932,6 +1172,10 @@ Page({
     if (effectiveHeading === null || isNaN(effectiveHeading)) return;
     if (!force && Math.abs(effectiveHeading - this.lastFengshuiHeading) < 0.2) return;
     this.lastFengshuiHeading = effectiveHeading;
+
+    // 写入全局方位源：盘解/择日/户型页在 onShow 读取它做动态联动。
+    // 0.2° 死区已在上面，避免高频传感器写 Storage。
+    orientation.fromCompass(effectiveHeading);
 
     const diag = getSitAndFaceDiagnosis(effectiveHeading);
     const fj = getFenjinAnalysis(effectiveHeading);
@@ -1018,6 +1262,7 @@ Page({
       nowDir: `${geoDirName(h)} ${Math.round(h)}°`
     });
     this.updateAllFengshuiStatus(false);
+    this.refreshConclusion();
   },
 
   // ==================== 交互 ====================
@@ -1036,6 +1281,8 @@ Page({
   toggleCompassMode() {
     const next = this.data.compassMode === 'rotateDisk' ? 'fixedDisk' : 'rotateDisk';
     this.setData({ compassMode: next });
+    // 转盘/固定盘属于「现场」，与立向锁定一起持久化
+    this.persistLockState();
     this.updateCompassInfo(true);
     this.scheduleCompassDraw();
   },
@@ -1046,6 +1293,179 @@ Page({
     this.setData({ isHeadingLocked: locked });
     this.updateCompassInfo(true);
     this.scheduleCompassDraw();
+    this.persistLockState();
+  },
+
+  // ============ 手动选山 / 选向 + 锁定角微调（对齐 iOS MountainPickerSheet） ============
+  toggleMountainPicker(e) {
+    const show = e.currentTarget.dataset.show === 'true' || e.currentTarget.dataset.show === true;
+    if (show && !this.data.isHeadingLocked) {
+      // 进入手选即先锁定，避免传感器把角度冲掉
+      this.lockedHeading = this.currentHeading;
+      this.setData({ isHeadingLocked: true });
+    }
+    this.setData({ showMountainPicker: show });
+    if (show) this.refreshPickerText();
+  },
+
+  refreshPickerText() {
+    const h = ((this.getEffectiveHeading() % 360) + 360) % 360;
+    const sitIdx = Math.round(h / 15) % 24;
+    const faceIdx = (sitIdx + 12) % 24;
+    const names = MOUNTAINS_DATA.map((m) => m.name);
+    this.setData({
+      pickerSitIdx: sitIdx,
+      pickerFaceIdx: faceIdx,
+      pickerSitText: `${names[sitIdx]} 山`,
+      pickerFaceText: `${names[faceIdx]} 向`,
+      pickerHeadingText: `${h.toFixed(1)}°`
+    });
+  },
+
+  onPickSit(e) {
+    const idx = parseInt(e.detail.value, 10);
+    const names = MOUNTAINS_DATA.map((m) => m.name);
+    // 坐山定则向首自动取对宫
+    const faceIdx = (idx + 12) % 24;
+    this.setData({
+      pickerSitIdx: idx,
+      pickerFaceIdx: faceIdx,
+      pickerSitText: `${names[idx]} 山`,
+      pickerFaceText: `${names[faceIdx]} 向`
+    });
+  },
+
+  onPickFace(e) {
+    const idx = parseInt(e.detail.value, 10);
+    const names = MOUNTAINS_DATA.map((m) => m.name);
+    const sitIdx = (idx + 12) % 24;
+    this.setData({
+      pickerFaceIdx: idx,
+      pickerSitIdx: sitIdx,
+      pickerSitText: `${names[sitIdx]} 山`,
+      pickerFaceText: `${names[idx]} 向`,
+      pickerHeadingText: `${(idx * 15).toFixed(1)}°`
+    });
+  },
+
+  adjustLockedAngle(e) {
+    const delta = parseFloat(e.currentTarget.dataset.delta) || 0;
+    const base = this.data.isHeadingLocked ? this.lockedHeading : this.currentHeading;
+    this.lockedHeading = ((base + delta) % 360 + 360) % 360;
+    this.setData({ isHeadingLocked: true });
+    this.refreshPickerText();
+    this.updateCompassInfo(true);
+    this.scheduleCompassDraw();
+    this.persistLockState();
+  },
+
+  applyMountainPick() {
+    // 以「向首」度数对齐锁定角：向首即实测 heading
+    this.lockedHeading = (this.data.pickerFaceIdx * 15) % 360;
+    this.setData({ isHeadingLocked: true, showMountainPicker: false });
+    this.updateCompassInfo(true);
+    this.scheduleCompassDraw();
+    this.persistLockState();
+    const names = MOUNTAINS_DATA.map((m) => m.name);
+    wx.showToast({
+      title: `已立 ${names[this.data.pickerSitIdx]}山${names[this.data.pickerFaceIdx]}向`,
+      icon: 'none'
+    });
+  },
+
+  persistLockState() {
+    try {
+      const store = require('../../utils/store');
+      const s = store.getSettings() || {};
+      s.compassLock = {
+        locked: !!this.data.isHeadingLocked,
+        heading: Math.round((this.lockedHeading || 0) * 10) / 10,
+        mode: this.data.compassMode
+      };
+      store.saveSettings(s);
+    } catch (err) {
+      console.warn('persistLockState error:', err);
+    }
+  },
+
+  restoreLockState() {
+    try {
+      const store = require('../../utils/store');
+      const s = store.getSettings() || {};
+      const lock = s.compassLock;
+      if (!lock) return;
+      if (lock.mode === 'fixedDisk' || lock.mode === 'rotateDisk') {
+        this.setData({ compassMode: lock.mode });
+      }
+      if (lock.locked) {
+        this.lockedHeading = lock.heading || 0;
+        this.setData({ isHeadingLocked: true });
+        this.updateCompassInfo(true);
+        this.scheduleCompassDraw();
+      }
+    } catch (err) {
+      console.warn('restoreLockState error:', err);
+    }
+  },
+
+  /**
+   * 盘面现场记忆：图层开关 + 缩放/平移存进 settings.dialView
+   * 缩放与平移是页面实例字段（不走 setData），所以每次图层变化与离开页面时落盘。
+   */
+  persistViewState() {
+    try {
+      const store = require('../../utils/store');
+      const s = store.getSettings() || {};
+      s.dialView = {
+        layers: Object.assign({}, this.layerConfig),
+        scale: Math.round((this.viewScale || 1) * 100) / 100,
+        tx: Math.round(this.viewTX || 0),
+        ty: Math.round(this.viewTY || 0),
+        panelOpen: !!this.data.panelOpen
+      };
+      store.saveSettings(s);
+    } catch (err) {
+      console.warn('persistViewState error:', err);
+    }
+  },
+
+  /** 图层部分在 onLoad 立即还原；缩放/平移留到画布就绪后再套用（见 initCanvas） */
+  restoreViewState() {
+    try {
+      const store = require('../../utils/store');
+      const s = store.getSettings() || {};
+      const v = s.dialView;
+      if (!v) return;
+
+      if (v.layers && typeof v.layers === 'object') {
+        const merged = Object.assign({}, DEFAULT_LAYERS);
+        Object.keys(merged).forEach((k) => {
+          if (typeof v.layers[k] === 'boolean') merged[k] = v.layers[k];
+        });
+        this.layerConfig = merged;
+        this.isDialDirty = true;
+        this.setData({
+          layerConfig: Object.assign({}, merged),
+          activePresetName: CL.activePresetName(merged)
+        });
+      }
+
+      const scale = Number(v.scale);
+      if (isFinite(scale) && scale >= this.MIN_SCALE && scale <= this.MAX_SCALE) {
+        this._pendingView = {
+          scale,
+          tx: Number(v.tx) || 0,
+          ty: Number(v.ty) || 0
+        };
+      }
+
+      // 上次若把「盘面设置」展开着，进来保持展开，少点一次
+      if (typeof v.panelOpen === 'boolean') {
+        this.setData({ panelOpen: v.panelOpen });
+      }
+    } catch (err) {
+      console.warn('restoreViewState error:', err);
+    }
   },
 
   updateMountainDetails(idx) {
@@ -1236,22 +1656,31 @@ Page({
     if (!key || this.layerConfig[key] === undefined) return;
     this.layerConfig[key] = !this.layerConfig[key];
     this.isDialDirty = true;
-    this.setData({ layerConfig: Object.assign({}, this.layerConfig) });
+    this.setData({
+      layerConfig: Object.assign({}, this.layerConfig),
+      activePresetName: CL.activePresetName(this.layerConfig)
+    });
     this.scheduleCompassDraw();
+    this.persistViewState();
   },
 
   applyLayerPreset(e) {
     const preset = e.currentTarget.dataset.preset;
-    if (preset === 'all') {
-      this.layerConfig = Object.assign({}, DEFAULT_LAYERS);
-    } else if (preset === 'sanyuan') {
-      this.layerConfig = Object.assign({}, DEFAULT_LAYERS, { timeDial: false });
-    } else if (preset === 'simple') {
-      this.layerConfig = Object.assign({}, DEFAULT_LAYERS, { palaces: false, solarRing: false, timeDial: false, hex64: false });
+    // 对齐 iOS CompassLayerManager 四套 preset（1:1 口径），由 compass-layer 模块统一推导
+    const keyMap = { all: 'comprehensive', sanyuan: 'sanYuan', sanhe: 'sanHe', simple: 'minimalist' };
+    const presetKey = keyMap[preset] || 'comprehensive';
+    this.layerConfig = CL.applyTo(Object.assign({}, DEFAULT_LAYERS), presetKey);
+    // 小程序特有的外围图层：极简盘收起时间圈/宜忌/吉方标，其余预设保留默认
+    if (presetKey === 'minimalist') {
+      Object.assign(this.layerConfig, { timeDial: false, fengshui: false, dailyGods: false });
     }
     this.isDialDirty = true;
-    this.setData({ layerConfig: Object.assign({}, this.layerConfig) });
+    this.setData({
+      layerConfig: Object.assign({}, this.layerConfig),
+      activePresetName: CL.activePresetName(this.layerConfig)
+    });
     this.scheduleCompassDraw();
+    this.persistViewState();
   },
 
   toggleKongwangModal(e) {
@@ -1382,6 +1811,44 @@ Page({
     }
   },
 
+  /**
+   * 坐山 / 向首常显标记
+   * 坐山（金色）与向首（红色）各画一条 15° 淡扇区，压在山环-分金环之间，
+   * 再在最外圈补一个小帽，让人不点也能一眼看到「我坐哪、朝哪」。
+   */
+  drawSitFaceBands(ctx, CX, CY, R, heading) {
+    if (heading === null || heading === undefined || isNaN(heading)) return;
+    const h = ((heading % 360) + 360) % 360;
+    const diag = getSitAndFaceDiagnosis(h);
+    const bands = [
+      { name: diag.sitMt, fill: 'rgba(233, 216, 166, 0.12)', edge: 'rgba(233, 216, 166, 0.42)' },
+      { name: diag.faceMt, fill: 'rgba(231, 120, 120, 0.12)', edge: 'rgba(231, 120, 120, 0.42)' }
+    ];
+
+    bands.forEach((band) => {
+      const m = MOUNTAINS_DATA.filter((x) => x.name === band.name)[0];
+      if (!m) return;
+      const sRad = this.deg2rad(m.deg - 7.5);
+      const eRad = this.deg2rad(m.deg + 7.5);
+
+      // 山环 → 分金环的淡扇区
+      ctx.beginPath();
+      ctx.arc(CX, CY, R.fenjinRing, sRad, eRad);
+      ctx.arc(CX, CY, R.postGuaRing, eRad, sRad, true);
+      ctx.closePath();
+      ctx.fillStyle = band.fill;
+      ctx.fill();
+
+      // 最外圈小帽：把方位落到盘边，扫一眼就知道朝向
+      ctx.beginPath();
+      ctx.arc(CX, CY, R.gua64Out, sRad, eRad);
+      ctx.arc(CX, CY, R.gua64Out - 6 * R.s, eRad, sRad, true);
+      ctx.closePath();
+      ctx.fillStyle = band.edge;
+      ctx.fill();
+    });
+  },
+
   drawCompass() {
     const ctx = this.ctx;
     if (!ctx) return;
@@ -1430,6 +1897,11 @@ Page({
       this.renderStaticDial(ctx, CX, CY, R, FS);
     }
 
+    // 1.5 坐山 / 向首：常显淡色扇区 + 外缘帽标（随盘面旋转）
+    if (this.layerConfig.mountains) {
+      this.drawSitFaceBands(ctx, CX, CY, R, effectiveHeading);
+    }
+
     // 2. 当前选中山向高光
     if (this.hoveredIndex >= 0 && this.layerConfig.mountains) {
       const m = MOUNTAINS_DATA[this.hoveredIndex];
@@ -1456,6 +1928,11 @@ Page({
       ctx.textBaseline = 'middle';
       ctx.fillText(m.name, 0, 0);
       ctx.restore();
+    }
+
+    // 2.5 今日财神 / 喜神金标（随盘面旋转，指向当日吉方）
+    if (this.layerConfig.dailyGods) {
+      this.drawDailyGodsMarks(ctx, CX, CY, R, FS);
     }
 
     // 3. 实时北京时间红针 + 真太阳时金针
@@ -1784,6 +2261,41 @@ Page({
       }
     }
 
+    // ---- 6.5 360° 度数刻度环（位于消息卦环与时间圈之间的留白）----
+    if (L.degreeTicks) {
+      const rIn = R.hexRing + 1 * R.s;
+      const rOut = R.timeIn - 1 * R.s;
+      c.save();
+      c.strokeStyle = 'rgba(150, 158, 180, 0.55)';
+      c.lineWidth = Math.max(0.4, 0.6 * R.s);
+      for (let d = 0; d < 360; d++) {
+        if (d % 5 !== 0) continue;          // 每 5° 一刻度，避免 1° 过密糊成一圈
+        const rad = this.deg2rad(d);
+        const major = d % 10 === 0;
+        const len = (major ? rOut : rIn + (rOut - rIn) * 0.45);
+        c.beginPath();
+        c.moveTo(CX + Math.cos(rad) * rIn, CY + Math.sin(rad) * rIn);
+        c.lineTo(CX + Math.cos(rad) * len, CY + Math.sin(rad) * len);
+        c.strokeStyle = major ? 'rgba(200, 208, 226, 0.7)' : 'rgba(150, 158, 180, 0.42)';
+        c.stroke();
+      }
+      // 每 30° 度数标注
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.font = `${Math.max(6, Math.round(8 * R.s))}px sans-serif`;
+      c.fillStyle = 'rgba(180, 190, 210, 0.8)';
+      const rText = (rIn + rOut) / 2 + 1 * R.s;
+      for (let d = 0; d < 360; d += 30) {
+        const rad = this.deg2rad(d);
+        c.save();
+        c.translate(CX + Math.cos(rad) * rText, CY + Math.sin(rad) * rText);
+        c.rotate(rad + Math.PI / 2);
+        c.fillText(String(d), 0, 0);
+        c.restore();
+      }
+      c.restore();
+    }
+
     // ---- 7. 今日当令之山金色弧 ----
     if (this.currentIndex >= 0 && L.mountains) {
       const m = MOUNTAINS_DATA[this.currentIndex];
@@ -1797,6 +2309,69 @@ Page({
       c.fill();
       c.strokeStyle = '#d4af37'; c.lineWidth = 2.5; c.stroke();
     }
+  },
+
+  /**
+   * 今日财神 / 喜神盘面金标
+   * 宫位角度口径为「正北 0°、顺时针」，而本盘以「正南在画布顶」绘制，
+   * 故统一换算 dialDeg = (angle - 180 + 360) % 360。
+   */
+  drawDailyGodsMarks(ctx, CX, CY, R, FS) {
+    const dg = this.dailyGods;
+    if (!dg || !dg.wealth || !dg.joy) return;
+    const marks = [
+      { key: 'wealth', label: '财', data: dg.wealth, color: '#f1c40f', glow: 'rgba(241,196,15,0.85)' },
+      { key: 'joy', label: '喜', data: dg.joy, color: '#2ec4b6', glow: 'rgba(46,196,182,0.85)' }
+    ];
+    const rTickIn = R.gua64Out - 6 * R.s;
+    const rTickOut = R.gua64Out + 2 * R.s;
+    const rDot = R.gua64Out + 6 * R.s;
+    const dotR = Math.max(4, 5 * R.s);
+    const fs = Math.max(7, Math.round(10 * R.s));
+
+    ctx.save();
+    for (let i = 0; i < marks.length; i++) {
+      const m = marks[i];
+      const dialDeg = ((m.data.angle - 180) % 360 + 360) % 360;
+      // 同宫时两标记错开 4°，避免完全重合看不清
+      const offset = dg.samePalace && i === 1 ? 4 : 0;
+      const rad = this.deg2rad(dialDeg + offset);
+
+      // 径向指引短线
+      ctx.beginPath();
+      ctx.moveTo(CX + Math.cos(rad) * rTickIn, CY + Math.sin(rad) * rTickIn);
+      ctx.lineTo(CX + Math.cos(rad) * rTickOut, CY + Math.sin(rad) * rTickOut);
+      ctx.strokeStyle = m.glow;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // 菱形金标
+      const px = CX + Math.cos(rad) * rDot;
+      const py = CY + Math.sin(rad) * rDot;
+      ctx.beginPath();
+      ctx.moveTo(px, py - dotR * 1.45);
+      ctx.lineTo(px + dotR, py);
+      ctx.lineTo(px, py + dotR * 1.45);
+      ctx.lineTo(px - dotR, py);
+      ctx.closePath();
+      ctx.fillStyle = m.color;
+      ctx.fill();
+      ctx.strokeStyle = '#1b1200';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // 标记字（沿切线方向，压在菱形上以免越过画布边缘）
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(rad + Math.PI / 2);
+      ctx.fillStyle = '#1b1200';
+      ctx.font = `bold ${fs}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(m.label, 0, 0);
+      ctx.restore();
+    }
+    ctx.restore();
   },
 
   drawTimeNeedles(ctx, CX, CY, R, FS) {
@@ -2063,7 +2638,7 @@ Page({
     }
 
     // 真北针（标“真”）
-    {
+    if (this.layerConfig.trueNorthNeedle) {
       const pStart = R.taiji + 6 * R.s;
       const pEnd = R.postGuaRing - 14 * R.s;
       ctx.beginPath();

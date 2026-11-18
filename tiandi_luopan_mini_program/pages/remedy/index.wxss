@@ -1,0 +1,9 @@
+/* pages/remedy/index.wxss */
+
+.btn-inline {
+  display: inline-block;
+  padding: 6rpx 18rpx;
+  border-radius: 10rpx;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 22rpx;
+}

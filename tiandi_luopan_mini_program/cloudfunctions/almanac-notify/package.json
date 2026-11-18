@@ -1,0 +1,9 @@
+{
+  "name": "almanac-notify",
+  "version": "1.0.0",
+  "description": "节气 / 换月 / 吉日 / 冲煞 订阅消息定时下发",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

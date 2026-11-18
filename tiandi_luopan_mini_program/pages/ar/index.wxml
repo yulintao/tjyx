@@ -1,0 +1,71 @@
+<view>
+  <camera
+    wx:if="{{!snapPath}}"
+    device-position="back"
+    flash="off"
+    bindinitdone="onCameraReady"
+    style="position:fixed;left:0;top:0;width:100vw;height:100vh;"
+  >
+    <cover-view class="hud-back" style="top:{{statusBarHeight + 6}}px;left:24rpx;" bindtap="back">← 返回</cover-view>
+
+    <cover-view class="hud-top" style="top:{{statusBarHeight + 42}}px;left:40rpx;">
+      <cover-view class="hud-heading">{{headingText}}</cover-view>
+      <cover-view class="hud-sub">{{sitText}} · {{fenjinText}}</cover-view>
+      <cover-view class="hud-sub" wx:if="{{shaText}}" style="color:#e8a87c;">主应形煞：{{shaText}}</cover-view>
+      <cover-view class="hud-sub" wx:if="{{shaRemedy}}" style="color:#7fd3a0;font-size:20rpx;">{{shaRemedy}}</cover-view>
+    </cover-view>
+
+    <cover-view class="cross cross-h"></cover-view>
+    <cover-view class="cross cross-v"></cover-view>
+    <cover-view class="cross cross-ring"></cover-view>
+
+    <!-- 点画面取方位：透明层在 HUD 之下，不挡按钮 -->
+    <cover-view class="pick-layer" bindtap="onPickTap"></cover-view>
+    <cover-view wx:if="{{pick}}" class="pick-mark" style="left:{{pickLeft}}%;">
+      <cover-view class="pick-mark-dot"></cover-view>
+      <cover-view class="pick-mark-line"></cover-view>
+    </cover-view>
+
+    <cover-view class="bubble-box">
+      <cover-view class="bubble-dot" style="left:{{bubbleLeft}}%;top:{{bubbleTop}}%;"></cover-view>
+    </cover-view>
+
+    <cover-view wx:if="{{pick}}" class="pick-card">
+      <cover-view class="pick-head">
+        <cover-view class="pick-title">{{pick.headingText}} · {{pick.sitFace}}</cover-view>
+        <cover-view class="pick-close" bindtap="clearPick">×</cover-view>
+      </cover-view>
+      <cover-view class="pick-row">分金：{{pick.fenjin}}</cover-view>
+      <cover-view class="pick-row {{pick.level === 'xiong' ? 'pick-warn' : 'pick-ok'}}">{{pick.sha}}</cover-view>
+      <cover-view wx:if="{{pick.remedy}}" class="pick-row pick-note">{{pick.remedy}}</cover-view>
+      <cover-view class="pick-actions">
+        <cover-view class="pick-step" data-dir="-1" bindtap="onPickStep">← 左寻</cover-view>
+        <cover-view class="pick-step" data-dir="1" bindtap="onPickStep">右寻 →</cover-view>
+      </cover-view>
+    </cover-view>
+
+    <cover-view class="hud-bottom">
+      <cover-view class="hud-tip">{{levelText}}{{offset ? ' · 校北 ' + offset + '°' : ''}}</cover-view>
+      <cover-view wx:if="{{vkMeasureText}}" class="hud-tip">{{vkMeasureText}}</cover-view>
+      <!-- 测距操作独占一行，不与拍照/校北重叠 -->
+      <cover-view wx:if="{{vkSupported && !vkMeasuring}}" class="hud-vk hud-vk-entry" bindtap="startVKMeasure">实景测距</cover-view>
+      <cover-view wx:if="{{vkMeasuring}}" class="hud-vk hud-vk-start" bindtap="vkMarkStart">起点</cover-view>
+      <cover-view wx:if="{{vkMeasuring}}" class="hud-vk hud-vk-end" bindtap="vkMarkEnd">终点</cover-view>
+      <cover-view wx:if="{{vkMeasuring}}" class="hud-vk hud-vk-stop" bindtap="stopVKMeasure">结束</cover-view>
+      <cover-view class="hud-btn hud-btn-2" bindtap="takePhoto">{{recording ? '合成中…' : '拍照存证'}}</cover-view>
+      <cover-view class="hud-btn hud-btn-3" bindtap="calibrate">校北</cover-view>
+      <cover-view class="hud-btn hud-btn-4" bindtap="clearCalibrate">清校</cover-view>
+    </cover-view>
+  </camera>
+
+  <view wx:if="{{snapPath}}" class="snap-overlay">
+    <image src="{{snapPath}}" mode="aspectFit" class="snap-img"></image>
+    <view class="snap-actions">
+      <view class="btn" bindtap="saveSnap">存入相册</view>
+      <view class="btn" bindtap="closeSnap">重拍</view>
+      <view class="btn" bindtap="back">返回</view>
+    </view>
+  </view>
+
+  <canvas type="2d" id="snapCanvas" style="position:fixed;left:-2000px;top:0;width:1200px;height:1600px;"></canvas>
+</view>

@@ -1,0 +1,92 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">天机长卷</view>
+    <view class="topbar-right" bindtap="copyText">复制</view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">十三门合参 · 此宅总评</view>
+      <view class="conclusion-head">{{grade}} · {{score}} 分</view>
+      <view class="conclusion-sub">{{sit}}山{{face}}向 · {{dateText}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">高危项</view>
+          <view class="conclusion-v {{highCount ? 'xiong' : 'ji'}}">{{highCount}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">待处置</view>
+          <view class="conclusion-v">{{risks.length}} 条</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">收录门类</view>
+          <view class="conclusion-v">{{sections.length}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">摘要</view>
+          <view class="conclusion-v">{{digest.length}} 条</view>
+        </view>
+      </view>
+      <view class="conclusion-note">先看下方处置优先级，再导出长卷存档。</view>
+    </view>
+
+    <view class="card">
+      <picker mode="selector" range="{{mountainNames}}" value="{{sitIdx}}" bindchange="onSitChange">
+        <view class="input-row">
+          <label>坐山</label>
+          <view class="input-box">{{sit}} 山 · {{face}} 向</view>
+        </view>
+      </picker>
+    </view>
+
+    <view class="card" wx:if="{{risks.length}}">
+      <view class="card-title">处置优先级（高危在前）</view>
+      <view class="list-item" wx:for="{{risks}}" wx:key="index">
+        <view class="list-main">
+          <text>{{item.title}}</text>
+          <text class="tag {{item.level === 'high' ? 'tag-xiong' : 'tag-ping'}}">{{item.source}}</text>
+        </view>
+        <view class="list-desc">{{item.text}}</view>
+        <view class="list-desc" wx:if="{{showRisks}}" style="color:#7fd3a0;">化解：{{item.remedy}}</view>
+      </view>
+      <view class="fold-head">
+        <text class="fold-label">化解做法与总评详解</text>
+        <text class="fold-toggle" bindtap="toggleRisks">{{showRisks ? '收起 ▲' : '展开 ▼'}}</text>
+      </view>
+      <block wx:if="{{showRisks}}">
+        <view class="list-desc" style="color:#e9d8a6;white-space:pre-wrap;">{{guidance}}</view>
+      </block>
+    </view>
+
+    <view class="card">
+      <view class="fold-head">
+        <text class="fold-label">长卷正文 · {{sections.length}} 门（摘要与逐门详解）</text>
+        <text class="fold-toggle" bindtap="toggleScroll">{{showScroll ? '收起 ▲' : '展开 ▼'}}</text>
+      </view>
+      <block wx:if="{{showScroll}}">
+        <view class="card-title">{{title}}　{{dateText}}</view>
+        <view class="list-item" wx:for="{{digest}}" wx:key="*this">
+          <view class="list-desc" style="color:#dfe4ee;">{{item}}</view>
+        </view>
+        <view wx:for="{{sections}}" wx:key="key" wx:for-item="section">
+          <view class="card-sub" style="margin-top:18rpx;color:#e9d8a6;">{{section.title}}</view>
+          <view class="list-item" wx:for="{{section.rows}}" wx:for-item="row" wx:key="*this">
+            <view class="list-desc">{{row}}</view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <button class="btn btn-primary" bindtap="exportImage" loading="{{exporting}}">生成长卷图片</button>
+    <button class="btn" bindtap="copyText">复制全文</button>
+
+    <view class="footnote">
+      长卷含形势总览、玄空九宫与详解、八宅宅命与凶星、流年紫白与化解、三合水法、择日详解、奇门详解、形煞自查共十三门；宣纸底、朱丝栏、竖排卷名与「演象」「时空」双印，正文为双栏小楷。内容较长时自动分卷，每卷单独出图，全部在本地生成，不上传服务器。
+    </view>
+  </view>
+
+  <canvas type="2d" id="reportCanvas" style="position:fixed;left:-9999rpx;top:0;width:750px;height:1200px;"></canvas>
+</view>

@@ -1,0 +1,100 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">紫白九星</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">紫白九星 · 此年月结论</view>
+      <view class="conclusion-head">{{year}} 年 · {{monthText}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">年星入中</view>
+          <view class="conclusion-v gold">{{yearCenter}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">月星入中</view>
+          <view class="conclusion-v gold">{{monthCenter}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">五黄（今年）</view>
+          <view class="conclusion-v xiong">{{fiveDir}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">二黑（今年）</view>
+          <view class="conclusion-v xiong">{{twoDir}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note">点九宫任一格看该宫年/月星组合与做法；红框为五黄临宫。</view>
+    </view>
+
+    <view class="card">
+      <picker mode="date" value="{{dateStr}}" bindchange="onDate">
+        <view class="input-row">
+          <label>日期（立春换年 · 节气换月）</label>
+          <view class="input-box">{{dateStr}}</view>
+        </view>
+      </picker>
+      <view class="row">
+        <view class="row-k">年紫白入中</view>
+        <view class="row-v">{{year}} 年 · {{yearCenter}} 入中</view>
+      </view>
+      <view class="row">
+        <view class="row-k">月紫白入中</view>
+        <view class="row-v">{{monthText}} · {{monthCenter}} 入中</view>
+      </view>
+      <view style="display:flex;gap:12rpx;margin-top:12rpx;">
+        <view class="btn" style="flex:1;" data-delta="-1" bindtap="shiftMonth">← 上月</view>
+        <view class="btn" style="flex:1;" data-delta="1" bindtap="shiftMonth">下月 →</view>
+      </view>
+      <view class="btn" wx:if="{{monthShift}}" style="margin-top:12rpx;" bindtap="resetMonth">回到当前月（已偏移 {{monthShift}} 个月）</view>
+      <view class="card-sub">宅向：{{sit}}山{{face}}向</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">九宫（年星 / 月星）</view>
+      <view class="grid9">
+        <view class="cell {{item.palace === 5 ? 'cell-center' : ''}} {{item.isFive ? 'cell-alarm' : ''}}" wx:for="{{cells}}" wx:key="palace" data-palace="{{item.palace}}" bindtap="onCell">
+          <view class="cell-name">{{item.name}}</view>
+          <view class="cell-triple">
+            <text>{{item.year}}</text>
+            <text>{{item.month}}</text>
+          </view>
+          <view class="cell-sub">{{item.yearStarInfo.name}}</view>
+          <view class="cell-tag" wx:if="{{item.isFive}}">五黄</view>
+        </view>
+      </view>
+      <view class="footnote">上为年星，下为月星；红框为五黄临宫。点选宫位查看逐宫做法与影响。</view>
+    </view>
+
+    <view class="card" wx:if="{{picked}}">
+      <view class="card-title">{{picked.name}} · 年{{picked.year}} 月{{picked.month}}</view>
+      <view class="card-sub">{{picked.yearTitle}}</view>
+      <view class="list-desc">{{picked.yearRemedy}}</view>
+      <view class="list-desc" wx:if="{{picked.yearCombo}}" style="color:{{picked.yearComboLevel === 'xiong' ? '#e88b8b' : '#7fd3a0'}};">{{picked.yearCombo}}</view>
+      <view class="card-sub" style="margin-top:8px;">{{picked.monthTitle}}（流月）</view>
+      <view class="list-desc">{{picked.monthRemedy}}</view>
+    </view>
+
+    <view class="card">
+      <view class="fold-head">
+        <text class="fold-label">流年凶位 {{warnings.length}} 条 · 坐向冲犯 {{hits.length}} 条</text>
+        <text class="fold-toggle" bindtap="toggleDetail">{{showDetail ? '收起 ▲' : '展开 ▼'}}</text>
+      </view>
+      <block wx:if="{{showDetail}}">
+        <view class="list-item" wx:for="{{warnings}}" wx:key="*this">
+          <view class="list-desc" style="color:#dfe4ee;">{{item}}</view>
+        </view>
+        <block wx:if="{{hits.length}}">
+          <view class="list-item" wx:for="{{hits}}" wx:key="*this">
+            <view class="list-desc" style="color:#e88b8b;">{{item}}</view>
+          </view>
+        </block>
+      </block>
+    </view>
+  </view>
+</view>

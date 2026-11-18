@@ -1,0 +1,91 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">备份与恢复</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <view class="card" wx:if="{{summary}}">
+      <view class="card-title">本机数据</view>
+      <view class="row"><view class="row-k">家人档案</view><view class="row-v">{{summary.members}} 人</view></view>
+      <view class="row"><view class="row-k">户型存档</view><view class="row-v">{{summary.floorplans}} 套</view></view>
+      <view class="row"><view class="row-k">化解任务</view><view class="row-v">{{summary.remedyTasks}} 项</view></view>
+      <view class="row"><view class="row-k">浏览历史</view><view class="row-v">{{summary.history}} 条</view></view>
+      <view class="row"><view class="row-k">位置 / 坐向</view><view class="row-v">{{summary.placeName || '未定位'}} · {{summary.hasOrientation ? '有' : '无'}}</view></view>
+      <view class="row"><view class="row-k">外煞勾选</view><view class="row-v">{{summary.shaChecked}} 项</view></view>
+      <view class="btn" style="margin-top:16rpx;" bindtap="onExport">导出备份（复制到剪贴板）</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="onExportFile">导出为 JSON 文件</view>
+      <view class="footnote" wx:if="{{storageHint}}" style="color:#e8b06a;">{{storageHint}}</view>
+      <view class="footnote">备份含家人出生年、位置坐标等个人信息，仅保存在本机或你自行选择的位置，不上传服务器。iOS 版通过 iCloud 键值同步；小程序无该能力，改用本页导出/导入与可选云开发。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">读取备份</view>
+      <view class="btn" bindtap="onPaste">从剪贴板读取</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="onChooseFile">从聊天文件读取</view>
+      <view class="list-desc" wx:if="{{preview}}" style="margin-top:16rpx;color:#e9d8a6;">{{preview}}</view>
+
+      <view wx:if="{{previewLines.length}}" style="margin-top:20rpx;">
+        <view class="card-title" style="margin-bottom:8rpx;">差异预览</view>
+        <view class="row" wx:for="{{previewLines}}" wx:key="*this">
+          <view class="row-v" style="color:#a8b3c8;font-size:26rpx;line-height:1.6;">{{item}}</view>
+        </view>
+        <view class="footnote">以上为按当前恢复方式推算的结果，尚未写入本机。</view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{pending}}">
+      <view class="card-title">恢复方式</view>
+      <view class="row">
+        <view class="row-k">合并（推荐）</view>
+        <view class="row-v">
+          <view class="btn-inline" data-mode="merge" bindtap="onMode" style="color:{{mode === 'merge' ? '#f1c40f' : '#8f9bb3'}};">选中</view>
+        </view>
+      </view>
+      <view class="row">
+        <view class="row-k">覆盖本机</view>
+        <view class="row-v">
+          <view class="btn-inline" data-mode="replace" bindtap="onMode" style="color:{{mode === 'replace' ? '#e88b8b' : '#8f9bb3'}};">选中</view>
+        </view>
+      </view>
+      <view class="list-desc">合并：按 id / 姓名+出生年去重，本机设置优先；覆盖：完全以备份为准，不可撤销。</view>
+      <view class="btn" style="margin-top:16rpx;" bindtap="onApply">执行恢复</view>
+    </view>
+
+    <view class="card" wx:if="{{undo}}">
+      <view class="card-title">撤销点</view>
+      <view class="row"><view class="row-k">上次恢复</view><view class="row-v">{{undo.atText}}（{{undo.mode === 'replace' ? '覆盖' : '合并'}}）</view></view>
+      <view class="row"><view class="row-k">可退回的数据</view><view class="row-v">{{undo.summary.members}} 人 · {{undo.summary.floorplans}} 套 · {{undo.summary.remedyTasks}} 项 · {{undo.summary.history}} 条</view></view>
+      <view class="btn" style="margin-top:16rpx;{{undo.expired ? 'opacity:0.5;' : ''}}" bindtap="onUndo">{{undo.expired ? '撤销点已过期（7 天）' : '撤销上次恢复'}}</view>
+      <view class="footnote">每次恢复前自动留一份当前数据，保留 7 天；撤销后也会留一个新撤销点，可以来回切。</view>
+    </view>
+
+    <view class="card" wx:if="{{log.length}}">
+      <view class="card-title">最近的数据变动</view>
+      <view class="row" wx:for="{{log}}" wx:key="id">
+        <view class="row-k" style="width:auto;">{{item.title}}{{item.modeText ? '（' + item.modeText + '）' : ''}}</view>
+        <view class="row-v" style="text-align:right;">
+          <text style="color:{{item.ok ? '#7fd3a0' : '#e88b8b'}};">{{item.text}}</text>
+          <text style="color:#6f7a8f;font-size:22rpx;">　{{item.atText}}</text>
+        </view>
+      </view>
+      <view class="footnote">只记录恢复与撤销，最多 20 条，仅存本机；清除数据时一并删除。</view>
+    </view>
+
+    <view class="card" wx:if="{{result}}">
+      <view class="card-title">恢复结果</view>
+      <view class="list-desc" style="color:#7fd3a0;">{{result}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">云开发备份（可选）</view>
+      <view class="row"><view class="row-k">状态</view><view class="row-v">{{cloudReady ? cloudState : '当前环境未开通云开发'}}</view></view>
+      <input class="input-box" style="margin-top:12rpx;" placeholder="云开发环境 ID（如 luopan-prod-1a2b3c）" value="{{cloudEnv}}" bindinput="onCloudEnv" />
+      <view class="btn" style="margin-top:16rpx;" bindtap="onCloudInit">初始化云环境</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="onCloudSave">上传到云端</view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="onCloudLoad">从云端读取</view>
+      <view class="footnote">云开发需在开发者工具中开通，并新建集合 luopan_backup（权限建议「仅创建者可读写」）。未开通时本页其余功能不受影响。</view>
+    </view>
+  </view>
+</view>

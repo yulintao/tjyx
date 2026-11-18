@@ -1,0 +1,72 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">外煞自查与化解</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">外煞自查 · 当前结论</view>
+      <view class="conclusion-head">{{hitCount ? '已中标 ' + hitCount + ' 项' : '暂未见煞'}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">极凶</view>
+          <view class="conclusion-v {{criticalCount ? 'xiong' : 'ji'}}">{{criticalCount}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">合计</view>
+          <view class="conclusion-v">{{hitCount}} / {{total}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note" wx:for="{{summary}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="card" wx:if="{{hitCount}}">
+      <view class="card-title">命中项与化解（按实测距离加权判级）</view>
+      <view class="list-item" wx:for="{{hits}}" wx:key="id">
+        <view class="list-main">
+          <text>{{item.name}}</text>
+          <text class="tag {{item.effectiveSeverity === 'critical' ? 'tag-xiong' : (item.effectiveSeverity === 'notice' ? 'tag-ji' : 'tag-ping')}}" style="margin-left:12rpx;">{{item.effectiveSeverityText}}</text>
+          <text class="tag tag-ping" wx:if="{{item.changed}}" style="margin-left:8rpx;">原 {{item.severityText}}</text>
+        </view>
+        <view class="row">
+          <view class="row-k">实测距离</view>
+          <input class="input-box" type="digit" placeholder="未测" value="{{item.distanceMeters === null ? '' : item.distanceMeters}}" data-id="{{item.id}}" bindinput="onDistanceInput" style="width:180rpx;text-align:right;" />
+          <text class="row-v" style="margin-left:12rpx;font-size:20rpx;">米 · {{item.distanceGradeText}}</text>
+        </view>
+        <view class="list-desc">化解：{{item.remedy}}</view>
+      </view>
+      <view class="footnote">近于 30m 加重一级、远于 100m 减轻一级（与 iOS 外煞距离判级一致）；留空则保持静态等级。</view>
+    </view>
+
+    <view class="card">
+      <view class="btn" bindtap="onCapture">拍照留证（现场对照）</view>
+      <view class="btn" wx:if="{{evidencePath}}" bindtap="saveEvidence" style="margin-top:12rpx;">留证图存入相册</view>
+      <view class="btn" wx:if="{{evidencePath}}" bindtap="clearEvidence" style="margin-top:12rpx;">丢弃留证图</view>
+      <view class="btn" wx:if="{{hitCount}}" bindtap="clear" style="margin-top:12rpx;">清空勾选</view>
+      <view class="footnote" wx:if="{{savedAt}}">上次勾选已存本机：{{savedAt}}，再次进入自动带回。</view>
+      <view class="fold-head">
+        <text class="fold-label">全部 {{total}} 类煞型清单（点击即勾选）</text>
+        <text class="fold-toggle" bindtap="toggleDetail">{{showDetail ? '收起 ▲' : '逐项自查 ▼'}}</text>
+      </view>
+    </view>
+
+    <block wx:if="{{showDetail}}">
+      <view class="card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="toggle" style="{{item.hit ? 'border-color:rgba(127,211,160,0.35);' : ''}}">
+        <view class="list-main">
+          <text>{{item.name}}</text>
+          <text class="tag {{item.severity === 'critical' ? 'tag-xiong' : (item.severity === 'notice' ? 'tag-ji' : 'tag-ping')}}" style="margin-left:12rpx;">{{severityName[item.severity]}}</text>
+          <text class="tag {{item.hit ? 'tag-ji' : 'tag-ping'}}" style="margin-left:8rpx;">{{item.hit ? '已中' : '未中'}}</text>
+        </view>
+        <view class="list-desc">辨识：{{item.identify}}</view>
+        <view class="list-desc">影响：{{item.effect}}</view>
+        <view class="list-desc">化解：{{item.remedy}}</view>
+        <view class="footnote" wx:if="{{showEvidence}}">出处：{{item.source}}</view>
+      </view>
+      <view class="footnote">形煞以门窗所对为主，落于向首与坐山两方者影响最重；化解宜就地取材，不必大兴土木。</view>
+    </block>
+  </view>
+</view>

@@ -76,39 +76,30 @@ function getSitAndFaceDiagnosis(heading) {
   const dev = faceRes.diff;
   const absDev = Math.abs(dev);
 
-  let statusType = 'pure';
+  // 统一走 iOS kongWangLevel 判级（1.5°/6.5°/出卦线0.7°）
+  const KW = require('./kongwang');
+  const kw = KW.classify(h);
+  const statusType = kw.type;
+  const badgeClass = kw.badgeClass;
   let statusText = '正针纯清';
-  let badgeClass = 'pure';
   let sitFacePattern = `坐${sitMt.name}向${faceMt.name}`;
 
-  if (absDev <= 3.0) {
-    statusType = 'pure';
+  if (statusType === 'pure') {
     statusText = `正针纯清 (${absDev < 0.3 ? '正中线' : `偏${dev > 0 ? '右' : '左'}${absDev.toFixed(1)}°`})`;
-    badgeClass = 'pure';
     sitFacePattern += ' · 正针';
-  } else if (absDev < 6.0) {
-    statusType = 'jian';
-    badgeClass = 'jian';
+  } else if (statusType === 'jian') {
     const nextIdx = dev > 0 ? (faceRes.idx + 1) % 24 : (faceRes.idx - 1 + 24) % 24;
     const nextMt = MT_AZIMUTH_CENTERS[nextIdx];
     const nextSitIdx = dev > 0 ? (sitRes.idx + 1) % 24 : (sitRes.idx - 1 + 24) % 24;
     const nextSitMt = MT_AZIMUTH_CENTERS[nextSitIdx];
     statusText = `兼向 (${faceMt.name}兼${nextMt.name} ${absDev.toFixed(1)}°)`;
     sitFacePattern += ` 兼 ${nextSitMt.name}${nextMt.name}`;
+  } else if (statusType === 'big_kw') {
+    statusText = `出卦大空亡 ⛔ (距出卦缝 ${kw.gapChuGua.toFixed(1)}°)`;
+    sitFacePattern += ' · 出卦空亡';
   } else {
-    const nextIdx = dev > 0 ? (faceRes.idx + 1) % 24 : (faceRes.idx - 1 + 24) % 24;
-    const nextMt = MT_AZIMUTH_CENTERS[nextIdx];
-    if (nextMt.palace !== faceMt.palace) {
-      statusType = 'big_kw';
-      statusText = `出卦大空亡 ⛔ (${faceMt.name}/${nextMt.name}两宫缝)`;
-      badgeClass = 'big_kw';
-      sitFacePattern += ' · 出卦空亡';
-    } else {
-      statusType = 'small_kw';
-      statusText = `小空亡 ⚠️ (${faceMt.name}/${nextMt.name}同宫缝)`;
-      badgeClass = 'small_kw';
-      sitFacePattern += ' · 差错空亡';
-    }
+    statusText = `差错小空亡 ⚠️ (距山中心 ${absDev.toFixed(1)}°)`;
+    sitFacePattern += ' · 差错空亡';
   }
 
   return {

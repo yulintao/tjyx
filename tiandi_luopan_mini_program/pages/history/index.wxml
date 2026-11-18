@@ -1,0 +1,63 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">浏览历史</view>
+    <view class="topbar-right" bindtap="clear">清空</view>
+  </view>
+
+  <view class="body">
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">浏览历史 · 一眼概览</view>
+      <view class="conclusion-head">{{total}} 条记录</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">今天</view>
+          <view class="conclusion-v gold">{{todayCount}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">最近类型</view>
+          <view class="conclusion-v">{{counts[0] ? counts[0].label : '—'}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">上限</view>
+          <view class="conclusion-v">30</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">当前筛选</view>
+          <view class="conclusion-v">{{filteredCount}} 条</view>
+        </view>
+      </view>
+      <view class="conclusion-note">点记录回到当时的坐向；右侧「删」单条移除。</view>
+    </view>
+
+    <view class="card" wx:if="{{total}}">
+      <view class="chips">
+        <view class="chip {{activeType === 'all' ? 'chip-on' : ''}}" data-type="all" bindtap="onFilter">全部 {{total}}</view>
+        <view
+          class="chip {{activeType === item.key ? 'chip-on' : ''}}"
+          wx:for="{{counts}}"
+          wx:key="key"
+          data-type="{{item.key}}"
+          bindtap="onFilter"
+        >{{item.label}} {{item.count}}</view>
+      </view>
+
+      <view class="list-item" wx:for="{{visible}}" wx:key="id" data-id="{{item.id}}" bindtap="open">
+        <view class="list-main">
+          <text>{{item.title}}</text>
+          <text class="tag tag-ping" style="margin-left:10rpx;">{{item.typeLabel}}</text>
+          <view class="input-box" style="min-width:64rpx;margin-left:auto;color:#9fb0cb;text-align:center;" data-id="{{item.id}}" catchtap="remove">删</view>
+        </view>
+        <view class="list-desc">{{item.sub}} · {{item.atText}}</view>
+      </view>
+
+      <view class="btn" wx:if="{{filteredCount > visible.length || showAll}}" style="margin-top:12rpx;" bindtap="toggleAll">
+        {{showAll ? '收起，只看最近 ' + pageSize + ' 条' : '展开全部 ' + filteredCount + ' 条'}}
+      </view>
+    </view>
+
+    <view class="card" wx:else>
+      <view class="empty">暂无记录：盘解、择日、玄空、天机、外煞与海报生成都会自动留痕。</view>
+    </view>
+  </view>
+</view>

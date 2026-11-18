@@ -1,0 +1,10 @@
+/* pages/legal/index.wxss */
+.legal-body { padding: 4rpx 0; }
+.legal-para {
+  font-size: 24rpx;
+  line-height: 40rpx;
+  color: #c8d0e0;
+  margin-bottom: 18rpx;
+  word-break: break-all;
+}
+.legal-para:first-child { color: #e9d8a6; }

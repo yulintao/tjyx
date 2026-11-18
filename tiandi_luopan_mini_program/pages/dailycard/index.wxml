@@ -1,0 +1,35 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">今日日签</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <view class="card">
+      <view class="card-title">{{dateText}} · 星期{{weekText}}</view>
+      <view class="card-sub">{{yearPillar}}年 {{monthPillar}}月 {{dayPillar}}日 · {{jianChu}}日 · {{godName}}值日</view>
+      <view class="row"><text class="row-k">宜</text><text class="row-v" style="color:#7fd3a0;">{{yi}}</text></view>
+      <view class="row"><text class="row-k">忌</text><text class="row-v" style="color:#e88b8b;">{{ji}}</text></view>
+      <view class="row"><text class="row-k">财神</text><text class="row-v" style="color:#f1c40f;">{{wealthDir}} {{wealthAngle}}° · {{wealthName}}</text></view>
+      <view class="row"><text class="row-k">喜神</text><text class="row-v" style="color:#2ec4b6;">{{joyDir}} {{joyAngle}}° · {{joyName}}</text></view>
+      <view class="row"><text class="row-k">冲煞</text><text class="row-v">{{chongText}}</text></view>
+      <view class="row" wx:if="{{solarName}}"><text class="row-k">节气</text><text class="row-v">当令「{{solarName}}」· {{nextTermText}}</text></view>
+      <view class="term-bar" wx:if="{{solarName}}"><view class="term-bar-fill" style="width:{{termPercent}}%;"></view></view>
+      <view class="list-desc" wx:if="{{officerText}}">{{officerText}}</view>
+      <view class="list-desc" wx:for="{{warnings}}" wx:key="*this" style="color:#e8a87c;">{{item}}</view>
+    </view>
+
+    <view class="card">
+      <canvas type="2d" id="dailyCardCanvas" style="width:100%;height:1334rpx;border-radius:16rpx;background:#0b0e15;"></canvas>
+      <view style="display:flex;gap:16rpx;margin-top:16rpx;">
+        <view class="btn" style="flex:1;" bindtap="save">{{saved ? '已存相册' : '存入相册'}}</view>
+        <view class="btn" style="flex:1;" bindtap="preview">查看大图</view>
+      </view>
+      <button class="btn" open-type="share" style="margin-top:12rpx;">分享给好友</button>
+      <view class="btn" style="margin-top:12rpx;" bindtap="goZeri">查看完整择日</view>
+      <view class="footnote">日签含干支四柱、建除宜忌、冲煞、财神喜神方位与吉时；分享卡片缩略图使用日签本身。</view>
+    </view>
+  </view>
+</view>

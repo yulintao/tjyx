@@ -1,0 +1,147 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">三合水法</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+
+    <!-- 一句话结论 -->
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">三合水法 · 此向结论</view>
+      <view class="conclusion-head">{{sit}}山{{face}}向 · {{bureauName}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">总断</view>
+          <view class="conclusion-v {{verdict === '吉' ? 'ji' : (verdict === '凶' ? 'xiong' : '')}}">{{verdict}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">坐山阶段</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{phaseText}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">水口合参</view>
+          <view class="conclusion-v {{water.level === '吉' ? 'ji' : (water.level === '凶' ? 'xiong' : '')}}">{{water.level}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">宜来水</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{water.goodLai[0]}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note">{{water.advice}}</view>
+    </view>
+
+    <!-- 坐山：想换向就改这里 -->
+    <view class="card">
+      <picker mode="selector" range="{{mountainNames}}" value="{{sitIdx}}" bindchange="onSitChange">
+        <view class="input-row">
+          <label>坐山</label>
+          <view class="input-box">{{sit}} 山 · {{face}} 向</view>
+        </view>
+      </picker>
+      <picker mode="selector" range="{{jianOptions}}" value="{{jianIdx}}" bindchange="onJianChange">
+        <view class="input-row">
+          <label>兼向</label>
+          <view class="input-box">{{jianLabel}}</view>
+        </view>
+      </picker>
+      <view class="footnote" wx:if="{{jian}}">兼向只在双山内微调；越出双山即出卦（大空亡）。</view>
+    </view>
+
+    <!-- 兼向判定 -->
+    <view class="card" wx:if="{{jian}}">
+      <view class="card-title">
+        {{jian.title}}
+        <text class="tag {{jian.tagClass}}" style="margin-left:12rpx;">{{jian.tagText}}</text>
+      </view>
+      <view class="row">
+        <view class="row-k">用局</view>
+        <view class="row-v">{{jian.activeBureau}} · {{jian.basis}}</view>
+      </view>
+      <view class="row" wx:if="{{jian.auxMountain}}">
+        <view class="row-k">坐局 / 兼局</view>
+        <view class="row-v">{{jian.mainBureau}} / {{jian.auxBureau}}</view>
+      </view>
+      <view class="row">
+        <view class="row-k">向首校验</view>
+        <view class="row-v">{{jian.faceCheckText}}</view>
+      </view>
+      <view class="card-sub">{{jian.text}}</view>
+      <view class="footnote">{{jian.advice}}</view>
+    </view>
+
+    <!-- 水口合参：可操作，始终可见 -->
+    <view class="card">
+      <view class="card-title">水口合参 · <text style="color:{{water.level === '吉' ? '#7fd3a0' : (water.level === '凶' ? '#e88b8b' : '#9fb0cb')}}">{{water.level}}</text></view>
+      <picker mode="selector" range="{{shanNames}}" value="{{laiIdx}}" bindchange="onLaiChange">
+        <view class="input-row">
+          <label>来水</label>
+          <view class="input-box">{{laiShan}} · {{water.lai.phase}} · {{water.lai.tag}}</view>
+        </view>
+      </picker>
+      <picker mode="selector" range="{{shanNames}}" value="{{quIdx}}" bindchange="onQuChange">
+        <view class="input-row">
+          <label>去水</label>
+          <view class="input-box">{{quShan}} · {{water.qu.phase}} · {{water.qu.tag}}</view>
+        </view>
+      </picker>
+      <view class="list-desc" wx:for="{{water.reasons}}" wx:key="*this">{{item}}</view>
+      <view class="footnote">调整建议：{{water.advice}}</view>
+      <view class="footnote">点下方十二长生任一字，可直接把它设为来水或去水。</view>
+      <view class="fold-head">
+        <text class="fold-label">黄泉 / 八煞 / 十二长生详解</text>
+        <text class="fold-toggle" bindtap="toggleDetail">{{showDetail ? '收起 ▲' : '展开 ▼'}}</text>
+      </view>
+    </view>
+
+    <block wx:if="{{showDetail}}">
+      <view class="card">
+        <view class="card-title">总断说明</view>
+        <view class="card-sub">{{verdictText}}</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">{{huangQuan.title}}</view>
+        <view class="card-sub">{{huangQuan.text}}</view>
+        <view class="list-desc" wx:if="{{showEvidence && songs}}">原诀：{{songs.huangQuan.text}}</view>
+        <view class="footnote" wx:if="{{showEvidence && evidence}}">{{evidence.huangQuan}}</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">八煞黄泉</view>
+        <view class="card-sub">{{baSha.text}}</view>
+        <view class="list-desc" wx:if="{{showEvidence && songs}}">原诀：{{songs.baSha.text}}</view>
+        <view class="footnote" wx:if="{{showEvidence && evidence}}">{{evidence.baSha}}</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">十二长生消纳</view>
+        <view
+          class="list-item"
+          wx:for="{{table}}"
+          wx:key="phase"
+          data-shan="{{item.shan}}"
+          bindtap="onRowSet"
+          style="{{item.isLai ? 'border-left:4rpx solid #7fd3a0;' : (item.isQu ? 'border-left:4rpx solid #e9d8a6;' : '')}}"
+        >
+          <view class="list-main">
+            <text>{{item.shan}} · {{item.phase}}</text>
+            <text class="tag {{item.isLai ? 'tag-ji' : 'tag-ping'}}" style="margin-left:10rpx;">{{item.isLai ? '来水' : (item.isQu ? '去水' : item.tag)}}</text>
+          </view>
+          <view class="list-desc">{{item.lore}}</view>
+        </view>
+        <view class="footnote">宜来水：{{waterAdvice}}</view>
+        <view class="footnote">宜去水：{{drainAdvice}}</view>
+        <view class="footnote" wx:if="{{showEvidence && evidence}}">{{evidence.changSheng}}</view>
+      </view>
+
+      <view class="card" wx:if="{{showEvidence && songs}}">
+        <view class="card-title">{{songs.wuSha.title}}</view>
+        <view class="card-sub">{{songs.wuSha.text}}</view>
+        <view class="footnote">{{evidence.wuSha}}</view>
+      </view>
+    </block>
+  </view>
+</view>

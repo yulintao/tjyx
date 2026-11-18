@@ -1,0 +1,172 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">玄空飞星</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <!-- ============ 结论看板 ============ -->
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">此向 · 此运 · 飞星结论</view>
+      <view class="conclusion-head">{{concSitFace}}</view>
+      <view class="conclusion-sub">{{concPeriod}} · {{chartTypeText}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">格局</view>
+          <view class="conclusion-v gold">{{concPattern}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">三般卦</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{concSanBan}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">七星打劫</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{concQiXing}}</view>
+        </view>
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">注意方位（二五 / 流年煞）</view>
+          <view class="conclusion-v xiong" style="font-size:22rpx;line-height:34rpx;">{{concAlarm}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 参数：始终可见 -->
+    <view class="card">
+      <picker mode="selector" range="{{mountainNames}}" value="{{sitIdx}}" bindchange="onSitChange">
+        <view class="input-row">
+          <label>坐山</label>
+          <view class="input-box">{{sit}} 山 · {{face}} 向</view>
+        </view>
+      </picker>
+      <picker mode="selector" range="{{jianDevOptions}}" value="{{jianDevIdx}}" bindchange="onJianDev">
+        <view class="input-row">
+          <label>兼向</label>
+          <view class="input-box">{{jianDevOptions[jianDevIdx]}} · {{tiGua ? '替卦' : '下卦'}}</view>
+        </view>
+      </picker>
+      <picker mode="selector" range="{{periodNames}}" value="{{periodIdx}}" bindchange="onPeriodChange">
+        <view class="input-row">
+          <label>元运</label>
+          <view class="input-box">{{periodNames[periodIdx]}} · {{rangeText}}</view>
+        </view>
+      </picker>
+      <view class="row">
+        <view class="row-k">兼向起替卦</view>
+        <switch checked="{{tiGua}}" bindchange="onTiGua" color="#c9a24a" />
+      </view>
+      <view class="row" wx:if="{{headingText}}">
+        <view class="row-k">实测向首</view>
+        <view class="row-v" style="color:{{autoJian ? '#f1c40f' : '#7fd3a0'}};">{{headingText}}</view>
+      </view>
+      <view class="row">
+        <view class="row-k">流年流月</view>
+        <view class="row-v">{{flowOn ? '已叠加 年' + flowYear + ' 月' + flowMonth : '未叠加'}}</view>
+        <switch checked="{{flowOn}}" bindchange="onFlow" color="#c9a24a" />
+      </view>
+      <view class="fold-head">
+        <text class="fold-label">九宫盘 · 现场动作 · 古籍依据</text>
+        <text class="fold-toggle" bindtap="toggleDetail">{{showDetail ? '收起详情 ▲' : '展开详情 ▼'}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{showDetail}}" class="fold-body">
+      <view class="card">
+        <view class="card-title">九宫盘（运 / 山 / 向）</view>
+        <view class="grid9">
+          <view
+            class="cell {{item.isCenter ? 'cell-center' : ''}} {{item.alarm25 ? 'cell-alarm' : ''}}"
+            wx:for="{{cells}}"
+            wx:key="palace"
+            data-palace="{{item.palace}}"
+            bindtap="onCell"
+          >
+            <view class="cell-name">{{item.name}}</view>
+            <view class="cell-triple">
+              <text>{{item.yun}}</text>
+              <text>{{item.shan}}</text>
+              <text>{{item.xiang}}</text>
+            </view>
+            <view class="cell-sub">{{item.dir}}</view>
+            <view class="cell-sub" wx:if="{{flowOn}}">年{{item.annual}}·月{{item.monthly}}</view>
+            <view class="cell-tag" wx:if="{{item.alarm25}}">二五</view>
+            <view class="cell-tag" wx:if="{{item.flowAlarm}}">煞</view>
+          </view>
+        </view>
+        <view class="footnote">每格上中下分别为运星、山星、向星；下行为流年 / 流月紫白。点击查看该宫组合断语与化解。</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">格局</view>
+        <view class="card-sub">{{patternText}}</view>
+        <view class="row">
+          <view class="row-k">三般卦</view>
+          <view class="row-v">{{sanBanText}}</view>
+        </view>
+        <view class="row">
+          <view class="row-k">七星打劫</view>
+          <view class="row-v">{{qiXingText}}</view>
+        </view>
+      </view>
+
+      <view class="card" wx:if="{{picked}}">
+        <view class="card-title">{{picked.name}} · 山{{picked.shan}}向{{picked.xiang}}</view>
+        <view class="card-sub">{{picked.lore}}</view>
+        <view class="row">
+          <view class="row-k">化解</view>
+          <view class="row-v">{{picked.action}}</view>
+        </view>
+        <view class="card-sub" wx:if="{{flowOn}}">{{picked.flowNote}}</view>
+        <block wx:if="{{picked.pairRelation}}">
+          <view class="row">
+            <view class="row-k">山向星关系</view>
+            <view class="row-v">{{picked.pairRelation}}</view>
+          </view>
+          <view class="list-desc" wx:for="{{picked.pairMotifs}}" wx:key="*this" style="color:#e8b06a;">· {{item}}</view>
+        </block>
+        <block wx:if="{{showEvidence && picked.pairEvidence}}">
+          <view class="card-title" style="margin-top:16rpx;">星组依据</view>
+          <view class="list-item" wx:for="{{picked.pairEvidence}}" wx:key="id">
+            <view class="list-main">
+              <text>{{item.title}}</text>
+              <text class="tag {{item.kind === 'classic' ? 'tag-ji' : 'tag-ping'}}">{{item.kind === 'classic' ? '古籍引文' : '应用规则'}}</text>
+            </view>
+            <view class="list-desc" wx:if="{{item.quotes.length}}" style="color:#e9d8a6;">{{item.quotes[0]}}</view>
+            <view class="list-desc" wx:if="{{item.sourceUrl}}" style="color:#8f9bb3;font-size:20rpx;" data-url="{{item.sourceUrl}}" bindtap="copySource">出处：{{item.sourceUrl}} · 点击复制</view>
+          </view>
+        </block>
+        </view>
+
+      <view class="card">
+        <view class="card-title">现场事实核对（{{siteFactFields.length}} 项）</view>
+        <view class="list-item" wx:for="{{siteFactFields}}" wx:key="key">
+          <view class="list-main"><text>{{item.label}}</text></view>
+          <view class="list-desc">{{item.hint}}</view>
+        </view>
+        <view class="footnote">小程序无 AR 自动采集，这 {{siteFactFields.length}} 类事实按户型实测或现场记录核对；缺失时只提示「待核对」，不臆造结论。</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">现场实用动作（{{practicalActions.length}} 项 · 低干预优先）</view>
+        <view class="list-item" wx:for="{{visibleActions}}" wx:key="key">
+          <view class="list-desc">{{item.no}}. {{item.text}}</view>
+        </view>
+        <view class="btn" style="margin-top:12rpx;" bindtap="toggleActions">{{actionsExpanded ? '收起动作清单' : '展开全部 ' + practicalActions.length + ' 项'}}</view>
+        <view class="footnote">星数只提示关注方位，不据星数要求搬灶、移床或增设流水；先处理噪音、眩光、通行等真实干扰。</view>
+      </view>
+
+      <view class="card" wx:if="{{showEvidence}}">
+        <view class="card-title">格局依据 · 古籍引文与应用规则</view>
+        <view class="list-item" wx:for="{{evidence}}" wx:key="id">
+          <view class="list-main">
+            <text>{{item.title}}</text>
+            <text class="tag {{item.kind === 'classic' ? 'tag-ji' : 'tag-ping'}}">{{item.kind === 'classic' ? '古籍引文' : '应用规则'}}</text>
+          </view>
+          <view class="list-desc" wx:if="{{item.quotes.length}}" style="color:#e9d8a6;">{{item.quotes[0]}}</view>
+          <view class="list-desc" wx:if="{{item.sourceUrl}}" style="color:#8f9bb3;font-size:20rpx;" data-url="{{item.sourceUrl}}" bindtap="copySource">出处：{{item.sourceUrl}} · 点击复制</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

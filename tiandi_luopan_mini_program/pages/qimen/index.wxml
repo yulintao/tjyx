@@ -1,0 +1,123 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">奇门遁甲</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">此刻起局 · 一屏结论</view>
+      <view class="conclusion-head">{{dun}} · {{juText}}</view>
+      <view class="conclusion-sub">{{term}}{{yuan}} · {{pillars}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">值符</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{zhiFu.star}} · {{zhiFu.dir}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">值使</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{zhiShi.gate}} · {{zhiShi.dir}}</view>
+        </view>
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">三吉门所在</view>
+          <view class="conclusion-v ji" style="font-size:22rpx;line-height:34rpx;" wx:if="{{goodDirs.length}}">
+            <text wx:for="{{goodDirs}}" wx:key="*this" style="margin-right:14rpx;">{{item}}</text>
+          </view>
+          <view class="conclusion-v" style="font-size:22rpx;" wx:else>三吉门同宫或落空，按用神另断</view>
+        </view>
+      </view>
+      <view class="conclusion-note">点九宫任一格看该宫门 / 星 / 神组合与断语。</view>
+    </view>
+
+    <view class="card">
+      <view class="input-row">
+        <label>日期</label>
+        <picker mode="date" value="{{dateStr}}" bindchange="onDate">
+          <view class="input-box">{{dateStr}}</view>
+        </picker>
+      </view>
+      <view class="input-row">
+        <label>时刻</label>
+        <picker mode="time" value="{{timeStr}}" bindchange="onTime">
+          <view class="input-box">{{timeStr}}</view>
+        </picker>
+      </view>
+      <view class="row">
+        <view class="row-k">局</view>
+        <view class="row-v">{{term}}{{yuan}} · {{juText}}</view>
+      </view>
+      <view class="row">
+        <view class="row-k">月令旺衰</view>
+        <view class="row-v">{{monthText}}</view>
+      </view>
+      <view class="card-sub">{{summary}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">九宫盘（点宫看断语）</view>
+      <view class="grid9">
+        <view
+          class="cell {{item.isCenter ? 'cell-center' : ''}} {{pickedPalace && pickedPalace.name === item.name ? 'cell-picked' : ''}}"
+          wx:for="{{cells}}"
+          wx:key="palace"
+          data-palace="{{item.palace}}"
+          bindtap="onCellTap"
+        >
+          <view class="cell-name">{{item.name}}</view>
+          <view class="cell-triple"><text>{{item.gate}}</text><text>{{item.star}}</text></view>
+          <view class="cell-sub">地{{item.di}} · {{item.god}}</view>
+          <view class="cell-tag" wx:if="{{item.isZhiFu}}">值符</view>
+        </view>
+      </view>
+      <view class="footnote">上为八门，下为九星；右上角标「值符」为值符落宫。中宫不入八神，以「元极」标识中宫神位，与 iOS 排法一致。</view>
+    </view>
+
+    <view class="conclusion" wx:if="{{pickedPalace}}">
+      <view class="conclusion-eyebrow">逐宫断语</view>
+      <view class="conclusion-head">{{pickedPalace.title}}</view>
+      <view class="conclusion-sub">
+        <text class="tag {{pickedPalace.level === 'ji' ? 'tag-ji' : (pickedPalace.level === 'xiong' ? 'tag-xiong' : 'tag-ping')}}">{{pickedPalace.level === 'ji' ? '可用' : (pickedPalace.level === 'xiong' ? '受制' : '中和')}}</text>
+        <text style="margin-left:12rpx;">{{pickedPalace.parts}}</text>
+      </view>
+      <view class="conclusion-note">{{pickedPalace.text}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">用神场景</view>
+      <view>
+        <text class="tag {{activeKey === item.key ? 'tag-ji' : 'tag-ping'}}" wx:for="{{scenarios}}" wx:key="key" data-key="{{item.key}}" bindtap="onScenario" style="margin-right:12rpx;margin-bottom:12rpx;">{{item.name}}</text>
+      </view>
+      <view class="row" wx:if="{{activeScenario}}">
+        <view class="row-k">用神落宫</view>
+        <view class="row-v">{{activeScenario.palaceName}} · {{activeScenario.dir}}（取{{activeScenario.matchedBy}}）</view>
+      </view>
+      <view class="row" wx:if="{{activeScenario}}">
+        <view class="row-k">吉凶</view>
+        <view class="row-v">{{activeScenario.level === 'ji' ? '可用' : (activeScenario.level === 'xiong' ? '受制' : '中和')}}</view>
+      </view>
+      <view class="card-sub" wx:if="{{activeScenario}}">{{activeScenario.advice}}</view>
+      <view class="list-desc" wx:if="{{activeScenario && activeScenario.guide}}" style="margin-top:8rpx;color:#f1c40f;">{{activeScenario.guide}}</view>
+      <view class="input-row" style="margin-top:16rpx;">
+        <view class="row-k">年命</view>
+        <input class="input-box" type="number" placeholder="出生年份，如 1985" value="{{birthYear}}" bindinput="onBirth" />
+      </view>
+      <view class="list-desc" wx:if="{{lifeYear}}">年命{{lifeYear.gan}}干落{{lifeYear.name}}（{{lifeYear.dir}}）。</view>
+      <view class="footnote">用神取法：求财重生门与戊，事业重开门与值符，婚姻重休门与六合，疾病重天芮，考试重景门天辅，出行重开门九天。</view>
+    </view>
+
+    <view class="card" wx:if="{{showEvidence && classicalSource}}">
+      <view class="card-title">排法出处</view>
+      <view class="list-item">
+        <view class="list-main">
+          <text>{{classicalSource.title}}</text>
+          <text class="tag tag-ping">应用规则</text>
+        </view>
+        <view class="list-desc">{{classicalSource.scope}}</view>
+      </view>
+      <view class="footnote">时家转盘（拆补法）为传承排法规则归纳，非古籍原文引述；断语为应用解释。</view>
+    </view>
+  </view>
+</view>

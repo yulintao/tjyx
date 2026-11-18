@@ -1,0 +1,112 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">八宅明镜</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <view class="card">
+      <picker mode="selector" range="{{mountainNames}}" value="{{sitIdx}}" bindchange="onSitChange">
+        <view class="input-row">
+          <label>坐山</label>
+          <view class="input-box">{{sit}} 山 → {{houseGua}} 宅</view>
+        </view>
+      </picker>
+      <view class="card-sub">{{houseGroup}} · 以坐山所属卦为宅卦，大游年八星随之分布。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">大游年八星</view>
+      <view class="grid9">
+        <view class="cell {{item.isCenter ? 'cell-center' : ''}}" wx:for="{{cells}}" wx:key="palace" data-palace="{{item.palace}}" bindtap="onCell">
+          <view class="cell-name">{{item.name}}</view>
+          <view class="cell-triple"><text class="tag tag-{{item.type === 'ji' ? 'ji' : (item.type === 'xiong' ? 'xiong' : 'ping')}}">{{item.star}}</text></view>
+          <view class="cell-sub">{{item.starName}}</view>
+          <view class="cell-sub">{{item.desc}}</view>
+        </view>
+      </view>
+      <view class="footnote">点选宫位查看逐宫做法与影响。</view>
+    </view>
+
+    <view class="card" wx:if="{{picked}}">
+      <view class="card-title">{{picked.name}}宫 · {{picked.star}}（{{picked.starName}}）</view>
+      <view class="card-sub">{{picked.lore}}</view>
+      <view class="row">
+        <view class="row-k">宜作</view>
+        <view class="row-v">{{picked.use}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">本命卦</view>
+      <view class="input-row">
+        <label>出生年</label>
+        <input class="input-box" type="number" value="{{year}}" bindinput="onYear" />
+      </view>
+      <picker mode="selector" range="{{genderNames}}" value="{{genderIdx}}" bindchange="onGender">
+        <view class="input-row">
+          <label>性别</label>
+          <view class="input-box">{{genderNames[genderIdx]}}</view>
+        </view>
+      </picker>
+      <view class="row" wx:if="{{life}}">
+        <view class="row-k">命卦</view>
+        <view class="row-v">{{life.symbol}} {{life.full}}命 · {{life.group}}</view>
+      </view>
+      <view class="card-sub" wx:if="{{compat}}">
+        <text class="tag {{compat.grade >= 3 ? 'tag-ji' : (compat.grade === 2 ? 'tag-ping' : 'tag-xiong')}}" style="margin-right:10rpx;">{{compat.level}}</text>{{compat.text}}
+      </view>
+      <view class="card-sub" wx:if="{{compat}}" style="color:#9fb0cb;margin-top:8rpx;">{{compat.advice}}</view>
+      <block wx:if="{{nayin}}">
+        <view class="row">
+          <view class="row-k">坐山纳音</view>
+          <view class="row-v">{{nayin.jiazi}} · {{nayin.nayin}}（{{nayin.elem}}）</view>
+        </view>
+        <view class="card-sub">
+          <text class="tag {{nayin.level === 'ji' ? 'tag-ji' : (nayin.level === 'xiong' ? 'tag-xiong' : 'tag-ping')}}" style="margin-right:10rpx;">{{nayin.levelText}}</text>{{nayin.text}}
+        </view>
+        <view class="card-sub" style="color:#9fb0cb;margin-top:8rpx;">{{nayin.advice}}</view>
+      </block>
+    </view>
+
+    <view class="card">
+      <view class="card-title">家人档案（{{members.length}}）</view>
+      <view wx:for="{{members}}" wx:key="role" class="input-row">
+        <label>{{item.role}}</label>
+        <input class="input-box" type="number" value="{{item.birthYear}}" data-idx="{{index}}" bindinput="onMemberYear" />
+        <picker mode="selector" range="{{genderNames}}" value="{{item.gender === 'male' ? 0 : 1}}" data-idx="{{index}}" bindchange="onMemberGender">
+          <view class="input-box" style="min-width:120rpx;margin-left:12rpx;">{{item.gender === 'male' ? '男' : '女'}}</view>
+        </picker>
+        <view class="input-box" style="min-width:90rpx;margin-left:12rpx;color:#9fb0cb;" bindtap="removeMember" data-idx="{{index}}">删</view>
+      </view>
+      <view class="btn" bindtap="addMember" style="margin-top:12rpx;">新增家人</view>
+      <view class="footnote">出生年按立春分界的精确边界暂未细分；生肖随出生年自动换算。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">家人配房</view>
+      <view class="list-item" wx:for="{{memberRows}}" wx:key="role">
+        <view class="list-main">
+          <text>{{item.name}}</text>
+          <text class="tag tag-{{item.bestCells[0].type}}">{{item.bestCells[0].palace}} · {{item.bestCells[0].star}}</text>
+        </view>
+        <view class="list-desc">{{item.text}}</view>
+        <view class="list-desc">生肖{{item.zodiac}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">化解任务（{{tasksDone}}/{{tasks.length}}）</view>
+      <view class="list-item" wx:for="{{tasks}}" wx:key="id" data-id="{{item.id}}" data-title="{{item.title}}" bindtap="toggleTask">
+        <view class="list-main">
+          <text style="{{item.done ? 'text-decoration:line-through;color:#7d8798;' : ''}}">{{item.title}}</text>
+          <text class="tag {{item.done ? 'tag-ji' : 'tag-xiong'}}">{{item.done ? '已办' : '待办'}}</text>
+        </view>
+        <view class="list-desc" wx:if="{{!item.done}}">{{item.detail}}</view>
+      </view>
+      <view class="footnote">勾选即写入本机 Storage，换宅向或改宅卦不会自动清空，可在设置页「清除全部本地数据」重置。</view>
+    </view>
+  </view>
+</view>

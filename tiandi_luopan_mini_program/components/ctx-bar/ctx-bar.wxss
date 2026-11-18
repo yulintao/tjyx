@@ -1,0 +1,40 @@
+/* 四格上下文条：方位 / 位置 / 时令 / 生辰，一屏可读、可点 */
+.ctx-bar {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 16rpx;
+  padding: 14rpx 8rpx;
+  background: rgba(20, 26, 38, 0.86);
+  border: 1rpx solid rgba(120, 140, 180, 0.18);
+  border-radius: 14rpx;
+}
+
+.ctx-cell {
+  width: 50%;
+  padding: 8rpx 18rpx;
+  box-sizing: border-box;
+}
+
+.ctx-k {
+  font-size: 20rpx;
+  color: #7f8ba3;
+  letter-spacing: 1rpx;
+}
+
+.ctx-v {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #e9d8a6;
+  line-height: 32rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ctx-3 .ctx-cell {
+  width: 33.33%;
+}
+
+.ctx-dim {
+  color: #8f9bb3;
+}

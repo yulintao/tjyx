@@ -94,6 +94,49 @@ MOUNTAINS_DATA.forEach((m, i) => {
   SOLAR_TO_MT[m.solar] = i;
 });
 
+// 节气在一年内的起始/结束时刻（北京时间毫秒）
+function termDate(idx, year) {
+  return new Date((termJD(idx, year) - 2440587.5) * 86400000 + 8 * 3600000);
+}
+
+/**
+ * 当前节气的进度与距下一节气的整天数（对齐 iOS SolarTimeCalculator.solarTermProgress）
+ * 返回 { name, index, start, end, progress(0..1), elapsedDays, daysToNext, nextName }
+ */
+function solarTermProgress(date) {
+  const d = date || new Date();
+  const y = d.getFullYear();
+  // 跨年回退一年，保证 1 月（小寒前）也能取到上一个节气
+  const years = [y - 1, y, y + 1];
+  const marks = [];
+  years.forEach((yy) => {
+    for (let i = 0; i < 24; i++) marks.push({ index: i, name: SOLAR_TERM_NAMES[i], at: termDate(i, yy) });
+  });
+  marks.sort((a, b) => a.at - b.at);
+  let cur = marks[0];
+  let next = marks[1];
+  for (let i = 0; i < marks.length - 1; i++) {
+    if (marks[i].at <= d && marks[i + 1].at > d) {
+      cur = marks[i];
+      next = marks[i + 1];
+      break;
+    }
+  }
+  const total = next.at - cur.at;
+  const elapsed = d - cur.at;
+  const progress = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 0;
+  return {
+    name: cur.name,
+    index: cur.index,
+    start: cur.at,
+    end: next.at,
+    progress,
+    elapsedDays: elapsed / 86400000,
+    daysToNext: Math.max(0, Math.ceil((next.at - d) / 86400000)),
+    nextName: next.name
+  };
+}
+
 function getTodayMountainInfo() {
   const ct = currentSolarTerm();
   if (ct && SOLAR_TO_MT[ct.name] !== undefined) {
@@ -115,7 +158,9 @@ module.exports = {
   SOLAR_TERM_NAMES,
   SOLAR_LON,
   termJD,
+  termDate,
   jdToBeijingDate,
   currentSolarTerm,
+  solarTermProgress,
   getTodayMountainInfo
 };

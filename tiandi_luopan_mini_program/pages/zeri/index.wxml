@@ -1,0 +1,201 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">择日课期</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <!-- 七日历条：一眼看这七天哪天适合办事 -->
+    <view class="week-strip">
+      <view class="week-nav" data-d="-1" bindtap="shiftWeek">‹</view>
+      <view class="week-list">
+        <view
+          class="week-day {{item.iso === dateStr ? 'week-on' : ''}}"
+          wx:for="{{weekDays}}"
+          wx:key="iso"
+          data-iso="{{item.iso}}"
+          bindtap="onWeekPick"
+        >
+          <view class="week-w">{{item.isToday ? '今天' : '周' + item.weekday}}</view>
+          <view class="week-d">{{item.dayNum}}</view>
+          <view class="week-jc {{item.good ? 'week-good' : 'week-dim'}}">{{item.jianChu}}</view>
+        </view>
+      </view>
+      <view class="week-nav" data-d="1" bindtap="shiftWeek">›</view>
+    </view>
+    <!-- ============ 结论看板 ============ -->
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">此时 · 此向 · 日课结论</view>
+      <view class="conclusion-head">{{concDate}} · {{concJianchu}}</view>
+      <view class="conclusion-sub">{{concSit}} · {{concTerm}} · 坐向来源 {{orientationLabel}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">今日宜</view>
+          <view class="conclusion-v ji" style="font-size:23rpx;line-height:36rpx;">{{concYi}}</view>
+        </view>
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">今日忌</view>
+          <view class="conclusion-v xiong" style="font-size:23rpx;line-height:36rpx;">{{concJi}}</view>
+        </view>
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">吉时</view>
+          <view class="conclusion-v gold" style="font-size:23rpx;line-height:36rpx;">{{concBest}}</view>
+        </view>
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">财神 / 喜神</view>
+          <view class="conclusion-v gold" style="font-size:22rpx;">{{concGod}}</view>
+        </view>
+        <view class="conclusion-cell wide" wx:if="{{concChong}}">
+          <view class="conclusion-k">日冲</view>
+          <view class="conclusion-v xiong" style="font-size:22rpx;">{{concChong}}</view>
+        </view>
+        <view class="conclusion-cell wide" wx:if="{{concAudit}}">
+          <view class="conclusion-k">日课自检</view>
+          <view class="conclusion-v {{concAuditClass}}" style="font-size:22rpx;">{{concAudit}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note">{{orientationHint}}</view>
+    </view>
+
+    <!-- 日期 / 坐山：始终可见 -->
+    <view class="card">
+      <picker mode="date" value="{{dateStr}}" bindchange="onDate">
+        <view class="input-row">
+          <label>日期</label>
+          <view class="input-box">{{dateStr}}</view>
+        </view>
+      </picker>
+      <picker mode="selector" range="{{mountainNames}}" value="{{sitIdx}}" bindchange="onSitChange">
+        <view class="input-row">
+          <label>用事宅坐山</label>
+          <view class="input-box">{{sit}} 山</view>
+        </view>
+      </picker>
+      <view class="fold-head">
+        <text class="fold-label">完整课期（自检 · 吉方 · 时辰 · 吉日 · 出处）</text>
+        <text class="fold-toggle" bindtap="toggleDetail">{{showDetail ? '收起详情 ▲' : '展开详情 ▼'}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{showDetail}}" class="fold-body">
+      <view class="card">
+        <view class="card-title">{{jianchu}}日</view>
+        <view class="card-sub">{{jianchuText}}</view>
+        <view class="row"><view class="row-k">宜</view><view class="row-v" style="color:#7fd3a0;">{{yi}}</view></view>
+        <view class="row"><view class="row-k">忌</view><view class="row-v" style="color:#e88b8b;">{{ji}}</view></view>
+        <view class="row"><view class="row-k">吉时</view><view class="row-v">{{best}}</view></view>
+      </view>
+
+      <view class="card" wx:if="{{audit}}">
+        <view class="card-title">日课自检 · {{audit.sittingTitle}}</view>
+        <view class="card-sub">
+          <text class="tag {{audit.isAuspicious ? 'tag-ji' : 'tag-xiong'}}">{{audit.overallStatus}}</text>
+        </view>
+        <view class="row">
+          <view class="row-k">岁破</view>
+          <view class="row-v" style="color:{{audit.suiPo ? '#e88b8b' : '#7fd3a0'}};">{{audit.suiPo ? '犯（日支冲流年支）' : '无'}}</view>
+        </view>
+        <view class="row">
+          <view class="row-k">月破</view>
+          <view class="row-v" style="color:{{audit.yuePo ? '#e88b8b' : '#7fd3a0'}};">{{audit.yuePo ? '犯（日支冲月建）' : '无'}}</view>
+        </view>
+        <view class="row">
+          <view class="row-k">冲山</view>
+          <view class="row-v" style="color:{{audit.sittingClash === false ? '#7fd3a0' : (audit.sittingClash ? '#e88b8b' : '#a99')}};">
+            {{audit.sittingClash === null ? '未设坐山' : (audit.sittingClash ? '犯（日支冲坐山）' : '坐山吉')}}
+          </view>
+        </view>
+        <view class="row">
+          <view class="row-k">修造动土</view>
+          <view class="row-v" style="color:{{audit.canGroundbreak ? '#7fd3a0' : '#e88b8b'}};">{{audit.groundbreakBadge}}</view>
+        </view>
+        <view class="row">
+          <view class="row-k">安门立向</view>
+          <view class="row-v" style="color:{{audit.canInstallDoor ? '#7fd3a0' : '#e88b8b'}};">{{audit.installDoorBadge}}</view>
+        </view>
+        <view class="row" wx:if="{{term}}">
+          <view class="row-k">节气</view>
+          <view class="row-v">{{term.name}} · 距{{term.nextName}} {{term.daysToNext}} 天</view>
+        </view>
+        <view class="term-bar" wx:if="{{term}}">
+          <view class="term-bar-fill" style="width:{{termPercent}}%;"></view>
+        </view>
+        <view class="footnote">岁破、月破、冲山、坐山冲太岁落三煞，任一命中则不放行修造动土与安门立向；节气进度按太阳视黄经 15° 均分推算。</view>
+      </view>
+
+      <view class="card" wx:if="{{directions}}">
+        <view class="card-title">今日吉方 · 财神 / 喜神</view>
+        <view class="row"><view class="row-k">财神</view><view class="row-v" style="color:#f1c40f;">{{directions.wealth.dir}} · {{directions.wealth.name}}</view></view>
+        <view class="row"><view class="row-k">喜神</view><view class="row-v" style="color:#7fd3a0;">{{directions.joy.dir}} · {{directions.joy.name}}</view></view>
+        <view class="card-sub">{{directions.text}}</view>
+        <view class="row"><view class="row-k">日冲</view><view class="row-v" style="color:#e88b8b;">{{chongSha}}</view></view>
+        <view class="footnote">求财朝财神方，婚喜会客朝喜神方；日冲属相者当日宜静。</view>
+        <view class="btn" style="margin-top:16rpx;" bindtap="goDailyCard">生成今日日签</view>
+      </view>
+
+      <view class="card" wx:if="{{warnings.length}}">
+        <view class="card-title">冲犯提示</view>
+        <view class="list-item" wx:for="{{warnings}}" wx:key="*this">
+          <view class="list-desc" style="color:#e8b06a;">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">事项择日</view>
+        <view class="row"><view class="row-k">月建</view><view class="row-v">{{monthBreak ? '月破大耗（诸事不宜）' : '月内平稳'}}</view></view>
+        <view class="row"><view class="row-k">吉神</view><view class="row-v" style="color:{{godHits.length ? '#7fd3a0' : '#9fb0cb'}};">{{godText || '—'}}</view></view>
+        <view class="row"><view class="row-k">忌日</view><view class="row-v" style="color:{{badHits.length ? '#e88b8b' : '#9fb0cb'}};">{{badHits.length ? badHits.join('、') : '不犯四废'}}</view></view>
+        <view class="row"><view class="row-k">黄道时</view><view class="row-v">{{huangDaoHours.length ? huangDaoHours : '本日无黄道时'}}</view></view>
+        <view class="list-item" wx:for="{{activities}}" wx:key="key">
+          <view class="list-main">
+            <text>{{item.name}}</text>
+            <text class="tag {{item.level === 'ji' ? 'tag-ji' : (item.level === 'xiong' ? 'tag-xiong' : 'tag-ping')}}">{{item.level === 'ji' ? '宜' : (item.level === 'xiong' ? '忌' : '平')}}</text>
+          </view>
+          <view class="list-desc">{{item.text}}</view>
+          <view class="list-desc" wx:if="{{item.level === 'ji'}}" style="color:#7fd3a0;">吉时：{{item.hoursText}}</view>
+        </view>
+        <view class="footnote">吉神按月建查天德、天德合、月德、月德合、天赦；忌日查四废。天赦日可解月破与四废，唯坐山冲煞仍须避。</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">十二时辰{{ownerBranch ? '（已按宅主本命' + ownerBranch + '判冲）' : ''}}</view>
+        <view class="grid9">
+          <view class="cell {{item.level === 'xiong' ? 'cell-alarm' : ''}}" wx:for="{{shichen}}" wx:key="idx" data-idx="{{item.idx}}" bindtap="onHour">
+            <view class="cell-name">{{item.name}}</view>
+            <view class="cell-triple"><text>{{item.pillar}}</text></view>
+            <view class="cell-sub">{{item.god}}{{item.huangDao ? '·黄道' : '·黑道'}}{{item.clashesOwner ? '·冲命' : ''}}</view>
+          </view>
+        </view>
+        <view class="card-sub" wx:if="{{picked}}">{{picked.name}}（{{picked.pillar}}）· {{picked.god}}</view>
+        <view class="list-desc" wx:if="{{picked}}">{{picked.godText}}</view>
+        <view class="list-desc" wx:if="{{picked}}" style="color:#e8b06a;">{{picked.tip}}</view>
+        <view class="footnote">红色为不宜关键用事之时；点选时辰可看值神宜忌。{{ownerBranch ? '' : '未设置宅主出生年，暂不判冲本命。'}}</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">未来吉日</view>
+        <view class="list-item" wx:for="{{upcoming}}" wx:key="iso">
+          <view class="list-main">
+            <text>{{item.date}}</text>
+            <text class="tag tag-ji">{{item.jianChu}}日 · {{item.dayPillar}}</text>
+          </view>
+          <view class="list-desc">宜：{{item.yi}}</view>
+        </view>
+      </view>
+
+      <view class="card" wx:if="{{showEvidence && classicalSource}}">
+        <view class="card-title">规则出处</view>
+        <view class="list-item">
+          <view class="list-main">
+            <text>{{classicalSource.title}}</text>
+            <text class="tag tag-ping">应用规则</text>
+          </view>
+          <view class="list-desc">{{classicalSource.scope}}</view>
+        </view>
+        <view class="footnote">建除十二神、黄黑道及冲煞口径为传承规则归纳，非古籍原文引述。</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,84 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">演象时空罗盘 · 盘解</view>
+    <view class="topbar-right" bindtap="goCompass">罗盘</view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <!-- ============ 结论看板 ============ -->
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">当前方位 · 一屏结论</view>
+      <view class="conclusion-head">{{concSitFace}}</view>
+      <view class="conclusion-sub">坐向来源：{{orientationLabel}} · {{statusText}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">玄空格局</view>
+          <view class="conclusion-v gold">{{concPattern}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">宅卦 / 吉方</view>
+          <view class="conclusion-v ji" style="font-size:22rpx;">{{concGua}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">流年五黄二黑</view>
+          <view class="conclusion-v xiong" style="font-size:22rpx;">{{concWufang}}</view>
+        </view>
+        <view class="conclusion-cell wide">
+          <view class="conclusion-k">今日宜忌</view>
+          <view class="conclusion-v" style="font-size:23rpx;line-height:36rpx;">{{concJianchu}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">吉时</view>
+          <view class="conclusion-v ji" style="font-size:22rpx;">{{concBest}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">水法</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{concWater}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note">{{orientationHint}}</view>
+    </view>
+
+    <!-- 坐山定格：始终可见，便于手动改方位 -->
+    <view class="card">
+      <picker mode="selector" range="{{mountainNames}}" value="{{sitIdx}}" bindchange="onSitChange">
+        <view class="input-row">
+          <label>坐山</label>
+          <view class="input-box">{{sit}} 山 · {{face}} 向</view>
+        </view>
+      </picker>
+      <view class="fold-head">
+        <text class="fold-label">全盘速览 · 格局</text>
+        <text class="fold-toggle" bindtap="toggleDetail">{{showDetail ? '收起详情 ▲' : '展开详情 ▼'}}</text>
+      </view>
+      <view wx:if="{{showDetail}}" class="fold-body">
+        <view class="card-sub">{{statusText}}</view>
+        <view class="row">
+          <view class="row-k">格局</view>
+          <view class="row-v" style="color:{{patternLevel === 'ji' ? '#7fd3a0' : (patternLevel === 'xiong' ? '#e88b8b' : '#dfe4ee')}}">{{patternText}}</view>
+        </view>
+        <view class="row" wx:for="{{quick}}" wx:key="k">
+          <view class="row-k">{{item.k}}</view>
+          <view class="row-v">{{item.v}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 工具入口：常显宫格，一眼看到能做什么 -->
+    <view class="card">
+      <view class="card-title">盘解工具 · 点开即用</view>
+      <view class="grid-entries">
+        <view class="entry" hover-class="entry-active" wx:for="{{entries}}" wx:key="url" data-url="{{item.url}}" bindtap="onEntry">
+          <view class="entry-name">{{item.name}}</view>
+          <view class="entry-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="footnote">
+      罗盘页按住即可测向；此处可按二十四山手工定格。所有排盘在本机计算，不上传任何数据。
+    </view>
+  </view>
+</view>

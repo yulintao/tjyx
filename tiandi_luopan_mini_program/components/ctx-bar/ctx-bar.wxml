@@ -1,0 +1,18 @@
+<view class="ctx-bar {{hideDir ? 'ctx-3' : ''}}">
+  <view class="ctx-cell" wx:if="{{!hideDir}}" bindtap="onDirTap">
+    <view class="ctx-k">当前方位</view>
+    <view class="ctx-v">{{sitFace || '未测向'}}</view>
+  </view>
+  <view class="ctx-cell" bindtap="onPlaceTap" bindlongpress="onPlaceName">
+    <view class="ctx-k">所处位置</view>
+    <view class="ctx-v {{hasPlace ? '' : 'ctx-dim'}}">{{refreshing ? '定位中…' : place}}</view>
+  </view>
+  <view class="ctx-cell" bindtap="onTermTap">
+    <view class="ctx-k">时令</view>
+    <view class="ctx-v">{{term}}</view>
+  </view>
+  <view class="ctx-cell" bindtap="onPersonTap">
+    <view class="ctx-k">本人生辰</view>
+    <view class="ctx-v {{hasPerson ? '' : 'ctx-dim'}}">{{person}}</view>
+  </view>
+</view>

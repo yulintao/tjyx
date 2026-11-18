@@ -1,4 +1,4 @@
-# 演象 · 时空罗盘 - 微信小程序版
+# 演象时空罗盘 - 微信小程序版
 
 > **天地人合一 · 时空一体化数字易学罗盘**
 
@@ -21,15 +21,53 @@ tiandi_luopan_mini_program/
 │   ├── geomagnetic.js       # 纯 JS 离线全球地磁模型（WMM 2020-2025）
 │   ├── astronomy.js         # 真太阳时（Spencer 均时差）与四柱八字干支历
 │   ├── fengshui.js          # 坐向双标、空亡诊断、一百二十分金吉凶
-│   └── fengshui-palace.js   # 居家风水八方详勘知识库（8 宫 × 三组详勘）
+│   ├── fengshui-palace.js   # 居家风水八方详勘知识库（8 宫 × 三组详勘）
+│   ├── sitface.js           # 坐向/向首换算与三级坐向诊断（正针/兼向/空亡）
+│   ├── xuankong.js          # 玄空飞星（下卦/替卦、三般卦、七星打劫、流年月）
+│   ├── bazhai.js            # 八宅大游年与本命卦、逐宫断语
+│   ├── zibai.js             # 紫白九星（年/月、逐宫化解、组合煞）
+│   ├── sanhe.js             # 三合水法（黄泉/八煞/十二长生，原诀与出处）
+│   ├── zeri.js              # 择日（建除、值神、财神喜神、冲本命、时辰吉凶）
+│   ├── qimen.js             # 奇门时家（八门断语、用神场景、最利方位指南）
+│   ├── floorplan.js         # 户型九宫（审计、缺角断语、DXF/宅谱 JSON）
+│   ├── tianji.js            # 天机长卷（十三章汇总、深盘评分、总纲建议）
+│   ├── sha.js               # 形煞 35 类（外部 23 + 室内 12：辨识/影响/化解/出处）
+│   ├── luban.js             # 鲁班门光尺 42.9cm 八格 / 丁兰尺 39.0cm 十格判定
+│   ├── poster.js / dailycard.js  # 盘面海报 / 今日日签绘制
+│   ├── reportcard.js        # 空间测绘报告长图（物理参数、缺角、凶宫、得分口径）
+│   ├── roomfit.js           # 家人配房（宫位归星、排名表、推荐/复核/切换）
+│   ├── reminders.js         # 提醒引擎（节气交节/换月/岁破冲山/吉日，替代系统通知）
+│   ├── backup.js            # 备份序列化与恢复（collect/parse/apply，替代 iCloud KVS）
+│   ├── legal-text.js        # 用户协议 / 合规说明正文
+│   ├── context.js           # 上下文快照（方位/位置/时令/生辰）
+│   └── store.js             # 本地存储（档案、任务、户型、历史、设置）
+├── cloudfunctions/
+│   └── almanac-notify/      # 云函数：定时扫描 luopan_notify_plan 下发订阅消息
+├── images/tab/             # tabBar 线性图标（81×81，脚本生成，含选中态）
 ├── components/
-│   └── calib-modal/         # 校准弹窗（用时注入组件，见下文）
+│   ├── calib-modal/         # 校准弹窗（用时注入组件，见下文）
+│   └── ctx-bar/             # 四格上下文条：方位 / 位置 / 时令 / 生辰（app.json 全局注册）
+├── scripts/
+│   ├── regression.js        # 全量算法回归（17 组 68 项断言）
+│   ├── check-assets.js      # app.json 资源引用校验（tabBar 图标等）
+│   ├── check-keys.js       # 存储键是否都登记在 store.KEYS（备份/清空不漏）
+│   ├── check-handlers.js    # wxml 绑定与 js 方法静态比对
+│   └── check-components.js  # 组件声明 + wxml 标签配平（防 wx://not-found）
 └── pages/
-    └── index/
-        ├── index.wxml       # 状态栏、天心十道、Canvas 容器、信息面板与四个详解弹窗
-        ├── index.wxss       # 深空黑金质感样式表
-        ├── index.js         # Canvas 2D 绘图引擎、双针系统、传感器与交互
-        └── index.json       # 页面配置（声明 calib-modal 与占位组件）
+    ├── index/               # 罗盘：Canvas 盘面、双针、金标、吉方导引、图层与选山向
+    ├── analysis/            # 盘解入口（23 个模块）
+    ├── xuankong/ bazhai/ zibai/ sanhe/ zeri/ qimen/   # 六门理气
+    ├── dailycard/           # 今日日签（黑金 Canvas，存相册/分享）
+    ├── remedy/              # 化解清单（玄空/紫白/八宅汇总，勾选与完成度）
+    ├── notify/              # 提醒中心（页内卡 + 订阅消息 + 云函数下发 + 桌面快捷方式）
+    ├── backup/              # 备份与恢复（导出 JSON / 剪贴板 / 云开发，合并与覆盖两种恢复）
+    ├── vip/                 # 功能权益（原会员权益对照，本版全部开放，无付费墙）
+    ├── luban/               # 鲁班门光尺（门宽输入、常用门宽一键、刻度表、最近吉度）
+    ├── floorplan/           # 户型九宫（模板铺底、拖拽立极、3D 体块旋转、DXF/JSON、测绘报告入口）
+    ├── report/              # 空间测绘报告（面宽进深、空间得分、缺角与凶宫长图存证）
+    ├── tianji/              # 天机长卷（十三章 + 宣纸朱丝栏印章导出）
+    ├── fenjin/ gua64/ sha/ ar/ poster/ history/       # 分金/64卦/外煞/实景/海报/历史
+    ├── settings/ legal/ family/ guide/                # 设置/协议/家庭资料/新手引导
 ```
 
 ---
@@ -249,7 +287,7 @@ tiandi_luopan_mini_program/
 2. `onReady` 后延迟 2 秒导出一次罗盘画面缓存，供朋友圈分享同步返回；
    每次分享时会再异步刷新一次缓存，使下次分享用上最新画面。
 3. 画布在弹窗打开时会被 `hidden` 隐藏，此时导出会得到空白图，导出前会检查并跳过。
-4. 分享标题在能取到今日当令之山时形如「演象·时空罗盘 · 今日主应 壬山」，否则回退固定描述。
+4. 分享标题在能取到今日当令之山时形如「演象时空罗盘 · 今日主应 壬山」，否则回退固定描述。
 
 > 分享图为正方形画布，正合朋友圈 1:1 展示比例；好友分享按 5:4 居中裁剪，
 > 盘面为圆形且居中，裁剪影响很小。
@@ -262,7 +300,7 @@ tiandi_luopan_mini_program/
 移除系统导航栏，页面内容从屏幕顶部开始渲染。
 （系统状态栏为原生渲染，任何方式都无法隐藏。）
 
-标题「演象 · 时空罗盘」由页面自行绘制（`.custom-nav`），并做了两处适配：
+标题「演象时空罗盘」由页面自行绘制（`.custom-nav`），并做了两处适配：
 
 1. **顶部**：`padding-top` 由 JS 按 `wx.getWindowInfo().statusBarHeight` 动态注入，
    避免标题被系统状态栏遮挡。刘海屏、挖孔屏的状态栏高度各不相同，不能写死。
@@ -283,3 +321,5 @@ tiandi_luopan_mini_program/
 5. 点击 **「真机调试」** 或 **「预览」**，扫码即可体验陀螺仪、地磁双针与水准仪。
 
 > 指南针与水准气泡依赖真实硬件传感器，请使用真机验证；开发者工具模拟器中罗盘与姿态数据不可用。
+
+

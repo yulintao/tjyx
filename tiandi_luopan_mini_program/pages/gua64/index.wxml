@@ -1,0 +1,120 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">六十四卦 · 抽爻换象</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+    <view class="card" wx:if="{{base}}">
+      <view class="card-title">{{base.name}}<text style="font-size:22rpx;color:#9fb0cb;margin-left:12rpx;">{{base.upper}}上{{base.lower}}下 · {{manual ? '手动起卦' : '坐向起卦'}}</text></view>
+
+      <view class="yao-board">
+        <view
+          wx:for="{{lines}}"
+          wx:key="pos"
+          class="yao-row {{item.moving ? 'yao-moving' : ''}}"
+          data-pos="{{item.pos}}"
+          bindtap="onYaoTap"
+        >
+          <text class="yao-name">{{item.name}}</text>
+          <view class="yao-bar">
+            <view wx:if="{{item.yang}}" class="bar-solid"></view>
+            <block wx:else>
+              <view class="bar-half"></view>
+              <view class="bar-gap"></view>
+              <view class="bar-half"></view>
+            </block>
+          </view>
+          <text class="yao-flag">{{item.moving ? '动' : ''}}</text>
+        </view>
+      </view>
+      <view class="card-sub">{{text}}</view>
+      <view class="row">
+        <view class="row-k">卦气生成数</view>
+        <view class="row-v">{{base.elementNumber}}（{{base.elementName}}）</view>
+      </view>
+      <view class="row">
+        <view class="row-k">吉凶分级</view>
+        <view class="row-v">
+          <text class="tag {{base.luckDegree === '大吉' ? 'tag-ji' : (base.luckDegree === '慎用' ? 'tag-xiong' : 'tag-ping')}}">{{base.luckDegree}}</text>
+        </view>
+      </view>
+      <view class="row">
+        <view class="row-k">居中分金</view>
+        <view class="row-v">{{base.fenJinDetail}}</view>
+      </view>
+      <view class="footnote">卦气数取上卦五行（一水二火三木四金五土）；吉凶按本卦 5.625° 卦区居中分金的等级定（珠宝中段为大吉，珠宝前后段为中吉，龟甲火坑为平，孤虚、空亡为慎用），与分金页同源。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">手动起卦（上卦 / 下卦）</view>
+      <picker mode="selector" range="{{trigrams}}" value="{{upperIdx}}" bindchange="onUpperChange">
+        <view class="input-row">
+          <label>上卦</label>
+          <view class="input-box">{{upperName}}</view>
+        </view>
+      </picker>
+      <picker mode="selector" range="{{trigrams}}" value="{{lowerIdx}}" bindchange="onLowerChange">
+        <view class="input-row">
+          <label>下卦</label>
+          <view class="input-box">{{lowerName}}</view>
+        </view>
+      </picker>
+      <view class="row"><text class="row-k">本卦</text><text class="row-v">{{base.name}}</text></view>
+      <view class="row"><text class="row-k">六爻</text><text class="row-v">{{base.binary}}</text></view>
+      <view class="row"><text class="row-k">动爻</text><text class="row-v">{{yaoText}}</text></view>
+      <view class="btn" style="margin-top:12rpx;" wx:if="{{manual}}" bindtap="resetHeading">回到坐向起卦（{{heading}}°）</view>
+      <slider min="0" max="359" value="{{heading}}" activeColor="#e9d8a6" block-size="20" bindchange="onSlide" style="margin-top:20rpx;" />
+      <view class="footnote">滑杆按罗盘度数起卦：每 5.625° 一卦，卦内再按 0.9375° 定动爻，与 iOS 的 384 爻分度同口径。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">卦变四象</view>
+      <view class="row"><text class="row-k">之卦（变卦）</text><text class="row-v">{{changed ? changed.name : '静卦无之卦'}}</text></view>
+      <view class="row"><text class="row-k">互卦</text><text class="row-v">{{mutual.name}}</text></view>
+      <view class="row"><text class="row-k">错卦</text><text class="row-v">{{inverse.name}}</text></view>
+      <view class="row"><text class="row-k">综卦</text><text class="row-v">{{reverse.name}}</text></view>
+      <view class="footnote">本卦主当下，之卦主将来，互卦主内情，错卦主对立面，综卦主易地而处。</view>
+    </view>
+
+    <!-- 京房八宫：宫 / 卦型 / 世应 / 纳甲六亲 -->
+    <view class="card" wx:if="{{jf}}">
+      <view class="card-title">
+        京房八宫 · {{jf.gong}}宫（{{jf.gongElem}}）
+        <text class="tag {{jf.typeKey === 'ben' ? 'tag-ji' : 'tag-ping'}}" style="margin-left:12rpx;">{{jf.typeName}}</text>
+      </view>
+      <view class="row"><text class="row-k">世应</text><text class="row-v">世在{{jf.lines[jf.shi - 1].yaoName}} · 应在{{jf.lines[jf.ying - 1].yaoName}}</text></view>
+      <picker mode="selector" range="{{dayGans}}" value="{{dayGanIdx}}" bindchange="onDayGanChange">
+        <view class="input-row">
+          <label>日干（排六神）</label>
+          <view class="input-box">{{dayGan}}日 · 初爻起{{jf.viewLines[5].liuShen}}</view>
+        </view>
+      </picker>
+      <view class="yao-list">
+        <view class="yao-line" wx:for="{{jf.viewLines}}" wx:key="pos">
+          <text class="yao-pos">{{item.yaoName}}</text>
+          <text class="yao-gz">{{item.gan}}{{item.zhi}}·{{item.elem}}</text>
+          <text class="yao-qin">{{item.liuQin}}</text>
+          <text class="yao-shen">{{item.liuShen}}</text>
+          <text class="tag {{item.tagClass}}" wx:if="{{item.tag}}">{{item.tag}}</text>
+        </view>
+      </view>
+      <view class="card-sub">{{jf.text}}</view>
+      <view class="footnote">六亲以本宫五行为「我」：同我兄弟、生我父母、我生子孙、克我官鬼、我克妻财；六神按日干起，甲乙青龙、丙丁朱雀、戊勾陈、己腾蛇、庚辛白虎、壬癸玄武。</view>
+    </view>
+
+    <view class="card">
+      <view class="btn" bindtap="toggleAll">{{showAll ? '收起六十四卦' : '展开六十四卦全图'}}</view>
+      <block wx:if="{{showAll}}">
+        <view class="grid-entries">
+          <view class="entry" wx:for="{{grid}}" wx:key="id" data-idx="{{index}}" bindtap="pick">
+            <text class="entry-name">{{item.name}}</text>
+            <text class="entry-desc">{{item.binary}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

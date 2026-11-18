@@ -1,0 +1,63 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">空间测绘报告</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <view class="card">
+      <view class="card-title">{{title}}</view>
+      <view class="card-sub">{{subtitle}}</view>
+      <view class="footnote" wx:if="{{!hasPlan}}" style="color:#e8a87c;">未读取到户型数据，当前为示例户型；请先在户型页录入户型后再生成。</view>
+      <view class="footnote" wx:else>{{planLabel}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">基础测绘参数</view>
+      <view class="list-desc" wx:for="{{baseDims}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="card" wx:if="{{geomDims.length}}">
+      <view class="card-title">精确几何指标（iOS 同源算法）</view>
+      <view class="list-item" wx:for="{{geomDims}}" wx:key="*this">
+        <view class="list-desc" style="color:#e9d8a6;">{{item}}</view>
+      </view>
+      <view class="footnote">逐房间面积 / 形心由多边形顶点算出，全宅主轴角取外轮廓凸包；与 iOS GeometryUtils 同一套几何算法，仅在本机计算。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">九宫完整度与缺角断语</view>
+      <view class="list-item" wx:for="{{corners}}" wx:key="title">
+        <view class="list-main"><text style="color:#e88b8b;">{{item.title}}</text></view>
+        <view class="list-desc">{{item.hurt}}</view>
+        <view class="list-desc" style="color:#7fd3a0;">{{item.remedy}}</view>
+      </view>
+      <view class="list-desc" wx:if="{{!corners.length}}">九宫无缺角，宅形完整。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">玄空九宫凶星与化解</view>
+      <view class="list-desc" wx:for="{{xiong}}" wx:key="*this">{{item}}</view>
+      <view class="list-desc" wx:if="{{!xiong.length}}">当前坐向元运下无凶宫房间，或未录入房间。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">报告长图</view>
+      <canvas type="2d" id="reportCanvas" style="width:100%;height:{{canvasH}}rpx;border-radius:16rpx;background:#0a0c11;"></canvas>
+      <view style="display:flex;gap:16rpx;margin-top:16rpx;">
+        <view class="btn" style="flex:1;" bindtap="save">{{saved ? '已存相册' : '存入相册'}}</view>
+        <view class="btn" style="flex:1;" bindtap="preview">查看大图</view>
+      </view>
+      <button class="btn" open-type="share" style="margin-top:12rpx;">分享给好友</button>
+      <view style="display:flex;gap:16rpx;margin-top:12rpx;">
+        <view class="btn" style="flex:1;" bindtap="copyText">复制报告全文</view>
+        <view class="btn" style="flex:1;" bindtap="goFloorplan">回到户型</view>
+      </view>
+      <view class="footnote">{{footer}}</view>
+      <view class="footnote">
+        对应 iOS「全屋 3D 空间测绘与形煞全息存证」报告图；净层高 / 墙体段数 / 门窗开孔三项依赖 LiDAR / RoomPlan，小程序标注为「未采集」，不计入得分。
+      </view>
+    </view>
+  </view>
+</view>

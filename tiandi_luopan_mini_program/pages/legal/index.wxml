@@ -1,0 +1,30 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">{{title}}</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <view class="card">
+      <view style="display:flex;gap:12rpx;">
+        <view
+          wx:for="{{tabs}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onTab"
+          class="btn"
+          style="flex:1;{{active === item.key ? 'border-color:#e9d8a6;color:#e9d8a6;' : ''}}"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="legal-body">
+        <view wx:for="{{paras}}" wx:key="index" class="legal-para">{{item}}</view>
+      </view>
+      <view class="btn" style="margin-top:20rpx;" bindtap="copyEmail">复制联系邮箱 support@sdnlink.cn</view>
+      <view class="footnote">文本底本取 iOS 原版对应条款，凡 Apple 平台专属能力（内购、iCloud、LiDAR/RoomPlan、本地通知）处均按微信小程序实际能力改写，不作无法履行的承诺。</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,89 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">演象 · 关于</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">都在这台手机上算</view>
+      <view class="conclusion-head">演象时空罗盘 {{version}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">宅主</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{ownerText}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">家人</view>
+          <view class="conclusion-v">{{memberCount}} 位</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">吉日提醒</view>
+          <view class="conclusion-v {{settings.notify ? 'ji' : ''}}">{{settings.notify ? '已开' : '未开'}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">古籍出处</view>
+          <view class="conclusion-v">{{settings.showEvidence ? '显示' : '收起'}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note">档案、盘面与设置都存本机，不上传服务器。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">常用入口</view>
+      <view class="grid-entries">
+        <view class="entry" hover-class="entry-active" bindtap="goFamily">
+          <view class="entry-name">家庭资料</view>
+          <view class="entry-desc">宅主与家人生辰、命卦</view>
+        </view>
+        <view class="entry" hover-class="entry-active" bindtap="goRemedy">
+          <view class="entry-name">化解清单</view>
+          <view class="entry-desc">玄空紫白八宅逐项落实</view>
+        </view>
+        <view class="entry" hover-class="entry-active" bindtap="goNotify">
+          <view class="entry-name">提醒中心</view>
+          <view class="entry-desc">节气 / 换月 / 吉日 / 冲煞</view>
+        </view>
+        <view class="entry" hover-class="entry-active" bindtap="goBackup">
+          <view class="entry-name">备份与恢复</view>
+          <view class="entry-desc">导出本机数据，换机带走</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">{{i18n.settings_appearance}}</view>
+      <picker mode="selector" range="{{langs}}" range-key="display" value="{{langIdx}}" bindchange="onLanguage">
+        <view class="input-row"><label>{{i18n.settings_language}}</label><view class="input-box">{{langs[langIdx].display}} ›</view></view>
+      </picker>
+      <view class="input-row"><label>{{i18n.settings_unit}}</label><switch checked="{{settings.unit === 'imperial'}}" bindchange="onUnit" color="#e9d8a6" /></view>
+      <view class="input-row"><label>{{i18n.settings_notify}}</label><switch checked="{{settings.notify}}" bindchange="onNotify" color="#e9d8a6" /></view>
+      <view class="input-row"><label>{{i18n.settings_evidence}}</label><switch checked="{{settings.showEvidence}}" bindchange="onEvidence" color="#e9d8a6" /></view>
+      <view class="input-row"><label>触觉反馈</label><switch checked="{{settings.haptic !== false}}" bindchange="onHaptic" color="#e9d8a6" /></view>
+      <view class="footnote">小程序无法在未打开时定时推送，提醒开关只记偏好；节气、换月、吉日打开即算。</view>
+    </view>
+
+    <view class="card">
+      <view class="fold-head">
+        <text class="fold-label">{{i18n.settings_more}}</text>
+        <text class="fold-toggle" bindtap="toggleMore">{{showMore ? '▲' : '▼'}}</text>
+      </view>
+      <block wx:if="{{showMore}}">
+        <view class="btn" bindtap="goVip">{{i18n.settings_vip}}</view>
+        <view class="btn" style="margin-top:12rpx;" bindtap="goTerms">{{i18n.settings_terms}}</view>
+        <view class="btn" style="margin-top:12rpx;" bindtap="goCompliance">{{i18n.settings_compliance}}</view>
+        <view class="btn" style="margin-top:12rpx;" bindtap="rateApp">{{i18n.settings_rate}}</view>
+        <view class="btn" style="margin-top:12rpx;" bindtap="replayGuide">{{i18n.settings_guide}}</view>
+        <view class="btn" style="margin-top:12rpx;" bindtap="about">{{i18n.settings_about}}</view>
+        <view class="btn" style="margin-top:12rpx;background:#3a2f2f;color:#e88b8b;" bindtap="clearHistory">清空历史记录</view>
+        <view class="btn" style="margin-top:12rpx;background:#3a2f2f;color:#e88b8b;" bindtap="clearAll">清除全部本地数据</view>
+        <view class="footnote">清除为不可恢复操作：档案、化解任务、户型存档、历史、设置，以及位置、坐向、外煞勾选、报告草稿与备份撤销点一并删除。</view>
+      </block>
+    </view>
+
+    <view class="footnote">{{i18n.footer_note}}</view>
+  </view>
+</view>

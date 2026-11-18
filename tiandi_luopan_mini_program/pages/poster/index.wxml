@@ -1,0 +1,26 @@
+<view class="screen">
+  <view class="topbar">
+    <view class="topbar-back" bindtap="back">←</view>
+    <view class="topbar-title">分享海报</view>
+    <view class="topbar-right"></view>
+  </view>
+
+  <view class="body">
+    <view class="card">
+      <view class="card-title">{{sit}}山{{face}}向 · {{heading}}°</view>
+      <view class="row"><text class="row-k">分金</text><text class="row-v">{{jiazi}} · {{grade}} · {{nayin}}</text></view>
+      <view class="row"><text class="row-k">元运</text><text class="row-v">{{period}}运 · 山星{{shan}} 向星{{xiang}}</text></view>
+      <view class="list-desc">{{pattern}}</view>
+    </view>
+
+    <view class="card">
+      <canvas type="2d" id="posterCanvas" style="width:100%;height:900rpx;border-radius:16rpx;background:#0b0e15;"></canvas>
+      <view style="display:flex;gap:16rpx;margin-top:16rpx;">
+        <view class="btn" style="flex:1;" bindtap="save">{{saved ? '已存相册' : '存入相册'}}</view>
+        <view class="btn" style="flex:1;" bindtap="preview">查看大图</view>
+      </view>
+      <button class="btn" open-type="share" style="margin-top:12rpx;">分享给好友</button>
+      <view class="footnote">海报含盘面、坐向、分金与玄空格局，底部带小程序名；分享卡片缩略图使用海报本身。</view>
+    </view>
+  </view>
+</view>

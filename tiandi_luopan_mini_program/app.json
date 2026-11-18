@@ -1,6 +1,32 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/index/index",
+    "pages/analysis/index",
+    "pages/xuankong/index",
+    "pages/bazhai/index",
+    "pages/zibai/index",
+    "pages/sanhe/index",
+    "pages/zeri/index",
+    "pages/dailycard/index",
+    "pages/remedy/index",
+    "pages/notify/index",
+    "pages/backup/index",
+    "pages/vip/index",
+    "pages/luban/index",
+    "pages/qimen/index",
+    "pages/tianji/index",
+    "pages/floorplan/index",
+    "pages/fenjin/index",
+    "pages/gua64/index",
+    "pages/sha/index",
+    "pages/settings/index",
+    "pages/legal/index",
+    "pages/family/index",
+    "pages/guide/index",
+    "pages/ar/index",
+    "pages/poster/index",
+    "pages/history/index",
+    "pages/report/index"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -20,7 +46,48 @@
     "onLocationChange",
     "startLocationUpdate"
   ],
+  "tabBar": {
+    "color": "#6f7a8f",
+    "selectedColor": "#e9d8a6",
+    "backgroundColor": "#12131a",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "罗盘",
+        "iconPath": "images/tab/tab-compass.png",
+        "selectedIconPath": "images/tab/tab-compass-on.png"
+      },
+      {
+        "pagePath": "pages/analysis/index",
+        "text": "盘解",
+        "iconPath": "images/tab/tab-analysis.png",
+        "selectedIconPath": "images/tab/tab-analysis-on.png"
+      },
+      {
+        "pagePath": "pages/zeri/index",
+        "text": "择日",
+        "iconPath": "images/tab/tab-calendar.png",
+        "selectedIconPath": "images/tab/tab-calendar-on.png"
+      },
+      {
+        "pagePath": "pages/floorplan/index",
+        "text": "户型",
+        "iconPath": "images/tab/tab-house.png",
+        "selectedIconPath": "images/tab/tab-house-on.png"
+      },
+      {
+        "pagePath": "pages/settings/index",
+        "text": "关于",
+        "iconPath": "images/tab/tab-info.png",
+        "selectedIconPath": "images/tab/tab-info-on.png"
+      }
+    ]
+  },
   "sitemapLocation": "sitemap.json",
   "style": "v2",
+  "usingComponents": {
+    "ctx-bar": "/components/ctx-bar/ctx-bar"
+  },
   "lazyCodeLoading": "requiredComponents"
 }
