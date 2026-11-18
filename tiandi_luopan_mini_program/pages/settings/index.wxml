@@ -78,8 +78,8 @@
         <view class="btn" style="margin-top:12rpx;" bindtap="rateApp">{{i18n.settings_rate}}</view>
         <view class="btn" style="margin-top:12rpx;" bindtap="replayGuide">{{i18n.settings_guide}}</view>
         <view class="btn" style="margin-top:12rpx;" bindtap="about">{{i18n.settings_about}}</view>
-        <view class="btn" style="margin-top:12rpx;background:#3a2f2f;color:#e88b8b;" bindtap="clearHistory">清空历史记录</view>
-        <view class="btn" style="margin-top:12rpx;background:#3a2f2f;color:#e88b8b;" bindtap="clearAll">清除全部本地数据</view>
+        <view class="btn btn-danger" style="margin-top:12rpx;" bindtap="clearHistory">清空历史记录</view>
+        <view class="btn btn-danger" style="margin-top:12rpx;" bindtap="clearAll">清除全部本地数据</view>
         <view class="footnote">清除为不可恢复操作：档案、化解任务、户型存档、历史、设置，以及位置、坐向、外煞勾选、报告草稿与备份撤销点一并删除。</view>
       </block>
     </view>

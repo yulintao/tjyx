@@ -6,11 +6,22 @@
   </view>
 
   <view class="body">
-    <view class="card">
-      <view class="card-title">{{title}}</view>
-      <view class="card-sub">{{subtitle}}</view>
-      <view class="footnote" wx:if="{{!hasPlan}}" style="color:#e8a87c;">未读取到户型数据，当前为示例户型；请先在户型页录入户型后再生成。</view>
-      <view class="footnote" wx:else>{{planLabel}}</view>
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">全息存证 · 空间测绘</view>
+      <view class="conclusion-head">{{title}}</view>
+      <view class="conclusion-sub">{{subtitle}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">空间综合得分</view>
+          <view class="conclusion-v {{score >= 80 ? 'ji' : (score >= 60 ? 'gold' : 'xiong')}}">{{score}} 分</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">缺角 / 凶宫项</view>
+          <view class="conclusion-v {{corners.length || xiong.length ? 'xiong' : 'ji'}}">{{corners.length}} 缺 · {{xiong.length}} 凶</view>
+        </view>
+      </view>
+      <view class="conclusion-note" wx:if="{{!hasPlan}}" style="color:#e8a87c;">未读取到户型数据，当前为示例户型；请先在户型页录入户型后再生成。</view>
+      <view class="conclusion-note" wx:else>{{planLabel}}</view>
     </view>
 
     <view class="card">
@@ -43,16 +54,18 @@
     </view>
 
     <view class="card">
-      <view class="card-title">报告长图</view>
-      <canvas type="2d" id="reportCanvas" style="width:100%;height:{{canvasH}}rpx;border-radius:16rpx;background:#f3ead6;"></canvas>
-      <view style="display:flex;gap:16rpx;margin-top:16rpx;">
-        <view class="btn" style="flex:1;" bindtap="save">{{saved ? '已存相册' : '存入相册'}}</view>
-        <view class="btn" style="flex:1;" bindtap="preview">查看大图</view>
+      <view class="card-title">报告长图（宣纸朱丝栏）</view>
+      <view class="canvas-frame">
+        <canvas type="2d" id="reportCanvas" style="width:100%;height:{{canvasH}}rpx;border-radius:16rpx;background:#f3ead6;display:block;"></canvas>
       </view>
-      <button class="btn" open-type="share" style="margin-top:12rpx;">分享给好友</button>
-      <view style="display:flex;gap:16rpx;margin-top:12rpx;">
-        <view class="btn" style="flex:1;" bindtap="copyText">复制报告全文</view>
-        <view class="btn" style="flex:1;" bindtap="goFloorplan">回到户型</view>
+      <view class="btn-row">
+        <view class="btn btn-primary" bindtap="save">{{saved ? '✓ 已存相册' : '存入相册'}}</view>
+        <view class="btn" bindtap="preview">查看大图</view>
+      </view>
+      <button class="btn" open-type="share" style="margin-top:14rpx;">分享给好友</button>
+      <view class="btn-row" style="margin-top:14rpx;">
+        <view class="btn" bindtap="copyText">复制报告全文</view>
+        <view class="btn" bindtap="goFloorplan">回到户型</view>
       </view>
       <view class="footnote">{{footer}}</view>
       <view class="footnote">

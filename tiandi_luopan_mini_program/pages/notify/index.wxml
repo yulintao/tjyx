@@ -7,6 +7,23 @@
 
   <view class="body">
     <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">日课提醒 · 节气吉日</view>
+      <view class="conclusion-head">{{todayItems.length ? '今日有 ' + todayItems.length + ' 条提醒' : '今日诸事平稳'}}</view>
+      <view class="conclusion-sub">{{sit ? '已锁坐山 ' + sit + ' 山' : '通用日课（未锁坐山）'}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">未来 {{days}} 天</view>
+          <view class="conclusion-v gold">{{list.length}} 条</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">订阅消息</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{subscribeState}}</view>
+        </view>
+      </view>
+    </view>
+
     <view class="card">
       <view class="card-title">今日提醒 · {{todayItems.length}} 条</view>
       <view class="list-item" wx:for="{{todayItems}}" wx:key="key">

@@ -1,4 +1,4 @@
-﻿<view class="screen">
+<view class="screen">
   <view class="topbar">
     <view class="topbar-back" bindtap="back">←</view>
     <view class="topbar-title">家庭资料</view>
@@ -6,6 +6,15 @@
   </view>
 
   <view class="body">
+    <ctx-bar />
+
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">生辰档案 · 本命八宅</view>
+      <view class="conclusion-head">{{ownerName || '未设宅主'}} · 共 {{memberRows.length}} 位家人</view>
+      <view class="conclusion-sub">{{ownerBirthYear ? '宅主生于 ' + ownerBirthYear + ' 年（' + (ownerGenderIdx === 1 ? '女' : '男') + '）' : '填妥生辰后可自动排定本命卦与吉凶配房'}}</view>
+      <view class="conclusion-note">资料仅保存在微信本地存储，不上传服务器。</view>
+    </view>
+
     <view class="card">
       <view class="card-title">宅主档案</view>
       <view class="input-row">
@@ -17,37 +26,39 @@
         <input class="input-box" type="number" value="{{ownerBirthYear}}" bindblur="onOwnerYear" placeholder="如 1985" />
       </view>
       <view class="input-row">
-        <label>性别</label>
+        <label>性别（关=男 / 开=女）</label>
         <switch checked="{{ownerGenderIdx === 1}}" bindchange="onOwnerGender" color="#e9d8a6" />
       </view>
-      <view class="btn" bindtap="saveOwner">保存宅主档案</view>
+      <view class="btn btn-primary" bindtap="saveOwner">保存宅主档案</view>
       <view class="footnote">宅主出生年用于择日「冲本命」判定、八宅本命卦与分房参考；资料只存本机，不上传。</view>
     </view>
 
     <view class="card">
       <view class="card-title">家人（{{memberRows.length}}）</view>
-      <view class="list-item" wx:for="{{memberRows}}" wx:key="idx">
+      <view class="member-card" wx:for="{{memberRows}}" wx:key="idx">
         <view class="list-main">
           <text>{{item.name || item.role}} · {{item.role}} · {{item.gender}}</text>
-          <text class="tag tag-ping">{{item.gua || '待补生辰'}}</text>
+          <text class="tag {{item.gua ? 'tag-ji' : 'tag-ping'}}">{{item.gua || '待补生辰'}}</text>
         </view>
         <view class="list-desc" wx:if="{{item.desc}}">{{item.desc}}</view>
-        <view style="display:flex;gap:12rpx;margin-top:12rpx;align-items:center;">
-          <input class="input-box" style="flex:1;" value="{{item.name}}" data-idx="{{item.idx}}" bindblur="onMemberName" placeholder="称呼" />
-          <input class="input-box" style="flex:1;" type="number" value="{{item.birthYear}}" data-idx="{{item.idx}}" bindblur="onMemberYear" placeholder="出生年" />
+        <view class="member-inputs">
+          <input class="input-box" value="{{item.name}}" data-idx="{{item.idx}}" bindblur="onMemberName" placeholder="称呼" />
+          <input class="input-box" type="number" value="{{item.birthYear}}" data-idx="{{item.idx}}" bindblur="onMemberYear" placeholder="出生年" />
           <switch checked="{{item.genderIdx === 1}}" data-idx="{{item.idx}}" bindchange="onMemberGender" color="#e9d8a6" />
-          <view class="btn" style="width:150rpx;" data-idx="{{item.idx}}" bindtap="editMember">改关系</view>
-          <view class="btn" style="width:110rpx;color:#e88b8b;" data-idx="{{item.idx}}" bindtap="removeMember">删除</view>
+        </view>
+        <view class="member-actions">
+          <view class="btn" data-idx="{{item.idx}}" bindtap="editMember">修改关系</view>
+          <view class="btn btn-danger" data-idx="{{item.idx}}" bindtap="removeMember">删除</view>
         </view>
       </view>
-      <view class="btn" style="margin-top:16rpx;" bindtap="addMember">新增家人</view>
+      <view class="btn" style="margin-top:16rpx;" bindtap="addMember">＋ 新增家人</view>
       <view class="footnote">家人资料用于八宅「家人配房」与择日冲本命；涉及未成年人请先取得监护人许可。</view>
     </view>
 
     <view class="card">
       <view class="card-title">数据说明</view>
       <view class="list-desc">家庭资料保存在微信小程序本地存储，不上传服务器、不做云同步。删除小程序或在「设置」中清除全部本地数据即一并删除，已导出或分享的副本需自行处理。</view>
-      <view class="btn" style="margin-top:16rpx;" bindtap="goBazhai">去八宅查看分房</view>
+      <view class="btn btn-primary" style="margin-top:16rpx;" bindtap="goBazhai">去八宅查看分房</view>
     </view>
   </view>
 </view>

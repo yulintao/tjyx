@@ -7,6 +7,33 @@
 
   <view class="body">
     <ctx-bar />
+
+    <!-- ============ 结论看板 ============ -->
+    <view class="conclusion" wx:if="{{current && detail && kongwang}}">
+      <view class="conclusion-eyebrow">一百二十分金 · 逐度定针</view>
+      <view class="conclusion-head">{{heading}}° · {{mountainName}} · {{current.jiazi}}分金</view>
+      <view class="conclusion-sub">{{current.start}}° – {{current.end}}° · 偏山心 {{detail.jian.offset}}°</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">纳音五行</view>
+          <view class="conclusion-v gold">{{current.nayin}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">分金等级</view>
+          <view class="conclusion-v {{detail.usable ? 'ji' : 'xiong'}}">{{current.grade}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">可用性</view>
+          <view class="conclusion-v {{detail.usable ? 'ji' : 'xiong'}}">{{detail.usable ? '可用' : '不可用'}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">空亡判级</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{kongwang.text}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note">{{current.lore}}</view>
+    </view>
+
     <view class="card">
       <view class="card-title">当前分金</view>
       <view class="row"><text class="row-k">朝向</text><text class="row-v">{{heading}}°（{{mountainName}}）</text></view>
@@ -27,7 +54,7 @@
       <view class="list-desc" style="margin-top:12rpx;color:#e9d8a6;">{{detail.verdict}}</view>
       <view class="list-desc">{{detail.advice}}</view>
       <view class="list-desc" wx:if="{{kongwang.explain}}" style="color:#9fb0cb;">{{kongwang.explain}}</view>
-      <view class="btn" style="margin-top:16rpx;" bindtap="onTakeNearest">
+      <view class="btn btn-primary" style="margin-top:16rpx;" bindtap="onTakeNearest">
         {{detail.nearest ? (detail.nearest.delta === 0 ? '当前度数即吉度（' + detail.nearest.jiazi + '·' + detail.nearest.nayin + '）' : '取最近吉度 ' + detail.nearest.deg + '°（' + detail.nearest.jiazi + '·' + detail.nearest.nayin + '，调 ' + detail.nearest.delta + '°）') : '附近 ±8° 内没有可用吉度'}}
       </view>
       <view class="footnote">判级与 iOS 的 KongWangDetailSheet 同口径：正针 &lt;1.5°、兼向 1.5–6.5°、贴山界 ≥6.5°（近出卦线为出卦大空亡）。</view>

@@ -331,6 +331,42 @@ view, text, button, input, picker {
   box-shadow: 0 8rpx 22rpx rgba(201, 162, 74, 0.32), inset 0 1rpx 0 rgba(255, 245, 210, 0.5);
 }
 
+.btn-danger {
+  background: linear-gradient(180deg, rgba(92, 34, 38, 0.72) 0%, rgba(62, 22, 26, 0.88) 100%);
+  border-color: rgba(232, 139, 139, 0.32);
+  color: #f59b9b;
+}
+
+button.btn {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 0 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+button.btn.btn-primary {
+  font-weight: 700;
+}
+
+button.btn::after {
+  border: none;
+}
+
+.btn-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.btn-row .btn {
+  flex: 1;
+  margin-top: 0;
+}
+
 /* ---------- Bento 工具入口宫格 ---------- */
 .grid-entries {
   display: grid;
@@ -710,4 +746,24 @@ view, text, button, input, picker {
 }
 .fold-body {
   margin-top: 16rpx;
+}
+
+/* ---------- 九宫点选高亮断语卡 & 画布裱框 ---------- */
+.palace-detail-card {
+  background: linear-gradient(155deg, rgba(64, 52, 24, 0.45) 0%, rgba(20, 26, 39, 0.96) 100%);
+  border: 1rpx solid rgba(233, 216, 166, 0.42);
+  border-left: 6rpx solid #e2c16b;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-top: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 10rpx 28rpx rgba(0, 0, 0, 0.42);
+}
+
+.canvas-frame {
+  padding: 12rpx;
+  background: linear-gradient(160deg, rgba(233, 216, 166, 0.14), rgba(16, 20, 30, 0.92));
+  border: 1rpx solid rgba(233, 216, 166, 0.34);
+  border-radius: 22rpx;
+  box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.58), inset 0 1rpx 0 rgba(255, 236, 184, 0.2);
 }

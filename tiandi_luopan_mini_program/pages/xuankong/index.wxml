@@ -76,7 +76,7 @@
         <view class="card-title">九宫盘（运 / 山 / 向）</view>
         <view class="grid9">
           <view
-            class="cell {{item.isCenter ? 'cell-center' : ''}} {{item.alarm25 ? 'cell-alarm' : ''}}"
+            class="cell {{item.isCenter ? 'cell-center' : ''}} {{item.alarm25 ? 'cell-alarm' : ''}} {{picked && picked.palace === item.palace ? 'cell-picked' : ''}}"
             wx:for="{{cells}}"
             wx:key="palace"
             data-palace="{{item.palace}}"
@@ -110,7 +110,7 @@
         </view>
       </view>
 
-      <view class="card" wx:if="{{picked}}">
+      <view class="card palace-detail-card" wx:if="{{picked}}">
         <view class="card-title">{{picked.name}} · 山{{picked.shan}}向{{picked.xiang}}</view>
         <view class="card-sub">{{picked.lore}}</view>
         <view class="row">

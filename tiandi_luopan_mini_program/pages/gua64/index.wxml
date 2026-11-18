@@ -7,6 +7,33 @@
 
   <view class="body">
     <ctx-bar />
+
+    <!-- ============ 结论看板 ============ -->
+    <view class="conclusion" wx:if="{{base}}">
+      <view class="conclusion-eyebrow">六十四卦 · 抽爻换象</view>
+      <view class="conclusion-head">{{base.name}} · {{base.upper}}上{{base.lower}}下</view>
+      <view class="conclusion-sub">{{manual ? '手动起卦' : '坐向起卦（' + heading + '°）'}} · 动爻：{{yaoText}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">吉凶分级</view>
+          <view class="conclusion-v {{base.luckDegree === '大吉' || base.luckDegree === '中吉' ? 'ji' : (base.luckDegree === '慎用' ? 'xiong' : '')}}">{{base.luckDegree}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">卦气生成数</view>
+          <view class="conclusion-v gold">{{base.elementNumber}}（{{base.elementName}}）</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">之卦（变卦）</view>
+          <view class="conclusion-v" style="font-size:24rpx;">{{changed ? changed.name : '静卦'}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">居中分金</view>
+          <view class="conclusion-v" style="font-size:21rpx;">{{base.fenJinDetail}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note">{{text}}</view>
+    </view>
+
     <view class="card" wx:if="{{base}}">
       <view class="card-title">{{base.name}}<text style="font-size:22rpx;color:#9fb0cb;margin-left:12rpx;">{{base.upper}}上{{base.lower}}下 · {{manual ? '手动起卦' : '坐向起卦'}}</text></view>
 

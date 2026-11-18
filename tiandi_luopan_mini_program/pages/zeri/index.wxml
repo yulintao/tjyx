@@ -162,15 +162,17 @@
       <view class="card">
         <view class="card-title">十二时辰{{ownerBranch ? '（已按宅主本命' + ownerBranch + '判冲）' : ''}}</view>
         <view class="grid9">
-          <view class="cell {{item.level === 'xiong' ? 'cell-alarm' : ''}}" wx:for="{{shichen}}" wx:key="idx" data-idx="{{item.idx}}" bindtap="onHour">
+          <view class="cell {{item.level === 'xiong' ? 'cell-alarm' : ''}} {{picked && picked.idx === item.idx ? 'cell-picked' : ''}}" wx:for="{{shichen}}" wx:key="idx" data-idx="{{item.idx}}" bindtap="onHour">
             <view class="cell-name">{{item.name}}</view>
             <view class="cell-triple"><text>{{item.pillar}}</text></view>
             <view class="cell-sub">{{item.god}}{{item.huangDao ? '·黄道' : '·黑道'}}{{item.clashesOwner ? '·冲命' : ''}}</view>
           </view>
         </view>
-        <view class="card-sub" wx:if="{{picked}}">{{picked.name}}（{{picked.pillar}}）· {{picked.god}}</view>
-        <view class="list-desc" wx:if="{{picked}}">{{picked.godText}}</view>
-        <view class="list-desc" wx:if="{{picked}}" style="color:#e8b06a;">{{picked.tip}}</view>
+        <view class="palace-detail-card" wx:if="{{picked}}">
+          <view class="card-title" style="margin-bottom:8rpx;">{{picked.name}}（{{picked.pillar}}）· {{picked.god}}</view>
+          <view class="list-desc">{{picked.godText}}</view>
+          <view class="list-desc" style="color:#e8b06a;">{{picked.tip}}</view>
+        </view>
         <view class="footnote">红色为不宜关键用事之时；点选时辰可看值神宜忌。{{ownerBranch ? '' : '未设置宅主出生年，暂不判冲本命。'}}</view>
       </view>
 

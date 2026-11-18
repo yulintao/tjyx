@@ -7,6 +7,33 @@
 
   <view class="body">
     <ctx-bar />
+
+    <!-- ============ 结论看板 ============ -->
+    <view class="conclusion">
+      <view class="conclusion-eyebrow">八宅明镜 · 宅命合参</view>
+      <view class="conclusion-head">{{sit}}山 · {{houseGua}}宅</view>
+      <view class="conclusion-sub">{{houseGroup}}</view>
+      <view class="conclusion-grid">
+        <view class="conclusion-cell">
+          <view class="conclusion-k">本命卦</view>
+          <view class="conclusion-v gold" style="font-size:24rpx;">{{life ? life.symbol + ' ' + life.full + '命' : '—'}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">宅命合配</view>
+          <view class="conclusion-v {{compat && compat.grade >= 3 ? 'ji' : (compat && compat.grade === 1 ? 'xiong' : '')}}" style="font-size:24rpx;">{{compat ? compat.level : '—'}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">坐山纳音</view>
+          <view class="conclusion-v" style="font-size:22rpx;">{{nayin ? nayin.jiazi + ' · ' + nayin.nayin : '—'}}</view>
+        </view>
+        <view class="conclusion-cell">
+          <view class="conclusion-k">化解进度</view>
+          <view class="conclusion-v {{tasksDone === tasks.length && tasks.length > 0 ? 'ji' : ''}}">{{tasksDone}} / {{tasks.length}}</view>
+        </view>
+      </view>
+      <view class="conclusion-note" wx:if="{{compat}}">{{compat.text}}</view>
+    </view>
+
     <view class="card">
       <picker mode="selector" range="{{mountainNames}}" value="{{sitIdx}}" bindchange="onSitChange">
         <view class="input-row">
@@ -20,7 +47,7 @@
     <view class="card">
       <view class="card-title">大游年八星</view>
       <view class="grid9">
-        <view class="cell {{item.isCenter ? 'cell-center' : ''}}" wx:for="{{cells}}" wx:key="palace" data-palace="{{item.palace}}" bindtap="onCell">
+        <view class="cell {{item.isCenter ? 'cell-center' : ''}} {{picked && picked.palace === item.palace ? 'cell-picked' : ''}}" wx:for="{{cells}}" wx:key="palace" data-palace="{{item.palace}}" bindtap="onCell">
           <view class="cell-name">{{item.name}}</view>
           <view class="cell-triple"><text class="tag tag-{{item.type === 'ji' ? 'ji' : (item.type === 'xiong' ? 'xiong' : 'ping')}}">{{item.star}}</text></view>
           <view class="cell-sub">{{item.starName}}</view>
@@ -30,7 +57,7 @@
       <view class="footnote">点选宫位查看逐宫做法与影响。</view>
     </view>
 
-    <view class="card" wx:if="{{picked}}">
+    <view class="card palace-detail-card" wx:if="{{picked}}">
       <view class="card-title">{{picked.name}}宫 · {{picked.star}}（{{picked.starName}}）</view>
       <view class="card-sub">{{picked.lore}}</view>
       <view class="row">
