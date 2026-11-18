@@ -1,6 +1,7 @@
 const SH = require('../../utils/sanhe');
 const SF = require('../../utils/sitface');
 const store = require('../../utils/store');
+const orientation = require('../../utils/orientation');
 
 Page({
   data: {
@@ -36,15 +37,19 @@ Page({
   },
 
   onLoad(options) {
-    let sit = '子';
-    if (options && options.sit && SF.MOUNTAINS_24.indexOf(sit) >= 0) sit = options.sit;
+    let sit = orientation.current().sit;
+    if (options && options.sit && SF.MOUNTAINS_24.indexOf(options.sit) >= 0) sit = options.sit;
     const s = store.getSettings() || {};
     this.setData({ sitIdx: SF.MOUNTAINS_24.indexOf(sit), showEvidence: s.showEvidence !== false });
     this.recompute();
   },
 
   onSitChange(e) {
-    this.setData({ sitIdx: parseInt(e.detail.value, 10), jianIdx: 0, jianLabel: '不兼（正向）' });
+    const sitIdx = parseInt(e.detail.value, 10);
+    this.setData({ sitIdx, jianIdx: 0, jianLabel: '不兼（正向）' });
+    orientation.fromManual(SF.MOUNTAINS_24[sitIdx]);
+    const bar = this.selectComponent && this.selectComponent('ctx-bar');
+    if (bar && bar.refresh) bar.refresh();
     // 换坐山后长生局整体变化，来去水默认重取该局最合宜的两字
     this._laiName = null;
     this._quName = null;

@@ -125,6 +125,8 @@ Page({
     const sitIdx = parseInt(e.detail.value, 10);
     this.setData({ sitIdx });
     orientation.fromManual(SF.MOUNTAINS_24[sitIdx]);
+    const bar = this.selectComponent && this.selectComponent('ctx-bar');
+    if (bar && bar.refresh) bar.refresh();
     this.recompute(this._rooms || FP.sampleRooms());
   },
 

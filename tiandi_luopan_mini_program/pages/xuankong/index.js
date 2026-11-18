@@ -2,6 +2,7 @@ const XK = require('../../utils/xuankong');
 const SF = require('../../utils/sitface');
 const store = require('../../utils/store');
 const TE = require('../../utils/traditional-evidence');
+const orientation = require('../../utils/orientation');
 
 const PERIOD_NAMES = ['一运', '二运', '三运', '四运', '五运', '六运', '七运', '八运', '九运'];
 
@@ -52,10 +53,11 @@ Page({
   },
 
   onLoad(options) {
-    let sit = '子';
+    const curOrient = orientation.current();
+    let sit = curOrient.sit;
     if (options && options.sit && SF.MOUNTAINS_24.indexOf(options.sit) >= 0) sit = options.sit;
     const cur = XK.periodForYear(new Date().getFullYear());
-    const heading = options && options.heading !== undefined ? parseFloat(options.heading) : null;
+    const heading = (options && options.heading !== undefined) ? parseFloat(options.heading) : curOrient.heading;
     const settings = store.getSettings() || {};
     this.setData({
       sitIdx: SF.MOUNTAINS_24.indexOf(sit),
@@ -82,7 +84,11 @@ Page({
 
   onSitChange(e) {
     // 手选坐山后不再跟随传感器兼向判定
-    this.setData({ sitIdx: parseInt(e.detail.value, 10), heading: null, autoJian: false, jianDevIdx: 0 });
+    const sitIdx = parseInt(e.detail.value, 10);
+    this.setData({ sitIdx, heading: null, autoJian: false, jianDevIdx: 0 });
+    orientation.fromManual(SF.MOUNTAINS_24[sitIdx]);
+    const bar = this.selectComponent && this.selectComponent('ctx-bar');
+    if (bar && bar.refresh) bar.refresh();
     this.recompute();
   },
 

@@ -10,6 +10,7 @@ const BZ = require('../../utils/bazhai');
 const SF = require('../../utils/sitface');
 const store = require('../../utils/store');
 const nav = require('../../utils/nav');
+const orientation = require('../../utils/orientation');
 
 // 玄空与紫白中需要动手化解的凶星
 const BAD_CULPRIT = { 2: '二黑病符', 3: '三碧是非', 5: '五黄关煞', 7: '七赤破军', 9: '九紫火星' };
@@ -35,11 +36,13 @@ function cycleOf(starKey) {
 }
 
 function lockedSit() {
+  const cur = orientation.current();
+  if (cur && cur.sit && SF.MOUNTAINS_24.indexOf(cur.sit) >= 0) return cur.sit;
   const s = store.getSettings() || {};
   const lock = s.compassLock || {};
   if (lock && lock.locked && typeof lock.heading === 'number') {
     const idx = Math.round(((lock.heading % 360) + 360) % 360 / 15) % 24;
-    return SF.MOUNTAINS_24[idx];
+    return SF.opposite(SF.MOUNTAINS_24[idx]);
   }
   return '子';
 }
@@ -61,7 +64,10 @@ Page({
     cycleNotes: []
   },
 
-  onLoad() {
+  onLoad(options) {
+    if (options && options.sit && SF.MOUNTAINS_24.indexOf(options.sit) >= 0) {
+      this._optSit = options.sit;
+    }
     this.build();
   },
 
@@ -70,7 +76,7 @@ Page({
   },
 
   build() {
-    const sit = lockedSit();
+    const sit = this._optSit || lockedSit();
     const face = SF.opposite(sit);
     const period = XK.periodForYear(new Date().getFullYear());
     const chart = XK.calculateChart({ sitMountain: sit, faceMountain: face, period });

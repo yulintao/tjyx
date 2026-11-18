@@ -18,6 +18,8 @@ Page({
     mountainNames: SF.MOUNTAINS_24.map((m, i) => `${m} 山`),
     orientationLabel: '',
     orientationHint: '',
+    orientationSource: 'default',
+    headingText: '',
     concSitFace: '',
     concPattern: '',
     concGua: '',
@@ -59,7 +61,7 @@ Page({
   },
 
   onLoad(options) {
-    let sit = '子';
+    let sit = null;
     let heading = null;
     if (options && options.sit && SF.MOUNTAINS_24.indexOf(options.sit) >= 0) {
       sit = options.sit;
@@ -68,7 +70,12 @@ Page({
       sit = SF.fromHeading(heading).sit;
     }
     if (options && options.heading !== undefined) heading = parseFloat(options.heading);
-    this.setData({ sitIdx: SF.MOUNTAINS_24.indexOf(sit), heading });
+    if (!sit) {
+      const cur = orientation.current();
+      sit = cur.sit;
+      if (heading === null) heading = cur.heading;
+    }
+    this.setData({ sitIdx: Math.max(0, SF.MOUNTAINS_24.indexOf(sit)), heading });
     this.recompute();
   },
 
@@ -93,26 +100,128 @@ Page({
       // 一次性跳转参数同样写回全局，保证其余页与「坐向来源」标签一致
       orientation.applyPending(sit, heading);
     }
+    const cur = orientation.current();
     if (!sit) {
-      const cur = orientation.current();
       sit = cur.sit;
       heading = cur.heading;
     }
-    if (sit && (SF.MOUNTAINS_24.indexOf(sit) !== this.data.sitIdx || heading !== this.data.heading)) {
-      this.setData({ sitIdx: SF.MOUNTAINS_24.indexOf(sit), heading });
+    const nextIdx = Math.max(0, SF.MOUNTAINS_24.indexOf(sit));
+    if (nextIdx !== this.data.sitIdx || heading !== this.data.heading || cur.source !== this.data.orientationSource) {
+      this.setData({ sitIdx: nextIdx, heading });
       this.recompute();
+    } else {
+      this.refreshCtxBar();
     }
+    this.startCompassFollow();
+  },
+
+  onHide() {
+    this.stopCompassFollow();
+  },
+
+  onUnload() {
+    this.stopCompassFollow();
+  },
+
+  refreshCtxBar() {
+    const bar = this.selectComponent && this.selectComponent('#ctxBar');
+    if (bar && typeof bar.refresh === 'function') bar.refresh();
+  },
+
+  startCompassFollow() {
+    if (this._compassFollowing) return;
+    if (typeof wx === 'undefined' || typeof wx.startCompass !== 'function' || typeof wx.onCompassChange !== 'function') return;
+    const cur = orientation.current();
+    const lock = (store.getSettings() || {}).compassLock || {};
+    if (cur.source === 'manual' || lock.locked) return;
+
+    this._compassFollowing = true;
+    this._lastFollowAt = 0;
+    this._compassHandler = (res) => {
+      if (!this._compassFollowing) return;
+      if (res.direction === undefined || res.direction === null || isNaN(res.direction)) return;
+      const curState = orientation.current();
+      const lockState = (store.getSettings() || {}).compassLock || {};
+      if (curState.source === 'manual' || lockState.locked) return;
+
+      const now = Date.now();
+      const dir = ((res.direction % 360) + 360) % 360;
+      const diag = SF.diagnoseHeading(dir);
+      const nextIdx = SF.MOUNTAINS_24.indexOf(diag.sit);
+      const prevH = this.data.heading;
+      const diff = (prevH === null || prevH === undefined) ? 999 : Math.abs(((dir - prevH + 540) % 360) - 180);
+      const sitChanged = nextIdx >= 0 && nextIdx !== this.data.sitIdx;
+
+      if (!sitChanged && diff < 1.5) return;
+      if (!sitChanged && now - this._lastFollowAt < 250) return;
+      this._lastFollowAt = now;
+
+      const next = orientation.fromCompass(dir);
+      const roundedDeg = Math.round(dir * 10) / 10;
+      if (sitChanged || next.source !== this.data.orientationSource) {
+        this.setData({ sitIdx: nextIdx, heading: roundedDeg });
+        this.recompute(true);
+      } else {
+        this.setData({
+          heading: roundedDeg,
+          headingText: `${roundedDeg.toFixed(1)}°`
+        });
+        this.refreshCtxBar();
+      }
+    };
+
+    wx.startCompass({
+      interval: 'ui',
+      success: () => {
+        if (this._compassFollowing) wx.onCompassChange(this._compassHandler);
+      },
+      fail: () => {
+        this._compassFollowing = false;
+      }
+    });
+  },
+
+  stopCompassFollow() {
+    this._compassFollowing = false;
+    if (typeof wx !== 'undefined') {
+      if (typeof wx.offCompassChange === 'function' && this._compassHandler) {
+        wx.offCompassChange(this._compassHandler);
+      }
+      if (typeof wx.stopCompass === 'function') {
+        wx.stopCompass();
+      }
+    }
+    this._compassHandler = null;
+  },
+
+  resumeCompassFollow() {
+    const s = store.getSettings() || {};
+    if (s.compassLock && s.compassLock.locked) {
+      s.compassLock.locked = false;
+      store.saveSettings(s);
+    }
+    orientation.releaseManual();
+    const cur = orientation.current();
+    this.setData({
+      sitIdx: Math.max(0, SF.MOUNTAINS_24.indexOf(cur.sit)),
+      heading: cur.heading
+    });
+    this.recompute(true);
+    this.startCompassFollow();
+    wx.showToast({ title: '已恢复跟随罗盘实时方位', icon: 'none' });
   },
 
   onSitChange(e) {
     const sitIdx = parseInt(e.detail.value, 10);
-    this.setData({ sitIdx });
+    const sit = SF.MOUNTAINS_24[sitIdx];
+    const heading = SF.azimuthOf(sit);
+    this.setData({ sitIdx, heading });
     // 手选坐山写回全局，择日/户型页随后进入时同步
-    orientation.fromManual(SF.MOUNTAINS_24[sitIdx]);
+    orientation.fromManual(sit);
     this.recompute();
   },
 
-  recompute() {
+  recompute(skipTrack) {
     const sit = SF.MOUNTAINS_24[this.data.sitIdx];
     const face = SF.opposite(sit);
     const now = new Date();
@@ -139,11 +248,20 @@ Page({
     ];
 
     const orient = orientation.display();
+    const headingVal = (this.data.heading !== null && this.data.heading !== undefined && !isNaN(Number(this.data.heading)))
+      ? Number(this.data.heading)
+      : orient.heading;
+    const headingText = (headingVal !== null && headingVal !== undefined && !isNaN(headingVal))
+      ? `${(((headingVal % 360) + 360) % 360).toFixed(1)}°`
+      : '';
+
     this.setData({
       sit,
       face,
       orientationLabel: orient.label,
       orientationHint: orient.hint,
+      orientationSource: orient.source,
+      headingText,
       concSitFace: `${sit}山${face}向 · ${xk.periodText}`,
       concPattern: xk.patternText.split(' · ')[0],
       concGua: `${gua}宅 · 第一吉方 ${roam.best.palace}（${roam.best.star}）`,
@@ -157,26 +275,32 @@ Page({
       patternLevel: xk.patternLevel,
       quick
     });
+    this.refreshCtxBar();
 
-    store.track({
-      type: 'analysis',
-      title: `盘解 · ${sit}山${face}向`,
-      sub: `${xk.periodText} · ${xk.patternText.split(' · ')[0]} · ${roam.group}`,
-      sit,
-      heading: this.data.sitIdx * 15
-    });
+    if (!skipTrack) {
+      store.track({
+        type: 'analysis',
+        title: `盘解 · ${sit}山${face}向`,
+        sub: `${xk.periodText} · ${xk.patternText.split(' · ')[0]} · ${roam.group}`,
+        sit,
+        heading: headingVal !== undefined && headingVal !== null ? headingVal : this.data.sitIdx * 15
+      });
+    }
   },
 
   onEntry(e) {
     const url = e.currentTarget.dataset.url;
     if (!url) return;
     if (/fenjin|gua64|poster/.test(url)) {
-      // 这几页按「朝向」取度数：坐山对宫即向
+      // 这几页按「朝向」取度数：优先传当前精确朝向角，否则取坐山对宫
       const faceIdx = (this.data.sitIdx + 12) % 24;
-      nav.go(url, { heading: faceIdx * 15 });
+      const h = (this.data.heading !== null && this.data.heading !== undefined && !isNaN(Number(this.data.heading)))
+        ? Number(this.data.heading)
+        : faceIdx * 15;
+      nav.go(url, { heading: h });
       return;
     }
-    const needSit = /xuankong|bazhai|zibai|sanhe|zeri|qimen|tianji/.test(url);
+    const needSit = /xuankong|bazhai|zibai|sanhe|zeri|qimen|tianji|remedy|sha|floorplan/.test(url);
     nav.go(url, needSit ? { sit: this.data.sit, heading: this.data.heading } : null);
   },
 

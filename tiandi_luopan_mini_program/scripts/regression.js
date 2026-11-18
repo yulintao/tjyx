@@ -1223,6 +1223,44 @@ ok('返回：tab 页栈底回到来源 tab，无来源回罗盘，且不重复�
   delete global.getCurrentPages;
 });
 
+// ===== 第十八组：全局方位源（冷启动解除手动锁 / 实时罗盘更新 / applyPending） =====
+ok('方位源：冷启动 releaseManual 可解除缓存 manual 锁并恢复 fromCompass 实时跟随', () => {
+  const mem = {
+    yj_current_orientation: { sit: '卯', face: '酉', sitIdx: 6, heading: 270, source: 'manual', updatedAt: 1 }
+  };
+  global.wx = {
+    getStorageSync: (k) => (k in mem ? mem[k] : ''),
+    setStorageSync: (k, v) => { mem[k] = v; }
+  };
+  const modPath = require.resolve('../utils/orientation');
+  delete require.cache[modPath];
+  const O = require('../utils/orientation');
+
+  // 冷启动内存尚空时调用 releaseManual，应能读出 Storage 里的 manual 并解除
+  O.releaseManual();
+  assert.strictEqual(O.current().source, 'compass', '冷启动后 releaseManual 应恢复 compass 来源');
+
+  // 解除后 fromCompass 必须跟随新方位角变动（朝向 0° 正北 → 坐午向子）
+  const r1 = O.fromCompass(0);
+  assert.strictEqual(r1.sit, '午');
+  assert.strictEqual(r1.face, '子');
+
+  // 转向 90° 正东 → 坐酉向卯
+  const r2 = O.fromCompass(90);
+  assert.strictEqual(r2.sit, '酉');
+  assert.strictEqual(r2.face, '卯');
+
+  // 从默认态 applyPending 不应误锁成 manual
+  delete mem.yj_current_orientation;
+  delete require.cache[modPath];
+  const O2 = require('../utils/orientation');
+  const r3 = O2.applyPending('艮', 225);
+  assert.strictEqual(r3.source, 'compass', '默认态 applyPending 应保持 compass 来源');
+
+  delete require.cache[modPath];
+  delete global.wx;
+});
+
 console.log(`\n=== 结果：通过 ${pass} 项，失败 ${fails.length} 项 ===`);
 if (fails.length) {
   fails.forEach((f) => console.log('  - ' + f));

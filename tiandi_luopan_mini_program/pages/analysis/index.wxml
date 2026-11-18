@@ -6,12 +6,12 @@
   </view>
 
   <view class="body">
-    <ctx-bar />
+    <ctx-bar id="ctxBar" />
     <!-- ============ 结论看板 ============ -->
     <view class="conclusion">
       <view class="conclusion-eyebrow">当前方位 · 一屏结论</view>
       <view class="conclusion-head">{{concSitFace}}</view>
-      <view class="conclusion-sub">坐向来源：{{orientationLabel}} · {{statusText}}</view>
+      <view class="conclusion-sub">坐向来源：{{orientationLabel}}{{headingText ? ' · 朝向 ' + headingText : ''}} · {{statusText}}</view>
       <view class="conclusion-grid">
         <view class="conclusion-cell wide">
           <view class="conclusion-k">玄空格局</view>
@@ -49,6 +49,7 @@
           <view class="input-box">{{sit}} 山 · {{face}} 向</view>
         </view>
       </picker>
+      <view class="btn" wx:if="{{orientationSource === 'manual'}}" style="margin-top:12rpx;" bindtap="resumeCompassFollow">🔄 恢复跟随罗盘实时方位</view>
       <view class="fold-head">
         <text class="fold-label">全盘速览 · 格局</text>
         <text class="fold-toggle" bindtap="toggleDetail">{{showDetail ? '收起详情 ▲' : '展开详情 ▼'}}</text>

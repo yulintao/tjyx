@@ -26,6 +26,12 @@ Component({
     }
   },
 
+  pageLifetimes: {
+    show() {
+      this.refresh();
+    }
+  },
+
   methods: {
     refresh() {
       const s = context.snapshot();

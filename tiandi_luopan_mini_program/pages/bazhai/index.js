@@ -1,6 +1,7 @@
 const BZ = require('../../utils/bazhai');
 const SF = require('../../utils/sitface');
 const store = require('../../utils/store');
+const orientation = require('../../utils/orientation');
 
 const DISPLAY = [4, 9, 2, 3, 5, 7, 8, 1, 6];
 
@@ -25,7 +26,7 @@ Page({
   },
 
   onLoad(options) {
-    let sit = '子';
+    let sit = orientation.current().sit;
     if (options && options.sit && SF.MOUNTAINS_24.indexOf(options.sit) >= 0) sit = options.sit;
     const saved = store.getProfiles();
     const members = (saved && saved.members && saved.members.length)
@@ -94,7 +95,11 @@ Page({
   },
 
   onSitChange(e) {
-    this.setData({ sitIdx: parseInt(e.detail.value, 10) });
+    const sitIdx = parseInt(e.detail.value, 10);
+    this.setData({ sitIdx });
+    orientation.fromManual(SF.MOUNTAINS_24[sitIdx]);
+    const bar = this.selectComponent && this.selectComponent('ctx-bar');
+    if (bar && bar.refresh) bar.refresh();
     this.recompute();
   },
 

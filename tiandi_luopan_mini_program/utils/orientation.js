@@ -70,9 +70,11 @@ function fromManual(sit) {
 
 /** 回到罗盘页：解除手动覆盖，恢复传感器驱动。 */
 function releaseManual() {
-  if (memory && memory.source === 'manual') {
-    memory.source = 'compass';
-    try { api.setStorageSync(KEY, memory); } catch (e) {}
+  const cur = read();
+  if (cur && cur.source === 'manual') {
+    cur.source = 'compass';
+    memory = cur;
+    try { api.setStorageSync(KEY, cur); } catch (e) {}
   }
   return memory;
 }
@@ -119,7 +121,7 @@ function display(state) {
 /** 应用一次性跳转参数时写回全局，保持来源（compass/manual）不变，只更新坐向。 */
 function applyPending(sit, heading) {
   const cur = current();
-  const source = cur.source === 'default' ? 'manual' : cur.source;
+  const source = cur.source === 'default' ? 'compass' : cur.source;
   return write(sit, heading === null || heading === undefined ? undefined : heading, source);
 }
 

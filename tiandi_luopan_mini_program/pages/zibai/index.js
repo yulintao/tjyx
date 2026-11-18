@@ -1,6 +1,7 @@
 const ZB = require('../../utils/zibai');
 const XK = require('../../utils/xuankong');
 const SF = require('../../utils/sitface');
+const orientation = require('../../utils/orientation');
 
 Page({
   data: {
@@ -21,7 +22,7 @@ Page({
   },
 
   onLoad(options) {
-    let sit = '子';
+    let sit = orientation.current().sit;
     if (options && options.sit && SF.MOUNTAINS_24.indexOf(options.sit) >= 0) sit = options.sit;
     const now = new Date();
     this._base = now;

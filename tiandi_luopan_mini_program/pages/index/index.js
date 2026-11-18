@@ -31,6 +31,7 @@ const {
   getFengshuiOrientationInfo
 } = require('../../utils/fengshui-palace');
 const ZR = require('../../utils/zeri');
+const SF = require('../../utils/sitface');
 const orientation = require('../../utils/orientation');
 const CL = require('../../utils/compass-layer');
 const SHA = require('../../utils/sha');
@@ -115,12 +116,12 @@ Page({
     showMountainPicker: false,
     showKongwangModal: false,
     showFenjinModal: false,
-    pickerSitIdx: 0,
-    pickerFaceIdx: 12,
-    pickerSitText: '子 山',
-    pickerFaceText: '午 向',
+    pickerSitIdx: 12,
+    pickerFaceIdx: 0,
+    pickerSitText: '午 山',
+    pickerFaceText: '子 向',
     pickerHeadingText: '0.0°',
-    pickerNames: MOUNTAINS_DATA.map((m) => `${m.name} 山`),
+    pickerNames: SF.MOUNTAINS_24.map((m) => `${m} 山`),
     calibAccuracyText: '✓ 极高 (已自动校准)',
     calibAccClass: '',
     calibClass: '',
@@ -283,11 +284,17 @@ Page({
 
   /** 首屏快捷入口：户型 tab 与化解清单 */
   goFloorplan() {
-    nav.go('/pages/floorplan/index', {});
+    const h = (this.data.isHeadingLocked ? this.lockedHeading : this.currentHeading);
+    const heading = (h === null || h === undefined || isNaN(h)) ? 0 : h;
+    const diag = getSitAndFaceDiagnosis(heading);
+    nav.go('/pages/floorplan/index', { sit: diag.sitMt, heading });
   },
 
   goRemedy() {
-    nav.go('/pages/remedy/index', {});
+    const h = (this.data.isHeadingLocked ? this.lockedHeading : this.currentHeading);
+    const heading = (h === null || h === undefined || isNaN(h)) ? 0 : h;
+    const diag = getSitAndFaceDiagnosis(heading);
+    nav.go('/pages/remedy/index', { sit: diag.sitMt, heading });
   },
 
   onLoad() {
@@ -310,8 +317,10 @@ Page({
   onShow() {
     // iOS RootContentView：罗盘/盘解页保持屏幕常亮，便于现场持机测绘
     if (typeof wx.setKeepScreenOn === 'function') wx.setKeepScreenOn({ keepScreenOn: true });
-    // 回到罗盘即恢复传感器驱动，解除业务页的手动坐山覆盖
+    // 回到罗盘即恢复传感器驱动，解除业务页的手动坐山覆盖，并强制写回当前朝向
     orientation.releaseManual();
+    this.updateAllFengshuiStatus(true);
+    this.refreshConclusion();
     if (!this.isCompassRunning && this.canvas) {
       this.startCompassListener();
       this.startMotionListener();
@@ -1161,7 +1170,7 @@ Page({
       headingDescTrue: `${dirNameTrue} ${trueHeading.toFixed(0)}°`,
       declSummary: declText
     });
-    this.updateAllFengshuiStatus(false);
+    this.updateAllFengshuiStatus(!!force);
   },
 
   /**
@@ -1310,9 +1319,9 @@ Page({
 
   refreshPickerText() {
     const h = ((this.getEffectiveHeading() % 360) + 360) % 360;
-    const sitIdx = Math.round(h / 15) % 24;
-    const faceIdx = (sitIdx + 12) % 24;
-    const names = MOUNTAINS_DATA.map((m) => m.name);
+    const faceIdx = Math.round(h / 15) % 24;
+    const sitIdx = (faceIdx + 12) % 24;
+    const names = SF.MOUNTAINS_24;
     this.setData({
       pickerSitIdx: sitIdx,
       pickerFaceIdx: faceIdx,
@@ -1324,20 +1333,21 @@ Page({
 
   onPickSit(e) {
     const idx = parseInt(e.detail.value, 10);
-    const names = MOUNTAINS_DATA.map((m) => m.name);
+    const names = SF.MOUNTAINS_24;
     // 坐山定则向首自动取对宫
     const faceIdx = (idx + 12) % 24;
     this.setData({
       pickerSitIdx: idx,
       pickerFaceIdx: faceIdx,
       pickerSitText: `${names[idx]} 山`,
-      pickerFaceText: `${names[faceIdx]} 向`
+      pickerFaceText: `${names[faceIdx]} 向`,
+      pickerHeadingText: `${(faceIdx * 15).toFixed(1)}°`
     });
   },
 
   onPickFace(e) {
     const idx = parseInt(e.detail.value, 10);
-    const names = MOUNTAINS_DATA.map((m) => m.name);
+    const names = SF.MOUNTAINS_24;
     const sitIdx = (idx + 12) % 24;
     this.setData({
       pickerFaceIdx: idx,
@@ -1353,6 +1363,7 @@ Page({
     const base = this.data.isHeadingLocked ? this.lockedHeading : this.currentHeading;
     this.lockedHeading = ((base + delta) % 360 + 360) % 360;
     this.setData({ isHeadingLocked: true });
+    orientation.releaseManual();
     this.refreshPickerText();
     this.updateCompassInfo(true);
     this.scheduleCompassDraw();
@@ -1363,10 +1374,12 @@ Page({
     // 以「向首」度数对齐锁定角：向首即实测 heading
     this.lockedHeading = (this.data.pickerFaceIdx * 15) % 360;
     this.setData({ isHeadingLocked: true, showMountainPicker: false });
+    orientation.releaseManual();
+    orientation.fromCompass(this.lockedHeading);
     this.updateCompassInfo(true);
     this.scheduleCompassDraw();
     this.persistLockState();
-    const names = MOUNTAINS_DATA.map((m) => m.name);
+    const names = SF.MOUNTAINS_24;
     wx.showToast({
       title: `已立 ${names[this.data.pickerSitIdx]}山${names[this.data.pickerFaceIdx]}向`,
       icon: 'none'

@@ -2,6 +2,7 @@ const TJ = require('../../utils/tianji');
 const SF = require('../../utils/sitface');
 const SP = require('../../utils/scroll-painter');
 const store = require('../../utils/store');
+const orientation = require('../../utils/orientation');
 
 Page({
   data: {
@@ -27,14 +28,18 @@ Page({
   toggleScroll() { this.setData({ showScroll: !this.data.showScroll }); },
 
   onLoad(options) {
-    let sit = '子';
+    let sit = orientation.current().sit;
     if (options && options.sit && SF.MOUNTAINS_24.indexOf(options.sit) >= 0) sit = options.sit;
     this.setData({ sitIdx: SF.MOUNTAINS_24.indexOf(sit) });
     this.recompute();
   },
 
   onSitChange(e) {
-    this.setData({ sitIdx: parseInt(e.detail.value, 10) });
+    const sitIdx = parseInt(e.detail.value, 10);
+    this.setData({ sitIdx });
+    orientation.fromManual(SF.MOUNTAINS_24[sitIdx]);
+    const bar = this.selectComponent && this.selectComponent('ctx-bar');
+    if (bar && bar.refresh) bar.refresh();
     this.recompute();
   },
 
