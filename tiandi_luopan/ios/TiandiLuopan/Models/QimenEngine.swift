@@ -136,7 +136,7 @@ public struct QimenDoor {
             matches: [localizedName + " · " + String(palace)])
     }
 
-    private var classicalSourceNote: String {
+    public var classicalSourceNote: String {
         sourceReference.localizedText + "\n" + LocalizationManager.shared.t("ref_scope_note")
     }
 }

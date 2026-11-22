@@ -1428,6 +1428,7 @@ public final class RetentionServiceManager: ObservableObject {
     }
 
     /// 注册 iOS 主屏幕长按快捷入口 (Quick Actions) 与系统 Spotlight 搜索索引 (CoreSpotlight)
+    /// 仅保留空间测绘与户型分析快捷入口，彻底移除算命/财神/日签/奇门入口（App Store 4.3(b) 合规）。
     public func registerSystemShortcutsAndSpotlight() {
         let lang = LocalizationManager.shared.effectiveLanguage
         let s1Title: String; let s1Sub: String
@@ -1436,82 +1437,81 @@ public final class RetentionServiceManager: ObservableObject {
         let s4Title: String; let s4Sub: String
         switch lang {
         case .en:
-            s1Title = "Daily Wealth & Joy Compass"; s1Sub = "Locate today's auspicious directions"
-            s2Title = "Daily Auspicious Sign Card"; s2Sub = "Generate & share today's fortune card"
-            s3Title = "Floorplan 9-Palace Audit"; s3Sub = "Check room layout & owner Life Gua"
-            s4Title = "Qi Men Decision Guide"; s4Sub = "Best hour & direction for contracts/wealth"
+            s1Title = "Floorplan Spatial Survey"; s1Sub = "Import blueprint, edit rooms & 3D model"
+            s2Title = "AR / LiDAR Measurement"; s2Sub = "Scan quality, polygon area & distance"
+            s3Title = "Azimuth Instrument"; s3Sub = "True north WMM declination & spirit level"
+            s4Title = "Calculation Modules"; s4Sub = "Verifiable XuanKong, BaZhai & QiMen tables"
         case .zhHant:
-            s1Title = "今日財神與吉方導引"; s1Sub = "一鍵開啟羅盤財神喜神金標"
-            s2Title = "今日吉方日籤海報"; s2Sub = "生成黑金國風日課分享卡"
-            s3Title = "戶型九宮立極體檢"; s3Sub = "多套宅譜對比與智能分房"
-            s4Title = "奇門遁甲辦事吉方"; s4Sub = "簽約求財出行一事一斷"
+            s1Title = "戶型空間測繪"; s1Sub = "導入圖紙、房間識別與 3D 建模"
+            s2Title = "AR / LiDAR 空間測量"; s2Sub = "掃描質量評分、多邊形面積與測距"
+            s3Title = "專業電子方位儀"; s3Sub = "真北磁偏角校正、磁場與雙軸水平儀"
+            s4Title = "可驗證數理計算"; s4Sub = "玄空、八宅、三合與奇門算法排盤"
         case .ja:
-            s1Title = "本日の財神・吉方位ガイド"; s1Sub = "羅盤で吉方位を即座に確認"
-            s2Title = "本日の吉籤カード作成"; s2Sub = "日課カードを保存・共有"
-            s3Title = "間取り九宮風水診断"; s3Sub = "複数物件比較と部屋割推奨"
-            s4Title = "奇門遁甲・用事別吉方"; s4Sub = "契約・金運・外出の吉方"
+            s1Title = "間取り空間測量"; s1Sub = "図面読込・部屋編集・3D モデル"
+            s2Title = "AR / LiDAR 計測"; s2Sub = "スキャン品質・多角形面積・距離測定"
+            s3Title = "高精度方位計"; s3Sub = "真北磁気偏角補正・磁場・二軸水準器"
+            s4Title = "数理計算モジュール"; s4Sub = "検証可能な玄空・八宅・奇門計算"
         case .ko:
-            s1Title = "오늘의 재신·길방 가이드"; s1Sub = "나침반 길방 마커 바로 켜기"
-            s2Title = "오늘의 길첨 카드"; s2Sub = "일과 길방 포스터 생성 및 공유"
-            s3Title = "평면도 구궁 풍수 진단"; s3Sub = "다주택 비교 및 맞춤 방 추천"
-            s4Title = "기문둔갑 용건별 길방"; s4Sub = "계약·재물·출행 길방 속람"
+            s1Title = "평면도 공간 측량"; s1Sub = "도면 가져오기·방 편집·3D 모델"
+            s2Title = "AR / LiDAR 공간 측정"; s2Sub = "스캔 품질·다각형 면적·거리 계측"
+            s3Title = "정밀 전자 방위계"; s3Sub = "진북 편각 보정·자기장·2축 수평계"
+            s4Title = "수리 계산 모듈"; s4Sub = "검증 가능한 현공·팔택·기문 계산"
         case .vi:
-            s1Title = "Hướng Thần Tài & Hỷ Thần"; s1Sub = "Mở nhanh kim chỉ nam cát phương"
-            s2Title = "Thẻ Cát Phương Hôm Nay"; s2Sub = "Tạo & chia sẻ thẻ nhật khóa"
-            s3Title = "Khám Phong Thủy Mặt Bằng"; s3Sub = "So sánh căn hộ & gợi ý phân phòng"
-            s4Title = "Kỳ Môn Cát Phương Theo Việc"; s4Sub = "Ký kết, cầu tài, xuất hành"
+            s1Title = "Khảo Sát Mặt Bằng"; s1Sub = "Nhập bản vẽ, chỉnh phòng & mô hình 3D"
+            s2Title = "Đo Đạc AR / LiDAR"; s2Sub = "Chất lượng quét, diện tích đa giác & khoảng cách"
+            s3Title = "Thước Đo Phương Vị"; s3Sub = "Bắc thực WMM, từ trường & thước thủy 2 trục"
+            s4Title = "Mô-đun Tính Toán"; s4Sub = "Bảng tính Huyền Không, Bát Trạch & Kỳ Môn"
         case .th:
-            s1Title = "นำทางทิศเทพโชคลาภวันนี้"; s1Sub = "เปิดเข็มทิศชี้ทิศมงคลทันที"
-            s2Title = "การ์ดมงคลประจำวัน"; s2Sub = "สร้างและแชร์การ์ดฤกษ์มงคล"
-            s3Title = "ตรวจฮวงจุ้ยผังบ้าน 9 วัง"; s3Sub = "เปรียบเทียบผังบ้านและจัดห้อง"
-            s4Title = "ฉีเหมินชี้ทิศตามธุระ"; s4Sub = "เซ็นสัญญา โชคลาภ เดินทาง"
+            s1Title = "สำรวจผังพื้นที่บ้าน"; s1Sub = "นำเข้าแปลน แก้ไขห้อง และโมเดล 3D"
+            s2Title = "วัดพื้นที่ AR / LiDAR"; s2Sub = "คะแนนคุณภาพสแกน พื้นที่หลายเหลี่ยม และระยะทาง"
+            s3Title = "เครื่องวัดทิศแม่นยำ"; s3Sub = "ทิศเหนือจริง WMM สนามแม่เหล็ก และระดับน้ำ 2 แกน"
+            s4Title = "โมดูลคำนวณ"; s4Sub = "ตารางคำนวณที่ตรวจสอบได้และรายงาน"
         case .id:
-            s1Title = "Panduan Arah Rezeki Hari Ini"; s1Sub = "Buka penunjuk arah hoki di kompas"
-            s2Title = "Kartu Keberuntungan Harian"; s2Sub = "Buat & bagikan kartu harian"
-            s3Title = "Audit Denah 9 Istana"; s3Sub = "Bandingkan properti & rekomendasi kamar"
-            s4Title = "Panduan Qi Men Sesuai Urusan"; s4Sub = "Kontrak, rezeki, perjalanan"
+            s1Title = "Survei Spasial Denah"; s1Sub = "Impor denah, edit ruang & model 3D"
+            s2Title = "Pengukuran AR / LiDAR"; s2Sub = "Kualitas pindai, luas poligon & jarak"
+            s3Title = "Instrumen Azimut"; s3Sub = "Utara sejati WMM, medan magnet & waterpas"
+            s4Title = "Modul Perhitungan"; s4Sub = "Tabel XuanKong, BaZhai & QiMen terverifikasi"
         case .auto, .zhHans:
-            s1Title = "今日财神与吉方导引"; s1Sub = "一键开启罗盘财神喜神金标"
-            s2Title = "今日吉方日签海报"; s2Sub = "生成黑金国风日课分享卡"
-            s3Title = "户型九宫立极体检"; s3Sub = "多套宅谱对比与智能分房"
-            s4Title = "奇门遁甲办事吉方"; s4Sub = "签约求财出行一事一断"
+            s1Title = "户型空间测绘"; s1Sub = "导入图纸、房间识别与 3D 建模"
+            s2Title = "AR / LiDAR 空间测量"; s2Sub = "扫描质量评分、多边形面积与测距"
+            s3Title = "专业电子方位仪"; s3Sub = "真北磁偏角校正、磁场与双轴水平仪"
+            s4Title = "可验证数理计算"; s4Sub = "玄空、八宅、三合与奇门算法排盘"
         }
 
         DispatchQueue.main.async {
             UIApplication.shared.shortcutItems = [
                 UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.dailygods",
+                    type: "com.yanxiang.compass.shortcut.floorplan",
                     localizedTitle: s1Title,
                     localizedSubtitle: s1Sub,
+                    icon: UIApplicationShortcutIcon(systemImageName: "house.fill")
+                ),
+                UIApplicationShortcutItem(
+                    type: "com.yanxiang.compass.shortcut.ar",
+                    localizedTitle: s2Title,
+                    localizedSubtitle: s2Sub,
+                    icon: UIApplicationShortcutIcon(systemImageName: "camera.viewfinder")
+                ),
+                UIApplicationShortcutItem(
+                    type: "com.yanxiang.compass.shortcut.compass",
+                    localizedTitle: s3Title,
+                    localizedSubtitle: s3Sub,
                     icon: UIApplicationShortcutIcon(systemImageName: "safari.fill")
                 ),
                 UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.dailysign",
-                    localizedTitle: s2Title,
-                    localizedSubtitle: s2Sub,
-                    icon: UIApplicationShortcutIcon(systemImageName: "sparkles.rectangle.stack.fill")
-                ),
-                UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.floorplan",
-                    localizedTitle: s3Title,
-                    localizedSubtitle: s3Sub,
-                    icon: UIApplicationShortcutIcon(systemImageName: "square.split.bottomrightquarter.fill")
-                ),
-                UIApplicationShortcutItem(
-                    type: "com.yanxiang.compass.shortcut.qimen",
+                    type: "com.yanxiang.compass.shortcut.analysis",
                     localizedTitle: s4Title,
                     localizedSubtitle: s4Sub,
-                    icon: UIApplicationShortcutIcon(systemImageName: "timelapse")
+                    icon: UIApplicationShortcutIcon(systemImageName: "square.grid.3x3.fill")
                 )
             ]
         }
 
-        // CoreSpotlight 索引注册，支持用户在 iOS 负一屏下拉搜索“财神方位”、“黄道吉日”、“户型风水”、“奇门遁甲”直达本 App
         let entries: [(id: String, title: String, desc: String, keywords: [String])] = [
-            ("tiandiluopan://compass?guide=dailyGods", s1Title, s1Sub, ["财神", "喜神", "罗盘", "吉方", "Compass", "Wealth", "Fengshui"]),
-            ("tiandiluopan://compass?sheet=dailySign", s2Title, s2Sub, ["日签", "黄历", "吉日", "Almanac", "Sign"]),
-            ("tiandiluopan://tab?index=3", s3Title, s3Sub, ["户型", "分房", "缺角", "八宅", "Floorplan", "Room"]),
-            ("tiandiluopan://tab?index=2&sub=qimen", s4Title, s4Sub, ["奇门遁甲", "出行", "签约", "求财", "Qimen"])
+            ("tiandiluopan://floorplan", s1Title, s1Sub, ["户型", "图纸", "3D", "CAD", "Floorplan", "Blueprint"]),
+            ("tiandiluopan://ar", s2Title, s2Sub, ["AR", "LiDAR", "测距", "扫房", "空间测绘", "Spatial", "Survey"]),
+            ("tiandiluopan://compass", s3Title, s3Sub, ["方位仪", "真北", "磁偏角", "水平仪", "Azimuth", "Bearing"]),
+            ("tiandiluopan://analysis", s4Title, s4Sub, ["玄空", "八宅", "三合", "奇门", "计算", "Calculation"])
         ]
         var searchableItems: [CSSearchableItem] = []
         for entry in entries {
@@ -1522,7 +1522,9 @@ public final class RetentionServiceManager: ObservableObject {
             let item = CSSearchableItem(uniqueIdentifier: entry.id, domainIdentifier: "com.yanxiang.compass", attributeSet: attr)
             searchableItems.append(item)
         }
-        CSSearchableIndex.default().indexSearchableItems(searchableItems, completionHandler: nil)
+        CSSearchableIndex.default().deleteSearchableItems(withDomainIdentifiers: ["com.yanxiang.compass"]) { _ in
+            CSSearchableIndex.default().indexSearchableItems(searchableItems, completionHandler: nil)
+        }
     }
 
     /// 是否正处于自动化 UI 测试或截图流水线环境（避免弹窗干扰自动化测试）
@@ -1706,29 +1708,29 @@ public final class RetentionServiceManager: ObservableObject {
         let content = UNMutableNotificationContent()
         switch LocalizationManager.shared.effectiveLanguage {
         case .en:
-            content.title = "Solar Term Transition · \(nextTermName)"
-            content.body = "Monthly Flying Stars and Qi shift today. Open Tiandi Luopan to check your home's auspicious directions."
+            content.title = "Solar Term · \(nextTermName)"
+            content.body = "Today marks the astronomical solar term \(nextTermName). Check seasonal daylight angles for your space."
         case .zhHant:
-            content.title = "節氣交節提醒 · 今日【\(nextTermName)】"
-            content.body = "節氣更迭，流月紫白九星氣場今日換局，點擊查看本宅最新流月財位與吉凶宜忌。"
+            content.title = "二十四節氣 · 今日【\(nextTermName)】"
+            content.body = "今日進入天文節氣「\(nextTermName)」，可結合日照與季節變化規劃居家通風與採光。"
         case .ja:
-            content.title = "節気交節リマインダー・本日【\(nextTermName)】"
-            content.body = "節気が切り替わり、流月紫白九星の気場が更新されました。今月の財位と吉凶方位を確認しましょう。"
+            content.title = "二十四節気・本日【\(nextTermName)】"
+            content.body = "本日は天文学上の節気「\(nextTermName)」です。季節の日照と採光計画の参考にしてください。"
         case .ko:
-            content.title = "절기 교절 알림 · 오늘 【\(nextTermName)】"
-            content.body = "절기가 바뀌며 유월 자백구성 기장이 전환되었습니다. 이달의 재물방과 길흉 방위를 확인하세요."
+            content.title = "24절기 · 오늘 【\(nextTermName)】"
+            content.body = "오늘은 천문 절기 '\(nextTermName)'입니다. 계절별 일조량과 공간 채광 계획에 참고하세요."
         case .vi:
-            content.title = "Nhắc Nhở Giao Tiết Khí · Hôm Nay 【\(nextTermName)】"
-            content.body = "Tiết khí chuyển giao, Cửu Tinh lưu nguyệt đổi cục hôm nay. Mở ứng dụng để xem tài vị và hướng tốt."
+            content.title = "Tiết Khí · Hôm Nay 【\(nextTermName)】"
+            content.body = "Hôm nay là tiết khí \(nextTermName). Tham khảo góc nắng theo mùa cho bố cục không gian."
         case .th:
-            content.title = "แจ้งเตือนเปลี่ยน절기 · วันนี้ 【\(nextTermName)】"
-            content.body = "เปลี่ยนสาร์ท절기 ดาวบินประจำเดือนเปลี่ยน局วันนี้ เปิดแอปเพื่อตรวจทิศโชคลาภและฤกษ์มงคล"
+            content.title = "ฤดูกาลสุริยคติ · วันนี้ 【\(nextTermName)】"
+            content.body = "วันนี้เข้าสู่ช่วง \(nextTermName) ใช้ประกอบการวางแผนแสงแดดและการระบายอากาศตามฤดูกาล"
         case .id:
-            content.title = "Pengingat Pergantian Musim · Hari Ini 【\(nextTermName)】"
-            content.body = "Bintang Terbang bulanan berganti hari ini. Buka Tiandi Luopan untuk memeriksa arah keberuntungan rumah Anda."
+            content.title = "Musim Surya · Hari Ini 【\(nextTermName)】"
+            content.body = "Hari ini memasuki periode \(nextTermName). Gunakan sebagai referensi pencahayaan alami musiman."
         case .auto, .zhHans:
-            content.title = "节气交节提醒 · 今日【\(nextTermName)】"
-            content.body = "节气更迭，流月紫白九星气场今日换局，点击查看本宅最新流月财位与吉凶宜忌。"
+            content.title = "二十四节气 · 今日【\(nextTermName)】"
+            content.body = "今日进入天文节气「\(nextTermName)」，可结合日照与季节变化规划居家通风与采光。"
         }
         content.sound = .default
 

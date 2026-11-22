@@ -14,7 +14,7 @@ public struct House3DSpaceViewer: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
     @State private var viewMode: ViewAngleMode = .perspective
-    @State private var palaceGridMode: PalaceGridMode = .baZhai
+    @State private var palaceGridMode: PalaceGridMode = .off
     @ObservedObject private var iap = StoreKitIAPManager.shared
     @State private var showPaywall: Bool = false
     @State private var showDimensions: Bool = true
@@ -183,20 +183,6 @@ public struct House3DSpaceViewer: View {
                 // 操作区放进横向滚动兜底；关闭键留在外面常驻可点。
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        // 传统文化参考评分徽章
-                        HStack(spacing: 4) {
-                            Text(lang.t("3d_score_label"))
-                                .adaptiveFont(size: 11, weight: .medium)
-                                .foregroundColor(.white.opacity(0.7))
-                            Text("\(survey.fengshuiScore)")
-                                .adaptiveFont(size: 14, weight: .bold, design: .monospaced)
-                                .foregroundColor(scoreColor(survey.fengshuiScore))
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.12))
-                        .cornerRadius(12)
-
                         // 导出 CAD DXF 矢量图
                         Button(action: exportAndShareDXF) {
                             HStack(spacing: 3) {
@@ -561,27 +547,6 @@ public struct House3DSpaceViewer: View {
                 }
 
                 Spacer()
-
-                // 理气盘模式切换 (八宅 / 玄空 / 关)
-                Button(action: {
-                    switch palaceGridMode {
-                    case .baZhai: palaceGridMode = .xuanKong
-                    case .xuanKong: palaceGridMode = .off
-                    case .off: palaceGridMode = .baZhai
-                    }
-                }) {
-                    HStack(spacing: 2) {
-                        Image(systemName: "square.grid.3x3.fill")
-                        Text(palaceGridMode == .baZhai ? lang.t("3d_grid_bazhai") : (palaceGridMode == .xuanKong ? lang.t("3d_grid_xuankong") : lang.t("3d_grid_off")))
-                    }
-                    .adaptiveFont(size: 10, weight: .bold)
-                    .foregroundColor(palaceGridMode != .off ? .yanGold : .white.opacity(0.6))
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 6)
-                    .background(Color.white.opacity(0.12))
-                    .cornerRadius(8)
-                }
-                .accessibilityLabel(lang.t("3d_grid_bazhai"))
 
                 // 尺寸标注开关
                 Button(action: { showDimensions.toggle() }) {

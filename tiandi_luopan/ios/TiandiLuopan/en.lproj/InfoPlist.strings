@@ -3,9 +3,9 @@
 "CFBundleName" = "TianJi YanXiang";
 
 /* Privacy Descriptions */
-"NSLocationWhenInUseUsageDescription" = "TianJi YanXiang uses your location to calculate precise coordinates, elevation, magnetic declination, and true solar time.";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "TianJi YanXiang uses your location to calculate precise coordinates, elevation, magnetic declination, and true solar time.";
-"NSMotionUsageDescription" = "TianJi YanXiang uses motion sensors to drive the dual-axis digital level and precision compass.";
-"NSCameraUsageDescription" = "TianJi YanXiang uses the camera for AR orientation, spatial surveying, and on-site Sha analysis.";
-"NSPhotoLibraryAddUsageDescription" = "TianJi YanXiang needs permission to save survey snapshots and cultural reference scrolls to your photo library.";
-"NSPhotoLibraryUsageDescription" = "TianJi YanXiang needs photo library access to import floor plans and save survey scrolls and snapshots.";
+"NSLocationWhenInUseUsageDescription" = "TianJi YanXiang uses your location only when you enable orientation calibration to compute local magnetic declination and architectural facing reference.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "TianJi YanXiang uses your location only when you enable orientation calibration to compute local magnetic declination and architectural facing reference.";
+"NSMotionUsageDescription" = "TianJi YanXiang uses motion sensors during AR spatial surveying and level calibration to measure device tilt and spatial alignment.";
+"NSCameraUsageDescription" = "TianJi YanXiang uses the camera for AR spatial measurement, LiDAR 3D room scanning, and on-site survey snapshots.";
+"NSPhotoLibraryAddUsageDescription" = "TianJi YanXiang needs permission to save floorplan reports and on-site survey snapshots to your photo library.";
+"NSPhotoLibraryUsageDescription" = "TianJi YanXiang needs photo library access to import floorplan blueprints and save spatial survey reports.";

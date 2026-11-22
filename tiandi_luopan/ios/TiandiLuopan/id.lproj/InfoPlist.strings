@@ -3,9 +3,9 @@
 "CFBundleName" = "TianJi";
 
 /* Privacy Descriptions */
-"NSLocationWhenInUseUsageDescription" = "TianJi YanXiang memerlukan akses lokasi untuk menghitung koordinat, ketinggian, deklinasi magnetik, dan waktu surya sejati.";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "TianJi YanXiang memerlukan akses lokasi untuk menghitung koordinat, ketinggian, deklinasi magnetik, dan waktu surya sejati.";
-"NSMotionUsageDescription" = "TianJi YanXiang menggunakan sensor gerak presisi tinggi untuk menggerakkan waterpas dua sumbu dan kompas.";
-"NSCameraUsageDescription" = "TianJi YanXiang memerlukan akses kamera untuk orientasi AR, survei spasial, dan analisis bentuk Sha di lokasi.";
-"NSPhotoLibraryAddUsageDescription" = "TianJi YanXiang memerlukan izin untuk menyimpan foto bukti survei dan gulungan referensi ke galeri Anda.";
-"NSPhotoLibraryUsageDescription" = "TianJi YanXiang memerlukan akses galeri foto untuk mengimpor denah rumah dan menyimpan hasil survei.";
+"NSLocationWhenInUseUsageDescription" = "TianJi YanXiang hanya menggunakan lokasi saat Anda mengaktifkan kalibrasi orientasi untuk menghitung deklinasi magnetik dan referensi arah bangunan.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "TianJi YanXiang hanya menggunakan lokasi saat Anda mengaktifkan kalibrasi orientasi untuk menghitung deklinasi magnetik dan referensi arah bangunan.";
+"NSMotionUsageDescription" = "TianJi YanXiang menggunakan sensor gerak saat survei ruang AR dan kalibrasi level untuk menampilkan kemiringan perangkat.";
+"NSCameraUsageDescription" = "TianJi YanXiang memerlukan akses kamera untuk pengukuran ruang AR, pemindaian ruangan 3D LiDAR, dan foto survei lapangan.";
+"NSPhotoLibraryAddUsageDescription" = "TianJi YanXiang memerlukan izin untuk menyimpan laporan denah dan foto survei lapangan ke galeri Anda.";
+"NSPhotoLibraryUsageDescription" = "TianJi YanXiang memerlukan akses galeri foto untuk mengimpor denah rumah dan menyimpan laporan survei spasial.";

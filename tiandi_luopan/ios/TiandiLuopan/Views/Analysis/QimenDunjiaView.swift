@@ -80,19 +80,14 @@ public struct QimenDunjiaView: View {
             }
             .padding(.horizontal, 16)
 
-            // P0.3 时辰穿越控制栏（每 2 小时换一局，支持提前推演谈判/出行时辰）
+            // P0.3 时辰穿越控制栏（每 2 小时换一局，支持任意时刻历法排盘校验）
             qimenTimeControlBar()
                 .padding(.horizontal, 16)
-
-            // P3.3 奇门遁甲「场景化一事一断」速查向导条
-            qimenScenarioSelectorBar(chart: chart)
-                .padding(.horizontal, 16)
             
-            // P0.2 开放 3x3 奇门九宫方阵预览 (天地人神四盘可点选查看八门九星)
+            // 3x3 奇门九宫方阵（天地人神四盘确定性排盘矩阵，点击任意宫位查看参数详情）
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
-                let rec = QimenEngine.shared.evaluateScenario(selectedScenario, chart: chart, heading: motion.headingState.facingAngle)
                 ForEach(chart.cells) { cell in
-                    let activeId = selectedPalaceId ?? rec.recommendedPalaceId
+                    let activeId = selectedPalaceId ?? 4
                     qimenCellView(cell: cell, isSelected: cell.palaceId == activeId)
                         .onTapGesture {
                             selectedPalaceId = cell.palaceId
@@ -104,68 +99,67 @@ public struct QimenDunjiaView: View {
             .padding(.horizontal, isLargeLayout ? 0 : 16)
             }
             } analysis: {
-            // 选中宫门星神摘要与出行动身方位导航（展开态右栏 / 折叠态底部）
+            // 选中宫位四盘参数明细与可验证天文历法依据（移除占卜/求财/出行预测卡片）
             VStack(spacing: 12) {
-                let rec = QimenEngine.shared.evaluateScenario(selectedScenario, chart: chart, heading: motion.headingState.facingAngle)
-                qimenScenarioGuideCard(rec: rec)
-                    .padding(.horizontal, 16)
-
-                if let activeCell = chart.cells.first(where: { $0.palaceId == (selectedPalaceId ?? rec.recommendedPalaceId) }), !activeCell.isTaiJiCenter {
-                    let doorObj = QimenDoor(name: activeCell.doorName, palace: activeCell.palaceId, isAuspicious: activeCell.isDoorAuspicious, luckType: activeCell.doorLuck, lore: "")
-                    HStack(spacing: 8) {
-                        Text("【\(activeCell.localizedPalaceName)】")
-                            .adaptiveFont(size: 11, weight: .bold)
-                            .foregroundColor(Color.yanCyan)
-                        Text("\(activeCell.localizedDoorName) [\(doorObj.localizedLuckType)] · \(activeCell.localizedGodName) · \(activeCell.localizedStarName)")
-                            .adaptiveFont(size: 11, weight: .semibold)
-                            .foregroundColor(activeCell.isDoorAuspicious ? .green : (activeCell.isDoorInauspicious ? .red : Color(red: 0.95, green: 0.85, blue: 0.45)))
+                let solar = SolarTimeCalculator.shared.calculate(
+                    date: effectiveDate,
+                    longitude: motion.hasLocationFix ? motion.longitude : 120.0
+                )
+                let isEn = (lang.effectiveLanguage == .en)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Image(systemName: "function")
+                            .foregroundColor(.yanCyan)
+                        Text(isEn ? "ChaiBu Calendrical Parameters" : "时家奇门 · 拆补法排盘参数校验")
+                            .adaptiveFont(size: 12, weight: .bold)
+                            .foregroundColor(.white)
                         Spacer()
+                        Text("\(chart.dunType) · \(chart.juNumber)")
+                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.yanGold.opacity(0.2))
+                            .foregroundColor(.yanGold)
+                            .cornerRadius(4)
                     }
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 10)
+                    Text("\(isEn ? "Solar Term" : "节气")：\(solar.solarTermName) · \(isEn ? "Four Pillars" : "干支四柱")：\(solar.baziGanzhi)")
+                        .adaptiveFont(size: 10.5, design: .monospaced)
+                        .foregroundColor(.white.opacity(0.82))
+                    Text(isEn
+                         ? "Deterministic 4-layer matrix (Earth Palace / Heaven Star / Human Gate / Spirit) derived from astronomical solar longitude and stem-branch cycle."
+                         : "依据天文太阳黄经定节气与干支时柱，按传统拆补法定阴阳遁局数，生成天地人神四盘对应矩阵，可供独立手工复核。")
+                        .adaptiveFont(size: 10)
+                        .foregroundColor(.white.opacity(0.65))
+                }
+                .padding(10)
+                .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.yanCyan.opacity(0.25), lineWidth: 1)
+                )
+                .padding(.horizontal, 16)
+
+                if let activeCell = chart.cells.first(where: { $0.palaceId == (selectedPalaceId ?? 4) }), !activeCell.isTaiJiCenter {
+                    let doorObj = QimenDoor(name: activeCell.doorName, palace: activeCell.palaceId, isAuspicious: activeCell.isDoorAuspicious, luckType: activeCell.doorLuck, lore: "")
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 8) {
+                            Text("【\(activeCell.localizedPalaceName)】")
+                                .adaptiveFont(size: 12, weight: .bold)
+                                .foregroundColor(Color.yanCyan)
+                            Text("\(activeCell.localizedDoorName) · \(activeCell.localizedGodName) · \(activeCell.localizedStarName)")
+                                .adaptiveFont(size: 11.5, weight: .semibold)
+                                .foregroundColor(.white)
+                            Spacer()
+                        }
+                        Text(doorObj.classicalSourceNote)
+                            .adaptiveFont(size: 10)
+                            .foregroundColor(.white.opacity(0.72))
+                    }
+                    .padding(10)
                     .background(Color.white.opacity(0.05))
                     .cornerRadius(8)
                     .padding(.horizontal, 16)
-                }
-
-                if iap.hasUnlockedVIP {
-                    // 出行动身方位导航卡
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Image(systemName: "location.north.circle.fill")
-                                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
-                            Text(lang.t("qimen_travel_best"))
-                                .adaptiveFont(size: 12, weight: .bold)
-                                .foregroundColor(.white)
-                            Spacer()
-                            Text(lang.t("qimen_pattern_best"))
-                                .adaptiveFont(size: 10)
-                                .foregroundColor(.green)
-                        }
-                        
-                        Text("\(lang.t("qimen_best_nav"))【\(chart.bestNavDirection)】！\(chart.bestNavReason)")
-                            .adaptiveFont(size: 11)
-                            .foregroundColor(Color.green)
-                            .lineLimit(2)
-                        
-                        if !chart.tabooDirections.isEmpty {
-                            Text("\(lang.t("qimen_taboo_nav"))【\(chart.tabooDirections)】\(lang.t("qimen_taboo_suffix"))")
-                                .adaptiveFont(size: 11)
-                                .foregroundColor(Color.orange)
-                                .lineLimit(2)
-                        }
-                    }
-                    .padding(10)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.2), lineWidth: 1)
-                    )
-                    .padding(.horizontal, 16)
-                } else {
-                    qimenVIPPreviewCard()
-                        .padding(.horizontal, 16)
                 }
             }
             }

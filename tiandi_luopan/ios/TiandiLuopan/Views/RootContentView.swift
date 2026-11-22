@@ -548,11 +548,9 @@ public struct RootContentView: View {
     private let motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
     @State private var selectedTab: Int
-    /// 保留旧子页索引用于链接兼容；菜单导航使用独立功能请求。
     @State private var analysisSubTab: Int = 0
     @State private var analysisFeatureRequest: AnalysisFeatureRequest?
-    @State private var showOnboarding: Bool = false
-    @State private var showShortcutDailyCard: Bool = false
+    @State private var showWorkflowReportSheet: Bool = false
     // 读取 size class 建立环境依赖：折叠/展开（或 iPad 分屏拖动）切换时本视图
     // 重渲染并级联子视图 body 重算，使 Font.adaptive 的静态查询同步刷新
     //（配合 body 尾部 onChange 一起生效）。
@@ -571,12 +569,16 @@ public struct RootContentView: View {
         if let tabArgIndex = CommandLine.arguments.firstIndex(of: "-selectedTab"),
            tabArgIndex + 1 < CommandLine.arguments.count,
            let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]) {
-            initialTab = tabValue
+            initialTab = Self.clampedTabIndex(tabValue)
         }
         _selectedTab = State(initialValue: initialTab)
         
         // 自定义原生 TabBar 深色黑金质感外观（折叠/展开切换时 onChange 会重调以刷新字号）
         Self.applyTabBarAppearance(isLargeLayout: UITraitCollection.current.horizontalSizeClass == .regular)
+    }
+
+    private static func clampedTabIndex(_ raw: Int) -> Int {
+        max(0, min(4, raw))
     }
 
     /// 同步刷新布局环境值：只在值真正变化时写 @State，避免无谓重绘。
@@ -665,31 +667,31 @@ public struct RootContentView: View {
     
     public var body: some View {
         TabView(selection: $selectedTab) {
-            // Tab 1: 主罗盘与天心十道 (含120分金、64卦、24山、双轴水准仪、空亡详勘)
-            CompassMainView(isActive: selectedTab == 0)
+            // Tab 1 (默认首页): 空间测绘与户型布局（导入图纸 / Vision 识别 / AR·LiDAR 建模 / CAD 导出）
+            FloorplanView(isActive: selectedTab == 0)
                 .tabItem {
-                    Image(systemName: "safari.fill")
-                    Text(lang.t("tab_compass"))
+                    Image(systemName: "house.fill")
+                    Text(lang.t("tab_floorplan"))
                 }
                 .tag(0)
             
-            // Tab 2: AR 实景天心透视与形煞智能标注 (前后镜头翻转、靶心动态测角、水印快照存证)
+            // Tab 2: AR 实景空间测绘与 LiDAR 三维扫描（质量评分、多边形面积周长、点对点测距、快照）
             ARVisionView(isActive: selectedTab == 1)
                 .tabItem {
                     Image(systemName: "camera.viewfinder")
                     Text(lang.t("tab_ar"))
                 }
                 .tag(1)
-            
-            // Tab 3: 户型空间立极与全屋风水体检 (中宫重心立极、罗盘半透明叠透、火烧天门/鬼门体检)
-            FloorplanView(isActive: selectedTab == 2)
+
+            // Tab 3: 专业电子方位仪（真北/磁北 WMM 磁偏角、磁场监测 μT、双轴水准仪、锁定并同步方位）
+            CompassMainView(isActive: selectedTab == 2)
                 .tabItem {
-                    Image(systemName: "house.fill")
-                    Text(lang.t("tab_floorplan"))
+                    Image(systemName: "safari.fill")
+                    Text(lang.t("tab_compass"))
                 }
                 .tag(2)
-            
-            // Tab 4: 玄空理气与三式绝学 (玄空飞星、八宅三合、流年紫白、时家奇门、天机长卷)
+
+            // Tab 4: 可验证数理计算模块（玄空九星、八宅大游年、三合水法、时家奇门天文历法排盘与算法溯源）
             XuanKongGridView(isActive: selectedTab == 3,
                              selectedSubTab: $analysisSubTab, featureRequest: $analysisFeatureRequest)
                 .tabItem {
@@ -698,7 +700,7 @@ public struct RootContentView: View {
                 }
                 .tag(3)
             
-            // Tab 5: 系统设置与会员中心 (四档 StoreKit 内购、特权矩阵、8字传感器校准)
+            // Tab 5: 系统设置与会员中心（StoreKit 2 内购、资料清理、传感器校准、多语言）
             SettingsView(isActive: selectedTab == 4)
                 .tabItem {
                     Image(systemName: "gearshape.fill")
@@ -738,48 +740,33 @@ public struct RootContentView: View {
             Self.applyTabBarAppearance(isLargeLayout: horizontalSizeClass == .regular)
         }
         .onAppear {
-            // init 阶段 UITraitCollection.current 尚未进入真实窗口环境，
-            // 取不到 regular 宽度 → iPad 首帧 Tab 字号会停在 10pt；而
-            // onChange(of:) 只在尺寸类“变化”时触发，不会补首帧。此处用
-            // 已建立的 environment 值重新应用一次，保证 iPad 启动即为 13pt。
             Self.applyTabBarAppearance(isLargeLayout: horizontalSizeClass == .regular)
-            motion.start()
             updateResourceUsage()
             RetentionServiceManager.shared.registerSystemShortcutsAndSpotlight()
-            if OnboardingGuideSheet.shouldPresentOnLaunch() {
-                showOnboarding = true
-            }
         }
-        .sheet(isPresented: $showOnboarding) {
-            OnboardingGuideSheet()
-        }
-        .sheet(isPresented: $showShortcutDailyCard) {
-            DailyAuspiciousCardSheet()
+        .sheet(isPresented: $showWorkflowReportSheet) {
+            IntegratedWorkflowReportSheet()
         }
         .onChange(of: selectedTab) { _ in
             updateResourceUsage()
         }
-        // 冷启动：URL 在 SceneDelegate 同步到达时视图树尚未挂载，
-        // 通知会丢；改为挂载后主动消费单例里暂存的路由意图。
         .onAppear {
             consumePendingAlmanacRoute()
         }
-        // 热启动：SceneDelegate 收到 URL 后立即投递，同时刷新路由状态。
         .onReceive(NotificationCenter.default.publisher(for: .didTapAlmanacWidget)) { _ in
             consumePendingAlmanacRoute()
         }
         .onReceive(NotificationCenter.default.publisher(for: .didRequestAppNavigation).receive(on: DispatchQueue.main)) { _ in
             consumePendingAlmanacRoute()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .didRequestWorkflowReport).receive(on: DispatchQueue.main)) { _ in
+            showWorkflowReportSheet = true
+        }
         .onOpenURL { url in
-            // SwiftUI 原生兜底：若系统把 URL 交给视图层，也能定位到目标页。
             SceneDelegate.routeWidgetURL(url)
             consumePendingAlmanacRoute()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-            // Re-enable sensors only after the app is visible again. Keeping
-            // Core Location/Core Motion streams alive while the app is
-            // backgrounded wastes battery and can keep the device warm.
             updateResourceUsage()
             motion.resumeIfSensorsEnabled()
         }
@@ -789,42 +776,32 @@ public struct RootContentView: View {
         }
     }
 
-    /// 消费小组件深链与主屏快捷入口的待处理意图（幂等）。
-    /// Tab 3 = 理气菜单；旧黄历请求直接打开独立天星择日工具。
+    /// 消费深链与主屏快捷入口的待处理意图（幂等）。
     private func consumePendingAlmanacRoute() {
         if AppNavigationRouter.shared.consumeAlmanac() {
-            selectedTab = 3
-            analysisSubTab = 1
-            analysisFeatureRequest = AnalysisFeatureRequest(feature: .dates)
+            selectedTab = 0
         }
         if let route = AppNavigationRouter.shared.consumeTabRoute() {
-            selectedTab = route.tab
+            selectedTab = Self.clampedTabIndex(route.tab)
             if let sub = route.subTab {
                 analysisSubTab = sub
             }
-            if route.tab == 3, let feature = route.feature ?? route.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
-                analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
-            }
-            if route.openDailyCard {
-                showOnboarding = false
-                showShortcutDailyCard = true
+            if selectedTab == 3, let feature = route.feature ?? route.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
+                if feature == .xuanKong || feature == .baZhai || feature == .sanHe || feature == .qimen {
+                    analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
+                }
             }
         }
     }
 
-    /// The live compass and camera survey need an awake screen while they are
-    /// in use.  Reports, settings and the paywall should follow the user's
-    /// normal Auto-Lock preference to avoid draining the battery while idle.
+    /// AR 测绘（Tab 1）与方位仪（Tab 2）保持常亮和双轴姿态流；设置页（Tab 4）关闭传感器。
     private func updateResourceUsage() {
-        // 多窗口：传感器开关是全局单例，两个窗口各按自己的 Tab 置位会互相覆盖
-        // （窗口 A 停在罗盘、窗口 B 停在设置时，B 会把 A 的 device motion 关掉）。
-        // 只要同时存在多个前台场景，就统一保持开启，宁可多耗一点电，也不让另一个窗口的罗盘停摆。
         let activeSceneCount = UIApplication.shared.connectedScenes
             .filter { $0.activationState == .foregroundActive }
             .count
         let multipleActiveScenes = activeSceneCount > 1
-        UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || selectedTab == 0 || selectedTab == 1
-        motion.setDeviceMotionEnabled(multipleActiveScenes || selectedTab == 0 || selectedTab == 1)
+        UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || selectedTab == 1 || selectedTab == 2
+        motion.setDeviceMotionEnabled(multipleActiveScenes || selectedTab == 1 || selectedTab == 2)
         motion.setHeadingUpdatesEnabled(multipleActiveScenes || selectedTab != 4)
         motion.resumeIfSensorsEnabled()
     }
@@ -1053,5 +1030,196 @@ public struct CameraExclusiveGate<Content: View>: View {
         } else {
             phase = .denied
         }
+    }
+}
+
+// MARK: - 空间测绘 → 方位测量 → 专业计算 → 分析报告 完整工作流导览条与综合报告
+
+public extension Notification.Name {
+    static let didRequestWorkflowReport = Notification.Name("com.yanxiang.compass.didRequestWorkflowReport")
+}
+
+/// 四步专业工作流状态条：挂载于户型测绘、AR 测绘、电子方位仪与专业计算顶部，一键串联全流程。
+public struct WorkflowStepperBar: View {
+    public let activeStep: Int // 0=测绘, 1=方位, 2=计算, 3=报告
+    @ObservedObject private var workflow = SpatialWorkflowStore.shared
+    @ObservedObject private var lang = LocalizationManager.shared
+
+    public init(activeStep: Int) {
+        self.activeStep = activeStep
+    }
+
+    private var stepTitles: [String] {
+        switch lang.effectiveLanguage {
+        case .en: return ["1. Survey", "2. Bearing", "3. Compute", "4. Report"]
+        case .zhHant: return ["1. 空間測繪", "2. 方位測量", "3. 專業計算", "4. 綜合報告"]
+        case .ja: return ["1. 空間測量", "2. 方位計測", "3. 数理計算", "4. 総合報告"]
+        case .ko: return ["1. 공간측량", "2. 방위계측", "3. 수리계산", "4. 종합보고"]
+        case .vi: return ["1. Đo đạc", "2. Phương vị", "3. Tính toán", "4. Báo cáo"]
+        case .th: return ["1. สำรวจ", "2. วัดทิศ", "3. คำนวณ", "4. รายงาน"]
+        case .id: return ["1. Survei", "2. Azimut", "3. Hitung", "4. Laporan"]
+        case .auto, .zhHans: return ["1. 空间测绘", "2. 方位测量", "3. 专业计算", "4. 综合报告"]
+        }
+    }
+
+    private func isStepDone(_ idx: Int) -> Bool {
+        switch idx {
+        case 0: return workflow.hasSurvey
+        case 1: return workflow.hasBearing
+        case 2: return workflow.hasCalculation
+        case 3: return workflow.hasSurvey && workflow.hasBearing && workflow.hasCalculation
+        default: return false
+        }
+    }
+
+    private func handleTap(_ idx: Int) {
+        switch idx {
+        case 0: AppNavigationRouter.shared.requestRoute(tab: 0)
+        case 1: AppNavigationRouter.shared.requestRoute(tab: 2)
+        case 2: AppNavigationRouter.shared.requestRoute(tab: 3)
+        case 3: NotificationCenter.default.post(name: .didRequestWorkflowReport, object: nil)
+        default: break
+        }
+    }
+
+    public var body: some View {
+        let titles = stepTitles
+        return HStack(spacing: 4) {
+            ForEach(0..<4, id: \.self) { idx in
+                let isActive = idx == activeStep
+                let done = isStepDone(idx)
+                Button(action: { handleTap(idx) }) {
+                    HStack(spacing: 3) {
+                        Image(systemName: done ? "checkmark.circle.fill" : (idx == 3 ? "doc.text.fill" : "circle"))
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(done ? .green : (isActive ? Color.yanGold : .white.opacity(0.45)))
+                        Text(titles[idx])
+                            .adaptiveFont(size: 9.5, weight: isActive ? .bold : .medium)
+                            .foregroundColor(isActive ? Color.yanGold : (done ? .white : .white.opacity(0.68)))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.65)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 4)
+                    .background(isActive ? Color.yanGold.opacity(0.16) : Color.white.opacity(0.05))
+                    .cornerRadius(6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(isActive ? Color.yanGold.opacity(0.65) : Color.white.opacity(0.08), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+/// 综合测绘、方位仪读数与可验证数理计算分析报告弹窗（支持一键复制与系统分享导出）。
+public struct IntegratedWorkflowReportSheet: View {
+    @Environment(\.presentationMode) private var presentationMode
+    @ObservedObject private var workflow = SpatialWorkflowStore.shared
+    @ObservedObject private var lang = LocalizationManager.shared
+    @State private var reportText: String = ""
+    @State private var copiedToast: Bool = false
+    @State private var showShareSheet: Bool = false
+
+    public init() {}
+
+    public var body: some View {
+        let isEn = (lang.effectiveLanguage == .en)
+        return NavigationView {
+            ZStack {
+                Color(red: 0.07, green: 0.07, blue: 0.10).ignoresSafeArea()
+                VStack(spacing: 12) {
+                    // 三阶段完整度状态摘要
+                    HStack(spacing: 8) {
+                        statusPill(title: isEn ? "Spatial Survey" : "空间测绘", ok: workflow.hasSurvey)
+                        statusPill(title: isEn ? "Instrument Bearing" : "方位测量", ok: workflow.hasBearing)
+                        statusPill(title: isEn ? "Calculation" : "专业计算", ok: workflow.hasCalculation)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+
+                    ScrollView {
+                        Text(reportText)
+                            .adaptiveFont(size: 12, design: .monospaced)
+                            .foregroundColor(.white.opacity(0.92))
+                            .lineSpacing(4)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(14)
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.yanGold.opacity(0.3), lineWidth: 1)
+                            )
+                            .padding(.horizontal, 16)
+                    }
+
+                    if copiedToast {
+                        Text(isEn ? "Report copied to clipboard" : "已复制综合分析报告至剪贴板")
+                            .adaptiveFont(size: 11, weight: .semibold)
+                            .foregroundColor(.green)
+                    }
+
+                    HStack(spacing: 10) {
+                        Button(action: {
+                            UIPasteboard.general.string = reportText
+                            copiedToast = true
+                        }) {
+                            Label(isEn ? "Copy Report" : "复制文本报告", systemImage: "doc.on.doc")
+                                .adaptiveFont(size: 12, weight: .bold)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 11)
+                                .background(Color.white.opacity(0.1))
+                                .foregroundColor(.yanCyan)
+                                .cornerRadius(9)
+                        }
+
+                        Button(action: { showShareSheet = true }) {
+                            Label(isEn ? "Export / Share" : "导出并分享", systemImage: "square.and.arrow.up")
+                                .adaptiveFont(size: 12, weight: .bold)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 11)
+                                .background(Color.yanGold)
+                                .foregroundColor(.black)
+                                .cornerRadius(9)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                }
+            }
+            .navigationBarTitle(isEn ? "Integrated Analysis Report" : "测绘与计算综合报告", displayMode: .inline)
+            .navigationBarItems(trailing: Button(lang.t("done")) {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .preferredColorScheme(.dark)
+        .onAppear {
+            reportText = workflow.generateVerifiableReportText()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            FloorplanReportShareSheet(items: [reportText])
+        }
+    }
+
+    private func statusPill(title: String, ok: Bool) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: ok ? "checkmark.seal.fill" : "clock.badge.exclamationmark")
+                .font(.system(size: 10, weight: .bold))
+            Text(title)
+                .adaptiveFont(size: 10, weight: .semibold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 6)
+        .background(ok ? Color.green.opacity(0.18) : Color.orange.opacity(0.15))
+        .foregroundColor(ok ? .green : .orange)
+        .cornerRadius(7)
     }
 }

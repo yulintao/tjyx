@@ -325,9 +325,9 @@ public struct SettingsView: View {
                         // 顶部用户/会员概要卡片
                         userHeaderSection
 
-                        // 4 大功能模块菜单组
+                        // 功能模块菜单组（已移除算命/命卦/流月飞星提醒入口，保留免费个人资料清理与会员/语言/关于）
                         Section {
-                            // 模块 1: 大师会员
+                            // 模块 1: 专业会员
                             NavigationLink(destination: MasterVIPPageView(selectedProductId: $selectedProductId)) {
                                 menuRow(
                                     icon: "crown.fill",
@@ -338,22 +338,12 @@ public struct SettingsView: View {
                                 )
                             }
 
-                            // 模块 2: 宅主命卦与节气提醒
-                            NavigationLink(destination: OwnerKuaReminderPageView()) {
-                                menuRow(
-                                    icon: "person.crop.circle.badge.checkmark",
-                                    iconColor: Color.yanCyan,
-                                    title: lang.t("settings_menu_kua_reminder"),
-                                    subtitle: kuaProfileSubtitle
-                                )
-                            }
-
                             NavigationLink(destination: PersonalProfileDataView()) {
                                 menuRow(icon: "person.crop.circle.badge.minus", iconColor: Color.yanCyan,
                                         title: lang.t("profile_data_title"))
                             }
 
-                            // 模块 3: 界面语言设置
+                            // 模块 2: 界面语言与传感器校准
                             NavigationLink(destination: LanguagePreferencesPageView()) {
                                 menuRow(
                                     icon: "globe",
@@ -363,7 +353,7 @@ public struct SettingsView: View {
                                 )
                             }
 
-                            // 模块 4: 关于
+                            // 模块 3: 关于
                             NavigationLink(destination: AboutPageView()) {
                                 menuRow(
                                     icon: "info.circle.fill",
@@ -488,15 +478,15 @@ public struct SettingsView: View {
 
     private var userHeaderSubtitle: String {
         switch lang.effectiveLanguage {
-        case .zhHans: return "天机演象 · 专业风水罗盘与玄空理气"
-        case .zhHant: return "天機演象 · 專業風水羅盤與玄空理氣"
-        case .en: return "Tiandi Luopan · Professional Feng Shui Compass"
-        case .ja: return "天地羅盤 · プロ向け風水羅盤と玄空理気"
-        case .ko: return "천지나침반 · 전문 풍수 나침반 및 현공이기"
-        case .vi: return "Thiên Địa La Bàn · Huyền Không Phong Thủy"
-        case .th: return "เข็มทิศฟ้าดิน · เข็มทิศฮวงจุ้ยมืออาชีพ"
-        case .id: return "Tiandi Luopan · Kompas Feng Shui Profesional"
-        default: return "天机演象 · 专业风水罗盘与玄空理气"
+        case .zhHans: return "天机演象 · 空间测绘与三维户型分析"
+        case .zhHant: return "天機演象 · 空間測繪與三維戶型分析"
+        case .en: return "TianJi · Spatial Survey & 3D Floorplan"
+        case .ja: return "天機演象 · 空間測量と 3D 間取り分析"
+        case .ko: return "천기연상 · 공간 측량 및 3D 평면도 분석"
+        case .vi: return "Thiên Cơ · Khảo Sát Không Gian & 3D"
+        case .th: return "สำรวจพื้นที่และวิเคราะห์ผังอาคาร 3D"
+        case .id: return "TianJi · Survei Spasial & Denah 3D"
+        default: return "天机演象 · 空间测绘与三维户型分析"
         }
     }
 
@@ -593,12 +583,11 @@ public struct MasterVIPPageView: View {
                             .cornerRadius(6)
                     }
 
-                    // 四档商品卡片选择
+                    // 商品套餐选择（保留年度会员、终身版、单套户型全案）
                     VStack(spacing: 8) {
                         productRow(id: .vipYearly, tag: lang.t("product_vip_yearly_tag"))
                         productRow(id: .proLifetime, tag: lang.t("product_pro_lifetime_tag"))
                         productRow(id: .floorplanSingle, tag: lang.t("product_floorplan_single_tag"))
-                        productRow(id: .tianjiSingle, tag: lang.t("product_tianji_single_tag"))
                     }
                     .padding(.vertical, 4)
 
@@ -656,15 +645,12 @@ public struct MasterVIPPageView: View {
                 .padding(.vertical, 4)
             }
 
-            // 2. VIP 尊享特权矩阵
+            // 2. 专业会员特权矩阵
             if let selectedProduct = IAPProductID(rawValue: selectedProductId), selectedProduct.includesAllFeatures {
                 Section(header: Text(lang.t("vip_privilege_header"))) {
-                    privilegeRow(icon: "person.2.fill", title: lang.t("fra_title"))
-                    privilegeRow(icon: "sparkles", title: lang.t("privilege_qimen_title"))
-                    privilegeRow(icon: "calendar.badge.clock", title: lang.t("privilege_purplewhite_title"))
                     privilegeRow(icon: "house.fill", title: lang.t("privilege_floorplan_title"))
-                    privilegeRow(icon: "scroll.fill", title: lang.t("privilege_tianji_title"))
-                    privilegeRow(icon: "camera.viewfinder", title: lang.t("ar_title"))
+                    privilegeRow(icon: "camera.viewfinder", title: lang.t("privilege_ar_title"))
+                    privilegeRow(icon: "view.3d", title: lang.t("vr_survey_title"))
                 }
             }
         }
@@ -1184,7 +1170,7 @@ public struct AboutPageView: View {
             // 1. 版本信息与应用标识
             Section {
                 VStack(spacing: 8) {
-                    Image(systemName: "compass.drawing")
+                    Image(systemName: "square.3.layers.3d")
                         .font(.system(size: 42))
                         .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
                     Text(appNameTitle)
@@ -1212,21 +1198,8 @@ public struct AboutPageView: View {
             }
             .foregroundColor(Color.yanCyan)
 
-            // 2. 新手教程与评分反馈
+            // 2. 评分反馈（移除旧版罗盘立向 3 步教学入口）
             Section {
-                Button(action: {
-                    showOnboardingGuide = true
-                }) {
-                    HStack {
-                        Label(SettingsLocalizationHelpers.onboardingReplayTitle(lang), systemImage: "book.pages.fill")
-                            .foregroundColor(Color.yanCyan)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .adaptiveFont(size: 11)
-                            .foregroundColor(.secondary)
-                    }
-                }
-
                 Button(action: {
                     handleRateAppTap()
                 }) {
@@ -1286,9 +1259,6 @@ public struct AboutPageView: View {
         .background(Color.black.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_about"), displayMode: .inline)
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showOnboardingGuide) {
-            OnboardingGuideSheet()
-        }
         .sheet(item: $legalDocument) { document in
             LegalDocumentSheet(
                 title: lang.t(document.titleKey),
@@ -1314,15 +1284,15 @@ public struct AboutPageView: View {
 
     private var appNameTitle: String {
         switch lang.effectiveLanguage {
-        case .zhHans: return "天机演象 · 天地罗盘"
-        case .zhHant: return "天機演象 · 天地羅盤"
-        case .en: return "Tiandi Luopan"
-        case .ja: return "天地羅盤"
-        case .ko: return "천지나침반"
-        case .vi: return "Thiên Địa La Bàn"
-        case .th: return "เข็มทิศฟ้าดิน"
-        case .id: return "Tiandi Luopan"
-        default: return "天机演象 · 天地罗盘"
+        case .zhHans: return "天机演象 · 空间测绘"
+        case .zhHant: return "天機演象 · 空間測繪"
+        case .en: return "TianJi Spatial"
+        case .ja: return "天機演象 · 空間測量"
+        case .ko: return "천기연상 · 공간 측량"
+        case .vi: return "Thiên Cơ · Không Gian 3D"
+        case .th: return "TianJi Spatial"
+        case .id: return "TianJi Spatial"
+        default: return "天机演象 · 空间测绘"
         }
     }
 

@@ -265,8 +265,7 @@ public struct VIPPaywallSheet: View {
                                 .foregroundColor(.white.opacity(0.65))
                         }
                         
-                        // 2. 核心特权清单。单次商品只展示它实际解锁的
-                        // 一项服务，避免把一次导出误解成全量 VIP。
+                        // 2. 核心特权清单（仅展示空间测绘与户型 3D 专业能力，符合 4.3(b) 规范）
                         VStack(spacing: 8) {
                             if selectedIsSingleProduct {
                                 privilegeItem(
@@ -275,14 +274,9 @@ public struct VIPPaywallSheet: View {
                                     desc: selectedIAPProduct.desc
                                 )
                             } else {
-                                privilegeItem(icon: "person.2.fill", title: lang.t("fra_title"), desc: lang.t("fra_paywall"))
-                                privilegeItem(icon: "person.2.fill", title: LocalizationManager.shared.t("bz_tool_owner"), desc: LocalizationManager.shared.t("bz_owner_vip_desc"))
-                                privilegeItem(icon: "sparkles", title: LocalizationManager.shared.t("privilege_qimen_title"), desc: LocalizationManager.shared.t("privilege_qimen_desc"))
-                                privilegeItem(icon: "calendar.badge.clock", title: LocalizationManager.shared.t("privilege_purplewhite_title"), desc: LocalizationManager.shared.t("privilege_purplewhite_desc"))
-                                privilegeItem(icon: "drop.triangle.fill", title: LocalizationManager.shared.t("privilege_sanhe_title"), desc: LocalizationManager.shared.t("privilege_sanhe_desc"))
                                 privilegeItem(icon: "house.fill", title: LocalizationManager.shared.t("privilege_floorplan_title"), desc: LocalizationManager.shared.t("privilege_floorplan_desc"))
-                                privilegeItem(icon: "scroll.fill", title: LocalizationManager.shared.t("privilege_tianji_title"), desc: LocalizationManager.shared.t("privilege_tianji_desc"))
                                 privilegeItem(icon: "camera.viewfinder", title: LocalizationManager.shared.t("privilege_ar_title"), desc: LocalizationManager.shared.t("privilege_ar_desc"))
+                                privilegeItem(icon: "view.3d", title: LocalizationManager.shared.t("vr_survey_title"), desc: LocalizationManager.shared.t("3d_metric_depth_width"))
                             }
                         }
                         .padding(12)
@@ -290,7 +284,7 @@ public struct VIPPaywallSheet: View {
                         .cornerRadius(12)
                         .padding(.horizontal, 16)
                         
-                        // 3. 四档商品套餐选择
+                        // 3. 商品套餐选择
                         VStack(spacing: 8) {
                             productChoiceCard(
                                 id: .vipYearly,
@@ -309,12 +303,6 @@ public struct VIPPaywallSheet: View {
                                     id: .floorplanSingle,
                                     tag: LocalizationManager.shared.t("product_floorplan_single_tag"),
                                     isSelected: selectedProductId == IAPProductID.floorplanSingle.rawValue
-                                )
-                            
-                                productChoiceCard(
-                                    id: .tianjiSingle,
-                                    tag: LocalizationManager.shared.t("product_tianji_single_tag"),
-                                    isSelected: selectedProductId == IAPProductID.tianjiSingle.rawValue
                                 )
                             }
                         }

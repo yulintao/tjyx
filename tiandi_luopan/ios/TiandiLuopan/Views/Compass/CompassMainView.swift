@@ -18,8 +18,9 @@ public struct CompassMainView: View {
     @State private var showPalaceSheet = false
     @State private var showLayerSheet = false
     @State private var showCalibSheet = false
-    @State private var showDailySignSheet = false
     @State private var showMountainPickerSheet = false
+    @State private var showBearingAppliedToast = false
+    @ObservedObject private var workflow = SpatialWorkflowStore.shared
     
     public init(isActive: Bool = true) {
         self.isActive = isActive
@@ -36,8 +37,16 @@ public struct CompassMainView: View {
                 // 右栏 = 周易分金与八宅提示卡（分析解释）；单列态保持原纵排。
                 FoldableTwoPane(compactSpacing: 4) {
                     VStack(spacing: 4) {
+                        WorkflowStepperBar(activeStep: 1)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 4)
+
                         // 1. 顶部数据仪表
                         CompassHeaderView()
+
+                        // 专业测量仪器遥测条（基准北向 / WMM 磁偏角 / 磁场稳定度 / 双轴水平状态）
+                        instrumentTelemetryStrip()
+                            .padding(.horizontal, 16)
                         
                         // 强磁干扰动态告警条
                         if motion.isDistorted {
@@ -66,19 +75,36 @@ public struct CompassMainView: View {
                             }
                         }
                         
-                        // 2. 罗盘快捷辅助工具条 (锁定朝向 / 分金详勘 / 空亡诊断 / 八方全鉴 / 吉方导引)
+                        // 2. 专业方位仪测量工具条（锁定 / 同步至工作流 / 24方位手选 / 精度校准 / 图层）
                         compassToolBar()
                             .padding(.top, 2)
-                        
-                        if layers.showDailyGodMarkers {
-                            dailyDirectionBanner()
-                                .padding(.horizontal, 16)
-                                .transition(.opacity)
+
+                        if showBearingAppliedToast {
+                            HStack(spacing: 6) {
+                                Image(systemName: "checkmark.seal.fill")
+                                    .foregroundColor(.green)
+                                Text(lang.effectiveLanguage == .en
+                                     ? String(format: "Locked %.1f° synced to Survey & Compute", motion.headingState.facingAngle)
+                                     : String(format: "已锁定 %.1f° 并同步至测绘与计算模块", motion.headingState.facingAngle))
+                                    .adaptiveFont(size: 10.5, weight: .semibold)
+                                    .foregroundColor(.green)
+                                Spacer()
+                                Button(lang.effectiveLanguage == .en ? "Compute →" : "去计算 →") {
+                                    AppNavigationRouter.shared.requestRoute(tab: 3)
+                                }
+                                .adaptiveFont(size: 10.5, weight: .bold)
+                                .foregroundColor(.yanCyan)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Color.green.opacity(0.14))
+                            .cornerRadius(7)
+                            .padding(.horizontal, 16)
                         }
                         
                         Spacer(minLength: 4)
                         
-                        // 3. 核心随动罗盘盘面 (包含 120分金、64卦、24山、八卦、水准仪)
+                        // 3. 核心随动电子方位盘 (双轴水准仪、精密刻度与 24 方位)
                         CompassDialView()
                             .padding(.horizontal, 8)
                         
@@ -125,13 +151,11 @@ public struct CompassMainView: View {
         .sheet(isPresented: $showCalibSheet) {
             CalibrationSheet()
         }
-        .sheet(isPresented: $showDailySignSheet) {
-            DailyAuspiciousCardSheet(sittingMountain: motion.headingState.sittingMountain)
-        }
         .sheet(isPresented: $showMountainPickerSheet) {
             Mountain24PickerSheet(isPresented: $showMountainPickerSheet)
         }
         .onAppear {
+            layers.showDailyGodMarkers = false
             motion.refreshTimeAndSolarTerm()
         }
         .onChange(of: isActive) { active in
@@ -265,42 +289,68 @@ public struct CompassMainView: View {
                 .cornerRadius(6)
             }
             
-            // 今日吉方导引开关 (财神/喜神/奇门吉方 + 盘面金标联动)
+            // 锁定并同步实测方位到测绘与计算工作流
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    layers.showDailyGodMarkers.toggle()
+                if !motion.isLocked {
+                    motion.toggleLock()
                 }
+                applyCurrentBearingToWorkflow()
             }) {
-                HStack(spacing: 3) {
-                    Image(systemName: "location.north.line.fill")
-                    Text(dailyGuideButtonTitle())
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.triangle.branch")
+                    Text(lang.effectiveLanguage == .en ? "Sync Bearing" : "同步至测绘/计算")
                 }
                 .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 10)
                 .padding(.vertical, 7)
-                .background(layers.showDailyGodMarkers ? Color.green.opacity(0.22) : Color.white.opacity(0.08))
-                .foregroundColor(layers.showDailyGodMarkers ? .green : Color(red: 0.95, green: 0.85, blue: 0.45))
-                .cornerRadius(6)
-            }
-            
-            // 今日吉签海报
-            Button(action: {
-                showDailySignSheet = true
-            }) {
-                HStack(spacing: 3) {
-                    Image(systemName: "sparkles.rectangle.stack.fill")
-                    Text(dailySignShortTitle())
-                }
-                .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 7)
-                .background(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.18))
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .background(Color.yanGold.opacity(0.9))
+                .foregroundColor(.black)
                 .cornerRadius(6)
             }
             }
             .padding(.horizontal, 16)
         }
+    }
+
+    private func applyCurrentBearingToWorkflow() {
+        let heading = motion.headingState.facingAngle
+        SpatialWorkflowStore.shared.recordInstrumentBearing(
+            bearingDegrees: heading,
+            northReferenceRaw: motion.northReference.rawValue,
+            declinationDegrees: motion.currentDeclination,
+            magneticStrengthUT: motion.magneticStrengthUT,
+            isLevel: motion.isLevel,
+            pitchDegrees: motion.pitch,
+            rollDegrees: motion.roll,
+            sourceLabel: motion.isLocked ? "Instrument Lock" : "Instrument Sample"
+        )
+        showBearingAppliedToast = true
+    }
+
+    /// 电子方位仪工程遥测状态条：真北/磁北、磁偏角、磁场强度与双轴水准状态一目了然。
+    private func instrumentTelemetryStrip() -> some View {
+        let isEn = (lang.effectiveLanguage == .en)
+        let refText = motion.northReference == .trueNorth
+            ? (isEn ? "True N" : "真北")
+            : (isEn ? "Mag N" : "磁北")
+        let levelText = motion.isLevel ? (isEn ? "Level OK" : "水平就绪") : (isEn ? "Tilt" : "请端平")
+        return HStack(spacing: 8) {
+            Label("\(refText) \(String(format: "%+.1f°", motion.currentDeclination))", systemImage: "location.north.line")
+                .foregroundColor(.yanCyan)
+            Spacer(minLength: 4)
+            Label(String(format: "%.0f μT", motion.magneticStrengthUT), systemImage: "waveform.path.ecg")
+                .foregroundColor(motion.isDistorted ? .orange : .green)
+            Spacer(minLength: 4)
+            Label(levelText, systemImage: motion.isLevel ? "checkmark.circle.fill" : "level")
+                .foregroundColor(motion.isLevel ? .green : .orange)
+        }
+        .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
+        .lineLimit(1)
+        .minimumScaleFactor(0.72)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(Color.white.opacity(0.06))
+        .cornerRadius(7)
     }
     
     // MARK: - 今日吉方导引条 (财神/喜神/奇门实时比对)
@@ -681,10 +731,7 @@ public struct CompassMainView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(analysisPanelBackground())
 
-            // 4.5 今日出行吉方导引（财神 / 喜神 / 奇门吉门）
-            dailyDirectionBanner()
-
-            // 5. 快捷工具入口
+            // 5. 快捷工具入口与工作流流转
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     analysisPanelToolButton(title: lang.t("btn_fenjin_detail"),
@@ -698,9 +745,13 @@ public struct CompassMainView: View {
                     analysisPanelToolButton(title: lang.t("btn_palace_all"),
                                             systemImage: "square.grid.2x2",
                                             tint: Color(red: 0.83, green: 0.68, blue: 0.21)) { showPalaceSheet = true }
-                    analysisPanelToolButton(title: dailySignShortTitle(),
-                                            systemImage: "sparkles.rectangle.stack.fill",
-                                            tint: Color(red: 0.95, green: 0.85, blue: 0.45)) { showDailySignSheet = true }
+                    analysisPanelToolButton(title: lang.effectiveLanguage == .en ? "Sync & Compute" : "同步至计算模块",
+                                            systemImage: "arrow.triangle.branch",
+                                            tint: Color.green) {
+                        if !motion.isLocked { motion.toggleLock() }
+                        applyCurrentBearingToWorkflow()
+                        AppNavigationRouter.shared.requestRoute(tab: 3)
+                    }
                 }
             }
         }

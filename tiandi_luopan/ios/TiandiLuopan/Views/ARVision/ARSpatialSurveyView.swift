@@ -446,6 +446,10 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
     @Published public private(set) var currentStandingPalace: String?
     @Published public private(set) var estimatedRoomHeightMeters: Float?
     @Published public private(set) var hasLowBeamWarning: Bool = false
+    /// 扫描质量遥测（光照强度 / 特征点密度 / 0-100 综合质量分），供用户判别数据可信度
+    @Published public private(set) var ambientLightLux: Double?
+    @Published public private(set) var featurePointCount: Int = 0
+    @Published public private(set) var scanQualityScore: Int = 0
     /// 手动角落打点测绘（Corner-pin Polygon）：弱纹理墙面辅助精准房间
     @Published public var cornerPinActive: Bool = false
     @Published public private(set) var cornerPoints: [SIMD3<Float>] = []
@@ -460,6 +464,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
     @Published public private(set) var hasHeadingReference = false
     private var sessionGeneration = 0
     private var lastMeasurementTimestamp: TimeInterval = 0
+    private var lastScanQualityTimestamp: TimeInterval = 0
     private var lastSemanticUpdateTimestamp: TimeInterval = 0
     private var lastMeshGeometryUpdate: [UUID: TimeInterval] = [:]
     private var lastPlaneGeometryUpdate: [UUID: TimeInterval] = [:]
@@ -1256,6 +1261,17 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
         let weightedX = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midX) } / Double(max(1, floorplanRooms.count))
         let weightedY = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midY) } / Double(max(1, floorplanRooms.count))
         let currentSurvey = buildSpatialSurvey()
+        if let s = currentSurvey {
+            SpatialWorkflowStore.shared.recordSurvey(
+                source: lidarAvailable ? "AR + LiDAR Scan" : "ARKit Spatial Scan",
+                widthMeters: Double(s.dimensions.totalWidth),
+                depthMeters: Double(s.dimensions.totalDepth),
+                areaSqMeters: Double(s.dimensions.usableFloorArea),
+                ceilingHeightMeters: Double(s.dimensions.ceilingHeight),
+                roomCount: max(floorplanRooms.count, s.rooms.count),
+                scanQualityScore: scanQualityScore > 0 ? scanQualityScore : nil
+            )
+        }
         return FloorplanView.persistRoomPlanImport(
             rooms: floorplanRooms,
             centroid: CGPoint(x: weightedX, y: weightedY),
@@ -1970,6 +1986,69 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
         hasHeadingReference = false
     }
 
+    /// Shoelace 水平投影面积（㎡）：支持任意 3 点及以上闭合空间/地块多边形
+    public var cornerPolygonAreaSqMeters: Double {
+        let points = cornerPoints
+        guard points.count >= 3 else { return 0 }
+        var acc: Double = 0
+        for i in 0..<points.count {
+            let a = points[i]
+            let b = points[(i + 1) % points.count]
+            acc += Double(a.x) * Double(b.z) - Double(b.x) * Double(a.z)
+        }
+        return abs(acc) * 0.5
+    }
+
+    /// 角落打点多边形周长（m）：2 点为单段长度，≥3 点为闭合总周长
+    public var cornerPolygonPerimeterMeters: Double {
+        let points = cornerPoints
+        guard points.count >= 2 else { return 0 }
+        var total: Double = 0
+        for i in 0..<(points.count - 1) {
+            total += Double(hypot(points[i + 1].x - points[i].x, points[i + 1].z - points[i].z))
+        }
+        if points.count >= 3 {
+            let last = points[points.count - 1]
+            let first = points[0]
+            total += Double(hypot(first.x - last.x, first.z - last.z))
+        }
+        return total
+    }
+
+    /// 按光照强度、视觉特征点、识别平面与 LiDAR 网格数量计算 0–100 实时扫描质量分。
+    private func updateScanQuality(frame: ARFrame) {
+        let now = Date().timeIntervalSinceReferenceDate
+        guard now - lastScanQualityTimestamp >= 0.5 else { return }
+        lastScanQualityTimestamp = now
+
+        let lux = frame.lightEstimate?.ambientIntensity
+        let points = frame.rawFeaturePoints?.points.count ?? 0
+        ambientLightLux = lux
+        featurePointCount = points
+
+        var score = 0
+        if trackingState == .normal { score += 30 }
+        else if trackingState == .limited { score += 10 }
+        if let lux {
+            if lux >= 500 { score += 20 }
+            else if lux >= 200 { score += 12 }
+            else { score += 4 }
+        } else {
+            score += 10
+        }
+        if points >= 120 { score += 20 }
+        else if points >= 40 { score += 12 }
+        else if points > 0 { score += 5 }
+        score += min(15, planeCount * 5)
+        if lidarAvailable {
+            score += min(15, meshAnchorCount * 3)
+        } else if mappingState == .mapped || mappingState == .extending {
+            score += 15
+        }
+        let capped = min(100, max(0, score))
+        if capped != scanQualityScore { scanQualityScore = capped }
+    }
+
     public func session(_ session: ARSession, didUpdate frame: ARFrame) {
         // Mesh classification and raycasting are deliberately sampled at a
         // bounded rate.
@@ -2006,6 +2085,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
                 self.hasHeadingReference = self.surveyHeadingDegrees != nil
             }
             self.updateMeasurements(frame: frame, sceneView: sceneView)
+            self.updateScanQuality(frame: frame)
         }
         if Thread.isMainThread {
             // ARSession uses the main queue by default. Processing the sample
@@ -2934,17 +3014,6 @@ public struct ARSpatialSurveyView: View {
                     }
                     .accessibilityLabel(lang.t("vr_survey_title"))
                     Button(action: {
-                        _ = model.toggleGroundBaguaOverlay()
-                    }) {
-                        Image(systemName: "square.grid.3x3.fill")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(model.groundBaguaProjected ? .black : .white)
-                            .padding(9)
-                            .background(model.groundBaguaProjected ? Color(red: 0.95, green: 0.80, blue: 0.25) : Color.black.opacity(0.55))
-                            .clipShape(Circle())
-                    }
-                    .accessibilityLabel(lang.t("xuankong_stars"))
-                    Button(action: {
                         _ = model.placeLubanPoint()
                     }) {
                         Image(systemName: "ruler.fill")
@@ -3004,6 +3073,17 @@ public struct ARSpatialSurveyView: View {
                         }
                         .accessibilityLabel(lang.t("ar_panorama_clear"))
                     }
+                    Button(action: {
+                        shareItem = ARSpatialShareItem(item: measurementSummaryText)
+                    }) {
+                        Image(systemName: "doc.text")
+                            .adaptiveFont(size: 13, weight: .bold)
+                            .foregroundColor(.yanGold)
+                            .padding(9)
+                            .background(Color.black.opacity(0.55))
+                            .clipShape(Circle())
+                    }
+                    .accessibilityLabel(lang.effectiveLanguage == .en ? "Share Measurement Summary" : "分享实测数据摘要")
                     Button(action: {
                         model.toggleMeshVisibility()
                     }) {
@@ -3079,11 +3159,78 @@ public struct ARSpatialSurveyView: View {
         .allowsHitTesting(false)
     }
 
+    private var scanQualityColor: Color {
+        if model.scanQualityScore >= 75 { return .green }
+        if model.scanQualityScore >= 45 { return .yellow }
+        return .orange
+    }
+
+    private var measurementSummaryText: String {
+        let isEn = (lang.effectiveLanguage == .en)
+        var lines: [String] = [isEn ? "=== AR / LiDAR Spatial Measurement Summary ===" : "=== AR / LiDAR 空间实测数据摘要 ==="]
+        if model.cornerPoints.count >= 3 {
+            lines.append(String(format: isEn ? "Polygon Area / Perimeter: %.2f ㎡ · %.2f m" : "多边形实测面积/周长：%.2f ㎡ · %.2f m",
+                                model.cornerPolygonAreaSqMeters, model.cornerPolygonPerimeterMeters))
+        } else if model.cornerPoints.count == 2 {
+            lines.append(String(format: isEn ? "Pinned Edge Length: %.2f m" : "打点边长：%.2f m", model.cornerPolygonPerimeterMeters))
+        }
+        if let span = model.lubanSpanMeters {
+            lines.append(String(format: isEn ? "Point-to-Point Span: %.2f m (%.1f cm)" : "点对点实测跨度：%.2f m (%.1f cm)", span, span * 100))
+        }
+        if let w = model.largestPlaneWidth, let d = model.largestPlaneDepth {
+            lines.append(String(format: isEn ? "Largest Plane: %.2f × %.2f m" : "最大识别平面：%.2f × %.2f m", w, d))
+        }
+        if let h = model.estimatedRoomHeightMeters {
+            lines.append(String(format: isEn ? "Estimated Ceiling Height: %.2f m" : "估算净高：%.2f m", h))
+        }
+        lines.append("\(lang.t("ar_spatial_planes")): \(model.planeCount) · \(lang.t("ar_spatial_mesh")): \(model.meshAnchorCount)")
+        lines.append((isEn ? "Scan Quality: " : "扫描质量评分：") + "\(model.scanQualityScore)/100")
+        return lines.joined(separator: "\n")
+    }
+
     private var measurementPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
             if !model.hasHeadingReference {
                 Text(lang.t("ar_survey_heading_pending"))
                     .adaptiveFont(size: 11).foregroundColor(.orange)
+            }
+            if model.scanQualityScore > 0 {
+                HStack(spacing: 6) {
+                    Image(systemName: "dot.radiowaves.left.and.right")
+                        .foregroundColor(scanQualityColor)
+                        .adaptiveFont(size: 11)
+                    Text((lang.effectiveLanguage == .en ? "Scan Quality" : "扫描质量") + ": \(model.scanQualityScore)/100")
+                        .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
+                        .foregroundColor(scanQualityColor)
+                    Spacer()
+                    if let lux = model.ambientLightLux {
+                        Text(String(format: "%.0f lx · %d pts", lux, model.featurePointCount))
+                            .adaptiveFont(size: 9.5, weight: .medium, design: .monospaced)
+                            .foregroundColor(.white.opacity(0.72))
+                    }
+                }
+            }
+            if model.cornerPoints.count >= 2 {
+                HStack(spacing: 6) {
+                    Image(systemName: "pentagon")
+                        .foregroundColor(.orange)
+                        .adaptiveFont(size: 11)
+                    if model.cornerPoints.count >= 3 {
+                        Text(String(format: "%@: %.2f ㎡ · %.2f m",
+                                    lang.effectiveLanguage == .en ? "Measured Polygon" : "多边形实测",
+                                    model.cornerPolygonAreaSqMeters,
+                                    model.cornerPolygonPerimeterMeters))
+                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                            .foregroundColor(.yanGold)
+                    } else {
+                        Text(String(format: "%@: %.2f m",
+                                    lang.effectiveLanguage == .en ? "Segment" : "线段长度",
+                                    model.cornerPolygonPerimeterMeters))
+                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                            .foregroundColor(.yanGold)
+                    }
+                    Spacer()
+                }
             }
             HStack {
                 Label(trackingText, systemImage: trackingIcon)
@@ -3140,34 +3287,16 @@ public struct ARSpatialSurveyView: View {
             .adaptiveFont(size: 13, weight: .bold, design: .monospaced)
             .foregroundColor(.white)
 
-            if let standing = model.currentStandingPalace {
-                HStack(spacing: 6) {
-                    Image(systemName: "safari.fill")
-                        .foregroundColor(Color(red: 0.95, green: 0.80, blue: 0.25))
-                        .adaptiveFont(size: 11)
-                    Text(standing)
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Spacer()
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(Color.white.opacity(0.08))
-                .cornerRadius(8)
-            }
-
             if let eval = model.lubanEvaluation {
                 HStack(spacing: 6) {
-                    Image(systemName: eval.yangIsAuspicious ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
-                        .foregroundColor(eval.yangIsAuspicious ? .green : .orange)
+                    Image(systemName: "ruler.fill")
+                        .foregroundColor(.yanCyan)
                         .adaptiveFont(size: 11)
-                    Text(eval.localizedSummary(for: lang.effectiveLanguage))
-                        .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
-                        .foregroundColor(eval.yangIsAuspicious ? .green : .orange)
+                    Text(String(format: "%.2f m (%.1f cm)", eval.meters, eval.centimeters))
+                        .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
+                        .foregroundColor(.yanCyan)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.65)
+                        .minimumScaleFactor(0.7)
                     Spacer()
                     Button(action: { model.clearLubanPoints() }) {
                         Image(systemName: "xmark.circle.fill")

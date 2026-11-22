@@ -467,6 +467,10 @@ public struct FloorplanView: View {
 
                     // 左栏内容（画布 + 全部操作工具）：展开态与折叠态共用同一份定义
                     let mainColumn = VStack(spacing: 8) {
+                                WorkflowStepperBar(activeStep: 0)
+                                    .frame(maxWidth: contentMax)
+                                    .padding(.horizontal, 16)
+
                                 topControlBar()
                                     .frame(maxWidth: contentMax)
 
@@ -489,22 +493,11 @@ public struct FloorplanView: View {
                                     }
                                 }
                                 
-                                floorplanCanvasView(auditedRooms: auditResult.auditedRooms, personLabels: personLabels,
-                                                    reviewRoomIDs: roomReviewIDs)
+                                floorplanCanvasView(auditedRooms: auditResult.auditedRooms, personLabels: [:],
+                                                    reviewRoomIDs: [])
                                     .frame(width: isLargeLayout ? canvasSide : nil, height: canvasSide)
                                     .frame(maxWidth: .infinity)
                                     .padding(.horizontal, isLargeLayout ? 0 : 16)
-
-                                FamilyRoomAllocationSection(rooms: auditResult.auditedRooms, centroid: centroid,
-                                    heading: effectiveHeading, aspectRatio: floorplanAspectRatio,
-                                    houseContext: floorplanHeadingState, manualAssignments: familyRoomAssignments,
-                                    showLabels: $showFamilyRoomLabels) { updated in
-                                    guard iap.canUseFamilyRoomAllocation, familyProfile.isProfileEnabled else { return }
-                                    familyRoomAssignments = updated
-                                    persistLayout()
-                                }
-                                .id(workspacePropertyID)
-                                .frame(maxWidth: contentMax)
 
                                 if !isSyncWithCompass {
                                     manualHeadingControl()
@@ -1036,6 +1029,14 @@ public struct FloorplanView: View {
                 applyWorkspaceSnapshot(workspaceStore.snapshot)
                 caseBackupToastMessage = lang.t("save_failed")
             }
+            SpatialWorkflowStore.shared.recordSurvey(
+                source: userFloorplanImage != nil ? "Blueprint + Floorplan" : "Floorplan Layout",
+                widthMeters: calibratedWidthMeters.map { Double($0) } ?? persistedSpatialSurvey.map { Double($0.dimensions.totalWidth) },
+                depthMeters: calibratedDepthMeters.map { Double($0) } ?? persistedSpatialSurvey.map { Double($0.dimensions.totalDepth) },
+                areaSqMeters: estimatedAreaSqm ?? persistedSpatialSurvey.map { Double($0.dimensions.usableFloorArea) },
+                ceilingHeightMeters: persistedSpatialSurvey.map { Double($0.dimensions.ceilingHeight) },
+                roomCount: rooms.count
+            )
             return accepted
         } catch {
             caseBackupToastMessage = lang.t("save_failed")
@@ -1487,23 +1488,19 @@ public struct FloorplanView: View {
                                   heading: Double, houseFacing: Double?, aspectRatio: CGFloat, isCurrent: Bool) -> PropertyPKMetric {
         let audit = FloorplanEngine.shared.auditFloorplan(rooms: rooms, centroid: centroid, heading: heading, aspectRatio: aspectRatio)
         let state = FloorplanOrientation(coordinateHeading: heading, houseFacingDegrees: houseFacing).houseHeadingState
-        let sitMtn = state.sittingMountain
-        let faceMtn = state.facingMountain
-        let compat = UserKuaProfileManager.shared.evaluateCompatibility(sittingPalace: sitMtn.palace)
         let ausp = audit.report.filter { $0.isGood }.count
         let warn = audit.report.filter { $0.isWarning }.count
         let sev  = audit.report.filter { $0.isSevere }.count
-        let personalAccess = UserKuaProfileManager.shared.canUsePersonalAnalysis
-        let rawScore = 82 + ausp * 4 - warn * 5 - sev * 11 + (personalAccess ? (compat.isMatchedWithHouse ? 8 : -4) : 0)
+        let rawScore = 82 + ausp * 4 - warn * 5 - sev * 11
         let clampedScore = max(38, min(99, rawScore))
-        let sitLabel = "\(sitMtn.localizedName)\(lang.t("mountain_suffix"))\(faceMtn.localizedName)\(lang.t("facing_suffix"))"
+        let sitLabel = String(format: "%.1f°", state.facingAngle)
         return PropertyPKMetric(
             id: id,
             title: title,
             sittingText: sitLabel,
             score: clampedScore,
-            isKuaMatch: compat.isMatchedWithHouse,
-            kuaBadge: personalAccess ? compat.matchBadgeTitle : "",
+            isKuaMatch: false,
+            kuaBadge: "",
             auspiciousCount: ausp,
             shaCount: warn + sev,
             isCurrent: isCurrent
@@ -1514,37 +1511,37 @@ public struct FloorplanView: View {
         let currentTitle: String = {
             switch lang.effectiveLanguage {
             case .en: return "Current Plan"
-            case .zhHant: return "當前正在勘測戶型"
+            case .zhHant: return "當前正在測繪戶型"
             case .ja: return "現在の間取り"
             case .ko: return "현재 평면도"
             case .vi: return "Mặt bằng hiện tại"
             case .th: return "ผังปัจจุบัน"
             case .id: return "Denah Saat Ini"
-            case .auto, .zhHans: return "当前正在勘测户型"
+            case .auto, .zhHans: return "当前正在测绘户型"
             }
         }()
         let pkHeaderTitle: String = {
             switch lang.effectiveLanguage {
-            case .en: return "Multi-Property Feng Shui PK Matrix"
-            case .zhHant: return "多套房源堪輿 PK 橫向比對榜"
-            case .ja: return "複数物件・風水 PK 比較マトリクス"
-            case .ko: return "다주택 풍수 PK 비교 매트릭스"
-            case .vi: return "Bảng So Sánh PK Phong Thủy Nhiều Căn Hộ"
-            case .th: return "ตารางเปรียบเทียบฮวงจุ้ยหลายบ้าน (PK)"
-            case .id: return "Matriks Perbandingan PK Multi-Properti"
-            case .auto, .zhHans: return "多套房源堪舆 PK 横向比对榜"
+            case .en: return "Multi-Property Spatial Comparison"
+            case .zhHant: return "多套房源空間佈局橫向比對"
+            case .ja: return "複数物件・空間レイアウト比較"
+            case .ko: return "다주택 공간 레이아웃 비교"
+            case .vi: return "So Sánh Bố Cục Không Gian Nhiều Căn Hộ"
+            case .th: return "ตารางเปรียบเทียบผังพื้นที่หลายบ้าน"
+            case .id: return "Perbandingan Tata Ruang Multi-Properti"
+            case .auto, .zhHans: return "多套房源空间布局横向比对"
             }
         }()
         let bestTag: String = {
             switch lang.effectiveLanguage {
             case .en: return "TOP PICK"
-            case .zhHant: return "首選推薦"
+            case .zhHant: return "綜合推薦"
             case .ja: return "最優秀物件"
             case .ko: return "최우선 추천"
             case .vi: return "ƯU TIÊN SỐ 1"
             case .th: return "แนะนำอันดับ 1"
             case .id: return "PILIHAN UTAMA"
-            case .auto, .zhHans: return "首选吉宅"
+            case .auto, .zhHans: return "综合推荐"
             }
         }()
 
@@ -1770,7 +1767,7 @@ public struct FloorplanView: View {
                     .adaptiveFont(size: 15, weight: .bold)
                     .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
                     .fixedSize(horizontal: false, vertical: true)
-                Text("\(lang.t("floorplan_current_facing"))\(String(format: "%.1f", floorplanHeadingState.facingAngle))° (\(floorplanHeadingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(floorplanHeadingState.facingMountain.localizedName)\(lang.t("facing_suffix")))")
+                Text("\(lang.t("floorplan_current_facing"))\(String(format: "%.1f", floorplanHeadingState.facingAngle))°")
                     .adaptiveFont(size: 11)
                     .foregroundColor(.white.opacity(0.7))
                     .fixedSize(horizontal: false, vertical: true)
@@ -3148,109 +3145,34 @@ public struct FloorplanView: View {
         )
     }
     
-    private func localizedOverlayPalaceBadges() -> [(geoAngle: Double, title: String, star: String, isAuspicious: Bool)] {
+    private func localizedCardinalDirections() -> [(geoAngle: Double, title: String)] {
         switch lang.effectiveLanguage {
         case .en:
-            return [
-                (0.0,   "N · Kan",   "5-Yellow", false),
-                (45.0,  "NE · Gen",  "3-Jade",   false),
-                (90.0,  "E · Zhen",  "7-Red",    false),
-                (135.0, "SE · Xun",  "8-Wealth", true),
-                (180.0, "S · Li",    "4-Study",  true),
-                (225.0, "SW · Kun",  "6-Noble",  true),
-                (270.0, "W · Dui",   "2-Illness",false),
-                (315.0, "NW · Qian", "1-Ausp.",  true)
-            ]
+            return [(0, "N"), (45, "NE"), (90, "E"), (135, "SE"), (180, "S"), (225, "SW"), (270, "W"), (315, "NW")]
         case .zhHant:
-            return [
-                (0.0,   "坎北",   "五黃煞",   false),
-                (45.0,  "艮東北", "三碧",     false),
-                (90.0,  "震東",   "七赤",     false),
-                (135.0, "巽東南", "八白財",   true),
-                (180.0, "離南",   "四綠文昌", true),
-                (225.0, "坤西南", "六白官",   true),
-                (270.0, "兌西",   "二黑病",   false),
-                (315.0, "乾西北", "一白吉",   true)
-            ]
+            return [(0, "正北 N"), (45, "東北 NE"), (90, "正東 E"), (135, "東南 SE"), (180, "正南 S"), (225, "西南 SW"), (270, "正西 W"), (315, "西北 NW")]
         case .ja:
-            return [
-                (0.0,   "坎北",   "五黄殺",   false),
-                (45.0,  "艮北東", "三碧",     false),
-                (90.0,  "震東",   "七赤",     false),
-                (135.0, "巽南東", "八白財",   true),
-                (180.0, "離南",   "四緑文昌", true),
-                (225.0, "坤南西", "六白官",   true),
-                (270.0, "兌西",   "二黒病",   false),
-                (315.0, "乾北西", "一白吉",   true)
-            ]
+            return [(0, "北 N"), (45, "北東 NE"), (90, "東 E"), (135, "南東 SE"), (180, "南 S"), (225, "南西 SW"), (270, "西 W"), (315, "北西 NW")]
         case .ko:
-            return [
-                (0.0,   "감북",   "오황살",   false),
-                (45.0,  "간동북", "삼벽",     false),
-                (90.0,  "진동",   "칠적",     false),
-                (135.0, "손동남", "팔백재",   true),
-                (180.0, "이남",   "사록문창", true),
-                (225.0, "곤서남", "육백관",   true),
-                (270.0, "태서",   "이흑병",   false),
-                (315.0, "건서북", "일백길",   true)
-            ]
+            return [(0, "북 N"), (45, "북동 NE"), (90, "동 E"), (135, "남동 SE"), (180, "남 S"), (225, "남서 SW"), (270, "서 W"), (315, "북서 NW")]
         case .vi:
-            return [
-                (0.0,   "Khảm B",  "Ngũ Hoàng", false),
-                (45.0,  "Cấn ĐB",  "Tam Bích",  false),
-                (90.0,  "Chấn Đ",  "Thất Xích", false),
-                (135.0, "Tốn ĐN",  "Bát Bạch",  true),
-                (180.0, "Ly N",    "Văn Xương", true),
-                (225.0, "Khôn TN", "Lục Bạch",  true),
-                (270.0, "Đoài T",  "Nhị Hắc",   false),
-                (315.0, "Càn TB",  "Nhất Bạch", true)
-            ]
+            return [(0, "Bắc N"), (45, "ĐB NE"), (90, "Đông E"), (135, "ĐN SE"), (180, "Nam S"), (225, "TN SW"), (270, "Tây W"), (315, "TB NW")]
         case .th:
-            return [
-                (0.0,   "ข่าน N",  "5 เหลือง", false),
-                (45.0,  "เกิ่น NE","3 เขียว",  false),
-                (90.0,  "เจิ้น E", "7 แดง",    false),
-                (135.0, "ซวิ่น SE","8 ทรัพย์", true),
-                (180.0, "หลี S",   "4 บัณฑิต", true),
-                (225.0, "คุน SW",  "6 ยศ",     true),
-                (270.0, "ตุ้ย W",  "2 โรค",    false),
-                (315.0, "เฉียน NW","1 มงคล",   true)
-            ]
+            return [(0, "เหนือ N"), (45, "NE"), (90, "ออก E"), (135, "SE"), (180, "ใต้ S"), (225, "SW"), (270, "ตก W"), (315, "NW")]
         case .id:
-            return [
-                (0.0,   "U · Kan",  "5-Kuning", false),
-                (45.0,  "TL · Gen", "3-Hijau",  false),
-                (90.0,  "T · Zhen", "7-Merah",  false),
-                (135.0, "TG · Xun", "8-Rezeki", true),
-                (180.0, "S · Li",   "4-Studi",  true),
-                (225.0, "BD · Kun", "6-Karier", true),
-                (270.0, "B · Dui",  "2-Sakit",  false),
-                (315.0, "BL · Qian","1-Berkah", true)
-            ]
+            return [(0, "U · N"), (45, "TL"), (90, "T · E"), (135, "TG"), (180, "S"), (225, "BD"), (270, "B · W"), (315, "BL")]
         case .auto, .zhHans:
-            return [
-                (0.0,   "坎北",   "五黄煞",   false),
-                (45.0,  "艮东北", "三碧",     false),
-                (90.0,  "震东",   "七赤",     false),
-                (135.0, "巽东南", "八白财",   true),
-                (180.0, "离南",   "四绿文昌", true),
-                (225.0, "坤西南", "六白官",   true),
-                (270.0, "兑西",   "二黑病",   false),
-                (315.0, "乾西北", "一白吉",   true)
-            ]
+            return [(0, "正北 N"), (45, "东北 NE"), (90, "正东 E"), (135, "东南 SE"), (180, "正南 S"), (225, "西南 SW"), (270, "正西 W"), (315, "西北 NW")]
         }
     }
 
     private func compassOverlayLayer(centerPt: CGPoint, size: CGFloat) -> some View {
         let r = size * 0.44
-        // 角标原放在 0.37（金环内侧），正好落在房间卡片上，压住房间名
-        //（截图里"乾西北 三碧"叠在 Gourmet Kitchen 上）。挪到金环外侧
-        // 0.465：角标落在环与画布边缘之间的空环带上，不再压房间标题。
         let badgeR = size * 0.465
-        let badges = localizedOverlayPalaceBadges()
+        let directions = localizedCardinalDirections()
 
         return ZStack {
-            // 八宫分界辐射线 (位于每宫 ±22.5° 交界处，与 FloorplanEngine.palaceForPoint 完全对齐)
+            // 八方位空间参考分区线（纯建筑朝向与采光几何参考，不含罗盘/飞星/算命元素）
             ForEach(0..<8) { i in
                 let boundaryAngle = Double(i) * 45.0 + 22.5 - effectiveHeading
                 Path { p in
@@ -3258,44 +3180,40 @@ public struct FloorplanView: View {
                     let rad = boundaryAngle * .pi / 180.0
                     p.addLine(to: CGPoint(x: centerPt.x + CGFloat(sin(rad)) * r, y: centerPt.y - CGFloat(cos(rad)) * r))
                 }
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.35), lineWidth: 1)
+                .stroke(Color.yanCyan.opacity(0.22), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
             }
 
-            // 十字天心红线
+            // 几何中心十字标尺
             Path { p in
                 p.move(to: CGPoint(x: centerPt.x - r, y: centerPt.y))
                 p.addLine(to: CGPoint(x: centerPt.x + r, y: centerPt.y))
                 p.move(to: CGPoint(x: centerPt.x, y: centerPt.y - r))
                 p.addLine(to: CGPoint(x: centerPt.x, y: centerPt.y + r))
             }
-            .stroke(Color.red.opacity(0.6), lineWidth: 1.5)
+            .stroke(Color.yanCyan.opacity(0.45), lineWidth: 1)
 
-            // 外圈金环
+            // 建筑参考圆环
             Circle()
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.4), lineWidth: 1)
+                .stroke(Color.white.opacity(0.22), lineWidth: 1)
                 .frame(width: r * 2, height: r * 2)
                 .position(centerPt)
 
-            // 八宫八卦方位与九运飞星财位/文昌位角标
-            ForEach(0..<badges.count, id: \.self) { idx in
-                let item = badges[idx]
+            // 八方位基础地理方向标签
+            ForEach(0..<directions.count, id: \.self) { idx in
+                let item = directions[idx]
                 let screenAngle = item.geoAngle - effectiveHeading
                 let rad = screenAngle * .pi / 180.0
                 let bx = centerPt.x + CGFloat(sin(rad)) * badgeR
                 let by = centerPt.y - CGFloat(cos(rad)) * badgeR
-                VStack(spacing: 0) {
-                    Text(item.title)
-                        .adaptiveFont(size: 8, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                    Text(item.star)
-                        .adaptiveFont(size: 7, weight: .semibold)
-                        .foregroundColor(item.isAuspicious ? .green : .orange.opacity(0.9))
-                }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 1.5)
-                .background(Color.black.opacity(0.62))
-                .cornerRadius(4)
-                .position(x: bx, y: by)
+                let isNorth = item.geoAngle == 0
+                Text(item.title)
+                    .adaptiveFont(size: 8.5, weight: .bold)
+                    .foregroundColor(isNorth ? Color.yanGold : Color.white.opacity(0.85))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(Color.black.opacity(0.68))
+                    .cornerRadius(4)
+                    .position(x: bx, y: by)
             }
         }
         .allowsHitTesting(false)
@@ -3460,54 +3378,42 @@ public struct FloorplanView: View {
         let snapshot = FloorplanReportSnapshot(rooms: rooms, centroid: centroid, heading: effectiveHeading,
                                                aspectRatio: floorplanAspectRatio, image: userFloorplanImage)
         let roomsToDraw = snapshot.rooms
-        let familySnapshot = FamilyRoomExportSnapshot(manual: familyRoomAssignments, rooms: roomsToDraw,
-            people: FamilyRoomAllocationEngine.people(profile: familyProfile), centroid: snapshot.centroid,
-            heading: snapshot.heading, aspectRatio: snapshot.aspectRatio,
-            hasMembershipAccess: iap.canUseFamilyRoomAllocation, includePeople: showFamilyRoomLabels)
-        let personLabels = familySnapshot.labels
-        let report = snapshot.report + familySnapshot.report
+        let personLabels: [String: String] = [:]
+        let report = snapshot.report
         let heading = snapshot.heading
         let state = floorplanHeadingState
         let bgImage = snapshot.image
         let planAspectRatio = snapshot.aspectRatio
         let solutionPrefix = lang.t("floorplan_solution_prefix")
-        let solarCaption: String
-        if motion.hasLocationFix {
-            let solarInfo = SolarTimeCalculator.shared.calculate(date: snapshot.date, longitude: motion.longitude)
-            solarCaption = "\(solarInfo.localizedDayPillar) \(solarInfo.trueSolarTimeString)"
-        } else { solarCaption = lang.t("location_unavailable") }
-        let kuaMatch = UserKuaProfileManager.shared.evaluateCompatibility(sittingPalace: state.sittingMountain.palace)
-        let kuaSuffix = UserKuaProfileManager.shared.canUsePersonalAnalysis
-            ? " · \(kuaMatch.localizedOwnerGuaName) (\(kuaMatch.matchBadgeTitle))" : ""
         let reportMainTitle: String
         let reportSubHeadline: String
         switch lang.effectiveLanguage {
         case .en:
-            reportMainTitle = "YanXiang · Whole-Home Floorplan & Feng Shui Report"
-            reportSubHeadline = "Period 9 · Nine-Palace Bagua Alignment\(kuaSuffix)"
+            reportMainTitle = "TianJi · Spatial Floorplan & Layout Report"
+            reportSubHeadline = "Architectural Geometry · Orientation & Zoning Reference"
         case .zhHant:
-            reportMainTitle = "演象 · 戶型空間立極與全屋堪輿全案"
-            reportSubHeadline = "下元九運 · 九宮八卦立極透視\(kuaSuffix)"
+            reportMainTitle = "天機演象 · 戶型空間測繪與佈局報告"
+            reportSubHeadline = "建築幾何分區 · 朝向採光與動線參考"
         case .ja:
-            reportMainTitle = "演象・間取り立極＆全室風水鑑定レポート"
-            reportSubHeadline = "下元九運・九宮八卦立極透視\(kuaSuffix)"
+            reportMainTitle = "天機演象・間取り空間測量＆レイアウト報告書"
+            reportSubHeadline = "建築幾何・方位採光および動線リファレンス"
         case .ko:
-            reportMainTitle = "연상 · 평면도 입극 및 전택 풍수 감정 보고서"
-            reportSubHeadline = "하원 9운 · 구궁팔괘 입극 투시\(kuaSuffix)"
+            reportMainTitle = "천기연상 · 평면도 공간 측량 및 배치 보고서"
+            reportSubHeadline = "건축 기하학 · 방위 채광 및 동선 참고"
         case .vi:
-            reportMainTitle = "Diễn Tượng · Hồ Sơ Phong Thủy & Lập Cực Mặt Bằng"
-            reportSubHeadline = "Hạ Nguyên Vận 9 · Thấu Thị Cửu Cung Bát Quái\(kuaSuffix)"
+            reportMainTitle = "Thiên Cơ · Báo Cáo Khảo Sát & Bố Cục Mặt Bằng"
+            reportSubHeadline = "Hình học kiến trúc · Tham khảo hướng & phân khu"
         case .th:
-            reportMainTitle = "เหยียนเซี่ยง · รายงานฮวงจุ้ยและจุดศูนย์กลางผังบ้าน"
-            reportSubHeadline = "ยุค 9 ล่าง · วิเคราะห์เก้าวังแปดทิศ\(kuaSuffix)"
+            reportMainTitle = "รายงานสำรวจพื้นที่และผังอาคาร"
+            reportSubHeadline = "เรขาคณิตสถาปัตยกรรม · ทิศทางและแสงธรรมชาติ"
         case .id:
-            reportMainTitle = "YanXiang · Laporan Feng Shui & Titik Pusat Denah Rumah"
-            reportSubHeadline = "Periode 9 · Analisis Sembilan Istana Bagua\(kuaSuffix)"
+            reportMainTitle = "TianJi · Laporan Survei Spasial & Denah"
+            reportSubHeadline = "Geometri Arsitektur · Referensi Orientasi & Zonasi"
         case .auto, .zhHans:
-            reportMainTitle = "演象 · 户型空间立极与全屋堪舆全案"
-            reportSubHeadline = "下元九运 · 九宫八卦立极透视\(kuaSuffix)"
+            reportMainTitle = "天机演象 · 户型空间测绘与布局报告"
+            reportSubHeadline = "建筑几何分区 · 朝向采光与动线参考"
         }
-        let subText = "\(state.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(state.facingMountain.localizedName)\(lang.t("facing_suffix")) · \(String(format: "%.1f°", state.facingAngle)) · \(state.kongWangLevel.localizedTitle) · \(solarCaption)"
+        let subText = String(format: "%.1f° · %d %@", state.facingAngle, roomsToDraw.count, lang.t("3d_btn_rooms"))
 
         DispatchQueue.global(qos: .userInitiated).async {
             // The audit can contain more than six rooms/sector findings. Size

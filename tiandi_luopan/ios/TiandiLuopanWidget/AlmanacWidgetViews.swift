@@ -472,17 +472,16 @@ struct AlmanacWidgetRootView: View {
         }
         .modifier(ContentInset(isAccessory: isAccessory))
         .modifier(WidgetBackground(isAccessory: isAccessory))
-        .widgetURL(URL(string: "tiandiluopan://almanac"))
+        .widgetURL(URL(string: "tiandiluopan://floorplan"))
     }
 }
 
-// MARK: - 锁屏：一行文字（缩短以适配单行，附通用日课标记）
+// MARK: - 锁屏：一行文字（天文节气进度）
 
 private struct InlineView: View {
     let s: WidgetAlmanacSnapshot
     var body: some View {
-        // accessoryInline 只接受单行文字，优先采用 termShortName 避免英文长节气名在锁屏单行截断。
-        Text("\(s.termShortName) · \(s.localizedDayPillar) · \(WidgetText.dayOfficerName(at: s.dayOfficerIndex))")
+        Text("\(s.termShortName) · \(Int(s.termProgress * 100))%")
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }
@@ -493,8 +492,6 @@ private struct InlineView: View {
 private struct CircularView: View {
     let s: WidgetAlmanacSnapshot
     var body: some View {
-        // 系统 Gauge 会按锁屏 vibrancy 与可用直径自动排布，
-        // 避免自绘圆环内塞两行长文本（英文节气名可达 20 字符）被强截。
         Gauge(value: min(1.0, max(0.0, s.termProgress)), in: 0...1) {
             Text(s.termShortName)
                 .lineLimit(1)
@@ -510,35 +507,25 @@ private struct CircularView: View {
     }
 }
 
-// MARK: - 锁屏：矩形（日柱 + 节气 + 值神，核心宜忌）
+// MARK: - 锁屏：矩形（天文二十四节气与下一节气倒计时）
 
 private struct RectangularView: View {
     let s: WidgetAlmanacSnapshot
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 5) {
-                Text(s.localizedDayPillar)
+                Text(s.termName)
                     .font(.system(size: 13, weight: .bold))
                 Text("·")
                     .foregroundStyle(.secondary)
-                Text(s.termShortName)
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                Text("·")
-                    .foregroundStyle(.secondary)
-                Text(WidgetText.dayOfficerName(at: s.dayOfficerIndex))
-                    .font(.system(size: 11, weight: .medium))
+                Text("\(Int(s.termProgress * 100))%")
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(.secondary)
             }
             .lineLimit(1)
             .minimumScaleFactor(0.7)
 
-            Text("\(WidgetText.yi.string()) \(joined(s.yiActivities, limit: 2))")
-                .font(.system(size: 11, weight: .medium))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-
-            Text("\(WidgetText.ji.string()) \(joined(s.jiActivities, limit: 2))")
+            Text(String(format: WidgetText.daysToNext.string(), s.daysToNextTerm))
                 .font(.system(size: 11, weight: .medium))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -547,38 +534,31 @@ private struct RectangularView: View {
     }
 }
 
-// MARK: - 小尺寸：极简日课（日柱大字 + 值神胶囊 + 节气环 + 核心宜忌）
+// MARK: - 小尺寸：二十四节气天文进度环
 
 private struct SmallView: View {
     let s: WidgetAlmanacSnapshot
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            // 顶栏：日柱大字 + 值神高亮胶囊 + 节气短名
+        VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(s.localizedDayPillar)
-                    .font(.system(size: 20, weight: .bold, design: .serif))
+                Text(s.termName)
+                    .font(.system(size: 16, weight: .bold, design: .serif))
                     .foregroundColor(Palette.gold)
-
-                Text(WidgetText.dayOfficerName(at: s.dayOfficerIndex))
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(Palette.cyan)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
+
+                Spacer(minLength: 0)
+
+                Text(WidgetText.term.string())
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(Palette.cyan)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 1.5)
                     .background(Palette.cyan.opacity(0.16))
                     .cornerRadius(4)
-
-                Spacer(minLength: 0)
-
-                Text(s.termShortName)
-                    .font(.system(size: 11, weight: .medium, design: .serif))
-                    .foregroundColor(Palette.yellow)
-                    .lineLimit(1)
             }
 
-            // 中间：节气进度环（舒展大方，数字清晰）
             ZStack {
                 Circle()
                     .stroke(Palette.gold.opacity(0.15), lineWidth: 5)
@@ -587,127 +567,69 @@ private struct SmallView: View {
                     .stroke(Palette.gold, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                 Text("\(Int(s.termProgress * 100))%")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .font(.system(size: 13, weight: .bold, design: .monospaced))
                     .foregroundColor(Palette.gold.opacity(0.9))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // 底栏：精炼宜忌（鲜明标识，去除冗长堆叠文字）
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 5) {
-                    Text(WidgetText.yi.string())
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(Palette.yellow)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 1)
-                        .background(Palette.yellow.opacity(0.18))
-                        .cornerRadius(3)
-                    Text(s.yiActivities.first ?? "-")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(Palette.yellow)
-                        .lineLimit(1)
-                }
-
-                HStack(spacing: 5) {
-                    Text(WidgetText.ji.string())
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(Palette.red)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 1)
-                        .background(Palette.red.opacity(0.18))
-                        .cornerRadius(3)
-                    Text(s.jiActivities.first ?? "-")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(Palette.dim)
-                        .lineLimit(1)
-                }
-            }
+            Text(String(format: WidgetText.daysToNext.string(), s.daysToNextTerm))
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(Palette.cyan)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
     }
 }
 
-// MARK: - 中尺寸：核心日课宜忌 + 节气环 + 飞星胶囊
+// MARK: - 中尺寸：天文节气进度 + 空间测绘快捷入口
 
 private struct MediumView: View {
     let s: WidgetAlmanacSnapshot
 
     var body: some View {
         HStack(spacing: 12) {
-            // 左半区：日柱大字与双列精炼宜忌
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(s.localizedDayPillar)
-                        .font(.system(size: 26, weight: .bold, design: .serif))
+                    Text(s.termName)
+                        .font(.system(size: 22, weight: .bold, design: .serif))
                         .foregroundColor(Palette.gold)
-
-                    Text(WidgetText.dayOfficerName(at: s.dayOfficerIndex))
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Palette.cyan)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .minimumScaleFactor(0.75)
+
+                    Text(WidgetText.term.string())
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(Palette.cyan)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Palette.cyan.opacity(0.16))
                         .cornerRadius(4)
-
-                    if let badge = s.sittingMountainBadge {
-                        Text(badge)
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(s.hasSittingClash ? Palette.red : Palette.gold)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background((s.hasSittingClash ? Palette.red : Palette.gold).opacity(0.16))
-                            .cornerRadius(4)
-                    }
                 }
+
+                Text(String(format: WidgetText.daysToNext.string(), s.daysToNextTerm))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(Palette.dim)
+                    .lineLimit(1)
 
                 Spacer(minLength: 0)
 
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 6) {
-                        Text(WidgetText.yi.string())
+                HStack(spacing: 8) {
+                    Link(destination: URL(string: "tiandiluopan://floorplan")!) {
+                        Label("2D/3D", systemImage: "house.fill")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(Palette.yellow)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
-                            .background(Palette.yellow.opacity(0.18))
-                            .cornerRadius(3)
-                        Text(joined(s.yiActivities, limit: 2))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Palette.yellow)
-                            .lineLimit(1)
+                            .foregroundColor(Palette.gold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Palette.card)
+                            .cornerRadius(6)
                     }
-
-                    HStack(spacing: 6) {
-                        Text(WidgetText.ji.string())
+                    Link(destination: URL(string: "tiandiluopan://ar")!) {
+                        Label("AR", systemImage: "camera.viewfinder")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(Palette.red)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
-                            .background(Palette.red.opacity(0.18))
-                            .cornerRadius(3)
-                        Text(joined(s.jiActivities, limit: 2))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Palette.dim)
-                            .lineLimit(1)
-                    }
-
-                    Link(destination: URL(string: "tiandiluopan://compass?guide=dailyGods")!) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "location.north.circle.fill")
-                                .font(.system(size: 9))
-                            Text(s.wealthJoyBadge)
-                                .font(.system(size: 9, weight: .semibold))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.75)
-                        }
-                        .foregroundColor(Palette.cyan)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Palette.cyan.opacity(0.14))
-                        .cornerRadius(4)
+                            .foregroundColor(Palette.cyan)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Palette.card)
+                            .cornerRadius(6)
                     }
                 }
             }
@@ -715,8 +637,7 @@ private struct MediumView: View {
 
             Divider().background(Palette.gold.opacity(0.2))
 
-            // 右半区：节气进度环与流年月星胶囊
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 ZStack {
                     Circle()
                         .stroke(Palette.gold.opacity(0.15), lineWidth: 6)
@@ -735,196 +656,84 @@ private struct MediumView: View {
                             .foregroundColor(Palette.dim)
                     }
                 }
-                .frame(width: 58, height: 58)
-
-                HStack(spacing: 5) {
-                    HStack(spacing: 2) {
-                        Text(WidgetText.yearStar.string())
-                            .font(.system(size: 9))
-                            .foregroundColor(Palette.dim)
-                        Text("\(s.yearCentralStar)")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .foregroundColor(Palette.cyan)
-                    }
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 2)
-                    .background(Palette.card)
-                    .cornerRadius(4)
-
-                    HStack(spacing: 2) {
-                        Text(WidgetText.monthStar.string())
-                            .font(.system(size: 9))
-                            .foregroundColor(Palette.dim)
-                        Text("\(s.monthCentralStar)")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .foregroundColor(Palette.cyan)
-                    }
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 2)
-                    .background(Palette.card)
-                    .cornerRadius(4)
-                }
+                .frame(width: 66, height: 66)
             }
-            .frame(width: 105)
+            .frame(width: 96)
         }
     }
 }
 
-// MARK: - 大尺寸：四柱微胶囊 + 核心宜忌 + 节气盘 + 紫白飞星
+// MARK: - 大尺寸：天文节气日历与空间测绘快捷卡片
 
 private struct LargeView: View {
     let s: WidgetAlmanacSnapshot
 
-    private var pillarCapsules: [String] {
-        let text = s.fourPillarsText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if text.contains(" · ") {
-            return text.components(separatedBy: " · ")
-        } else if text.contains(" ") {
-            return text.components(separatedBy: " ")
-        } else {
-            return [text]
-        }
-    }
-
     var body: some View {
-        VStack(spacing: 12) {
-            // 顶栏：日柱大字 + 值神胶囊 + 四柱微胶囊排列
+        VStack(spacing: 14) {
             HStack(alignment: .firstTextBaseline) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(s.localizedDayPillar)
-                        .font(.system(size: 28, weight: .bold, design: .serif))
-                        .foregroundColor(Palette.gold)
-
-                    Text(WidgetText.dayOfficerName(at: s.dayOfficerIndex))
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Palette.cyan)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Palette.cyan.opacity(0.16))
-                        .cornerRadius(4)
-
-                    if let badge = s.sittingMountainBadge {
-                        Text(badge)
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(s.hasSittingClash ? Palette.red : Palette.gold)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background((s.hasSittingClash ? Palette.red : Palette.gold).opacity(0.16))
-                            .cornerRadius(4)
-                    }
-                }
-
-                Spacer(minLength: 8)
-
-                HStack(spacing: 4) {
-                    ForEach(Array(pillarCapsules.enumerated()), id: \.offset) { _, pillar in
-                        Text(pillar)
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundColor(Palette.dim)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Palette.card)
-                            .cornerRadius(4)
-                    }
-                }
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-            }
-
-            // 中栏：左侧宜忌卡 + 右侧节气盘
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(alignment: .top, spacing: 6) {
-                        Text(WidgetText.yi.string())
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(Palette.yellow)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Palette.yellow.opacity(0.18))
-                            .cornerRadius(4)
-                        Text(joined(s.yiActivities, limit: 3))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Palette.yellow)
-                            .lineLimit(2)
-                    }
-
-                    Divider().background(Palette.gold.opacity(0.15))
-
-                    HStack(alignment: .top, spacing: 6) {
-                        Text(WidgetText.ji.string())
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(Palette.red)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Palette.red.opacity(0.18))
-                            .cornerRadius(4)
-                        Text(joined(s.jiActivities, limit: 3))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Palette.dim)
-                            .lineLimit(2)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(10)
-                .background(Palette.card)
-                .cornerRadius(10)
-
-                VStack(spacing: 4) {
-                    ZStack {
-                        Circle()
-                            .stroke(Palette.gold.opacity(0.15), lineWidth: 7)
-                        Circle()
-                            .trim(from: 0, to: max(0.02, min(1.0, s.termProgress)))
-                            .stroke(Palette.gold, style: StrokeStyle(lineWidth: 7, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                        VStack(spacing: 1) {
-                            Text(s.termShortName)
-                                .font(.system(size: 13, weight: .bold, design: .serif))
-                                .foregroundColor(Palette.yellow)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.65)
-                            Text("\(Int(s.termProgress * 100))%")
-                                .font(.system(size: 9, design: .monospaced))
-                                .foregroundColor(Palette.dim)
-                        }
-                    }
-                    .frame(width: 70, height: 70)
-
-                    Text(String(format: WidgetText.daysToNext.string(), s.daysToNextTerm))
-                        .font(.system(size: 9))
-                        .foregroundColor(Palette.cyan)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                .frame(width: 100)
-            }
-
-            // 底栏：流年与流月中宫客星 + 今日财神喜神吉方直达胶囊
-            VStack(spacing: 6) {
-                HStack(spacing: 10) {
-                    StarCard(title: WidgetText.yearStar.string(), star: s.yearCentralStar, name: s.yearStarName)
-                    StarCard(title: WidgetText.monthStar.string(), star: s.monthCentralStar, name: s.monthStarName)
-                }
-                Link(destination: URL(string: "tiandiluopan://compass?guide=dailyGods")!) {
-                    HStack(spacing: 5) {
-                        Image(systemName: "location.north.circle.fill")
-                            .font(.system(size: 10))
-                        Text(s.wealthJoyBadge)
-                            .font(.system(size: 10, weight: .bold))
-                            .lineLimit(1)
-                        Spacer(minLength: 0)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
-                    }
+                Text(s.termName)
+                    .font(.system(size: 26, weight: .bold, design: .serif))
                     .foregroundColor(Palette.gold)
+                Spacer()
+                Text(WidgetText.term.string())
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Palette.cyan)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Palette.card)
+                    .padding(.vertical, 3)
+                    .background(Palette.cyan.opacity(0.16))
                     .cornerRadius(6)
+            }
+
+            Spacer(minLength: 0)
+
+            ZStack {
+                Circle()
+                    .stroke(Palette.gold.opacity(0.15), lineWidth: 9)
+                Circle()
+                    .trim(from: 0, to: max(0.02, min(1.0, s.termProgress)))
+                    .stroke(Palette.gold, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                VStack(spacing: 3) {
+                    Text(s.termShortName)
+                        .font(.system(size: 18, weight: .bold, design: .serif))
+                        .foregroundColor(Palette.yellow)
+                    Text("\(Int(s.termProgress * 100))%")
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                        .foregroundColor(Palette.dim)
+                }
+            }
+            .frame(width: 116, height: 116)
+
+            Text(String(format: WidgetText.daysToNext.string(), s.daysToNextTerm))
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(Palette.cyan)
+
+            Spacer(minLength: 0)
+
+            HStack(spacing: 10) {
+                Link(destination: URL(string: "tiandiluopan://floorplan")!) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "house.fill")
+                        Text("2D / 3D")
+                    }
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(Palette.gold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Palette.card)
+                    .cornerRadius(8)
+                }
+                Link(destination: URL(string: "tiandiluopan://ar")!) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "camera.viewfinder")
+                        Text("AR / LiDAR")
+                    }
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(Palette.cyan)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Palette.card)
+                    .cornerRadius(8)
                 }
             }
         }

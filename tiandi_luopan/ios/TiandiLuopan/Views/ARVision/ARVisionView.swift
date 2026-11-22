@@ -682,6 +682,7 @@ public struct ARVisionView: View {
                         crosshairCenterLayer()
                         targetBoundingBoxLayer()
                         VStack(spacing: 6) {
+                            WorkflowStepperBar(activeStep: 0)
                             topStatusBar()
                             horizonCompassRibbon()
                             Spacer()
@@ -729,6 +730,7 @@ public struct ARVisionView: View {
             
             // 5. 顶栏悬浮与拍照存证控制栏
             VStack(spacing: 6) {
+                WorkflowStepperBar(activeStep: 0)
                 topStatusBar()
                 horizonCompassRibbon()
                 
@@ -1147,50 +1149,32 @@ public struct ARVisionView: View {
 
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke((hitBaSha || waterItem?.isHuangQuanSha == true) ? Color.red : Color.yellow, lineWidth: 2)
+                    .stroke(Color.yanCyan, lineWidth: 2)
                     .frame(width: boxSize.width, height: boxSize.height)
-                    .background(Color.yellow.opacity(0.12))
+                    .background(Color.yanCyan.opacity(0.10))
 
-                VStack(spacing: 2) {
+                VStack(spacing: 3) {
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(Color.red)
+                            .fill(Color.yanCyan)
                             .frame(width: 6, height: 6)
-                        Text("\(lang.t("ar_target_center")) · \(m.localizedName)\(lang.t("mountain_suffix"))")
+                        Text(lang.t("ar_target_center"))
                             .adaptiveFont(size: 10, weight: .bold)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.7)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(.yellow)
-                            .multilineTextAlignment(.center)
-                    }
-                    Text(currentSha.localizedName)
-                        .adaptiveFont(size: 15, weight: .bold, design: .serif)
-                        .foregroundColor(.white)
-                    Text("\(lang.t("ar_target_bearing")): \(String(format: "%.1f", targetCalculatedHeading))° (\(m.localizedPalace))")
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.6)
-                        .fixedSize(horizontal: false, vertical: true)
-                    if let water = waterItem {
-                        let statusTag = hitBaSha
-                            ? lang.t("ar_status_basha")
-                            : (water.isHuangQuanSha ? lang.t("ar_status_huangquan") : "\(lang.t("ar_status_water_prefix")): \(water.stage)")
-                        Text(statusTag)
-                            .adaptiveFont(size: 9, weight: .bold)
-                            .foregroundColor((hitBaSha || water.isHuangQuanSha) ? .red : (water.isAuspicious ? .green : .yanCyan))
                             .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .foregroundColor(.yanCyan)
                     }
+                    Text("\(lang.t("ar_target_bearing")): \(String(format: "%.1f", targetCalculatedHeading))° (\(cardinalLabel(for: targetCalculatedHeading)))")
+                        .adaptiveFont(size: 12, weight: .bold, design: .monospaced)
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                        .fixedSize(horizontal: false, vertical: true)
                     if let d = targetDist {
-                        Text("\(fusionModel.lidarAvailable ? "LiDAR" : "AR") \(String(format: "%.2f m", d))")
-                            .adaptiveFont(size: 9, weight: .bold, design: .monospaced)
+                        Text("\(fusionModel.lidarAvailable ? "LiDAR" : "AR") · \(String(format: "%.2f m", d))")
+                            .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
                             .foregroundColor(.green)
                     }
-                    Text(currentSha.localizedAliases)
-                        .adaptiveFont(size: 9)
-                        .foregroundColor(.white.opacity(0.7))
-                        .lineLimit(1)
                 }
                 .padding(.horizontal, 8)
                 .frame(width: boxSize.width, height: boxSize.height)
@@ -1234,9 +1218,7 @@ public struct ARVisionView: View {
                     Text(lang.t("ar_title"))
                         .adaptiveFont(size: 15, weight: .bold)
                         .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                    let liveFacingM = Mountain24Data.shared.mountain(for: arCameraFacingAngle)
-                    let sittingSuffix = motion.isLocked ? " · 🏠\(motion.headingState.sittingMountain.localizedName)\(lang.t("mountain_suffix"))" : ""
-                    Text("\(lang.t("ar_physical_facing")): \(liveFacingM.localizedName)\(lang.t("mountain_suffix")) (\(String(format: "%.1f", arCameraFacingAngle))°)\(sittingSuffix)")
+                    Text("\(lang.t("ar_physical_facing")): \(cardinalLabel(for: arCameraFacingAngle)) (\(String(format: "%.1f", arCameraFacingAngle))°)")
                         .adaptiveFont(size: 11)
                         .foregroundColor(.white.opacity(0.8))
                         .lineLimit(1)
@@ -1359,22 +1341,6 @@ public struct ARVisionView: View {
                         .cornerRadius(14)
                     }
                     .disabled(isAIScanning || pendingCapturePurpose != nil)
-
-                    // 大师化解锦囊
-                    Button(action: {
-                        showRemedySheet = true
-                    }) {
-                        HStack(spacing: 3) {
-                            Image(systemName: "shield.lefthalf.fill")
-                            Text(lang.t("remedy_guide"))
-                        }
-                        .adaptiveFont(size: 11, weight: .bold)
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 6)
-                        .background(Color(red: 0.83, green: 0.68, blue: 0.21))
-                        .foregroundColor(.black)
-                        .cornerRadius(14)
-                    }
                 }
             }
         }
@@ -1383,90 +1349,49 @@ public struct ARVisionView: View {
         .cornerRadius(10)
     }
 
-    // MARK: - 全景天际二十四山与杨公十二长生消砂纳水标尺 (PRD 5.2 & 13 + 今日吉神与本命财位实景投射)
-    private func horizonCompassRibbon() -> some View {
-        let baseHeading = arCameraFacingAngle
-        let sitting = motion.headingState.sittingMountain
-        let liveFacingMountain = Mountain24Data.shared.mountain(for: baseHeading)
-        let waterItems = SanHeWaterEngine.shared.resolveWaterMethod(sitting: sitting, facing: liveFacingMountain)
-        let baShaZhi = SanHeWaterEngine.shared.resolveBaSha(sitting: sitting).shaZhi
-        let gods = ZeRiEngine.shared.dailyCompassDirections(for: Date())
-        let kuaProfile = UserKuaProfileManager.shared
-        let ownerCompatibility = kuaProfile.canUsePersonalAnalysis
-            ? kuaProfile.evaluateCompatibility(sittingPalace: sitting.palace)
-            : nil
-        let ownerPalaces: [BaZhaiPalaceItem] = ownerCompatibility.map {
-            BaZhaiEngine.shared.analyze(sittingPalace: $0.ownerGua, facingPalace: sitting.palace).items
-        } ?? []
-        let offsets: [Double] = [-30.0, -15.0, 0.0, 15.0, 30.0]
-
-        let shaPrefix: String
-        let wealthTag: String
-        let joyTag: String
+    private func cardinalLabel(for heading: Double) -> String {
+        let norm = (heading.truncatingRemainder(dividingBy: 360.0) + 360.0).truncatingRemainder(dividingBy: 360.0)
+        let idx = Int(((norm + 22.5).truncatingRemainder(dividingBy: 360.0)) / 45.0)
         switch lang.effectiveLanguage {
         case .en:
-            shaPrefix = "Sha · "; wealthTag = "💰Wealth"; joyTag = "🎉Joy"
+            return ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][idx]
         case .zhHant:
-            shaPrefix = "煞·"; wealthTag = "💰財神"; joyTag = "🎉喜神"
+            return ["正北", "東北", "正東", "東南", "正南", "西南", "正西", "西北"][idx]
         case .ja:
-            shaPrefix = "煞・"; wealthTag = "💰財神"; joyTag = "🎉喜神"
+            return ["北", "北東", "東", "南東", "南", "南西", "西", "北西"][idx]
         case .ko:
-            shaPrefix = "살·"; wealthTag = "💰재신"; joyTag = "🎉희신"
+            return ["북", "북동", "동", "남동", "남", "남서", "서", "북서"][idx]
         case .vi:
-            shaPrefix = "Sát · "; wealthTag = "💰Tài"; joyTag = "🎉Hỷ"
+            return ["Bắc", "ĐB", "Đông", "ĐN", "Nam", "TN", "Tây", "TB"][idx]
         case .th:
-            shaPrefix = "ชง·"; wealthTag = "💰โชค"; joyTag = "🎉ยินดี"
+            return ["เหนือ", "NE", "ออก", "SE", "ใต้", "SW", "ตก", "NW"][idx]
         case .id:
-            shaPrefix = "Sha · "; wealthTag = "💰Rezeki"; joyTag = "🎉Bahagia"
+            return ["U", "TL", "T", "TG", "S", "BD", "B", "BL"][idx]
         case .auto, .zhHans:
-            shaPrefix = "煞·"; wealthTag = "💰财神"; joyTag = "🎉喜神"
+            return ["正北", "东北", "正东", "东南", "正南", "西南", "正西", "西北"][idx]
         }
+    }
+
+    // MARK: - 建筑方位角标尺（纯地理方位角与基础方向指示，移除财神/喜神/命卦/神煞投射）
+    private func horizonCompassRibbon() -> some View {
+        let baseHeading = arCameraFacingAngle
+        let offsets: [Double] = [-30.0, -15.0, 0.0, 15.0, 30.0]
 
         return HStack(spacing: 6) {
             ForEach(offsets, id: \.self) { delta in
                 let angle = ((baseHeading + delta).truncatingRemainder(dividingBy: 360.0) + 360.0).truncatingRemainder(dividingBy: 360.0)
-                let m = Mountain24Data.shared.mountain(for: angle)
-                let water = waterItems.first(where: { $0.mountainName == m.name })
                 let isCenter = abs(delta) < 0.1
-                let isBaSha = (m.name == baShaZhi)
-                let isHQ = (water?.isHuangQuanSha == true)
-                let rawWealthDiff = abs(angle - gods.wealthAngle)
-                let isWealthGod = min(rawWealthDiff, 360.0 - rawWealthDiff) <= 12.0
-                let rawJoyDiff = abs(angle - gods.joyAngle)
-                let isJoyGod = !isWealthGod && min(rawJoyDiff, 360.0 - rawJoyDiff) <= 12.0
-                let ownerStar = ownerPalaces.first(where: { $0.guaName == m.palace && $0.star.isAuspicious })
 
                 VStack(spacing: 1) {
-                    Text("\(m.localizedName)\(isCenter ? "▲" : "")")
+                    Text("\(cardinalLabel(for: angle))\(isCenter ? "▲" : "")")
                         .adaptiveFont(size: isCenter ? 11 : 10, weight: .bold)
-                        .foregroundColor(isCenter ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white)
+                        .foregroundColor(isCenter ? Color.yanCyan : .white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                    if let water = water {
-                        Text((isBaSha || isHQ) ? "\(shaPrefix)\(water.stage)" : water.stage)
-                            .adaptiveFont(size: 8, weight: .semibold)
-                            .foregroundColor((isBaSha || isHQ) ? .red : (water.isAuspicious ? .green : .white.opacity(0.72)))
-                            .lineLimit(1)
-                    }
-                    if isWealthGod {
-                        Text(wealthTag)
-                            .adaptiveFont(size: 7.5, weight: .bold)
-                            .foregroundColor(Color(red: 0.98, green: 0.85, blue: 0.35))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.65)
-                    } else if isJoyGod {
-                        Text(joyTag)
-                            .adaptiveFont(size: 7.5, weight: .bold)
-                            .foregroundColor(Color(red: 0.98, green: 0.48, blue: 0.58))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.65)
-                    } else if let star = ownerStar {
-                        Text("🌟\(star.star.localizedName)")
-                            .adaptiveFont(size: 7.5, weight: .semibold)
-                            .foregroundColor(.yanCyan)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.65)
-                    }
+                    Text(String(format: "%.0f°", angle))
+                        .adaptiveFont(size: 8.5, weight: .semibold, design: .monospaced)
+                        .foregroundColor(isCenter ? Color.yanGold : .white.opacity(0.68))
+                        .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 4)
@@ -1474,7 +1399,7 @@ public struct ARVisionView: View {
                 .cornerRadius(6)
                 .overlay(
                     RoundedRectangle(cornerRadius: 6)
-                        .stroke(isCenter ? Color.yanCyan.opacity(0.75) : (isWealthGod ? Color(red: 0.95, green: 0.82, blue: 0.35).opacity(0.55) : Color.clear), lineWidth: 1)
+                        .stroke(isCenter ? Color.yanCyan.opacity(0.75) : Color.clear, lineWidth: 1)
                 )
             }
         }
@@ -1510,7 +1435,7 @@ public struct ARVisionView: View {
                 
                 Spacer()
                 
-                Text("\(lang.t("ar_current_facing")): \(targetMountain.localizedPalace) · \(targetMountain.localizedName)\(lang.t("mountain_suffix"))")
+                Text("\(lang.t("ar_current_facing")): \(cardinalLabel(for: targetCalculatedHeading)) · \(String(format: "%.1f°", targetCalculatedHeading))")
                     .adaptiveFont(size: 10, weight: .medium)
                     .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
                     .lineLimit(1)
@@ -1585,17 +1510,14 @@ public struct ARVisionView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text("【\(sha.localizedName)】\(aiResult == nil ? lang.t("ar_manual_analysis") : lang.t("ar_ai_candidate")):")
+                    Text("\(aiResult == nil ? lang.t("ar_manual_analysis") : lang.t("ar_ai_candidate")) · \(cardinalLabel(for: targetCalculatedHeading)) \(String(format: "%.1f°", targetCalculatedHeading))")
                         .adaptiveFont(size: 12, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.yanCyan)
                     Spacer()
-                    Text(sha.severity.localizedTitle)
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .foregroundColor(sha.severity == .critical ? Color.red : Color.orange)
                 }
-                Text(sha.localizedMetaphysicsHarm)
+                Text(sha.localizedVisualFeature)
                     .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(.white.opacity(0.88))
                     .lineSpacing(2)
             }
             .padding(8)

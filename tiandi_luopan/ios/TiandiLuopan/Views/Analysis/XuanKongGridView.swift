@@ -100,6 +100,8 @@ public struct XuanKongGridView: View {
             if isActive {
                 VStack(spacing: 14) {
                 Color.clear.frame(height: 1).id("analysisRootTop")
+                WorkflowStepperBar(activeStep: 2)
+                    .padding(.horizontal, 16)
                 if let feature = selectedFeature {
                     HStack {
                         Button(action: { selectedFeature = nil; cachedChart = nil }) {
@@ -116,6 +118,8 @@ public struct XuanKongGridView: View {
                     .padding(.horizontal, 16)
                     if feature == .xuanKong { analysisSourceBar().padding(.horizontal, 16) }
                     sittingControlHeader()
+                        .padding(.horizontal, isLargeLayout ? 0 : 16)
+                    verifiableComputationAuditCard(for: feature)
                         .padding(.horizontal, isLargeLayout ? 0 : 16)
                     switch feature {
                     case .xuanKong:
@@ -284,24 +288,172 @@ public struct XuanKongGridView: View {
             selectedFeature = feature
             selectedSubTab = feature.legacySubTab ?? 0
             refreshChart()
+            recordWorkflowCalculation(for: feature)
         }
     }
 
+    private func recordWorkflowCalculation(for feature: AnalysisFeature) {
+        let state = analysisHeading
+        let solar = SolarTimeCalculator.shared.calculate(
+            date: analysisDate,
+            longitude: motion.hasLocationFix ? motion.longitude : 120.0
+        )
+        let formula: String
+        switch feature {
+        case .xuanKong:
+            formula = useTiGua ? "LuoShu 9-Star Matrix (Ti-Gua / 替卦)" : "LuoShu 9-Star Matrix (Xia-Gua / 下卦)"
+        case .baZhai:
+            formula = "BaZhai DaYouNian Trigram Mapping (八宅大游年变爻)"
+        case .sanHe:
+            formula = "SanHe 4-Bureau 12-Stage Water Ring (三合四大局十二长生)"
+        case .qimen:
+            formula = "ChaiBu Solar-Term ShiJia QiMen (拆补法时家奇门排盘)"
+        default:
+            formula = "Deterministic Classical Formula"
+        }
+        SpatialWorkflowStore.shared.recordCalculation(
+            moduleName: lang.t(feature.titleKey),
+            period: selectedPeriod,
+            sittingFacing: "\(state.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(state.facingMountain.localizedName)\(lang.t("facing_suffix"))",
+            bearingDegrees: state.facingAngle,
+            solarTerm: solar.solarTermName,
+            pillarsSummary: solar.baziGanzhi,
+            formulaBasis: formula
+        )
+    }
+
+    /// 可验证计算参数与算法溯源面板：公开输入方位、节气历法、规则依据，确保每次计算可独立复核。
+    private func verifiableComputationAuditCard(for feature: AnalysisFeature) -> some View {
+        let isEn = (lang.effectiveLanguage == .en)
+        let state = analysisHeading
+        let solar = SolarTimeCalculator.shared.calculate(
+            date: analysisDate,
+            longitude: motion.hasLocationFix ? motion.longitude : 120.0
+        )
+        let sourceLabel: String
+        if analyzeHome && homeFacing != nil {
+            sourceLabel = isEn ? "Floorplan / LiDAR Measured" : "户型 / LiDAR 实测"
+        } else if SpatialWorkflowStore.shared.hasBearing {
+            sourceLabel = isEn ? "Compass Instrument Locked" : "电子方位仪锁定读数"
+        } else {
+            sourceLabel = isEn ? "Live Sensor / Manual" : "实时传感器 / 手动输入"
+        }
+
+        let algorithmLabel: String
+        switch feature {
+        case .xuanKong:
+            algorithmLabel = isEn
+                ? "Period \(selectedPeriod) · \(useTiGua ? "Ti-Gua" : "Xia-Gua") · LuoShu Flight"
+                : "下元\(selectedPeriod)运 · \(useTiGua ? "替卦兼向" : "下卦正向") · 洛书九宫飞布"
+        case .baZhai:
+            algorithmLabel = isEn ? "8-Trigram DaYouNian Transformation Table" : "八宅游年变爻静态映射表"
+        case .sanHe:
+            algorithmLabel = isEn ? "4-Bureau 12-Stage Ring & Sha Rule Table" : "四大局双山五行 · 十二长生推演"
+        case .qimen:
+            algorithmLabel = isEn ? "Astronomical Solar-Term ChaiBu Bureau" : "天文节气拆补法 · 时家奇门四盘"
+        default:
+            algorithmLabel = isEn ? "Deterministic Formula" : "确定性数理规则"
+        }
+
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.shield.fill")
+                    .foregroundColor(.yanCyan)
+                    .font(.system(size: 12, weight: .bold))
+                Text(isEn ? "Verifiable Computation Inputs" : "可验证计算参数与算法依据")
+                    .adaptiveFont(size: 11.5, weight: .bold)
+                    .foregroundColor(.yanCyan)
+                Spacer()
+                Button(action: {
+                    recordWorkflowCalculation(for: feature)
+                    NotificationCenter.default.post(name: .didRequestWorkflowReport, object: nil)
+                }) {
+                    Text(isEn ? "Full Report →" : "导出综合报告 →")
+                        .adaptiveFont(size: 10, weight: .bold)
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.yanGold)
+                        .cornerRadius(5)
+                }
+            }
+
+            HStack(spacing: 10) {
+                Text("\(isEn ? "Source" : "数据源")：\(sourceLabel)")
+                Spacer(minLength: 4)
+                Text(String(format: "%.1f° · %@/%@", state.facingAngle, state.sittingMountain.localizedName, state.facingMountain.localizedName))
+            }
+            .adaptiveFont(size: 10, weight: .medium, design: .monospaced)
+            .foregroundColor(.white.opacity(0.85))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+
+            Text("\(isEn ? "Calendar" : "天文历法")：\(solar.solarTermName) · \(solar.baziGanzhi)")
+                .adaptiveFont(size: 10, weight: .medium, design: .monospaced)
+                .foregroundColor(.white.opacity(0.75))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            Text("\(isEn ? "Formula" : "计算模型")：\(algorithmLabel)")
+                .adaptiveFont(size: 10)
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(10)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(9)
+        .overlay(
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Color.yanCyan.opacity(0.32), lineWidth: 1)
+        )
+    }
+
     private func analysisMenu() -> some View {
-        VStack(alignment: .leading, spacing: 22) {
-            VStack(alignment: .leading, spacing: 8) {
+        let isEn = (lang.effectiveLanguage == .en)
+        return VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(lang.t("analysis_menu_title"))
-                    .adaptiveFont(size: 25, weight: .bold)
+                    .adaptiveFont(size: 22, weight: .bold)
                     .foregroundColor(.white)
+                Text(isEn
+                     ? "Deterministic spatial & calendrical calculation modules with verifiable astronomical inputs and classical citations."
+                     : "基于实测方位角与天文节气历法的确定性计算模块，全部输入参数与推演规则透明可复核。")
+                    .adaptiveFont(size: 11.5)
+                    .foregroundColor(.white.opacity(0.68))
             }
             sittingControlHeader()
             menuGroup(title: lang.t("analysis_group_house"), features: [.xuanKong, .baZhai, .sanHe])
-            menuGroup(title: lang.t("analysis_group_people"), features: [.owner])
-            menuGroup(title: lang.t("analysis_group_time"), features: [.dates, .purpleWhite, .qimen])
-            Text(lang.t("analysis_group_report"))
-                .adaptiveFont(size: 14, weight: .bold)
-                .foregroundColor(Color.yanGold)
-            tianJiShuBanner()
+            menuGroup(title: isEn ? "Astronomical Calendrical Calculation" : "天文历法排盘计算", features: [.qimen])
+
+            // 一键生成完整工作流综合分析报告卡片
+            Button(action: {
+                NotificationCenter.default.post(name: .didRequestWorkflowReport, object: nil)
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.system(size: 22))
+                        .foregroundColor(Color.yanGold)
+                        .frame(width: 30)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(isEn ? "Integrated Survey & Calculation Report" : "生成空间测绘与方位计算综合报告")
+                            .adaptiveFont(size: 14, weight: .bold)
+                            .foregroundColor(.white)
+                        Text(isEn ? "Combine AR/LiDAR metrics, compass telemetry & verifiable calculation tables" : "自动汇总 AR/LiDAR 尺寸、方位仪校准读数与数理计算依据")
+                            .adaptiveFont(size: 11)
+                            .foregroundColor(.white.opacity(0.68))
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(Color.yanGold)
+                }
+                .padding(14)
+                .background(Color.yanGold.opacity(0.12))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.yanGold.opacity(0.45), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, 16)
     }
@@ -438,14 +590,14 @@ public struct XuanKongGridView: View {
                 .buttonStyle(PlainButtonStyle())
             }
 
-            // 今日吉方日签海报按钮
+            // 跳转电子方位仪重新测量按钮（取代旧版每日吉签）
             Button(action: {
-                showDailySignSheet = true
+                AppNavigationRouter.shared.requestRoute(tab: 2)
             }) {
                 HStack(spacing: 3) {
-                    Image(systemName: "sparkles.rectangle.stack.fill")
+                    Image(systemName: "safari.fill")
                         .font(.system(size: 10, weight: .bold))
-                    Text(signLabel)
+                    Text(lang.effectiveLanguage == .en ? "Measure" : "实测方位")
                         .adaptiveFont(size: 11, weight: .semibold)
                         .lineLimit(1)
                 }

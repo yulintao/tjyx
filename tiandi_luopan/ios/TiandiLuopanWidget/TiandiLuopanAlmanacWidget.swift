@@ -50,8 +50,8 @@ struct TiandiLuopanAlmanacWidget: Widget {
     let kind: String = "TiandiLuopanAlmanacWidget"
 
     var body: some WidgetConfiguration {
-        let displayName: String = "天地罗盘 · \(WidgetText.dayCourse.string())"
-        let summary: String = "\(WidgetText.dayCourse.string()) · \(WidgetText.term.string()) · \(WidgetText.yearStar.string())"
+        let displayName: String = "天机演象 · \(WidgetText.term.string())"
+        let summary: String = "\(WidgetText.term.string())"
         return StaticConfiguration(kind: kind, provider: AlmanacProvider()) { entry in
             AlmanacWidgetRootView(entry: entry)
         }
@@ -68,7 +68,6 @@ struct TiandiLuopanAlmanacWidget: Widget {
 struct TiandiLuopanWidgets: WidgetBundle {
     var body: some Widget {
         TiandiLuopanAlmanacWidget()
-        TiandiLuopanZeRiWidget()
     }
 }
 
