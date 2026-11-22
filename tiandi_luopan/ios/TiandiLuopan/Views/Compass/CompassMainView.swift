@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - 主罗盘界面 (Compass Main View)
 
@@ -20,7 +21,13 @@ public struct CompassMainView: View {
     @State private var showCalibSheet = false
     @State private var showMountainPickerSheet = false
     @State private var showBearingAppliedToast = false
+    @State private var isPrecisionSampling = false
+    @State private var sampleAngles: [Double] = []
+    @State private var sampleMagneticUT: [Double] = []
+    @State private var lastSampleSummary: BearingSampleSummary? = nil
     @ObservedObject private var workflow = SpatialWorkflowStore.shared
+    private static let precisionSampleTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+    private static let precisionTargetCount = 25
     
     public init(isActive: Bool = true) {
         self.isActive = isActive
@@ -79,15 +86,39 @@ public struct CompassMainView: View {
                         compassToolBar()
                             .padding(.top, 2)
 
-                        if showBearingAppliedToast {
+                        if isPrecisionSampling {
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .yanCyan))
+                                    .scaleEffect(0.8)
+                                Text(lang.effectiveLanguage == .en
+                                     ? "Sampling steady bearing (\(sampleAngles.count)/\(Self.precisionTargetCount))... Hold level"
+                                     : "稳态均值采集中（\(sampleAngles.count)/\(Self.precisionTargetCount)）… 请保持水平")
+                                    .adaptiveFont(size: 10.5, weight: .semibold, design: .monospaced)
+                                    .foregroundColor(.yanCyan)
+                                Spacer()
+                                Button(lang.t("cancel")) {
+                                    isPrecisionSampling = false
+                                    sampleAngles.removeAll()
+                                    sampleMagneticUT.removeAll()
+                                }
+                                .adaptiveFont(size: 10, weight: .bold)
+                                .foregroundColor(.orange)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Color.yanCyan.opacity(0.14))
+                            .cornerRadius(7)
+                            .padding(.horizontal, 16)
+                        } else if showBearingAppliedToast {
                             HStack(spacing: 6) {
                                 Image(systemName: "checkmark.seal.fill")
                                     .foregroundColor(.green)
-                                Text(lang.effectiveLanguage == .en
-                                     ? String(format: "Locked %.1f° synced to Survey & Compute", motion.headingState.facingAngle)
-                                     : String(format: "已锁定 %.1f° 并同步至测绘与计算模块", motion.headingState.facingAngle))
+                                Text(precisionToastText)
                                     .adaptiveFont(size: 10.5, weight: .semibold)
                                     .foregroundColor(.green)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                                 Spacer()
                                 Button(lang.effectiveLanguage == .en ? "Compute →" : "去计算 →") {
                                     AppNavigationRouter.shared.requestRoute(tab: 3)
@@ -100,6 +131,11 @@ public struct CompassMainView: View {
                             .background(Color.green.opacity(0.14))
                             .cornerRadius(7)
                             .padding(.horizontal, 16)
+                        }
+
+                        if !workflow.bearingStations.isEmpty {
+                            bearingStationsStrip()
+                                .padding(.horizontal, 16)
                         }
                         
                         Spacer(minLength: 4)
@@ -168,6 +204,15 @@ public struct CompassMainView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             motion.refreshTimeAndSolarTerm()
+        }
+        .onReceive(Self.precisionSampleTimer) { _ in
+            guard isActive, isPrecisionSampling else { return }
+            let rawHeading = motion.physicalHeading() ?? motion.headingState.facingAngle
+            sampleAngles.append(rawHeading)
+            sampleMagneticUT.append(motion.magneticStrengthUT)
+            if sampleAngles.count >= Self.precisionTargetCount {
+                finishPrecisionSampling()
+            }
         }
     }
     
@@ -289,6 +334,23 @@ public struct CompassMainView: View {
                 .cornerRadius(6)
             }
             
+            // 2.5 秒多样本圆周均值稳态采集按钮
+            Button(action: {
+                startPrecisionSampling()
+            }) {
+                HStack(spacing: 4) {
+                    Image(systemName: isPrecisionSampling ? "hourglass" : "scope")
+                    Text(lang.effectiveLanguage == .en ? "3s Sample" : "稳态采样")
+                }
+                .adaptiveFont(size: 11, weight: .bold)
+                .padding(.horizontal, 9)
+                .padding(.vertical, 7)
+                .background(isPrecisionSampling ? Color.yanCyan.opacity(0.35) : Color.yanCyan.opacity(0.2))
+                .foregroundColor(.yanCyan)
+                .cornerRadius(6)
+            }
+            .disabled(isPrecisionSampling)
+
             // 锁定并同步实测方位到测绘与计算工作流
             Button(action: {
                 if !motion.isLocked {
@@ -312,8 +374,90 @@ public struct CompassMainView: View {
         }
     }
 
+    private var precisionToastText: String {
+        let isEn = (lang.effectiveLanguage == .en)
+        if let summary = lastSampleSummary {
+            return isEn
+                ? String(format: "Mean %.1f° (±%.2f°, n=%d) synced", summary.meanDegrees, summary.sigmaDegrees, summary.sampleCount)
+                : String(format: "稳态均值 %.1f°（σ=%.2f°，%d 次采样）已同步", summary.meanDegrees, summary.sigmaDegrees, summary.sampleCount)
+        }
+        return isEn
+            ? String(format: "Locked %.1f° synced to Survey & Compute", motion.headingState.facingAngle)
+            : String(format: "已锁定 %.1f° 并同步至测绘与计算模块", motion.headingState.facingAngle)
+    }
+
+    private func startPrecisionSampling() {
+        if motion.isLocked {
+            motion.toggleLock()
+        }
+        sampleAngles = []
+        sampleMagneticUT = []
+        lastSampleSummary = nil
+        showBearingAppliedToast = false
+        isPrecisionSampling = true
+    }
+
+    private func finishPrecisionSampling() {
+        isPrecisionSampling = false
+        guard let summary = BearingSampleSummary.compute(
+            anglesDegrees: sampleAngles,
+            magneticSamplesUT: sampleMagneticUT
+        ) else { return }
+        lastSampleSummary = summary
+        motion.lockAtFacingAngle(summary.meanDegrees)
+        SpatialWorkflowStore.shared.recordInstrumentBearing(
+            bearingDegrees: summary.meanDegrees,
+            northReferenceRaw: motion.northReference.rawValue,
+            declinationDegrees: motion.currentDeclination,
+            magneticStrengthUT: motion.magneticStrengthUT,
+            isLevel: motion.isLevel,
+            pitchDegrees: motion.pitch,
+            rollDegrees: motion.roll,
+            sourceLabel: summary.isStable ? "Precision Mean" : "Sampled Mean",
+            sigmaDegrees: summary.sigmaDegrees,
+            sampleCount: summary.sampleCount
+        )
+        showBearingAppliedToast = true
+    }
+
+    private func bearingStationsStrip() -> some View {
+        let isEn = (lang.effectiveLanguage == .en)
+        return ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                Text(isEn ? "Stations:" : "测站记录:")
+                    .adaptiveFont(size: 9.5, weight: .bold)
+                    .foregroundColor(.white.opacity(0.6))
+                ForEach(workflow.bearingStations.prefix(5)) { st in
+                    let isSelected = workflow.bearing?.id == st.id
+                    Button(action: {
+                        workflow.selectStation(st)
+                        motion.lockAtFacingAngle(st.bearingDegrees)
+                        showBearingAppliedToast = true
+                    }) {
+                        HStack(spacing: 3) {
+                            Text(String(format: "%.1f°", st.bearingDegrees))
+                                .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
+                            if let sigma = st.sigmaDegrees {
+                                Text(String(format: "±%.1f°", sigma))
+                                    .adaptiveFont(size: 8.5, design: .monospaced)
+                                    .foregroundColor(.yanCyan)
+                            }
+                        }
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3.5)
+                        .background(isSelected ? Color.yanGold.opacity(0.25) : Color.white.opacity(0.08))
+                        .foregroundColor(isSelected ? .yanGold : .white.opacity(0.85))
+                        .cornerRadius(5)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
     private func applyCurrentBearingToWorkflow() {
         let heading = motion.headingState.facingAngle
+        lastSampleSummary = nil
         SpatialWorkflowStore.shared.recordInstrumentBearing(
             bearingDegrees: heading,
             northReferenceRaw: motion.northReference.rawValue,

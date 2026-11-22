@@ -1988,31 +1988,12 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
 
     /// Shoelace 水平投影面积（㎡）：支持任意 3 点及以上闭合空间/地块多边形
     public var cornerPolygonAreaSqMeters: Double {
-        let points = cornerPoints
-        guard points.count >= 3 else { return 0 }
-        var acc: Double = 0
-        for i in 0..<points.count {
-            let a = points[i]
-            let b = points[(i + 1) % points.count]
-            acc += Double(a.x) * Double(b.z) - Double(b.x) * Double(a.z)
-        }
-        return abs(acc) * 0.5
+        SpatialPolygonMath.areaSqMeters(xzPoints: cornerPoints.map { (x: Double($0.x), z: Double($0.z)) })
     }
 
     /// 角落打点多边形周长（m）：2 点为单段长度，≥3 点为闭合总周长
     public var cornerPolygonPerimeterMeters: Double {
-        let points = cornerPoints
-        guard points.count >= 2 else { return 0 }
-        var total: Double = 0
-        for i in 0..<(points.count - 1) {
-            total += Double(hypot(points[i + 1].x - points[i].x, points[i + 1].z - points[i].z))
-        }
-        if points.count >= 3 {
-            let last = points[points.count - 1]
-            let first = points[0]
-            total += Double(hypot(first.x - last.x, first.z - last.z))
-        }
-        return total
+        SpatialPolygonMath.perimeterMeters(xzPoints: cornerPoints.map { (x: Double($0.x), z: Double($0.z)) })
     }
 
     /// 按光照强度、视觉特征点、识别平面与 LiDAR 网格数量计算 0–100 实时扫描质量分。

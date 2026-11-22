@@ -366,6 +366,74 @@ public final class ShaSurveyStore: ObservableObject {
 
 // MARK: - 空间测绘 → 方位测量 → 专业计算 → 综合报告 全流程状态中心 (SpatialWorkflowStore)
 
+/// 圆周均值与角离散度计算器：正确处理 359° / 1° 跨正北零点，给出标准差 σ 与稳定度等级。
+public struct BearingSampleSummary: Codable, Equatable {
+    public let meanDegrees: Double
+    public let sigmaDegrees: Double
+    public let sampleCount: Int
+    public let minMagneticUT: Double
+    public let maxMagneticUT: Double
+    public let isStable: Bool
+
+    public static func compute(anglesDegrees: [Double], magneticSamplesUT: [Double] = []) -> BearingSampleSummary? {
+        let valid = anglesDegrees.filter { $0.isFinite }
+        guard !valid.isEmpty else { return nil }
+        var sumSin = 0.0
+        var sumCos = 0.0
+        for deg in valid {
+            let rad = deg * .pi / 180.0
+            sumSin += sin(rad)
+            sumCos += cos(rad)
+        }
+        let n = Double(valid.count)
+        let meanRad = atan2(sumSin / n, sumCos / n)
+        var meanDeg = meanRad * 180.0 / .pi
+        if meanDeg < 0 { meanDeg += 360.0 }
+        let r = min(1.0, max(1e-9, hypot(sumSin / n, sumCos / n)))
+        let sigmaRad = sqrt(max(0.0, -2.0 * log(r)))
+        let sigmaDeg = sigmaRad * 180.0 / .pi
+        let validMag = magneticSamplesUT.filter { $0.isFinite }
+        let minMag = validMag.min() ?? 48.0
+        let maxMag = validMag.max() ?? 48.0
+        return BearingSampleSummary(
+            meanDegrees: meanDeg,
+            sigmaDegrees: sigmaDeg,
+            sampleCount: valid.count,
+            minMagneticUT: minMag,
+            maxMagneticUT: maxMag,
+            isStable: sigmaDeg <= 2.0 && (maxMag - minMag) <= 12.0
+        )
+    }
+}
+
+/// 水平多边形几何计算工具（Shoelace 面积与周长，供 AR 打点与单元测试共用）。
+public enum SpatialPolygonMath {
+    public static func areaSqMeters(xzPoints: [(x: Double, z: Double)]) -> Double {
+        guard xzPoints.count >= 3 else { return 0 }
+        var acc = 0.0
+        for i in 0..<xzPoints.count {
+            let a = xzPoints[i]
+            let b = xzPoints[(i + 1) % xzPoints.count]
+            acc += a.x * b.z - b.x * a.z
+        }
+        return abs(acc) * 0.5
+    }
+
+    public static func perimeterMeters(xzPoints: [(x: Double, z: Double)]) -> Double {
+        guard xzPoints.count >= 2 else { return 0 }
+        var total = 0.0
+        for i in 0..<(xzPoints.count - 1) {
+            total += hypot(xzPoints[i + 1].x - xzPoints[i].x, xzPoints[i + 1].z - xzPoints[i].z)
+        }
+        if xzPoints.count >= 3 {
+            let last = xzPoints[xzPoints.count - 1]
+            let first = xzPoints[0]
+            total += hypot(first.x - last.x, first.z - last.z)
+        }
+        return total
+    }
+}
+
 public struct WorkflowSurveyTelemetry: Codable, Equatable {
     public var source: String
     public var widthMeters: Double?
@@ -377,8 +445,11 @@ public struct WorkflowSurveyTelemetry: Codable, Equatable {
     public var updatedAt: Date
 }
 
-public struct WorkflowBearingTelemetry: Codable, Equatable {
+public struct WorkflowBearingTelemetry: Codable, Equatable, Identifiable {
+    public var id: UUID = UUID()
     public var bearingDegrees: Double
+    public var sigmaDegrees: Double? = nil
+    public var sampleCount: Int? = nil
     public var northReferenceRaw: String
     public var declinationDegrees: Double
     public var magneticStrengthUT: Double
@@ -405,21 +476,26 @@ public final class SpatialWorkflowStore: ObservableObject {
 
     @Published public private(set) var survey: WorkflowSurveyTelemetry?
     @Published public private(set) var bearing: WorkflowBearingTelemetry?
+    @Published public private(set) var bearingStations: [WorkflowBearingTelemetry] = []
     @Published public private(set) var calculation: WorkflowCalculationTelemetry?
 
     private let storageKey = "tianji.spatial_workflow_store.v1"
+    private let defaults: UserDefaults
 
     private struct PersistedState: Codable {
         var survey: WorkflowSurveyTelemetry?
         var bearing: WorkflowBearingTelemetry?
+        var bearingStations: [WorkflowBearingTelemetry]?
         var calculation: WorkflowCalculationTelemetry?
     }
 
-    private init() {
-        if let data = UserDefaults.standard.data(forKey: storageKey),
+    public init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        if let data = defaults.data(forKey: storageKey),
            let decoded = try? JSONDecoder().decode(PersistedState.self, from: data) {
             self.survey = decoded.survey
             self.bearing = decoded.bearing
+            self.bearingStations = decoded.bearingStations ?? []
             self.calculation = decoded.calculation
         }
     }
@@ -450,10 +526,11 @@ public final class SpatialWorkflowStore: ObservableObject {
             scanQualityScore: scanQualityScore,
             updatedAt: Date()
         )
-        DispatchQueue.main.async {
+        let apply = {
             self.survey = next
             self.persist()
         }
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
     }
 
     public func recordInstrumentBearing(
@@ -464,11 +541,15 @@ public final class SpatialWorkflowStore: ObservableObject {
         isLevel: Bool,
         pitchDegrees: Double,
         rollDegrees: Double,
-        sourceLabel: String
+        sourceLabel: String,
+        sigmaDegrees: Double? = nil,
+        sampleCount: Int? = nil
     ) {
         let normalized = (bearingDegrees.truncatingRemainder(dividingBy: 360.0) + 360.0).truncatingRemainder(dividingBy: 360.0)
         let next = WorkflowBearingTelemetry(
             bearingDegrees: normalized,
+            sigmaDegrees: sigmaDegrees,
+            sampleCount: sampleCount,
             northReferenceRaw: northReferenceRaw,
             declinationDegrees: declinationDegrees,
             magneticStrengthUT: magneticStrengthUT,
@@ -478,10 +559,31 @@ public final class SpatialWorkflowStore: ObservableObject {
             sourceLabel: sourceLabel,
             capturedAt: Date()
         )
-        DispatchQueue.main.async {
+        let apply = {
             self.bearing = next
+            self.bearingStations.insert(next, at: 0)
+            if self.bearingStations.count > 8 {
+                self.bearingStations = Array(self.bearingStations.prefix(8))
+            }
             self.persist()
         }
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
+    }
+
+    public func selectStation(_ station: WorkflowBearingTelemetry) {
+        let apply = {
+            self.bearing = station
+            self.persist()
+        }
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
+    }
+
+    public func clearStations() {
+        let apply = {
+            self.bearingStations.removeAll()
+            self.persist()
+        }
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
     }
 
     public func recordCalculation(
@@ -503,10 +605,11 @@ public final class SpatialWorkflowStore: ObservableObject {
             formulaBasis: formulaBasis,
             computedAt: Date()
         )
-        DispatchQueue.main.async {
+        let apply = {
             self.calculation = next
             self.persist()
         }
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
     }
 
     public func generateVerifiableReportText(date: Date = Date()) -> String {
@@ -567,13 +670,26 @@ public final class SpatialWorkflowStore: ObservableObject {
             let refLabel = b.northReferenceRaw == "true_north"
                 ? (isEn ? "True North (WMM)" : "真北（WMM 磁偏角校正）")
                 : (isEn ? "Magnetic North" : "地磁北")
-            lines.append(String(format: isEn ? "Locked Bearing: %.1f° (%@)" : "锁定方位角：%.1f°（%@）", b.bearingDegrees, refLabel))
+            let sigmaSuffix: String
+            if let sigma = b.sigmaDegrees, let count = b.sampleCount {
+                sigmaSuffix = String(format: isEn ? " · σ=%.2f° (n=%d)" : " · 离散度 σ=%.2f°（%d 次采样）", sigma, count)
+            } else {
+                sigmaSuffix = ""
+            }
+            lines.append(String(format: isEn ? "Locked Bearing: %.1f° (%@)%@" : "锁定方位角：%.1f°（%@）%@", b.bearingDegrees, refLabel, sigmaSuffix))
             lines.append(String(format: isEn ? "Declination: %+.2f° · Field: %.1f μT" : "磁偏角：%+.2f° · 磁场强度：%.1f μT", b.declinationDegrees, b.magneticStrengthUT))
             lines.append(String(format: isEn ? "Tilt (Pitch/Roll): %.1f° / %.1f° (%@)" : "双轴水平仪（俯仰/横滚）：%.1f° / %.1f°（%@）",
                                 b.pitchDegrees, b.rollDegrees, b.isLevel ? (isEn ? "Level" : "已端平") : (isEn ? "Tilted" : "存在倾角")))
             lines.append((isEn ? "Captured At: " : "采样时间：") + formatter.string(from: b.capturedAt))
         } else {
             lines.append(String(format: isEn ? "Live Bearing: %.1f° (Not yet locked via instrument)" : "当前实时方位：%.1f°（建议在方位仪中端平后锁定）", activeBearing))
+        }
+        if bearingStations.count > 1 {
+            lines.append(isEn ? "Recorded Stations:" : "历史测站采样点：")
+            for (idx, st) in bearingStations.prefix(5).enumerated() {
+                let sig = st.sigmaDegrees.map { String(format: " ±%.2f°", $0) } ?? ""
+                lines.append(String(format: "  #%d %@: %.1f°%@ (%.0f μT)", idx + 1, st.sourceLabel, st.bearingDegrees, sig, st.magneticStrengthUT))
+            }
         }
         lines.append("")
 
@@ -592,10 +708,116 @@ public final class SpatialWorkflowStore: ObservableObject {
         return lines.joined(separator: "\n")
     }
 
+    /// 导出结构化、可审计 JSON 报告（包含实测空间几何、仪器遥测精度与四大计算模块完整矩阵）。
+    public func generateVerifiableReportJSON(date: Date = Date()) -> String {
+        let motion = CompassMotionManager.shared
+        let activeBearing = bearing?.bearingDegrees ?? motion.headingState.facingAngle
+        let headingState = Mountain24Data.shared.resolveHeadingState(heading: activeBearing)
+        let period = calculation?.period ?? FlyingStarsEngine.shared.currentPeriod(for: date)
+        let solar = SolarTimeCalculator.shared.calculate(
+            date: date,
+            longitude: motion.hasLocationFix ? motion.longitude : 120.0
+        )
+        let xkChart = FlyingStarsEngine.shared.calculateChart(
+            period: period,
+            sitting: headingState.sittingMountain,
+            facing: headingState.facingMountain,
+            useTiGua: headingState.isJianXiang,
+            date: date
+        )
+        let bz = BaZhaiEngine.shared.analyze(
+            sittingPalace: headingState.sittingMountain.palace,
+            facingPalace: headingState.facingMountain.palace
+        )
+        let qm = QimenEngine.shared.calculateChart(date: date, heading: activeBearing)
+
+        struct AuditablePayload: Encodable {
+            struct XuanKongCellDTO: Encodable {
+                let palace: String
+                let periodStar: Int
+                let mountainStar: Int
+                let facingStar: Int
+            }
+            struct BaZhaiRowDTO: Encodable {
+                let palace: String
+                let direction: String
+                let star: String
+            }
+            struct QiMenCellDTO: Encodable {
+                let palaceId: Int
+                let palace: String
+                let door: String
+                let star: String
+                let god: String
+            }
+            let schemaVersion: String
+            let generatedAtISO8601: String
+            let survey: WorkflowSurveyTelemetry?
+            let activeBearing: WorkflowBearingTelemetry?
+            let bearingStations: [WorkflowBearingTelemetry]
+            let resolvedBearingDegrees: Double
+            let sittingMountain: String
+            let facingMountain: String
+            let isTiGua: Bool
+            let solarTerm: String
+            let baziGanzhi: String
+            let xuanKongPeriod: Int
+            let xuanKongPattern: String
+            let xuanKongPalaces: [XuanKongCellDTO]
+            let baZhaiHouseGua: String
+            let baZhaiHouseType: String
+            let baZhaiTable: [BaZhaiRowDTO]
+            let qimenBureau: String
+            let qimenPalaces: [QiMenCellDTO]
+        }
+
+        let payload = AuditablePayload(
+            schemaVersion: "1.0",
+            generatedAtISO8601: ISO8601DateFormatter().string(from: date),
+            survey: survey,
+            activeBearing: bearing,
+            bearingStations: bearingStations,
+            resolvedBearingDegrees: activeBearing,
+            sittingMountain: headingState.sittingMountain.name,
+            facingMountain: headingState.facingMountain.name,
+            isTiGua: headingState.isJianXiang,
+            solarTerm: solar.solarTermName,
+            baziGanzhi: solar.baziGanzhi,
+            xuanKongPeriod: period,
+            xuanKongPattern: xkChart.patternType,
+            xuanKongPalaces: xkChart.palaces.map {
+                .init(palace: $0.palaceName, periodStar: $0.periodStar, mountainStar: $0.mountainStar, facingStar: $0.facingStar)
+            },
+            baZhaiHouseGua: bz.houseGua,
+            baZhaiHouseType: bz.houseType,
+            baZhaiTable: bz.items.map {
+                .init(palace: $0.guaName, direction: $0.direction, star: $0.star.rawValue)
+            },
+            qimenBureau: qm.title,
+            qimenPalaces: qm.cells.map {
+                .init(palaceId: $0.palaceId, palace: $0.palaceName, door: $0.doorName, star: $0.starName, god: $0.godName)
+            }
+        )
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        guard let data = try? encoder.encode(payload),
+              let json = String(data: data, encoding: .utf8) else {
+            return "{}"
+        }
+        return json
+    }
+
     private func persist() {
-        let state = PersistedState(survey: survey, bearing: bearing, calculation: calculation)
+        let state = PersistedState(
+            survey: survey,
+            bearing: bearing,
+            bearingStations: bearingStations,
+            calculation: calculation
+        )
         if let data = try? JSONEncoder().encode(state) {
-            UserDefaults.standard.set(data, forKey: storageKey)
+            defaults.set(data, forKey: storageKey)
         }
     }
 }

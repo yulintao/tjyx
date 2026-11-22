@@ -533,6 +533,17 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
         }
 
         let blueprint = Self.render2DBlueprintImage(rooms: rooms, envelope: envelope)
+        if let s = currentSpatialSurvey {
+            SpatialWorkflowStore.shared.recordSurvey(
+                source: "RoomPlan LiDAR",
+                widthMeters: Double(s.dimensions.totalWidth),
+                depthMeters: Double(s.dimensions.totalDepth),
+                areaSqMeters: Double(s.dimensions.usableFloorArea),
+                ceilingHeightMeters: Double(s.dimensions.ceilingHeight),
+                roomCount: max(generatedRooms.count, s.rooms.count),
+                scanQualityScore: 95
+            )
+        }
         return FloorplanView.persistRoomPlanImport(
             rooms: generatedRooms,
             centroid: centroid,
@@ -1094,6 +1105,15 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             if commitToHistory, let survey {
                 ShaSurveyStore.shared.saveSurvey(survey, key: SpatialSurveyArchiveKeys.measured,
                                                  propertyID: self.propertyID)
+                SpatialWorkflowStore.shared.recordSurvey(
+                    source: "RoomPlan LiDAR",
+                    widthMeters: Double(survey.dimensions.totalWidth),
+                    depthMeters: Double(survey.dimensions.totalDepth),
+                    areaSqMeters: Double(survey.dimensions.usableFloorArea),
+                    ceilingHeightMeters: Double(survey.dimensions.ceilingHeight),
+                    roomCount: max(self.scannedRoomCount, survey.rooms.count),
+                    scanQualityScore: 95
+                )
             }
         }
         if Thread.isMainThread {

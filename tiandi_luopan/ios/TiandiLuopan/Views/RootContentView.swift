@@ -1115,16 +1115,27 @@ public struct WorkflowStepperBar: View {
     }
 }
 
-/// 综合测绘、方位仪读数与可验证数理计算分析报告弹窗（支持一键复制与系统分享导出）。
+/// 综合测绘、方位仪读数与可验证数理计算分析报告弹窗（支持可读报告与结构化 JSON 切换、一键复制与系统分享导出）。
 public struct IntegratedWorkflowReportSheet: View {
+    private enum ReportFormat: Int, CaseIterable {
+        case readable = 0
+        case json = 1
+    }
+
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject private var workflow = SpatialWorkflowStore.shared
     @ObservedObject private var lang = LocalizationManager.shared
+    @State private var format: ReportFormat = .readable
     @State private var reportText: String = ""
+    @State private var reportJSON: String = ""
     @State private var copiedToast: Bool = false
     @State private var showShareSheet: Bool = false
 
     public init() {}
+
+    private var activeOutput: String {
+        format == .readable ? reportText : reportJSON
+    }
 
     public var body: some View {
         let isEn = (lang.effectiveLanguage == .en)
@@ -1141,9 +1152,17 @@ public struct IntegratedWorkflowReportSheet: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
+                    Picker("", selection: $format) {
+                        Text(isEn ? "Readable Report" : "综合分析报告").tag(ReportFormat.readable)
+                        Text(isEn ? "Auditable JSON" : "可审计 JSON").tag(ReportFormat.json)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, 16)
+                    .onChange(of: format) { _ in copiedToast = false }
+
                     ScrollView {
-                        Text(reportText)
-                            .adaptiveFont(size: 12, design: .monospaced)
+                        Text(activeOutput)
+                            .adaptiveFont(size: 11.5, design: .monospaced)
                             .foregroundColor(.white.opacity(0.92))
                             .lineSpacing(4)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -1158,17 +1177,17 @@ public struct IntegratedWorkflowReportSheet: View {
                     }
 
                     if copiedToast {
-                        Text(isEn ? "Report copied to clipboard" : "已复制综合分析报告至剪贴板")
+                        Text(isEn ? "Copied to clipboard" : "已复制当前报告内容至剪贴板")
                             .adaptiveFont(size: 11, weight: .semibold)
                             .foregroundColor(.green)
                     }
 
                     HStack(spacing: 10) {
                         Button(action: {
-                            UIPasteboard.general.string = reportText
+                            UIPasteboard.general.string = activeOutput
                             copiedToast = true
                         }) {
-                            Label(isEn ? "Copy Report" : "复制文本报告", systemImage: "doc.on.doc")
+                            Label(isEn ? "Copy" : "复制内容", systemImage: "doc.on.doc")
                                 .adaptiveFont(size: 12, weight: .bold)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 11)
@@ -1199,10 +1218,12 @@ public struct IntegratedWorkflowReportSheet: View {
         .navigationViewStyle(StackNavigationViewStyle())
         .preferredColorScheme(.dark)
         .onAppear {
-            reportText = workflow.generateVerifiableReportText()
+            let now = Date()
+            reportText = workflow.generateVerifiableReportText(date: now)
+            reportJSON = workflow.generateVerifiableReportJSON(date: now)
         }
         .sheet(isPresented: $showShareSheet) {
-            FloorplanReportShareSheet(items: [reportText])
+            FloorplanReportShareSheet(items: [activeOutput])
         }
     }
 

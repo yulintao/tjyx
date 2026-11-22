@@ -48,8 +48,10 @@ jobs:
         shell: bash
 
     env:
-      APP_BUNDLE_ID: com.yanxiang.compass
-      WIDGET_BUNDLE_ID: com.yanxiang.compass.widget
+      # 留空表示「以工程为准」：签名步骤会从 project.pbxproj 读取 PRODUCT_BUNDLE_IDENTIFIER
+      # 并回写 GITHUB_ENV，避免 workflow 与工程各自维护一份副本导致签名校验漂移。
+      APP_BUNDLE_ID: ""
+      WIDGET_BUNDLE_ID: ""
       PROJECT_PATH: ios/TiandiLuopan.xcodeproj
       SCHEME_NAME: TiandiLuopan
       CONFIGURATION: Release
@@ -300,6 +302,28 @@ jobs:
           echo "Team: $PROFILE_TEAM"
           echo "App ID: $PROFILE_APP_ID"
           echo "get-task-allow: $GET_TASK_ALLOW"
+
+          # Bundle ID 以工程为唯一来源，CI 不另存一份硬编码副本
+          PROJECT_APP_BUNDLE_ID="$(grep -m1 -oE 'PRODUCT_BUNDLE_IDENTIFIER = [A-Za-z0-9.-]+;' "$PROJECT_PATH/project.pbxproj" | sed -E 's/.*= //; s/;//')"
+          if [ -z "$PROJECT_APP_BUNDLE_ID" ]; then
+            echo "::error::Could not read PRODUCT_BUNDLE_IDENTIFIER from $PROJECT_PATH/project.pbxproj"
+            exit 1
+          fi
+          if [ -z "$APP_BUNDLE_ID" ]; then
+            APP_BUNDLE_ID="$PROJECT_APP_BUNDLE_ID"
+            echo "Bundle ID comes from the project: $APP_BUNDLE_ID"
+          elif [ "$APP_BUNDLE_ID" != "$PROJECT_APP_BUNDLE_ID" ]; then
+            echo "::warning::APP_BUNDLE_ID was $APP_BUNDLE_ID but the project builds $PROJECT_APP_BUNDLE_ID; using the project's value."
+            APP_BUNDLE_ID="$PROJECT_APP_BUNDLE_ID"
+          else
+            echo "Bundle ID: $APP_BUNDLE_ID (matches the project)"
+          fi
+          if [ -z "$WIDGET_BUNDLE_ID" ]; then
+            WIDGET_BUNDLE_ID="${APP_BUNDLE_ID}.widget"
+            echo "Widget Bundle ID derived from project: $WIDGET_BUNDLE_ID"
+          fi
+          echo "APP_BUNDLE_ID=$APP_BUNDLE_ID" >> "$GITHUB_ENV"
+          echo "WIDGET_BUNDLE_ID=$WIDGET_BUNDLE_ID" >> "$GITHUB_ENV"
 
           # 描述文件必须覆盖本 App 的 Bundle ID（右侧按通配符匹配，兼容通配描述文件）
           EXPECTED_APP_ID="$TEAM_ID.$APP_BUNDLE_ID"

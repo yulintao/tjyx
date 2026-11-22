@@ -2800,4 +2800,58 @@ final class FunctionalRegressionTests: XCTestCase {
             XCTAssertGreaterThan(image.size.height, 15_000)
         }
     }
+
+    func testCircularBearingMeanHandlesNorthWrapAroundAndDispersion() throws {
+        let summary = try XCTUnwrap(BearingSampleSummary.compute(
+            anglesDegrees: [359.0, 359.5, 0.0, 0.5, 1.0],
+            magneticSamplesUT: [47.5, 48.0, 48.2, 47.9, 48.1]
+        ))
+        let deltaFromNorth = min(summary.meanDegrees, 360.0 - summary.meanDegrees)
+        XCTAssertLessThan(deltaFromNorth, 0.01)
+        XCTAssertLessThan(summary.sigmaDegrees, 1.0)
+        XCTAssertEqual(summary.sampleCount, 5)
+        XCTAssertTrue(summary.isStable)
+    }
+
+    func testPolygonAreaAndPerimeterShoelaceMath() {
+        let rect: [(x: Double, z: Double)] = [(0, 0), (4, 0), (4, 3), (0, 3)]
+        XCTAssertEqual(SpatialPolygonMath.areaSqMeters(xzPoints: rect), 12.0, accuracy: 0.0001)
+        XCTAssertEqual(SpatialPolygonMath.perimeterMeters(xzPoints: rect), 14.0, accuracy: 0.0001)
+        let segment: [(x: Double, z: Double)] = [(0, 0), (3, 4)]
+        XCTAssertEqual(SpatialPolygonMath.areaSqMeters(xzPoints: segment), 0.0, accuracy: 0.0001)
+        XCTAssertEqual(SpatialPolygonMath.perimeterMeters(xzPoints: segment), 5.0, accuracy: 0.0001)
+    }
+
+    @MainActor
+    func testWorkflowStoreGeneratesVerifiableReportAndValidJSON() throws {
+        let suite = "workflow-regression-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let store = SpatialWorkflowStore(defaults: defaults)
+        store.recordSurvey(source: "RoomPlan LiDAR", widthMeters: 10.0, depthMeters: 8.0,
+                           areaSqMeters: 80.0, ceilingHeightMeters: 2.8, roomCount: 5, scanQualityScore: 92)
+        store.recordInstrumentBearing(bearingDegrees: 180.0, northReferenceRaw: "true_north",
+                                      declinationDegrees: -5.2, magneticStrengthUT: 48.0,
+                                      isLevel: true, pitchDegrees: 0.2, rollDegrees: -0.1,
+                                      sourceLabel: "Precision Mean", sigmaDegrees: 0.35, sampleCount: 25)
+        store.recordCalculation(moduleName: "玄空飞星", period: 9, sittingFacing: "子山午向",
+                                bearingDegrees: 180.0, solarTerm: "小雪",
+                                pillarsSummary: "丙午 己亥 甲子 庚午", formulaBasis: "LuoShu 9-Star Matrix")
+
+        XCTAssertEqual(store.completedStages, 3)
+        let date = instant("2026-11-22T04:00:00Z")
+        let textReport = store.generateVerifiableReportText(date: date)
+        XCTAssertTrue(textReport.contains("RoomPlan LiDAR"))
+        XCTAssertTrue(textReport.contains("180.0"))
+        XCTAssertTrue(textReport.contains("0.35"))
+
+        let jsonReport = store.generateVerifiableReportJSON(date: date)
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(jsonReport.utf8)) as? [String: Any])
+        XCTAssertEqual(jsonObject["schemaVersion"] as? String, "1.0")
+        XCTAssertEqual(jsonObject["xuanKongPeriod"] as? Int, 9)
+        XCTAssertEqual((jsonObject["xuanKongPalaces"] as? [[String: Any]])?.count, 9)
+        XCTAssertEqual((jsonObject["baZhaiTable"] as? [[String: Any]])?.count, 8)
+        XCTAssertEqual((jsonObject["qimenPalaces"] as? [[String: Any]])?.count, 9)
+    }
 }

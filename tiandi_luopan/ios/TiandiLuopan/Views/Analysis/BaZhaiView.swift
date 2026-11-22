@@ -162,6 +162,28 @@ public struct BaZhaiView: View {
                 .cornerRadius(12)
 
                 houseDirectionMap(bz: bz)
+                DisclosureGroup(lang.effectiveLanguage == .en ? "Verifiable 8-Palace Derivation Table" : "八宅大游年推演校验表") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(bz.items) { item in
+                            HStack {
+                                Text("\(item.localizedDirection) (\(item.guaName))")
+                                    .adaptiveFont(size: 11, weight: .semibold, design: .monospaced)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text(item.star.localizedName)
+                                    .adaptiveFont(size: 11, weight: .bold)
+                                    .foregroundColor(houseUseColor(item.star.suggestedHouseUse))
+                                Text("· \(lang.t(item.star.suggestedHouseUse.titleKey))")
+                                    .adaptiveFont(size: 10)
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                        }
+                    }
+                    .padding(.top, 6)
+                }
+                .adaptiveFont(size: 11.5, weight: .semibold)
+                .foregroundColor(.yanCyan)
+
                 DisclosureGroup(lang.t("analysis_usage")) {
                     Text(lang.t("bz_house_intro"))
                     Text(lang.t("bz_house_basis")).padding(.top, 6)

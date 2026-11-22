@@ -268,6 +268,7 @@ public struct FloorplanView: View {
     @ObservedObject var iap = StoreKitIAPManager.shared
     @ObservedObject var lang = LocalizationManager.shared
     @ObservedObject private var familyProfile = UserKuaProfileManager.shared
+    @ObservedObject private var workflow = SpatialWorkflowStore.shared
     
     @State private var rooms: [FloorplanRoom] = FloorplanEngine.shared.generateSampleRooms()
     @State private var centroid: CGPoint = CGPoint(x: 0.5, y: 0.5) // 归一化重心
@@ -470,6 +471,44 @@ public struct FloorplanView: View {
                                 WorkflowStepperBar(activeStep: 0)
                                     .frame(maxWidth: contentMax)
                                     .padding(.horizontal, 16)
+
+                                if let lockedBearing = workflow.bearing {
+                                    let delta = abs(lockedBearing.bearingDegrees - effectiveHeading)
+                                    let circularDelta = min(delta, 360.0 - delta)
+                                    if isSyncWithCompass || circularDelta > 0.3 {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "safari.fill")
+                                                .foregroundColor(.yanCyan)
+                                                .font(.system(size: 11, weight: .bold))
+                                            Text(lang.effectiveLanguage == .en
+                                                 ? String(format: "Instrument Bearing: %.1f°%@", lockedBearing.bearingDegrees, lockedBearing.sigmaDegrees.map { String(format: " (±%.2f°)", $0) } ?? "")
+                                                 : String(format: "方位仪已实测：%.1f°%@", lockedBearing.bearingDegrees, lockedBearing.sigmaDegrees.map { String(format: "（σ=%.2f°）", $0) } ?? ""))
+                                                .adaptiveFont(size: 10.5, weight: .semibold, design: .monospaced)
+                                                .foregroundColor(.white.opacity(0.9))
+                                                .lineLimit(1)
+                                                .minimumScaleFactor(0.7)
+                                            Spacer()
+                                            Button(lang.effectiveLanguage == .en ? "Apply" : "一键采用") {
+                                                isSyncWithCompass = false
+                                                compassRotation = lockedBearing.bearingDegrees
+                                                persistLayout()
+                                                refreshAudit(force: true)
+                                            }
+                                            .adaptiveFont(size: 10, weight: .bold)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.yanCyan)
+                                            .foregroundColor(.black)
+                                            .cornerRadius(6)
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color.yanCyan.opacity(0.14))
+                                        .cornerRadius(8)
+                                        .frame(maxWidth: contentMax)
+                                        .padding(.horizontal, 16)
+                                    }
+                                }
 
                                 topControlBar()
                                     .frame(maxWidth: contentMax)
