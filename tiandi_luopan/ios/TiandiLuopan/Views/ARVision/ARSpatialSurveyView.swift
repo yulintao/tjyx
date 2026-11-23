@@ -2004,7 +2004,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
 
         let lux = frame.lightEstimate?.ambientIntensity
         let points = frame.rawFeaturePoints?.points.count ?? 0
-        ambientLightLux = lux
+        ambientLightLux = lux.map { Double($0) }
         featurePointCount = points
 
         var score = 0

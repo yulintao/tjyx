@@ -3608,7 +3608,7 @@ public struct FloorplanView: View {
     }
 }
 
-private struct FloorplanReportShareSheet: UIViewControllerRepresentable {
+struct FloorplanReportShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
