@@ -28,6 +28,13 @@ public struct DSTrainingProgressHUD: View {
                 Text("\(training.xp) XP")
                     .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
                     .foregroundColor(.yanCyan)
+                if training.streakDays > 0 {
+                    HStack(spacing: 2) {
+                        Image(systemName: "flame.fill").adaptiveFont(size: 10)
+                        Text("\(training.streakDays)").adaptiveFont(size: 10, weight: .bold)
+                    }
+                    .foregroundColor(.semWarn)
+                }
             }
 
             GeometryReader { geo in
@@ -44,7 +51,8 @@ public struct DSTrainingProgressHUD: View {
             HStack(spacing: 6) {
                 let drills = TrainingDrill.allCases.filter { module == nil || $0.module == module }
                 ForEach(drills) { drill in
-                    DrillChip(drill: drill, done: training.isDrillDone(drill), isEn: isEn)
+                    DrillChip(drill: drill, done: training.isDrillDone(drill), isEn: isEn,
+                              stars: training.stars(for: drill))
                 }
             }
         }
@@ -72,18 +80,34 @@ private struct DrillChip: View {
     let drill: TrainingDrill
     let done: Bool
     let isEn: Bool
+    let stars: Int
+
+    init(drill: TrainingDrill, done: Bool, isEn: Bool, stars: Int = 0) {
+        self.drill = drill; self.done = done; self.isEn = isEn; self.stars = stars
+    }
 
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: done ? "checkmark.circle.fill" : drill.icon)
-                .adaptiveFont(size: 11)
-            Text(drill.title(isEn))
-                .adaptiveFont(size: 10, weight: .semibold)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+        VStack(spacing: 2) {
+            HStack(spacing: 4) {
+                Image(systemName: done ? "checkmark.circle.fill" : drill.icon)
+                    .adaptiveFont(size: 11)
+                Text(drill.title(isEn))
+                    .adaptiveFont(size: 10, weight: .semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            if stars > 0 {
+                HStack(spacing: 1) {
+                    ForEach(0..<3) { i in
+                        Image(systemName: i < stars ? "star.fill" : "star")
+                            .adaptiveFont(size: 7)
+                            .foregroundColor(i < stars ? .goldText : .white.opacity(0.2))
+                    }
+                }
+            }
         }
         .foregroundColor(done ? .semJi : .white.opacity(0.7))
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 6)
         .padding(.vertical, 5)
         .frame(maxWidth: .infinity)
         .background(done ? Color.semJi.opacity(0.12) : Color.white.opacity(0.05))
@@ -92,6 +116,53 @@ private struct DrillChip: View {
             RoundedRectangle(cornerRadius: DS.radiusS)
                 .stroke(done ? Color.semJi.opacity(0.4) : Color.strokeSoft, lineWidth: 1)
         )
+    }
+}
+
+// MARK: - 每日挑战卡 (Daily Challenge Card)
+public struct DSDailyChallengeCard: View {
+    @ObservedObject private var training = CompassTrainingStore.shared
+    @ObservedObject private var lang = LocalizationManager.shared
+
+    public init() {}
+
+    public var body: some View {
+        let isEn = lang.effectiveLanguage == .en
+        let drill = training.dailyChallenge()
+        let done = training.isDailyChallengeDone()
+        return HStack(spacing: DS.padM) {
+            ZStack {
+                Circle().fill(done ? Color.semJi.opacity(0.18) : Color.goldPrimary.opacity(0.15))
+                    .frame(width: 40, height: 40)
+                Image(systemName: done ? "checkmark.circle.fill" : drill.icon)
+                    .foregroundColor(done ? .semJi : .goldText)
+                    .adaptiveFont(size: 18)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 5) {
+                    Image(systemName: "calendar.badge.clock").adaptiveFont(size: 10).foregroundColor(.goldText)
+                    Text(isEn ? "Daily Challenge" : "每日挑战")
+                        .adaptiveFont(size: 11, weight: .bold).foregroundColor(.goldText)
+                }
+                Text(isEn
+                     ? "\(drill.title(isEn)) · +\(drill.xp * 2) XP"
+                     : "\(drill.title(isEn)) · +\(drill.xp * 2) XP")
+                    .adaptiveFont(size: 13, weight: .semibold).foregroundColor(.white)
+                Text(done
+                     ? (isEn ? "Done today · Come back tomorrow" : "今日已完成 · 明日再来")
+                     : (isEn ? "Complete this in its module for double XP" : "在对应模块完成可获得双倍经验"))
+                    .adaptiveFont(size: 10).foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 4)
+            if !done {
+                Image(systemName: "chevron.right").adaptiveFont(size: 11).foregroundColor(.secondary)
+            }
+        }
+        .padding(DS.padM)
+        .background(Color.surfaceCard)
+        .cornerRadius(DS.radiusM)
+        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(done ? Color.semJi.opacity(0.4) : Color.strokeGold, lineWidth: 1))
     }
 }
 
@@ -225,6 +296,19 @@ public struct TrainingProfileSheet: View {
         ]
     }
 
+    private func statCell(icon: String, value: String, label: String, color: Color) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon).adaptiveFont(size: 16).foregroundColor(color)
+            Text(value).adaptiveFont(size: 16, weight: .bold, design: .rounded).foregroundColor(.white)
+            Text(label).adaptiveFont(size: 10).foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(Color.surfaceCard)
+        .cornerRadius(DS.radiusM)
+        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.strokeSoft, lineWidth: 1))
+    }
+
     public var body: some View {
         let isEn = lang.effectiveLanguage == .en
         NavigationView {
@@ -263,6 +347,18 @@ public struct TrainingProfileSheet: View {
                     .cornerRadius(DS.radiusL)
                     .overlay(RoundedRectangle(cornerRadius: DS.radiusL).stroke(Color.strokeGold, lineWidth: 1))
 
+                    // 训练统计
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                        statCell(icon: "flame.fill", value: "\(training.streakDays)",
+                                 label: isEn ? "Day streak" : "连续天数", color: .semWarn)
+                        statCell(icon: "checkmark.circle.fill", value: "\(training.totalDrillCompletions)",
+                                 label: isEn ? "Drills done" : "关卡次数", color: .semJi)
+                        statCell(icon: "trophy.fill", value: "\(training.badges.count)",
+                                 label: isEn ? "Badges" : "徽章", color: .goldText)
+                    }
+
+                    DSDailyChallengeCard()
+
                     // 按模块的关卡进度
                     ForEach(modules, id: \.key) { module in
                         let drills = TrainingDrill.allCases.filter { $0.module == module.key }
@@ -278,7 +374,8 @@ public struct TrainingProfileSheet: View {
                             }
                             HStack(spacing: 6) {
                                 ForEach(drills) { drill in
-                                    DrillChip(drill: drill, done: training.isDrillDone(drill), isEn: isEn)
+                                    DrillChip(drill: drill, done: training.isDrillDone(drill), isEn: isEn,
+                                              stars: training.stars(for: drill))
                                 }
                             }
                         }

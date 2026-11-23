@@ -57,6 +57,8 @@ public struct CompassMainView: View {
                         // 0.5 测绘训练进度：真实测量动作驱动，纯工具技能反馈
                         DSTrainingProgressHUD(module: "compass")
                             .padding(.horizontal, 16)
+                        DSDailyChallengeCard()
+                            .padding(.horizontal, 16)
 
                         // 1. 顶部数据仪表
                         CompassHeaderView()

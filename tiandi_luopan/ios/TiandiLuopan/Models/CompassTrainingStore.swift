@@ -139,6 +139,9 @@ public final class CompassTrainingStore: ObservableObject {
     @Published public private(set) var xp: Int = 0
     @Published public private(set) var badges: Set<String> = []
     @Published public private(set) var completedDrills: Set<String> = []
+    @Published public private(set) var drillCounts: [String: Int] = [:]
+    @Published public private(set) var activeDays: Set<String> = []
+    @Published public private(set) var dailyChallengeDoneDate: String = ""
     @Published public private(set) var lastEarnedTitle: String = ""
     @Published public private(set) var showEarnedToast: Bool = false
 
@@ -146,11 +149,17 @@ public final class CompassTrainingStore: ObservableObject {
     private let xpKey = "compass_training_xp"
     private let badgesKey = "compass_training_badges"
     private let drillsKey = "compass_training_drills"
+    private let countsKey = "compass_training_counts"
+    private let daysKey = "compass_training_days"
+    private let dailyDoneKey = "compass_training_daily_done"
 
     private init() {
         self.xp = defaults.integer(forKey: xpKey)
         if let saved = defaults.stringArray(forKey: badgesKey) { self.badges = Set(saved) }
         if let saved = defaults.stringArray(forKey: drillsKey) { self.completedDrills = Set(saved) }
+        if let saved = defaults.dictionary(forKey: countsKey) as? [String: Int] { self.drillCounts = saved }
+        if let saved = defaults.stringArray(forKey: daysKey) { self.activeDays = Set(saved) }
+        self.dailyChallengeDoneDate = defaults.string(forKey: dailyDoneKey) ?? ""
     }
 
     public var level: Int { xp / 100 + 1 }
@@ -177,15 +186,80 @@ public final class CompassTrainingStore: ObservableObject {
     public func isBadgeEarned(_ badge: TrainingBadge) -> Bool { badges.contains(badge.rawValue) }
     public func isDrillDone(_ drill: TrainingDrill) -> Bool { completedDrills.contains(drill.rawValue) }
 
+    // MARK: - 日期 / 每日挑战 / 连续打卡
+
+    private func dayKey(_ date: Date) -> String {
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: date)
+    }
+
+    /// 每天按日期确定性轮换一个关卡（同一天所有设备一致）。
+    public func dailyChallenge(for date: Date = Date()) -> TrainingDrill {
+        let f = DateFormatter(); f.dateFormat = "yyyyMMdd"
+        let seed = Int(f.string(from: date)) ?? 0
+        return TrainingDrill.allCases[seed % TrainingDrill.allCases.count]
+    }
+
+    public func isDailyChallengeDone(_ date: Date = Date()) -> Bool {
+        dailyChallengeDoneDate == dayKey(date)
+    }
+
+    /// 连续活动天数（含今天；今天未活动则从昨天算起）。
+    public var streakDays: Int {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        var cursor = today
+        if !activeDays.contains(dayKey(cursor)), let prev = cal.date(byAdding: .day, value: -1, to: cursor) {
+            cursor = prev
+        }
+        var count = 0
+        while activeDays.contains(dayKey(cursor)) {
+            count += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = prev
+        }
+        return count
+    }
+
+    /// 关卡星级：累计完成 1/3/5 次对应 1/2/3 星。
+    public func stars(for drill: TrainingDrill) -> Int {
+        let n = drillCounts[drill.rawValue] ?? 0
+        if n >= 5 { return 3 }
+        if n >= 3 { return 2 }
+        if n >= 1 { return 1 }
+        return 0
+    }
+
+    public var totalDrillCompletions: Int { drillCounts.values.reduce(0, +) }
+
     /// 完成一次关卡动作；重复动作给少量经验，首次额外提示。
     public func completeDrill(_ drill: TrainingDrill, isEn: Bool = false) {
         let first = completedDrills.insert(drill.rawValue).inserted
-        addXP(first ? drill.xp : max(2, drill.xp / 5), title: first ? drill.title(isEn) + (isEn ? " completed" : "完成") : "")
+        let count = (drillCounts[drill.rawValue] ?? 0) + 1
+        drillCounts[drill.rawValue] = count
+
+        let today = dayKey(Date())
+        activeDays.insert(today)
+
+        var earned = first ? drill.xp : max(2, drill.xp / 5)
+        var note = first ? drill.title(isEn) + (isEn ? " completed" : "完成") : ""
+
+        // 每日挑战：当天首次完成轮换关卡，双倍经验
+        if drill == dailyChallenge(), dailyChallengeDoneDate != today {
+            dailyChallengeDoneDate = today
+            earned += drill.xp
+            note = isEn ? "Daily challenge complete" : "每日挑战完成"
+        }
+        // 连续打卡加成
+        if streakDays >= 3 { earned += 5 }
+
+        addXP(earned, title: note)
         persist()
     }
 
     public func earnBadge(_ badge: TrainingBadge, isEn: Bool = false) {
         guard badges.insert(badge.rawValue).inserted else { return }
+        activeDays.insert(dayKey(Date()))
         addXP(30, title: badge.title(isEn))
         persist()
     }
@@ -213,5 +287,8 @@ public final class CompassTrainingStore: ObservableObject {
         defaults.set(xp, forKey: xpKey)
         defaults.set(Array(badges), forKey: badgesKey)
         defaults.set(Array(completedDrills), forKey: drillsKey)
+        defaults.set(drillCounts, forKey: countsKey)
+        defaults.set(Array(activeDays), forKey: daysKey)
+        defaults.set(dailyChallengeDoneDate, forKey: dailyDoneKey)
     }
 }
