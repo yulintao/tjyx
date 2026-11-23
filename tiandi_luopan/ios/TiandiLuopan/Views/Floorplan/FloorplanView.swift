@@ -3758,7 +3758,7 @@ public struct FloorplanView: View {
             }
             cg.strokePath()
 
-            UIColor.semXiong.setFill()
+            UIColor(Color.semXiong).setFill()
             cg.fillEllipse(in: CGRect(x: cx - 14, y: cy - 14, width: 28, height: 28))
 
             // 3. 底部全屋体检清单
