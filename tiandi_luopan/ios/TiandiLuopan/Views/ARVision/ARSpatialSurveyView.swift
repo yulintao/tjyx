@@ -1767,7 +1767,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
                 lubanSpanMeters = span
                 let evaluation = LubanRulerEvaluation.evaluate(meters: span)
                 lubanEvaluation = evaluation
-                let line = Self.makeLineNode(from: a, to: b, color: evaluation.yangIsAuspicious ? .semJi : .semXiong)
+                let line = Self.makeLineNode(from: a, to: b, color: evaluation.yangIsAuspicious ? UIColor(Color.semJi) : UIColor(Color.semXiong))
                 sceneView.scene.rootNode.addChildNode(line)
                 lubanLineNode = line
             }
