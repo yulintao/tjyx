@@ -752,7 +752,7 @@ public final class SanHeWaterEngine {
             ]
             lore = enLore[palace] ?? "Sitting Mountain Sha in Southeast (Chen). Strictly avoid high-voltage towers, sharp rocks, or stagnant water in this sector."
         case .zhHant:
-            remedy = "消砂法則：該方若見高壓電線塔、壁刀尖角，急需懸掛山海鎮或五嶽真形圖予以遮擋化解。"
+            remedy = "消砂法則：該方若見高壓電線塔、壁刀尖角，傳統做法會懸掛山海鎮或五嶽真形圖作為遮擋參考；請結合現場安全自行判斷。"
             let hantLore: [String: String] = [
                 "坎": "坎卦三山（壬／子／癸）煞在辰位。辰方最忌見高壓電塔、尖角怪石或破敗死水，犯之主腎疾、下元損丁。",
                 "坤": "坤卦三山（未／坤／申）煞在卯位。忌正東見衝射，主脾胃敗壞、老母傷損。",
@@ -765,7 +765,7 @@ public final class SanHeWaterEngine {
             ]
             lore = hantLore[palace] ?? info.lore
         case .ja:
-            remedy = "消砂の法：該当方向に高圧電線塔や尖角がある場合、山海鎮鏡や五岳真形図を掲げて化解します。"
+            remedy = "消砂の法：該当方向に高圧電線塔や尖角がある場合、従来は山海鎮鏡や五岳真形図を目隠しとして用いる例があります。現場の安全を優先してご判断ください。"
             let jaLore: [String: String] = [
                 "坎": "坎卦三山（壬・子・癸）の八煞は辰位（南東）にあります。南東の高圧鉄塔や尖角・怪石・死水を忌み、腎気や家運の損耗に留意します。",
                 "坤": "坤卦三山（未・坤・申）の八煞は卯位（正東）にあります。正東からの直衝を忌み、胃腸の不調や年長女性の健康に留意します。",
@@ -830,7 +830,7 @@ public final class SanHeWaterEngine {
             ]
             lore = idLore[palace] ?? "Sha Posisi Duduk berada di Tenggara (Chen). Hindari menara listrik, batu tajam, atau genangan air kotor di sektor ini."
         case .auto, .zhHans:
-            remedy = "消砂法则：该方若见高压电线塔、壁刀尖角，急需悬挂山海镇或五岳真形图予以遮挡化解。"
+            remedy = "消砂法则：该方若见高压电线塔、壁刀尖角，传统做法会悬挂山海镇或五岳真形图作为遮挡参考；请结合现场安全自行判断。"
             lore = info.lore
         }
         

@@ -1138,7 +1138,7 @@ public enum HouseSpatialSurveyEngine {
                                 "ประตูใหญ่ ⟷ \(winName)", "Pintu Utama ⟷ \(winName)"
                             ),
                             detail: tr8(
-                                String(format: "《葬经》原文有“气乘风则散，界水则止”。入户门与%@轴线近乎共线（间距 %.1f 米，偏角 %.0f°），古籍将其解释为穿堂气散；请结合通风、噪音、视线和通行安全现场复核。", winName, dist, angleOff),
+                                String(format: "《葬经》原文有“气乘风则散，界水则止”。入户门与%@轴线近乎共线（间距 %.1f 米，偏角 %.0f°），古籍称此为穿堂气散；请结合通风、噪音、视线和通行安全现场复核。", winName, dist, angleOff),
                                 String(format: "《葬經》原文有「氣乘風則散，界水則止」。入戶門與%@軸線近乎共線（間距 %.1f 米，偏角 %.0f°），古籍將其解釋為穿堂氣散；請結合通風、噪音、視線和通行安全現場複核。", winName, dist, angleOff),
                                 String(format: "The Burial Classic states: 'Qi scatters when riding the wind.' The main entrance aligns directly with %@ (%.1f m apart, %.0f° offset), creating a straight-through draft; verify airflow, privacy, and noise on site.", winName, dist, angleOff),
                                 String(format: "『葬経』に「気は風に乗れば散ず」とあります。玄関と%@がほぼ一直線（距離 %.1fm、偏角 %.0f°）で貫通気流が生じるため、風通し・視線・騒音を現地で確認してください。", winName, dist, angleOff),
@@ -1628,7 +1628,7 @@ public enum HouseSpatialSurveyEngine {
                             "ประตูหน้าบ้าน ⟷ เตาครัว", "Pintu Utama ⟷ Kompor"
                         ),
                         detail: tr8(
-                            String(format: "《阳宅集成》原文有“开门见灶，钱财多耗”。入户门开启正对厨房炉灶（间距 %@ 米），古籍将其解释为财耗象征；请关注入口视线、热源距离、通风和防火安全。", distStr),
+                            String(format: "《阳宅集成》原文有“开门见灶，钱财多耗”。入户门开启正对厨房炉灶（间距 %@ 米），古籍称此为财耗象征；请关注入口视线、热源距离、通风和防火安全。", distStr),
                             String(format: "《陽宅集成》原文有「開門見灶，錢財多耗」。入戶門開啟正對廚房爐灶（間距 %@ 米），古籍將其解釋為財耗象徵；請關注入口視線、熱源距離、通風和防火安全。", distStr),
                             String(format: "Yang Zhai Compendium notes: 'Seeing the stove upon opening the door scatters wealth.' The main entrance aligns directly with the kitchen stove (%@ m apart); check entry sightlines, drafts near the burner, ventilation, and fire safety.", distStr),
                             String(format: "『陽宅集成』に「門を開けて竈を見れば財を耗す」とあります。玄関の正面にキッチンコンロが位置（距離 %@m）するため、視線・換気・火気安全を確認してください。", distStr),
@@ -1694,7 +1694,7 @@ public enum HouseSpatialSurveyEngine {
                             "ประตูหน้าบ้าน ⟷ ห้องน้ำ", "Pintu Utama ⟷ Kamar Mandi"
                         ),
                         detail: tr8(
-                            String(format: "《八宅明镜》原文有“门为气口，厕乃浊泉；气口冲浊，福禄散亡”。大门入口正对卫生间（间距 %@ 米），古籍将其解释为秽气迎门象征；建议关注隐私、通风、异味控制和出入口动线。", distStr),
+                            String(format: "《八宅明镜》原文有“门为气口，厕乃浊泉；气口冲浊，福禄散亡”。大门入口正对卫生间（间距 %@ 米），古籍称此为秽气迎门；建议关注隐私、通风、异味控制和出入口动线。", distStr),
                             String(format: "《八宅明鏡》原文有「門為氣口，廁乃濁泉；氣口衝濁，福祿散亡」。大門入口正對衛生間（間距 %@ 米），古籍將其解釋為穢氣迎門象徵；建議關注隱私、通風、異味控制和出入口動線。", distStr),
                             String(format: "Eight Mansions Mirror states: 'The door is the qi mouth; when it faces turbid air, auspicious qi scatters.' The main entrance aligns with the bathroom (%@ m apart); check privacy, ventilation, and odor control.", distStr),
                             String(format: "『八宅明鏡』では玄関正面のトイレを忌みます。玄関とトイレが正対（距離 %@m）しているため、視線・換気・防臭対策を確認してください。", distStr),
@@ -1772,8 +1772,8 @@ public enum HouseSpatialSurveyEngine {
                             "Sumber: Cui Guan Pian. Dalam teori Lima Elemen, Api dapur dan Air kamar mandi pada satu dinding dapat diseimbangkan dengan unsur Tanah."
                         ),
                         solution: tr8(
-                            "灶台与马桶避免贴在同一面隔墙的正反两侧，墙面采用土黄色瓷砖以'土'通关化解。",
-                            "灶台與馬桶避免貼在同一面隔牆的正反兩側，牆面採用土黃色瓷磚以「土」通關化解。",
+                            "灶台与马桶避免贴在同一面隔墙的正反两侧，墙面可采用土黄色瓷砖，与整体风格协调。",
+                            "灶台與馬桶避免貼在同一面隔牆的正反兩側，牆面可採用土黃色瓷磚，與整體風格協調。",
                             "Avoid placing the stove and toilet directly back-to-back on the same wall, and use warm earth-toned tiles to bridge Fire and Water.",
                             "コンロと便器が同じ壁の表裏で重ならないように配置し、アースカラーのタイル等で「火生土・土克水」の調和を図ってください。",
                             "조리대와 변기가 같은 벽의 앞뒤에 맞닿지 않게 배치하고, 황토색·베이지 톤 타일로 수화 기운을 중화하세요.",
@@ -2125,7 +2125,7 @@ public enum HouseSpatialSurveyEngine {
                                 "ตำแหน่งเตียงนอน · พบ【ดาว 5 เหลือง】", "Posisi Ranjang · [Bintang 5-Kuning]"
                             ),
                             detail: tr8(
-                                String(format: "《紫白诀》原文有“五黄重叠，灾疾并临”。卧床枕位位于玄空五黄星飞临之%@宫，古籍将其解释为灾疾象征，请结合通风、噪音和动线复核。", pName),
+                                String(format: "《紫白诀》原文有“五黄重叠，灾疾并临”。卧床枕位位于玄空五黄星飞临之%@宫，古籍称此为灾疾象征，请结合通风、噪音和动线复核。", pName),
                                 String(format: "《紫白訣》原文有「五黃重疊，災疾並臨」。臥床枕位位於玄空五黃星飛臨之%@宮，古籍將其解釋為災疾象徵，請結合通風、噪音和動線複核。", pName),
                                 String(format: "Purple-White Scroll notes that 5-Yellow in the sleeping sector (%@ palace) calls for stillness and Metal remedies; check bedroom ventilation and noise as well.", pName),
                                 String(format: "『紫白訣』に基づき、ベッドが玄空五黄星の飛臨する%@宮にあります。静穏を保ち、銅製アイテムで土気を和らげてください。", pName),
@@ -2145,8 +2145,8 @@ public enum HouseSpatialSurveyEngine {
                                 "Sumber: Zi Bai Jue. Interpretasi simbolis Bintang Terbang Xuan Kong tradisional."
                             ),
                             solution: tr8(
-                                "床位微调避开五黄正对方位，床头柜放置天然纯铜葫芦化解土煞。",
-                                "床位微調避開五黃正對方位，床頭櫃放置天然純銅葫蘆化解土煞。",
+                                "床位微调避开五黄正对方位，床头柜可放置铜质摆件作为装饰参考。",
+                                "床位微調避開五黃正對方位，床頭櫃可放置銅質擺件作為裝飾參考。",
                                 "Shift the bed slightly out of the 5-Yellow sector if possible, and place a solid brass gourd on the nightstand.",
                                 "可能であればベッド位置を少しずらし、ナイトテーブルに純銅製の瓢箪を置いて土気を洩らしてください。",
                                 "가능하면 침대 위치를 약간 조정하고, 협탁 위에 순동 호리병을 두어 토살을 설기하세요.",
@@ -2183,7 +2183,7 @@ public enum HouseSpatialSurveyEngine {
                                 "\(roomName) · พบ【ดาว 2 ดำ】", "\(roomName) · [Bintang 2-Hitam]"
                             ),
                             detail: tr8(
-                                String(format: "《飞星赋》原文有“二黑逢五，病生胸腹”。%@坐落于二黑巨门星飞临之%@宫（山向 %d-%d），古籍将其解释为病符象征，请结合通风、采光、噪音和使用情况复核。", roomName, pName, palace.mountainStar, palace.facingStar),
+                                String(format: "《飞星赋》原文有“二黑逢五，病生胸腹”。%@坐落于二黑巨门星飞临之%@宫（山向 %d-%d），古籍称此为病符象征，请结合通风、采光、噪音和使用情况复核。", roomName, pName, palace.mountainStar, palace.facingStar),
                                 String(format: "《飛星賦》原文有「二黑逢五，病生胸腹」。%@坐落於二黑巨門星飛臨之%@宮（山向 %d-%d），古籍將其解釋為病符象徵，請結合通風、採光、噪音和使用情況複核。", roomName, pName, palace.mountainStar, palace.facingStar),
                                 String(format: "Flying Star Ode notes that %@ lies in the %@ palace visited by Star 2-Black (Mountain-Facing %d-%d); keep the room well-ventilated, sunlit, and balanced with Metal accents.", roomName, pName, palace.mountainStar, palace.facingStar),
                                 String(format: "『飛星賦』に基づき、%@が二黒巨門星の飛臨する%@宮（山向 %d-%d）にあります。換気・採光を良くし、銅製品や瓢箪で土気を和らげてください。", roomName, pName, palace.mountainStar, palace.facingStar),
@@ -2322,8 +2322,8 @@ public enum HouseSpatialSurveyEngine {
                         )
                         : (isSmall
                             ? tr8(
-                                String(format: "大门朝向 %@ 贴近同宫两山交界（小空亡出卦），气杂不纯、阴差阳错，须以【兼向替卦】排盘化解。", degStr),
-                                String(format: "大門朝向 %@ 貼近同宮兩山交界（小空亡出卦），氣雜不純、陰差陽錯，須以【兼向替卦】排盤化解。", degStr),
+                                String(format: "大门朝向 %@ 贴近同宫两山交界（小空亡出卦），气杂不纯、阴差阳错，可用【兼向替卦】排盘作为参考。", degStr),
+                                String(format: "大門朝向 %@ 貼近同宮兩山交界（小空亡出卦），氣雜不純、陰差陽錯，可用【兼向替卦】排盤作為參考。", degStr),
                                 String(format: "The main entrance heading (%@) lies near the boundary between two mountains in the same palace (Minor Void / Xiao Kong Wang); evaluate using a Replacement Star (Ti Gua) chart.", degStr),
                                 String(format: "玄関の向き（%@）が同宮二山の境界（小空亡）に近いため、【兼向替卦】盤で旺衰を確認してください。", degStr),
                                 String(format: "현관 향(%@)이 동궁 두 산의 경계(소공망)에 가까우므로 【겸향 체괘】 반으로 왕쇠를 점검하세요.", degStr),

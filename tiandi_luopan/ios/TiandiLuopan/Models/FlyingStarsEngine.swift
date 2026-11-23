@@ -395,13 +395,13 @@ public struct PalaceCell: Identifiable {
     private func localizedEarthShaEvaluation(_ lang: AppLanguage) -> String {
         switch lang {
         case .en: return "Five Yellow/Two Black earth sha · Keep quiet and use a Metal remedy"
-        case .zhHant: return "五黃／二黑土煞 · 宜靜安金屬化解"
-        case .ja: return "五黄・二黒土煞 · 静かにして金属で化解"
+        case .zhHant: return "五黃／二黑方位 · 宜保持安靜整潔"
+        case .ja: return "五黄・二黒の方位 · 静かに保つのが参考"
         case .ko: return "오황·이흑 토살 · 조용히 하고 금속으로 화해"
         case .vi: return "Thổ sát Ngũ Hoàng/Nhị Hắc · Giữ tĩnh và dùng kim loại hóa giải"
         case .th: return "เคราะห์ดินดาวห้าเหลือง/สองดำ · รักษาความสงบและใช้โลหะแก้"
         case .id: return "Sha tanah 5-Kuning/2-Hitam · Jaga ketenangan dan gunakan logam"
-        case .auto, .zhHans: return "五黄／二黑土煞 · 宜静安金属化解"
+        case .auto, .zhHans: return "五黄／二黑方位 · 宜保持安静整洁"
         }
     }
 
@@ -429,14 +429,14 @@ public struct PalaceCell: Identifiable {
             if mountainStar == activePeriod && facingStar == activePeriod { return "當運雙星會聚 · 財丁兩旺" }
             if facingStar == activePeriod { return "當旺財星照臨 · 宜開門納氣" }
             if mountainStar == activePeriod { return "當運丁星歸位 · 人丁興旺" }
-            if isShaWuHuang || isShaErHei { return "五黃二黑交加 · 宜靜安銅化解" }
+            if isShaWuHuang || isShaErHei { return "五黃二黑交加 · 宜保持安靜整潔" }
             if (mountainStar == 1 && facingStar == 6) || (mountainStar == 6 && facingStar == 1) { return LocalizationManager.shared.t("ref_pair_one_six") }
             return "吉凶相參 · 平和之位"
         case .ja:
             if mountainStar == activePeriod && facingStar == activePeriod { return "当運の双星会聚 · 財丁両旺" }
             if facingStar == activePeriod { return "当旺の財星照臨 · 開門納気に適す" }
             if mountainStar == activePeriod { return "当運の丁星帰位 · 子孫繁栄" }
-            if isShaWuHuang || isShaErHei { return "五黄二黒交加 · 静寂と銅器で化解" }
+            if isShaWuHuang || isShaErHei { return "五黄二黒交加 · 静かに保つのが参考" }
             if (mountainStar == 1 && facingStar == 6) || (mountainStar == 6 && facingStar == 1) { return LocalizationManager.shared.t("ref_pair_one_six") }
             return "吉凶相半 · 平和の気場"
         case .ko:
@@ -552,7 +552,7 @@ public struct PalaceCell: Identifiable {
 
     private var baseEvaluation: String {
         if hasEarthSha {
-            return "五黄／二黑土煞 · 宜静安金属化解"
+            return "五黄／二黑方位 · 宜保持安静整洁"
         } else if mountainStar == activePeriod && facingStar == activePeriod {
             return "当运双星会聚 · 财丁两旺"
         } else if facingStar == activePeriod {

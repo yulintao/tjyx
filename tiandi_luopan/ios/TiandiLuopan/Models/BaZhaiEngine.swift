@@ -1216,7 +1216,7 @@ public final class UserKuaProfileManager: ObservableObject {
             badge = isMatched ? "宅命相配 · 人宅合一" : "宅命不同組 · 宜用本命吉方調候"
             advice = isMatched
                 ? "宅主屬【\(lifeGroup)】，與本宅坐向同氣相求！主臥安床與辦公桌首選朝向本命生氣財位【\(wealthDir)】或天醫位【\(healthDir)】。"
-                : "宅主屬【\(lifeGroup)】，與本宅不同四宅。化解之法：將床頭、書桌或常坐沙發朝向宅主本命天醫位【\(healthDir)】或生氣位【\(wealthDir)】，即可納吉氣。"
+                : "宅主屬【\(lifeGroup)】，與本宅不同四宅。布局參考：可將床頭、書桌或常坐沙發朝向宅主本命天醫位【\(healthDir)】或生氣位【\(wealthDir)】，作為傳統方位參考。"
         case .ja:
             localizedGua = "\(guaItem.localizedGuaName)命"
             lifeGroup = isEastLife ? "東四命" : "西四命"
@@ -1258,7 +1258,7 @@ public final class UserKuaProfileManager: ObservableObject {
             badge = isMatched ? "宅命相配 · 人宅合一" : "宅命不同组 · 宜用本命吉方调候"
             advice = isMatched
                 ? "宅主属【\(lifeGroup)】，与本宅坐向同气相求！主卧安床与办公桌首选朝向本命生气财位【\(wealthDir)】或天医位【\(healthDir)】。"
-                : "宅主属【\(lifeGroup)】，与本宅不同四宅。化解之法：将床头、书桌或常坐沙发朝向宅主本命天医位【\(healthDir)】或生气位【\(wealthDir)】，即可纳吉气。"
+                : "宅主属【\(lifeGroup)】，与本宅不同四宅。布局参考：可将床头、书桌或常坐沙发朝向宅主本命天医位【\(healthDir)】或生气位【\(wealthDir)】，作为传统方位参考。"
         }
 
         return HouseKuaCompatibility(
