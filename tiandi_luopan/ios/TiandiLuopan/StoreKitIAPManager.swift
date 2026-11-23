@@ -203,10 +203,10 @@ enum FloorplanCreditPurchase {
 // MARK: - IAP 商品与权益定义
 
 public enum IAPProductID: String, CaseIterable, Equatable {
-    case vipYearly = "com.yanxiang.compass.vip.yearly"           // 演象·年度堪舆会员 198元/年
-    case proLifetime = "com.yanxiang.compass.pro.lifetime"       // 演象·专业终身版 298元 一次性买断
-    case floorplanSingle = "com.yanxiang.compass.floorplan.case"   // 户型空间立极·单套全案 19.9元
-    case tianjiSingle = "com.yanxiang.compass.tianji.single"       // 福宅天机宣纸长卷·单次高清导出 9.9元
+    case vipYearly = "com.tianjiwushe.app.vip.yearly"           // 演象·年度堪舆会员 198元/年
+    case proLifetime = "com.tianjiwushe.app.pro.lifetime"       // 演象·专业终身版 298元 一次性买断
+    case floorplanSingle = "com.tianjiwushe.app.floorplan.case"   // 户型空间立极·单套全案 19.9元
+    case tianjiSingle = "com.tianjiwushe.app.tianji.single"       // 福宅天机宣纸长卷·单次高清导出 9.9元
 
     var title: String {
         switch self {
@@ -584,15 +584,22 @@ public class StoreKitIAPManager: ObservableObject {
 
     private func productKind(for productID: String) -> IAPProductKind? {
         switch productID {
-        case IAPProductID.vipYearly.rawValue, "com.yanxiang.luopan.vip.yearly":
+        case IAPProductID.vipYearly.rawValue,
+             "com.yanxiang.compass.vip.yearly",
+             "com.yanxiang.luopan.vip.yearly":
             return .vipYearly
-        case IAPProductID.proLifetime.rawValue, "com.yanxiang.luopan.pro.lifetime":
+        case IAPProductID.proLifetime.rawValue,
+             "com.yanxiang.compass.pro.lifetime",
+             "com.yanxiang.luopan.pro.lifetime":
             return .proLifetime
         case IAPProductID.floorplanSingle.rawValue,
+             "com.yanxiang.compass.floorplan.case",
              "com.yanxiang.compass.floorplan.single",
              "com.yanxiang.luopan.floorplan.single":
             return .floorplanSingle
-        case IAPProductID.tianjiSingle.rawValue, "com.yanxiang.luopan.tianji.single":
+        case IAPProductID.tianjiSingle.rawValue,
+             "com.yanxiang.compass.tianji.single",
+             "com.yanxiang.luopan.tianji.single":
             return .tianjiSingle
         default:
             return nil
