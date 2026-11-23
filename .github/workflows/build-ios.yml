@@ -54,6 +54,9 @@ jobs:
       WIDGET_BUNDLE_ID: ""
       PROJECT_PATH: ios/TiandiLuopan.xcodeproj
       SCHEME_NAME: TiandiLuopan
+      # 打出来的包叫什么：只影响 dist-ios 里的文件名与 artifact 名，
+      # 不动工程里的 target/product（那会牵动 pbxproj 与 CFBundleExecutable）。
+      PACKAGE_NAME: tianjiwushe
       CONFIGURATION: Release
       BUILD_TARGET: ${{ github.event.inputs.build_target || 'development' }}
 
@@ -138,11 +141,19 @@ jobs:
           fi
 
           # 自定义签名变量必须在工程里被引用，否则会被静默忽略
-          for var in APP_PROVISIONING_PROFILE_SPECIFIER WIDGET_PROVISIONING_PROFILE_SPECIFIER WIDGET_CODE_SIGNING_ALLOWED; do
+          for var in APP_PROVISIONING_PROFILE_SPECIFIER; do
             if ! grep -rqs --include=project.pbxproj --include='*.xcconfig' "$var" ios; then
               echo "::warning::$var is not referenced in project.pbxproj / *.xcconfig; the command-line override will have no effect."
             fi
           done
+
+          if grep -qs 'TiandiLuopanWidget.appex' ios/TiandiLuopan.xcodeproj/project.pbxproj; then
+            for var in WIDGET_PROVISIONING_PROFILE_SPECIFIER WIDGET_CODE_SIGNING_ALLOWED; do
+              if ! grep -rqs --include=project.pbxproj --include='*.xcconfig' "$var" ios; then
+                echo "::warning::$var is not referenced in project.pbxproj / *.xcconfig; the command-line override will have no effect."
+              fi
+            done
+          fi
 
       # --------------------------------------------------
       # 4. 根据模式导入证书和描述文件
@@ -151,7 +162,8 @@ jobs:
         id: setup_signing
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          # 可选：App Group ID（仓库变量）。设置后强制使用它；不设置则从描述文件里自动挑
+          # 可选：App Group ID（仓库变量）。设置后强制使用它；不设置则从描述文件里自动挑。
+          # 注意：这里必须保持「未设就是空」，不要填默认值以免描述文件不带 group 时硬失败。
           APP_GROUP_ID: ${{ vars.APP_GROUP_ID }}
           # 开发者模式凭证 (含 fallback)
           DEV_P12: ${{ secrets.DEV_CERTIFICATE_P12 || secrets.BUILD_CERTIFICATE_P12 }}
@@ -166,10 +178,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -n "$TEAM_ID" || {
-            echo "ERROR: Missing APPLE_TEAM_ID in GitHub Secrets."
-            exit 1
-          }
+          # APPLE_TEAM_ID 可以不填：解密描述文件后能从里面取到团队，见下面「Team ID 以描述文件为准」。
+          if [ -z "${TEAM_ID:-}" ]; then
+            echo "APPLE_TEAM_ID is empty; it will be read from the provisioning profile."
+          fi
 
           mkdir -p "$RUNNER_TEMP/signing"
           P12_PATH="$RUNNER_TEMP/signing/certificate.p12"
@@ -255,10 +267,9 @@ jobs:
           SIGNING_IDENTITY="$(printf '%s\n' "$SIGNING_LINE" | sed -E 's/^[^"]*"([^"]*)".*/\1/')"
           CERT_SHA1="$(printf '%s\n' "$SIGNING_LINE" | awk '{print toupper($2)}')"
 
-          if [[ "$SIGNING_IDENTITY" != *"($TEAM_ID)"* ]]; then
-            echo "WARNING: Certificate identity does not contain ($TEAM_ID), proceeding with: $SIGNING_IDENTITY"
-          fi
+          # 证书 CN 里的括号是签发时记录的标识，未必等于团队 ID，所以这里不做判断，只打出来便于对账。
           echo "Selected Signing Identity: $SIGNING_IDENTITY ($CERT_SHA1)"
+          echo "Team on the profile: ${TEAM_ID:-<not read yet>}"
 
           # 描述文件通用预检：未过期 + 包含刚导入的这张证书
           check_profile() {
@@ -303,6 +314,20 @@ jobs:
           echo "App ID: $PROFILE_APP_ID"
           echo "get-task-allow: $GET_TASK_ALLOW"
 
+          # Team ID 以描述文件为准：账户里可能同时存在多个团队，
+          # secret 为空时自动取描述文件的团队；与描述文件冲突时告警并采用描述文件的团队。
+          if [ -z "${TEAM_ID:-}" ]; then
+            TEAM_ID="$PROFILE_TEAM"
+            echo "Team ID comes from the profile: $TEAM_ID"
+          elif [ "$TEAM_ID" != "$PROFILE_TEAM" ]; then
+            echo "::warning::APPLE_TEAM_ID is $TEAM_ID but this profile belongs to team $PROFILE_TEAM; using the profile's team."
+            TEAM_ID="$PROFILE_TEAM"
+          else
+            echo "Team ID: $TEAM_ID (matches the profile)"
+          fi
+          # 无条件导出：后续步骤只能通过 GITHUB_ENV 拿到解析后的 TEAM_ID
+          echo "TEAM_ID=$TEAM_ID" >> "$GITHUB_ENV"
+
           # Bundle ID 以工程为唯一来源，CI 不另存一份硬编码副本
           PROJECT_APP_BUNDLE_ID="$(grep -m1 -oE 'PRODUCT_BUNDLE_IDENTIFIER = [A-Za-z0-9.-]+;' "$PROJECT_PATH/project.pbxproj" | sed -E 's/.*= //; s/;//')"
           if [ -z "$PROJECT_APP_BUNDLE_ID" ]; then
@@ -330,6 +355,10 @@ jobs:
           # shellcheck disable=SC2053
           if [[ "$EXPECTED_APP_ID" != $PROFILE_APP_ID ]]; then
             echo "ERROR: Profile App ID ($PROFILE_APP_ID) does not cover $EXPECTED_APP_ID"
+            echo "::error::The provisioning profile in the secret belongs to a different bundle id."
+            echo "::error::Expected: $EXPECTED_APP_ID"
+            if [ "$BUILD_TARGET" = "app-store" ]; then PROFILE_SECRET="DIST_PROVISION_PROFILE"; else PROFILE_SECRET="DEV_PROVISION_PROFILE"; fi
+            echo "::error::Fix: ensure a $BUILD_TARGET provisioning profile covering $APP_BUNDLE_ID is stored (base64) in the $PROFILE_SECRET secret."
             exit 1
           fi
 
@@ -369,19 +398,26 @@ jobs:
           echo "$PROFILE_DIR/$PROFILE_UUID.mobileprovision" >> "$INSTALLED_LIST"
 
           # --------------------------------------------------
-          # 小组件描述文件处理（兼容通配符 Wildcard / 独立描述文件）
+          # 小组件描述文件处理（兼容通配符 Wildcard / 独立描述文件；自动探测工程是否含小组件）
           # --------------------------------------------------
           EXPECTED_WIDGET_APP_ID="$TEAM_ID.$WIDGET_BUNDLE_ID"
+          HAS_WIDGET_TARGET="false"
+          if grep -q 'TiandiLuopanWidget.appex' "$PROJECT_PATH/project.pbxproj" 2>/dev/null; then
+            HAS_WIDGET_TARGET="true"
+          else
+            echo "No widget target in project; widget profile handling is skipped."
+          fi
+          echo "has_widget_target=$HAS_WIDGET_TARGET" >> "$GITHUB_OUTPUT"
           HAS_WIDGET_PROFILE="false"
           WIDGET_PROFILE_UUID=""
           WIDGET_PROFILE_PLIST=""
 
           # shellcheck disable=SC2053
-          if [[ "$EXPECTED_WIDGET_APP_ID" == $PROFILE_APP_ID ]]; then
+          if [ "$HAS_WIDGET_TARGET" = "true" ] && [[ "$EXPECTED_WIDGET_APP_ID" == $PROFILE_APP_ID ]]; then
             echo "Main profile is a wildcard that covers the widget ($PROFILE_APP_ID)."
             HAS_WIDGET_PROFILE="true"
             WIDGET_PROFILE_UUID="$PROFILE_UUID"
-          elif [ -n "$WIDGET_PROV_RAW" ]; then
+          elif [ "$HAS_WIDGET_TARGET" = "true" ] && [ -n "$WIDGET_PROV_RAW" ]; then
             echo "==== Configuring Widget Provisioning Profile ===="
             WIDGET_PP_PATH="$RUNNER_TEMP/signing/widget_profile.mobileprovision"
             WIDGET_PROFILE_PLIST="$RUNNER_TEMP/signing/widget_profile.plist"
@@ -424,13 +460,15 @@ jobs:
             HAS_WIDGET_PROFILE="true"
             echo "Widget profile installed successfully: $WIDGET_PROFILE_NAME ($WIDGET_PROFILE_UUID)"
           else
-            if [ "$BUILD_TARGET" = "app-store" ]; then
+            if [ "$BUILD_TARGET" = "app-store" ] && [ "$HAS_WIDGET_TARGET" = "true" ]; then
               echo "::error::No widget provisioning profile for app-store mode (expected App ID: $EXPECTED_WIDGET_APP_ID). Refusing to ship a build without the widget."
               echo "::error::Configure DIST_WIDGET_PROVISION_PROFILE in GitHub Secrets, or use a wildcard distribution profile."
               exit 1
             fi
-            echo "::warning::No widget provisioning profile secret found for $BUILD_TARGET mode."
-            echo "::warning::Expected App ID: $EXPECTED_WIDGET_APP_ID. The widget will be signed off and stripped from this development build."
+            if [ "$HAS_WIDGET_TARGET" = "true" ]; then
+              echo "::warning::No widget provisioning profile secret found for $BUILD_TARGET mode."
+              echo "::warning::Expected App ID: $EXPECTED_WIDGET_APP_ID. The widget will be signed off and stripped from this development build."
+            fi
           fi
 
           # --------------------------------------------------
@@ -504,7 +542,8 @@ jobs:
       # --------------------------------------------------
       - name: Build Archive
         env:
-          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # 不要在这里重新读 secret：签名步骤已把解析出的 TEAM_ID 写进 GITHUB_ENV，
+          # 这里的覆盖会让空 secret 或错配 secret 抹掉正确的值。
           SIGNING_IDENTITY: ${{ steps.setup_signing.outputs.signing_identity }}
           PROFILE_UUID: ${{ steps.setup_signing.outputs.profile_uuid }}
           HAS_WIDGET_PROFILE: ${{ steps.setup_signing.outputs.has_widget_profile }}
@@ -550,8 +589,8 @@ jobs:
 
           test -d build/TiandiLuopan.xcarchive
 
-          ARCHIVED_APP="build/TiandiLuopan.xcarchive/Products/Applications/TiandiLuopan.app"
-          test -d "$ARCHIVED_APP" || { echo "::error::Archived app not found at $ARCHIVED_APP"; exit 1; }
+          ARCHIVED_APP="$(find build/TiandiLuopan.xcarchive/Products/Applications -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$ARCHIVED_APP" && test -d "$ARCHIVED_APP" || { echo "::error::Archived app not found in build/TiandiLuopan.xcarchive/Products/Applications"; exit 1; }
 
           # 归档产物必须确实链接 iOS 27.1+ SDK（DTSDKName 由构建时 SDK 写入，形如 iphoneos27.1）
           DTSDK="$(/usr/libexec/PlistBuddy -c 'Print :DTSDKName' "$ARCHIVED_APP/Info.plist" 2>/dev/null || true)"
@@ -590,7 +629,6 @@ jobs:
       # --------------------------------------------------
       - name: Create ExportOptions
         env:
-          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           PROFILE_UUID: ${{ steps.setup_signing.outputs.profile_uuid }}
           HAS_WIDGET_PROFILE: ${{ steps.setup_signing.outputs.has_widget_profile }}
           WIDGET_PROFILE_UUID: ${{ steps.setup_signing.outputs.widget_profile_uuid }}
