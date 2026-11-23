@@ -343,7 +343,7 @@ public struct QimenDunjiaView: View {
             HStack {
                 Text(cell.localizedGodName)
                     .adaptiveFont(size: 9, weight: .bold)
-                    .foregroundColor(Color.yellow)
+                    .foregroundColor(Color.semWarn)
                 Spacer()
                 Text(cell.localizedStarName)
                     .adaptiveFont(size: 9)

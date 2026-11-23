@@ -3171,7 +3171,7 @@ public struct FloorplanView: View {
                     if let personLabel {
                         Label(personLabel, systemImage: needsFamilyReview ? "exclamationmark.triangle.fill" : "person.fill")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(needsFamilyReview ? .semWarn : .cyan)
+                            .foregroundColor(needsFamilyReview ? .semWarn : .yanCyan)
                             .lineLimit(3)
                             .minimumScaleFactor(0.7)
                             .padding(3)
@@ -3686,7 +3686,7 @@ public struct FloorplanView: View {
 
             subText.draw(at: CGPoint(x: 70, y: 116), withAttributes: [
                 .font: UIFont.systemFont(ofSize: 21, weight: .semibold),
-                .foregroundColor: UIColor.cyan
+                .foregroundColor: UIColor(Color.yanCyan)
             ])
             reportSubHeadline.draw(at: CGPoint(x: 70, y: 154), withAttributes: [
                 .font: UIFont.systemFont(ofSize: 18, weight: .regular),

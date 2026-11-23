@@ -633,7 +633,7 @@ public struct CompassMainView: View {
             kwDescKey = "kw_pure_desc"
             kwRemedyKey = "kw_pure_remedy"
         case .jianXiang:
-            kwColor = Color.yellow
+            kwColor = Color.semWarn
             kwGradeKey = "kw_sub_grade"
             kwDescKey = "kw_sub_desc"
             kwRemedyKey = "kw_sub_remedy"

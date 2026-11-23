@@ -360,7 +360,7 @@ public struct CompassDialView: View {
                     path.addLine(to: point(angle: startAngle + (endAngle - startAngle) * fraction, radius: outerRadius))
                 }
             }
-            .stroke(Color.yellow, lineWidth: 1.5)
+            .stroke(Color.semWarn, lineWidth: 1.5)
         )
         .frame(width: radius * 2, height: radius * 2)
         .allowsHitTesting(false)
@@ -653,7 +653,7 @@ public struct CompassDialView: View {
                     endPoint: .bottom
                 )
             )
-            .shadow(color: Color.yellow.opacity(0.4), radius: 2)
+            .shadow(color: Color.semWarn.opacity(0.4), radius: 2)
             .frame(width: radius * 2, height: radius * 2)
             
             Text(lang.t("true_north_short"))

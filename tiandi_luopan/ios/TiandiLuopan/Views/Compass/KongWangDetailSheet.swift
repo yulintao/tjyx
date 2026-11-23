@@ -39,7 +39,7 @@ public struct KongWangDetailSheet: View {
         case .jianXiang:
             kwStatusText = lang.t("kw_sub_title")
             kwGradeText = lang.t("kw_sub_grade")
-            kwColor = .yellow
+            kwColor = .semWarn
             kwDesc = lang.t("kw_sub_desc")
             kwRemedyText = lang.t("kw_sub_remedy")
         case .pure:

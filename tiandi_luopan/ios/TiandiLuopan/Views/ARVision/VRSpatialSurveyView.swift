@@ -292,7 +292,7 @@ public struct VRSpatialSurveyView: View {
 
     private func openingView(_ op: VROpeningItem, size: CGSize) -> some View {
         let selected = op.id == selectedID
-        let color: Color = op.isDoor ? .yellow : .cyan
+        let color: Color = op.isDoor ? .semWarn : .yanCyan
         return ZStack(alignment: .bottomTrailing) {
             RoundedRectangle(cornerRadius: 4)
                 .fill(color.opacity(0.55))
@@ -883,9 +883,9 @@ public struct VRSpatialSurveyView: View {
         case .secondBedroom: return .purple
         case .study: return .teal
         case .kitchen: return .semWarn
-        case .bathroom: return .cyan
+        case .bathroom: return .yanCyan
         case .balcony: return .semJi
-        case .door: return .yellow
+        case .door: return .semWarn
         case .missingCorner: return .semXiong
         }
     }

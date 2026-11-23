@@ -307,7 +307,7 @@ public struct SettingsView: View {
     @State private var showTrainingProfile: Bool = false
 
     private static let appearanceConfigured: Void = {
-        UITableView.appearance().backgroundColor = UIColor(red: 18/255.0, green: 18/255.0, blue: 22/255.0, alpha: 1.0)
+        UITableView.appearance().backgroundColor = UIColor(red: 22/255.0, green: 19/255.0, blue: 15/255.0, alpha: 1.0)
     }()
 
     public init(isActive: Bool = true) {
@@ -353,7 +353,7 @@ public struct SettingsView: View {
                                     iconColor: Color.goldText,
                                     title: lang.t("settings_menu_vip"),
                                     badge: isProUnlocked ? lang.t("vip_user") : lang.t("standard_user"),
-                                    badgeColor: isProUnlocked ? .semJi : .yellow
+                                    badgeColor: isProUnlocked ? .semJi : .semWarn
                                 )
                             }
 
@@ -366,7 +366,7 @@ public struct SettingsView: View {
                             NavigationLink(destination: LanguagePreferencesPageView()) {
                                 menuRow(
                                     icon: "globe",
-                                    iconColor: Color(red: 0.35, green: 0.65, blue: 0.95),
+                                    iconColor: Color.yanCyan,
                                     title: lang.t("settings_menu_language"),
                                     subtitle: lang.currentSetting.displayName
                                 )
@@ -386,7 +386,7 @@ public struct SettingsView: View {
                     .listStyle(InsetGroupedListStyle())
                     .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
                     .frame(maxWidth: .infinity)
-                    .background(Color.black.ignoresSafeArea())
+                    .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
                     .navigationBarTitle(lang.t("tab_settings"), displayMode: .inline)
                     .preferredColorScheme(.dark)
                     .onAppear {
@@ -497,7 +497,7 @@ public struct SettingsView: View {
                     .padding(.vertical, 10)
                     .background(
                         LinearGradient(
-                            colors: [Color.goldText, Color(red: 0.85, green: 0.68, blue: 0.22)],
+                            colors: [Color.goldText, Color.goldDeep],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -546,8 +546,8 @@ public struct SettingsView: View {
                         .fill(
                             LinearGradient(
                                 colors: isProUnlocked
-                                    ? [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)]
-                                    : [Color(red: 0.25, green: 0.26, blue: 0.3), Color(red: 0.15, green: 0.16, blue: 0.2)],
+                                    ? [Color.goldText, Color.goldDeep]
+                                    : [Color.surfaceElevated, Color.surfaceCard],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -632,8 +632,8 @@ public struct SettingsView: View {
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3)
-                    .background((badgeColor ?? .yellow).opacity(0.25))
-                    .foregroundColor(badgeColor ?? .yellow)
+                    .background((badgeColor ?? .semWarn).opacity(0.25))
+                    .foregroundColor(badgeColor ?? .semWarn)
                     .cornerRadius(6)
             } else if let subtitle = subtitle, !subtitle.isEmpty {
                 Text(subtitle)
@@ -683,8 +683,8 @@ public struct MasterVIPPageView: View {
                             .adaptiveFont(size: 11, weight: .bold)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(isProUnlocked ? Color.semJi.opacity(0.3) : Color.yellow.opacity(0.3))
-                            .foregroundColor(isProUnlocked ? .semJi : .yellow)
+                            .background(isProUnlocked ? Color.semJi.opacity(0.3) : Color.semWarn.opacity(0.3))
+                            .foregroundColor(isProUnlocked ? .semJi : .semWarn)
                             .cornerRadius(6)
                     }
 
@@ -732,7 +732,7 @@ public struct MasterVIPPageView: View {
                             .padding(.vertical, 10)
                             .background(
                                 LinearGradient(
-                                    colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                    colors: [Color.goldText, Color.goldDeep],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -762,7 +762,7 @@ public struct MasterVIPPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color.black.ignoresSafeArea())
+        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_vip"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .onAppear { iap.refreshProductsIfNeeded() }
@@ -785,8 +785,8 @@ public struct MasterVIPPageView: View {
                             .adaptiveFont(size: 9, weight: .bold)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1.5)
-                            .background(Color.yellow.opacity(0.25))
-                            .foregroundColor(Color.yellow)
+                            .background(Color.semWarn.opacity(0.25))
+                            .foregroundColor(Color.semWarn)
                             .cornerRadius(3)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
@@ -803,7 +803,7 @@ public struct MasterVIPPageView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(10)
-            .background(isSelected ? Color(red: 0.22, green: 0.19, blue: 0.12) : Color(red: 0.12, green: 0.13, blue: 0.17))
+            .background(isSelected ? Color.surfaceElevated : Color.surfaceCard)
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
@@ -825,7 +825,7 @@ public struct MasterVIPPageView: View {
             Spacer()
             Text(lang.t("vip_short"))
                 .adaptiveFont(size: 9, weight: .bold)
-                .foregroundColor(.yellow)
+                .foregroundColor(.semWarn)
         }
     }
 }
@@ -1066,7 +1066,7 @@ public struct OwnerKuaReminderPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color.black.ignoresSafeArea())
+        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_kua_reminder"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .sheet(item: $activeSheet) { sheet in
@@ -1142,7 +1142,7 @@ public struct OwnerKuaReminderPageView: View {
             }
         }
         .padding(10)
-        .background(Color(red: 0.12, green: 0.13, blue: 0.17))
+        .background(Color.surfaceCard)
         .cornerRadius(8)
     }
 }
@@ -1250,7 +1250,7 @@ public struct LanguagePreferencesPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color.black.ignoresSafeArea())
+        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_language"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showCalibrationGuide) {
@@ -1361,7 +1361,7 @@ public struct AboutPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color.black.ignoresSafeArea())
+        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_about"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .sheet(item: $legalDocument) { document in

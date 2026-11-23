@@ -460,7 +460,7 @@ public struct BaZhaiView: View {
                     
                     Text(basha.remedy)
                         .adaptiveFont(size: 11)
-                        .foregroundColor(Color.yellow.opacity(0.9))
+                        .foregroundColor(Color.semWarn.opacity(0.9))
                         .lineSpacing(2)
                     
                     DisclosureGroup(lang.t("song_quote")) {

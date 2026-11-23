@@ -2445,7 +2445,7 @@ public struct ShaRemedyDetailSheet: View {
                     .adaptiveFont(size: 10, weight: .medium)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color.yellow.opacity(0.15))
+                    .background(Color.semWarn.opacity(0.15))
                     .foregroundColor(Color.goldText)
                     .cornerRadius(6)
             }
@@ -2561,7 +2561,7 @@ private struct ShaPanoramaReportSheet: View {
         switch sev {
         case .critical: return .semXiong
         case .warning: return .semWarn
-        case .minor: return .yellow
+        case .minor: return .semWarn
         case .notice: return .semJi
         }
     }
@@ -2663,7 +2663,7 @@ private struct ShaPanoramaReportSheet: View {
                                                     .font(.caption2.weight(.bold))
                                                     .padding(.horizontal, 6)
                                                     .padding(.vertical, 3)
-                                                    .background(sev == .critical ? Color.semXiong.opacity(0.15) : (sev == .warning ? Color.semWarn.opacity(0.15) : (sev == .minor ? Color.yellow.opacity(0.15) : Color.semJi.opacity(0.15))))
+                                                    .background(sev == .critical ? Color.semXiong.opacity(0.15) : (sev == .warning ? Color.semWarn.opacity(0.15) : (sev == .minor ? Color.semWarn.opacity(0.15) : Color.semJi.opacity(0.15))))
                                                     .cornerRadius(6)
                                             }
                                             Button(action: {

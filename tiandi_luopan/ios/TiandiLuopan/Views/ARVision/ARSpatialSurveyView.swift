@@ -3205,7 +3205,7 @@ public struct ARSpatialSurveyView: View {
 
     private var scanQualityColor: Color {
         if model.scanQualityScore >= 75 { return .semJi }
-        if model.scanQualityScore >= 45 { return .yellow }
+        if model.scanQualityScore >= 45 { return .semWarn }
         return .semWarn
     }
 
