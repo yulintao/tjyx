@@ -1057,8 +1057,8 @@ public enum HouseSpatialSurveyEngine {
                             "Sumber: Ba Zhai Ming Jing. Teks klasik mengaitkan panas di pusat rumah secara simbolis, bukan diagnosis medis."
                         ),
                         solution: tr8(
-                            "厨灶移位避开房屋正中心，厨房采用米白或浅黄色地砖引土泄火，灶台下置黄玉石辟火化煞。",
-                            "廚灶移位避開房屋正中心，廚房採用米白或淺黃色地磚引土洩火，灶台下置黃玉石辟火化煞。",
+                            "厨灶移位避开房屋正中心，厨房采用米白或浅黄色地砖引土泄火，灶台区域保持通风整洁。",
+                            "廚灶移位避開房屋正中心，廚房採用米白或淺黃色地磚引土洩火，灶台區域保持通風整潔。",
                             "Relocate the stove away from the exact center if possible; use beige or warm earth-toned tiles and yellow ceramic/jade accents to drain excess Fire into Earth.",
                             "可能であればコンロを中心からずらし、ベージュや淡黄色のタイル・陶器を用いて土気で火気を和らげてください。",
                             "가능하면 화구를 정중앙에서 비켜 배치하고, 미색·연황색 타일이나 황옥 소품으로 화기를 토(土)로 설기하세요.",

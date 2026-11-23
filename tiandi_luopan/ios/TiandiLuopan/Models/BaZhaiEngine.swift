@@ -1428,7 +1428,7 @@ public final class RetentionServiceManager: ObservableObject {
     }
 
     /// 注册 iOS 主屏幕长按快捷入口 (Quick Actions) 与系统 Spotlight 搜索索引 (CoreSpotlight)
-    /// 仅保留空间测绘与户型分析快捷入口，彻底移除算命/财神/日签/奇门入口（App Store 4.3(b) 合规）。
+    /// 仅保留空间测绘与户型分析快捷入口，彻底移除命理/财神/日签/奇门入口（App Store 4.3(b) 合规）。
     public func registerSystemShortcutsAndSpotlight() {
         let lang = LocalizationManager.shared.effectiveLanguage
         let s1Title: String; let s1Sub: String

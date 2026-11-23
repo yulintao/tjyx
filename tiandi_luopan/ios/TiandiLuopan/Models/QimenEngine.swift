@@ -74,17 +74,17 @@ public struct QimenDoor {
             ][name] ?? lore
         case .zhHant:
             return [
-                "休门": "求名休閒大吉，水清木秀", "生门": "求財置業大吉，土旺金生",
+                "休门": "传统方位参考，水清木秀", "生门": "传统方位参考，土旺金生",
                 "伤门": "討債索敵宜，出行防傷災", "杜门": "潛伏隱匿避災，閉藏門戶",
                 "景门": "文書考試宴請吉，火炎防急", "死门": "吊喪刑戮宜，出行造葬大凶",
                 "惊门": "官非驚恐口舌，捕盜宜", "开门": "經商開業動身，百事通亨"
             ][name] ?? lore
         case .ja:
             return [
-                "休门": "休息や学問、名声の獲得に大吉", "生门": "求財や不動産取得に大吉、発展を促す",
+                "休门": "休息や学問、名声の伝統的参考", "生门": "求財や不動産取得の伝統的参考",
                 "伤门": "債権回収や討伐に適するが怪我に注意", "杜门": "隠匿や難逃れに適し、戸を閉ざす",
                 "景门": "文書作成や試験に吉、焦りは禁物", "死门": "葬儀弔問にのみ適し、出行動土は大凶",
-                "惊门": "口論や驚愕を招きやすく盗賊捕縛に吉", "开门": "開業や出発商談に万事通亨の大吉"
+                "惊门": "口論や驚愕に注意、盗賊捕縛の伝統的参考", "开门": "開業や出発商談の伝統的参考"
             ][name] ?? lore
         case .ko:
             return [
@@ -116,7 +116,7 @@ public struct QimenDoor {
             ][name] ?? lore
         case .auto, .zhHans:
             return [
-                "休门": "求名休闲大吉，水清木秀", "生门": "求财置业大吉，土旺金生",
+                "休门": "传统方位参考，水清木秀", "生门": "传统方位参考，土旺金生",
                 "伤门": "讨债索敌宜，出行防伤灾", "杜门": "潜伏隐匿避灾，闭藏门户",
                 "景门": "文书考试宴请吉，火炎防急", "死门": "吊丧刑戮宜，出行造葬大凶",
                 "惊门": "官非惊恐口舌，捕盗宜", "开门": "经商开业动身，百事通亨"
@@ -302,8 +302,8 @@ public class QimenEngine {
     public static let shared = QimenEngine()
     
     private let eightDoors: [QimenDoor] = [
-        QimenDoor(name: "休门", palace: 1, isAuspicious: true, luckType: "吉", lore: "求名休闲大吉，水清木秀"),
-        QimenDoor(name: "生门", palace: 8, isAuspicious: true, luckType: "大吉", lore: "求财置业大吉，土旺金生"),
+        QimenDoor(name: "休门", palace: 1, isAuspicious: true, luckType: "吉", lore: "传统方位参考，水清木秀"),
+        QimenDoor(name: "生门", palace: 8, isAuspicious: true, luckType: "大吉", lore: "传统方位参考，土旺金生"),
         QimenDoor(name: "伤门", palace: 3, isAuspicious: false, luckType: "凶", lore: "讨债索敌宜，出行防伤灾"),
         QimenDoor(name: "杜门", palace: 4, isAuspicious: false, luckType: "平", lore: "潜伏隐匿避灾，闭藏门户"),
         QimenDoor(name: "景门", palace: 9, isAuspicious: false, luckType: "平", lore: "文书考试宴请吉，火炎防急"),

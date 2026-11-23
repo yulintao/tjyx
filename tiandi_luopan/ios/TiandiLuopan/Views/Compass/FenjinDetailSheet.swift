@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - 一百二十分金定位与吉凶详解弹窗 (Fenjin Detail Sheet)
+// MARK: - 一百二十分金定位与方位参考详解弹窗 (Fenjin Detail Sheet)
 
 public struct FenjinDetailSheet: View {
     public let fenjin: FenjinItem

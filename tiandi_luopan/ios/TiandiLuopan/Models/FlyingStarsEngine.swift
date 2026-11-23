@@ -773,7 +773,7 @@ public struct XuanKongChart {
             return "• Health & Sha Caution: 5-Yellow Sha lands at [\(wuName)] (Star \(wuCombo)) and 2-Black Sickness Star at [\(erName)] (Star \(erCombo)). Avoid loud noise, drilling, or fire elements here; use copper/Metal ornaments to drain Earth Sha."
         case .zhHant:
             if let clash = clash25Palace {
-                return "• 病符防煞：【\(clash.localizedPalaceName)】逢山向\(clash.mountainStar)-\(clash.facingStar)二五交加/五黃疊臨重煞（五黃位【\(wuName)】、二黑位【\(erName)】），切忌動土裝修與紅紫火物，務必安放銅葫蘆或六帝錢洩土化煞。"
+                return "• 病符防煞：【\(clash.localizedPalaceName)】逢山向\(clash.mountainStar)-\(clash.facingStar)二五交加/五黃疊臨重煞（五黃位【\(wuName)】、二黑位【\(erName)】），切忌動土裝修與紅紫火物，建議保持該區域通風整潔。"
             }
             return "• 病符防煞：五黃廉貞煞飛臨【\(wuName)】（山向\(wuCombo)），二黑病符星到【\(erName)】（山向\(erCombo)），此二宮宜靜不宜動，忌見紅火動土，宜掛銅葫蘆或六帝銅錢化洩凶性。"
         case .ja:
@@ -803,7 +803,7 @@ public struct XuanKongChart {
             return "• Kesehatan & Penangkal Sha: Bintang 5-Kuning berada di [\(wuName)] (Bintang \(wuCombo)) & 2-Hitam di [\(erName)] (Bintang \(erCombo)); hindari renovasi atau warna merah menyala, gunakan labu tembaga/logam untuk menetralkan."
         case .auto, .zhHans:
             if let clash = clash25Palace {
-                return "• 病符防煞：【\(clash.localizedPalaceName)】逢山向\(clash.mountainStar)-\(clash.facingStar)二五交加/五黄叠临重煞（五黄位【\(wuName)】、二黑位【\(erName)】），切忌动土装修与红紫火物，务必安放铜葫芦或六帝钱泄土化煞。"
+                return "• 病符防煞：【\(clash.localizedPalaceName)】逢山向\(clash.mountainStar)-\(clash.facingStar)二五交加/五黄叠临重煞（五黄位【\(wuName)】、二黑位【\(erName)】），切忌动土装修与红紫火物，建议保持该区域通风整洁。"
             }
             return "• 病符防煞：五黄廉贞煞飞临【\(wuName)】（山向\(wuCombo)），二黑病符星到【\(erName)】（山向\(erCombo)），此二宫宜静不宜动，忌见红火动土，宜挂铜葫芦或六帝铜钱化泄凶性。"
         }

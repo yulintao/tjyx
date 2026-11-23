@@ -2502,9 +2502,9 @@ public struct AddFamilyMemberDialog: View {
             case .en:
                 return "Born before Li Chun (Feb 4). Life Gua calculated using previous Feng Shui year (\(y))."
             case .zhHant, .ja:
-                return "公曆立春（約2月4日）前出生，依傳統歷法歲首以立春前一年（\(y)年）核算命卦。"
+                return "公曆立春（約2月4日）前出生，依傳統歷法歲首以立春前一年（\(y)年）核算方位参考参数。"
             default:
-                return "公历立春（约2月4日）前出生，依传统历法岁首以立春前一年（\(y)年）核算命卦。"
+                return "公历立春（约2月4日）前出生，依传统历法岁首以立春前一年（\(y)年）核算方位参考参数。"
             }
         } else {
             switch lang.effectiveLanguage {
@@ -2981,9 +2981,9 @@ public struct EditOwnerKuaDialog: View {
             case .en:
                 return "Born before Li Chun (Feb 4). Life Gua calculated using previous Feng Shui year (\(y))."
             case .zhHant, .ja:
-                return "公曆立春（約2月4日）前出生，依傳統歷法歲首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算命卦。"
+                return "公曆立春（約2月4日）前出生，依傳統歷法歲首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算方位参考参数。"
             default:
-                return "公历立春（约2月4日）前出生，依传统历法岁首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算命卦。"
+                return "公历立春（约2月4日）前出生，依传统历法岁首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算方位参考参数。"
             }
         } else {
             switch lang.effectiveLanguage {

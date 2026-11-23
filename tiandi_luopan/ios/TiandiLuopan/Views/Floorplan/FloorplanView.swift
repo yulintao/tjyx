@@ -3292,7 +3292,7 @@ public struct FloorplanView: View {
         let directions = localizedCardinalDirections()
 
         return ZStack {
-            // 八方位空间参考分区线（纯建筑朝向与采光几何参考，不含罗盘/飞星/算命元素）
+            // 八方位空间参考分区线（纯建筑朝向与采光几何参考，不含罗盘/飞星/命理元素）
             ForEach(0..<8) { i in
                 let boundaryAngle = Double(i) * 45.0 + 22.5 - effectiveHeading
                 Path { p in

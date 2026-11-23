@@ -198,12 +198,12 @@ enum WidgetZeRiText {
         case (.displayName, .th): return "ตรวจลงเสาเอกตั้งประตู"
         case (.displayName, .id): return "Cek Renovasi & Pintu"
 
-        case (.description, .zhHans): return "实时核验自宅坐山冲克、岁破月破神煞与动土安门专项宜忌"
-        case (.description, .zhHant): return "實時核驗自宅坐山衝剋、歲破月破神煞與動土安門專項宜忌"
+        case (.description, .zhHans): return "实时核验自宅坐山冲克、岁破月破神煞与动土安门专项参考"
+        case (.description, .zhHant): return "實時核驗自宅坐山衝剋、歲破月破神煞與動土安門專項參考"
         case (.description, .en): return "Real-time check for sitting clashes, Grand Duke clashes, and construction taboos"
-        case (.description, .ja): return "自宅坐山の衝克、歳破・月破および動土・安門の吉凶を判定"
-        case (.description, .ko): return "자택 좌산 충극, 세파·월파 신살 및 동토·안문 길흉 실시간 자검"
-        case (.description, .vi): return "Kiểm tra xung tọa sơn, Tuế Phá, Nguyệt Phá và cát hung động thổ an môn"
+        case (.description, .ja): return "自宅坐山の衝克、歳破・月破および動土・安門の伝統的参考を表示"
+        case (.description, .ko): return "자택 좌산 충극, 세파·월파 신살 및 동토·안문 전통 참고 실시간 자검"
+        case (.description, .vi): return "Kiểm tra xung tọa sơn, Tuế Phá, Nguyệt Phá và tham khảo động thổ an môn"
         case (.description, .th): return "ตรวจสอบทิศพิง ปะทะปี/เดือน และฤกษ์ลงเสาเอกตั้งประตูแบบเรียลไทม์"
         case (.description, .id): return "Cek benturan arah duduk, benturan tahun/bulan, dan tabu renovasi"
 
@@ -864,7 +864,7 @@ private struct ZeRiSmallView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            // 顶栏：日柱大字 + 值神胶囊 + 综合吉凶胶囊
+            // 顶栏：日柱大字 + 值神胶囊 + 综合参考胶囊
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Text(s.localizedDayPillar)
                     .font(.system(size: 18, weight: .bold, design: .serif))
@@ -1172,7 +1172,7 @@ private struct ZeRiLargeView: View {
 
     var body: some View {
         VStack(spacing: 9) {
-            // 顶栏：日柱大字 + 值神 + 坐山状态 + 综合吉凶
+            // 顶栏：日柱大字 + 值神 + 坐山状态 + 综合参考
             HStack(alignment: .firstTextBaseline) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(s.localizedDayPillar)
@@ -1273,7 +1273,7 @@ private struct ZeRiLargeView: View {
                 .background(Palette.card)
                 .cornerRadius(5)
 
-            // 宜忌清单
+            // 历法参考清单
             VStack(spacing: 4) {
                 HStack(spacing: 6) {
                     Text(WidgetText.yi.string())

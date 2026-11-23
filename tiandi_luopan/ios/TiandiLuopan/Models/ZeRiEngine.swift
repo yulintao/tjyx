@@ -536,7 +536,7 @@ public final class ZeRiEngine {
             switch lang {
             case .en: return "Move-In · Business Opening · Renovation"
             case .zhHant: return "入宅開業 · 動土嫁娶百事吉"
-            case .ja: return "入宅・開業・動土すべて大吉"
+            case .ja: return "入宅・開業・動土の伝統的参考"
             case .ko: return "입택 개업 · 동토 혼례 백사대길"
             case .vi: return "Nhập trạch khai trương · Động thổ đại cát"
             case .th: return "ขึ้นบ้านใหม่เปิดกิจการ · มงคลทุกประการ"
@@ -557,13 +557,13 @@ public final class ZeRiEngine {
         case 10: // 开
             switch lang {
             case .en: return "Grand Opening · Move-In · Groundbreaking"
-            case .zhHant: return "開市大吉 · 入宅動土安門"
-            case .ja: return "開店大吉・入宅・動土安門"
+            case .zhHant: return "開市参考 · 入宅動土安門"
+            case .ja: return "開店参考・入宅・動土安門"
             case .ko: return "개시 대길 · 입택 동토 안문"
             case .vi: return "Khai trương đại cát · Nhập trạch động thổ"
             case .th: return "เปิดกิจการมงคลใหญ่ · ขึ้นบ้านใหม่ลงเสาเอก"
             case .id: return "Grand Opening · Pindah & Renovasi"
-            case .auto, .zhHans: return "开市大吉 · 入宅动土安门"
+            case .auto, .zhHans: return "开市参考 · 入宅动土安门"
             }
         default:
             switch lang {

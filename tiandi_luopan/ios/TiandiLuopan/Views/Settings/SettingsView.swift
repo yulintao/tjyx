@@ -873,7 +873,7 @@ public struct OwnerKuaReminderPageView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
 
-                    // 本命卦吉凶方位简卡（点击也可直接修改生辰）
+                    // 本命卦方位参考简卡（点击也可直接修改生辰）
                     Button(action: {
                         activeSheet = .editOwnerKua
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
