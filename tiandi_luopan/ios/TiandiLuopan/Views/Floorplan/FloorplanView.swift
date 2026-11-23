@@ -4080,7 +4080,7 @@ public struct RoomAuditDetailSheet: View {
                         .background(Color(red: 0.11, green: 0.11, blue: 0.14))
                         .cornerRadius(12)
                         
-                        // 4. 生旺化煞秘笈
+                        // 4. 传统环境调整参考
                         VStack(alignment: .leading, spacing: 8) {
                             Text(lang.t("floorplan_master_remedy"))
                                 .adaptiveFont(size: 13, weight: .bold)

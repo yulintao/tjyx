@@ -154,28 +154,28 @@ enum SettingsLocalizationHelpers {
 
     static func emptyFamilySubtitle(_ lang: LocalizationManager) -> String {
         switch lang.effectiveLanguage {
-        case .en: return "Tap to add spouse, parents, or children for life gua and smart room fit"
-        case .zhHant: return "點擊添加配偶、父母或子女，智能推演全家本命卦與分房吉位"
-        case .ja: return "タップして配偶者・両親・子供を追加し、部屋割を自動診断"
-        case .ko: return "터치하여 배우자, 부모, 자녀를 추가하고 최적의 방 배정을 확인하세요"
-        case .vi: return "Nhấn để thêm vợ/chồng, cha mẹ, con cái và tự động gợi ý phòng"
-        case .th: return "แตะเพื่อเพิ่มคู่สมรส พ่อแม่ หรือบุตร เพื่อจัดห้องมงคล"
-        case .id: return "Ketuk untuk menambah pasangan, orang tua, atau anak"
-        default: return "点击添加配偶、父母或子女，智能推演全家本命卦与分房吉位"
+        case .en: return "Tap to add family members and record traditional room references"
+        case .zhHant: return "點擊添加配偶、父母或子女，記錄全家傳統方位參考與房間安排"
+        case .ja: return "タップして配偶者・両親・子供を追加し、伝統的な方位の参考を記録"
+        case .ko: return "터치하여 배우자, 부모, 자녀를 추가하고 전통적 방위 참고를 기록하세요"
+        case .vi: return "Nhấn để thêm thành viên gia đình và ghi lại tham khảo phương vị truyền thống"
+        case .th: return "แตะเพื่อเพิ่มสมาชิกในครอบครัวและบันทึกข้อมูลอ้างอิงทิศทางแบบดั้งเดิม"
+        case .id: return "Ketuk untuk menambah anggota keluarga dan mencatat referensi arah tradisional"
+        default: return "点击添加配偶、父母或子女，记录全家传统方位参考与房间安排"
         }
     }
 
     static func solarTermNotifyDesc(_ lang: LocalizationManager) -> String {
         switch lang.effectiveLanguage {
-        case .zhHans: return "系统将于二十四节气交节当日及九星换月当日早 08:30 自动向您推送节气气候与当月飞星吉凶提示。"
-        case .zhHant: return "系統將於二十四節氣交節當日及九星換月當日早 08:30 自動向您推送節氣氣候與當月飛星吉凶提示。"
-        case .en: return "Alerts for solar term changes and monthly Flying Star shifts will be delivered at 08:30 AM on transition days."
-        case .ja: return "二十四節気の交節日および九星換月の当日の朝 08:30 に、気候と飛星の吉凶通知をお届けします。"
-        case .ko: return "24절기 입절일 및 월반 교체 당일 오전 08:30에 절기 기후와 당월 비성 길흉 알림을 보내드립니다."
-        case .vi: return "Hệ thống sẽ gửi thông báo khí hậu tiết khí và phi tinh cát hung vào lúc 08:30 sáng ngày giao tiết."
-        case .th: return "ระบบจะแจ้งเตือนการเปลี่ยนสารทและดาวบินประจำเดือนในเวลา 08:30 น. ของวันเปลี่ยนสารท"
-        case .id: return "Pemberitahuan perubahan musim dan Bintang Terbang akan dikirimkan pukul 08:30 pada hari transisi."
-        default: return "系统将于二十四节气交节当日及九星换月当日早 08:30 自动向您推送节气气候与当月飞星吉凶提示。"
+        case .zhHans: return "系统将于二十四节气交节当日及九星换月当日早 08:30 推送节气气候与当月飞星变化提示，仅供传统文化研究参考。"
+        case .zhHant: return "系統將於二十四節氣交節當日及九星換月當日早 08:30 推送節氣氣候與當月飛星變化提示，僅供傳統文化研究參考。"
+        case .en: return "Solar term and monthly Flying Star change alerts at 08:30 AM on transition days, for traditional culture research reference."
+        case .ja: return "二十四節気の交節日および九星換月の当日の朝 08:30 に、気候と飛星の変化をお知らせします。伝統文化研究の参考用です。"
+        case .ko: return "24절기 입절일 및 월반 교체 당일 오전 08:30에 절기 기후와 월별 비성 변화 알림을 보내드립니다. 전통 문화 연구 참고용입니다."
+        case .vi: return "Gửi thông báo khí hậu tiết khí và sự thay đổi phi tinh hàng tháng lúc 08:30 ngày giao tiết, chỉ để tham khảo nghiên cứu văn hóa truyền thống."
+        case .th: return "แจ้งเตือนการเปลี่ยนสารทและดาวบินประจำเดือนเวลา 08:30 น. ของวันเปลี่ยนสารท เพื่อการศึกษาวัฒนธรรมดั้งเดิมเท่านั้น"
+        case .id: return "Pemberitahuan perubahan musim dan Bintang Terbang pukul 08:30 pada hari transisi, sebagai referensi kajian budaya tradisional."
+        default: return "系统将于二十四节气交节当日及九星换月当日早 08:30 推送节气气候与当月飞星变化提示，仅供传统文化研究参考。"
         }
     }
 
@@ -329,7 +329,7 @@ public struct SettingsView: View {
                         // 工作流进度与综合报告快捷入口
                         workflowQuickSection
 
-                        // 功能模块菜单组（已移除算命/命卦/流月飞星提醒入口，保留免费个人资料清理与会员/语言/关于）
+                        // 功能模块菜单组（仅保留免费个人资料清理与会员/语言/关于，避免命理导向入口）
                         Section {
                             // 模块 1: 专业会员
                             NavigationLink(destination: MasterVIPPageView(selectedProductId: $selectedProductId)) {
@@ -628,7 +628,7 @@ public struct SettingsView: View {
     }
 }
 
-// MARK: - 功能页 1: 大师会员 (Master VIP Page)
+// MARK: - 功能页 1: 专业会员 (VIP Page)
 
 public struct MasterVIPPageView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -1105,7 +1105,7 @@ public struct OwnerKuaReminderPageView: View {
 
             HStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(lang.effectiveLanguage == .en ? "Auspicious Directions" : "四大吉方")
+                    Text(lang.effectiveLanguage == .en ? "Traditional Direction Notes" : "四大传统方位参考")
                         .adaptiveFont(size: 10, weight: .semibold)
                         .foregroundColor(.green.opacity(0.9))
                     Text("生气 · 延年 · 天医 · 伏位")

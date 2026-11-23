@@ -624,18 +624,18 @@ public struct BaZhaiView: View {
         }
     }
 
-    // MARK: - 21天气场调理与化煞催旺打卡清单
+    // MARK: - 21天气场记录与布局调整清单
     private func remedyTrackerCard() -> some View {
         let title: String
         switch lang.effectiveLanguage {
-        case .en: title = "My Fengshui Remedy & Activation Tracker (\(retention.remedyTasks.count))"
-        case .zhHant: title = "我家化煞催旺調理打卡清單（\(retention.remedyTasks.count)項 · 換月複盤）"
-        case .ja: title = "我が家の風水対策・催旺チェックリスト（\(retention.remedyTasks.count)件）"
+        case .en: title = "Space Adjustment Notes (\(retention.remedyTasks.count))"
+        case .zhHant: title = "我家環境布局調整記錄（\(retention.remedyTasks.count)項 · 換月複盤）"
+        case .ja: title = "我が家の空間調整記録（\(retention.remedyTasks.count)件）"
         case .ko: title = "우리집 풍수 비보·최왕 실천 체크리스트 (\(retention.remedyTasks.count)건)"
         case .vi: title = "Danh Sách Hóa Sát & Kích Tài Lộc Gia Đình (\(retention.remedyTasks.count))"
         case .th: title = "รายการปรับฮวงจุ้ยและเสริมมงคลประจำบ้าน (\(retention.remedyTasks.count))"
-        case .id: title = "Daftar Pelacak Solusi Fengshui Rumah (\(retention.remedyTasks.count))"
-        case .auto, .zhHans: title = "我家化煞催旺调理打卡清单（\(retention.remedyTasks.count)项 · 换月复盘）"
+        case .id: title = "Daftar Catatan Penyesuaian Ruang (\(retention.remedyTasks.count))"
+        case .auto, .zhHans: title = "我家环境布局调整记录（\(retention.remedyTasks.count)项 · 换月复盘）"
         }
 
         return VStack(alignment: .leading, spacing: 8) {
@@ -850,19 +850,19 @@ public struct OwnerLifeGuaView: View {
             wealthLabel = "Wealth"
             studyLabel = "Study"
         case .zhHant:
-            titleLabel = "宅主本命卦 · 人宅合一配對"
+            titleLabel = "宅主方位參數 · 傳統人宅研究"
             yearPrefix = "生辰"
             maleLabel = "男"
             femaleLabel = "女"
-            wealthLabel = "本命財位"
-            studyLabel = "本命文昌"
+            wealthLabel = "傳統財位參考"
+            studyLabel = "传统文昌参考"
         case .ja:
-            titleLabel = "家主本命卦・宅命相配診断"
+            titleLabel = "家主方位パラメータ・伝統的相性研究"
             yearPrefix = "生年"
             maleLabel = "男"
             femaleLabel = "女"
-            wealthLabel = "本命財位"
-            studyLabel = "本命文昌"
+            wealthLabel = "傳統財位參考"
+            studyLabel = "传统文昌参考"
         case .ko:
             titleLabel = "건축주 본명괘 · 택명상배"
             yearPrefix = "생년"
@@ -892,12 +892,12 @@ public struct OwnerLifeGuaView: View {
             wealthLabel = "Arah Rezeki"
             studyLabel = "Arah Studi"
         case .auto, .zhHans:
-            titleLabel = "宅主本命卦 · 人宅合一配对"
+            titleLabel = "宅主方位参数 · 传统人宅研究"
             yearPrefix = "生辰"
             maleLabel = "男"
             femaleLabel = "女"
-            wealthLabel = "本命财位"
-            studyLabel = "本命文昌"
+            wealthLabel = "传统财位参考"
+            studyLabel = "传统文昌参考"
         }
 
         return VStack(alignment: .leading, spacing: 8) {
@@ -989,7 +989,7 @@ public struct OwnerLifeGuaView: View {
 
             Divider().background(Color.white.opacity(0.1))
 
-            // 全家成员命卦与智能分房档案
+            // 全家成员方位参考与房间安排
             familyMembersSection(maleLabel: maleLabel, femaleLabel: femaleLabel)
         }
         .padding(12)
@@ -1014,10 +1014,10 @@ public struct OwnerLifeGuaView: View {
             emptyTitle = "No Family Members Added Yet"
             emptySubtitle = "Tap to add spouse, parents, or children for life gua and room recommendations"
         case .zhHant:
-            headerTitle = "全家成員命卦與智能分房檔案（\(kua.familyMembers.count)人）"
+            headerTitle = "全家成員方位參考與房間安排（\(kua.familyMembers.count)人）"
             addHint = "+ 添加家人"
             emptyTitle = "暫未添加家庭成員"
-            emptySubtitle = "點擊添加配偶、父母或子女，智能推演全家本命卦與分房吉位"
+            emptySubtitle = "點擊添加配偶、父母或子女，記錄全家傳統方位參考與房間安排"
         case .ja:
             headerTitle = "家族全員の本命卦・部屋割診断（\(kua.familyMembers.count)名）"
             addHint = "+ 家族追加"
@@ -1044,10 +1044,10 @@ public struct OwnerLifeGuaView: View {
             emptyTitle = "Belum Ada Anggota Keluarga"
             emptySubtitle = "Ketuk untuk menambah pasangan, orang tua, atau anak"
         case .auto, .zhHans:
-            headerTitle = "全家成员命卦与智能分房档案（\(kua.familyMembers.count)人）"
+            headerTitle = "全家成员方位参考与房间安排（\(kua.familyMembers.count)人）"
             addHint = "+ 添加家人"
             emptyTitle = "暂未添加家庭成员"
-            emptySubtitle = "点击添加配偶、父母或子女，智能推演全家本命卦与分房吉位"
+            emptySubtitle = "点击添加配偶、父母或子女，记录全家传统方位参考与房间安排"
         }
 
         return VStack(alignment: .leading, spacing: 6) {
@@ -1383,7 +1383,7 @@ public struct CelestialDateSelectionView: View {
 
             Divider().background(Color.white.opacity(0.1))
 
-            // 当日十二时辰黄黑道吉凶表
+            // 当日十二时辰黄黑道历法参考表
             shichenTableSection()
 
             Divider().background(Color.white.opacity(0.1))
@@ -1506,7 +1506,7 @@ public struct CelestialDateSelectionView: View {
         }
     }
 
-    // MARK: - 当日十二时辰黄黑道吉凶表
+    // MARK: - 当日十二时辰黄黑道历法参考表
     private func shichenTableSection() -> some View {
         let effectiveDate = isUsingCustomDate ? selectedDate : Date()
         let shichenList = ZeRiEngine.shared.calculateTwelveShichen(
@@ -1527,12 +1527,12 @@ public struct CelestialDateSelectionView: View {
             inauspiciousTag = "Avoid"
             clashTag = "Clash"
         case .zhHant:
-            titleText = "當日十二時辰黃黑道吉凶表（點擊切換時辰）"
+            titleText = "當日十二時辰黃黑道曆法參考表（點擊切換時辰）"
             auspiciousTag = "吉"
             inauspiciousTag = "凶"
             clashTag = "沖主"
         case .ja:
-            titleText = "当日十二時辰・黄黒道吉凶表（タップで時辰切替）"
+            titleText = "当日十二時辰・黄黒道暦法参考表（タップで時辰切替）"
             auspiciousTag = "吉"
             inauspiciousTag = "凶"
             clashTag = "沖"
@@ -1557,7 +1557,7 @@ public struct CelestialDateSelectionView: View {
             inauspiciousTag = "Hindari"
             clashTag = "Bentrok"
         case .auto, .zhHans:
-            titleText = "当日十二时辰黄黑道吉凶表（点击切换时辰）"
+            titleText = "当日十二时辰黄黑道历法参考表（点击切换时辰）"
             auspiciousTag = "吉"
             inauspiciousTag = "凶"
             clashTag = "冲主"
@@ -2369,14 +2369,14 @@ public struct AddFamilyMemberDialog: View {
 
     private var dialogSubtitle: String {
         switch lang.effectiveLanguage {
-        case .en: return "Enter birth details for life gua and room recommendations"
-        case .zhHant: return "錄入生辰以推演本命卦吉方與智能分房"
+        case .en: return "Enter birth details for traditional direction notes"
+        case .zhHant: return "錄入生辰以記錄傳統方位參考與房間安排"
         case .ja: return "生年を登録して本命卦と部屋割を診断"
         case .ko: return "생년을 입력하여 본명괘와 방 배정을 확인하세요"
         case .vi: return "Nhập năm sinh để xem bản mệnh và gợi ý phân phòng"
         case .th: return "กรอกปีเกิดเพื่อตรวจดวงชะตาและจัดห้องมงคล"
         case .id: return "Masukkan tahun lahir untuk cek gua & kamar"
-        case .auto, .zhHans: return "录入生辰以推演本命卦吉方与智能分房"
+        case .auto, .zhHans: return "录入生辰以记录传统方位参考与房间安排"
         }
     }
 
@@ -2502,9 +2502,9 @@ public struct AddFamilyMemberDialog: View {
             case .en:
                 return "Born before Li Chun (Feb 4). Life Gua calculated using previous Feng Shui year (\(y))."
             case .zhHant, .ja:
-                return "公曆立春（約2月4日）前出生，依風水歲首以立春前一年（\(y)年）核算命卦。"
+                return "公曆立春（約2月4日）前出生，依傳統歷法歲首以立春前一年（\(y)年）核算命卦。"
             default:
-                return "公历立春（约2月4日）前出生，依风水岁首以立春前一年（\(y)年）核算命卦。"
+                return "公历立春（约2月4日）前出生，依传统历法岁首以立春前一年（\(y)年）核算命卦。"
             }
         } else {
             switch lang.effectiveLanguage {
@@ -2981,9 +2981,9 @@ public struct EditOwnerKuaDialog: View {
             case .en:
                 return "Born before Li Chun (Feb 4). Life Gua calculated using previous Feng Shui year (\(y))."
             case .zhHant, .ja:
-                return "公曆立春（約2月4日）前出生，依風水歲首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算命卦。"
+                return "公曆立春（約2月4日）前出生，依傳統歷法歲首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算命卦。"
             default:
-                return "公历立春（约2月4日）前出生，依风水岁首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算命卦。"
+                return "公历立春（约2月4日）前出生，依传统历法岁首以立春前一年【\(ganzhiAndZodiac)】（\(y)年）核算命卦。"
             }
         } else {
             switch lang.effectiveLanguage {
@@ -2997,14 +2997,14 @@ public struct EditOwnerKuaDialog: View {
 
     private var dialogTitle: String {
         switch lang.effectiveLanguage {
-        case .en: return "Edit House Master Life Gua & Birth Date"
-        case .zhHant: return "修改宅主生辰日期與命卦"
+        case .en: return "Edit House Master Birth Date & Direction Notes"
+        case .zhHant: return "修改宅主生辰日期與方位參數"
         case .ja: return "家主の生年月日・本命卦を変更"
         case .ko: return "건축주 생년월일 및 본명괘 수정"
         case .vi: return "Sửa Ngày Sinh & Bản Mệnh Trạch Chủ"
         case .th: return "แก้ไขวันเกิดและรหัสชีวิตเจ้าของบ้าน"
         case .id: return "Ubah Tanggal Lahir & Gua Pemilik"
-        case .auto, .zhHans: return "修改宅主生辰日期与命卦"
+        case .auto, .zhHans: return "修改宅主生辰日期与方位参数"
         }
     }
 
@@ -3126,7 +3126,7 @@ public struct EditOwnerKuaDialog: View {
         case .en:
             return "Auspicious! The owner's life group matches the house's sitting energy, producing harmonious qi and fortune."
         case .zhHant:
-            return "大吉！宅主命卦與宅盤五行同組相生，同氣相求，宅氣與人氣和諧共振，人宅兩旺。"
+            return "傳統方位研究提示：宅主方位參數與宅盤五行同組，參數相近，可作為布局研究參考。"
         case .ja:
             return "大吉！家主の本命卦と建物の座向が同組となり、人と家の気が調和して繁栄をもたらします。"
         case .ko:
@@ -3138,7 +3138,7 @@ public struct EditOwnerKuaDialog: View {
         case .id:
             return "Sangat menguntungkan! Energi pemilik selaras dengan energi rumah, menghasilkan harmoni dan rezeki."
         case .auto, .zhHans:
-            return "大吉！宅主命卦与宅盘五行同组相生，同气相求，宅气与人气和谐共振，人宅两旺。"
+            return "传统方位研究提示：宅主方位参数与宅盘五行同组，参数相近，可作为布局研究参考。"
         }
     }
 
@@ -3147,7 +3147,7 @@ public struct EditOwnerKuaDialog: View {
         case .en:
             return "The owner and house belong to different groups. Prioritize placing the master bedroom and study in the owner's auspicious directions to balance the energy."
         case .zhHant:
-            return "宅主與宅盤分屬不同組。建議將主臥室、辦公桌或書房安放於宅主本命之吉方（生氣、延年、天醫），以本命真氣調候宅氣。"
+            return "宅主與宅盤分屬不同組。可參考傳統方位參數（生氣、延年、天醫）安排主臥、書桌或書房，僅供文化研究參考。"
         case .ja:
             return "家主と建物が異なる組です。主寝室や書斎を家主の本命吉方位（生気・延年・天医）に配置して気を調和させましょう。"
         case .ko:
@@ -3159,19 +3159,19 @@ public struct EditOwnerKuaDialog: View {
         case .id:
             return "Pemilik dan rumah berbeda kelompok. Tempatkan kamar utama atau ruang kerja di arah keberuntungan pemilik untuk menyeimbangkan energi."
         case .auto, .zhHans:
-            return "宅主与宅盘分属不同组。建议将主卧室、办公桌或书房安放于宅主本命之吉方（生气、延年、天医），以本命真气调候宅气。"
+            return "宅主与宅盘分属不同组。可参考传统方位参数（生气、延年、天医）安排主卧、书桌或书房，仅供文化研究参考。"
         }
     }
 
     private var auspiciousHeader: String {
         switch lang.effectiveLanguage {
         case .en: return "Auspicious Directions"
-        case .zhHant, .ja: return "四大吉方"
+        case .zhHant, .ja: return "四大传统方位参考"
         case .ko: return "4대 길방"
         case .vi: return "Tứ Đại Cát Phương"
         case .th: return "4 ทิศมงคล"
         case .id: return "4 Arah Baik"
-        case .auto, .zhHans: return "四大吉方"
+        case .auto, .zhHans: return "四大传统方位参考"
         }
     }
 

@@ -2189,7 +2189,7 @@ private struct ARProofShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-// MARK: - 大师化解锦囊深度剖析与全案实操
+// MARK: - 传统环境调整研究资料与实操参考
 public struct ShaRemedyDetailSheet: View {
     public let initialSha: ExteriorShaItem
     @ObservedObject var iap = StoreKitIAPManager.shared

@@ -727,10 +727,10 @@ public struct XuanKongChart {
             return "• Wealth & Prosperity: Current Period-\(period) facing star lands at [\(wangName)] (Star \(wangCombo)), and future Sheng-Qi Star \(nextStar) reaches [\(sqName)] (Star \(sqCombo)). Keep these sectors bright, open, or place moving water to activate wealth.\(wcNote)"
         case .zhHant:
             let wcNote = wcName.map { "另【\($0)】逢文昌吉星會聚，利書房策劃。" } ?? ""
-            return "• 催財旺位：當令\(period)運向星飛臨【\(wangName)】（山向\(wangCombo)），生氣\(nextStar)星到【\(sqName)】（山向\(sqCombo)），宜在此保持明堂開闊、安設動水或長明燈催旺財源。\(wcNote)"
+            return "• 催財旺位：當令\(period)運向星飛臨【\(wangName)】（山向\(wangCombo)），生氣\(nextStar)星到【\(sqName)】（山向\(sqCombo)），宜在此保持明堂開闊、安設動水或長明燈布局参考財源。\(wcNote)"
         case .ja:
             let wcNote = wcName.map { "また【\($0)】は文昌吉星が会聚し書斎に吉。" } ?? ""
-            return "• 催財旺位：当令\(period)運の向星が【\(wangName)】（山向\(wangCombo)）に飛臨し、生気\(nextStar)星が【\(sqName)】（山向\(sqCombo)）に到ります。採光や動水を設けて財気を催旺してください。\(wcNote)"
+            return "• 催財旺位：当令\(period)運の向星が【\(wangName)】（山向\(wangCombo)）に飛臨し、生気\(nextStar)星が【\(sqName)】（山向\(sqCombo)）に到ります。採光や動水を設けて財気を布局参考してください。\(wcNote)"
         case .ko:
             let wcNote = wcName.map { " 또한 【\($0)】에 문창 길성이 모여 서재·기획 공간에 길합니다." } ?? ""
             return "• 재물 발복 방위: 당령 \(period)운 향성이 【\(wangName)】(산향 \(wangCombo))에 비림하고 생기 \(nextStar)성이 【\(sqName)】(산향 \(sqCombo))에 이르니, 채광을 밝히고 동수(물)를 배치하여 재원을 활성화하십시오.\(wcNote)"
@@ -745,7 +745,7 @@ public struct XuanKongChart {
             return "• Sektor Rezeki: Bintang hadap periode \(period) berada di [\(wangName)] (Bintang \(wangCombo)) & bintang Sheng-Qi \(nextStar) di [\(sqName)] (Bintang \(sqCombo)); buka sirkulasi cahaya atau letakkan air mengalir untuk mengaktifkan rezeki.\(wcNote)"
         case .auto, .zhHans:
             let wcNote = wcName.map { "另【\($0)】逢文昌吉星会聚，利书房策划。" } ?? ""
-            return "• 催财旺位：当令\(period)运向星飞临【\(wangName)】（山向\(wangCombo)），生气\(nextStar)星到【\(sqName)】（山向\(sqCombo)），宜在此保持明堂开阔、安设动水或长明灯催旺财源。\(wcNote)"
+            return "• 催财旺位：当令\(period)运向星飞临【\(wangName)】（山向\(wangCombo)），生气\(nextStar)星到【\(sqName)】（山向\(sqCombo)），宜在此保持明堂开阔、安设动水或长明灯布局参考财源。\(wcNote)"
         }
     }
 

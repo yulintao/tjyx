@@ -15,7 +15,7 @@ public struct PurpleWhitePalaceItem: Identifiable {
     public let isTaiSui: Bool        // 是否为太岁方
     public let isSuiPo: Bool         // 是否为岁破方
     public let isSanSha: Bool        // 是否为三煞方
-    public let advice: String        // 化解与催旺指南
+    public let advice: String        // 化解与布局参考指南
 
     var sourceReferences: [TraditionalEvidence] {
         TraditionalEvidenceCatalog.purpleWhite(year: yearGuestStar, month: monthGuestStar, palace: palaceName)
@@ -427,7 +427,7 @@ public class PurpleWhiteEngine {
                 } else if hasIllnessStar {
                     advice = "【病符】做法：放銅制器物洩化，保持該方位通風乾燥。→ 影響：主家人健康（腸胃、婦科、舊疾反覆，女眷與體弱者較明顯）；覆蓋該宮。"
                 } else if yStar == 9 {
-                    advice = "【九紫喜慶】做法：擺紅/綠植物或暖色裝飾催旺。→ 影響：利家中女眷姻緣、添丁喜慶與喜事臨門；覆蓋該宮。"
+                    advice = "【九紫喜慶】做法：擺紅/綠植物或暖色裝飾布局参考。→ 影響：利家中女眷姻緣、添丁喜慶與喜事臨門；覆蓋該宮。"
                 } else if yStar == 8 {
                     advice = "【八白財星】做法：保持整潔，放聚氣擺件或錢箱。→ 影響：主家中正財、田宅置業與儲蓄（男主人事業財運最相關）；覆蓋該宮。"
                 } else if yStar == 1 || yStar == 4 || yStar == 6 {
@@ -523,7 +523,7 @@ public class PurpleWhiteEngine {
                 } else if hasIllnessStar {
                     advice = "【病符】做法：放铜制器物泄化，保持该方位通风干燥。→ 影响：主家人健康（肠胃、妇科、旧疾反复，女眷与体弱者更明显）；覆盖该宫。"
                 } else if yStar == 9 {
-                    advice = "【九紫喜庆】做法：摆红/绿植物或暖色装饰催旺。→ 影响：利家中女眷姻缘、添丁喜庆与喜事临门；覆盖该宫。"
+                    advice = "【九紫喜庆】做法：摆红/绿植物或暖色装饰布局参考。→ 影响：利家中女眷姻缘、添丁喜庆与喜事临门；覆盖该宫。"
                 } else if yStar == 8 {
                     advice = "【八白财星】做法：保持整洁，放聚气摆件或钱箱。→ 影响：主家中正财、田宅置业与储蓄（男主人事业财运最相关）；覆盖该宫。"
                 } else if yStar == 1 || yStar == 4 || yStar == 6 {

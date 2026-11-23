@@ -552,7 +552,7 @@ public class TianJiShuEngine {
             let lang = LocalizationManager.shared
             let hqLabel = tr8("向首八路黄泉判据", "向首八路黃泉判據", "Eight-Road Huangquan test", "向首八路黄泉判定", "향수 팔로황천 판별", "Phán định Bát Lộ Hoàng Tuyền", "เกณฑ์น้ำฮวงเฉวียนแปดทิศ", "Uji Huangquan Delapan Arah")
             let bashaLabel = tr8("坐山八煞曜位辨识", "坐山八煞曜位辨識", "Sitting-mountain Sha position", "坐山八煞曜位識別", "좌산 팔살요위 식별", "Nhận định Bát Sát Diệu vị", "ตำแหน่งดาวพิฆาตแปดทิศ", "Posisi Sha Delapan Arah")
-            let waterLabel = tr8("十二长生纳水吉凶", "十二長生納水吉凶", "Twelve Changsheng water assessment", "十二長生納水吉凶", "십이장생 납수길흉", "Cát hung Thập Nhị Trường Sinh", "ประเมินน้ำสิบสองสภาวะฉางเซิง", "Penilaian Air Dua Belas Changsheng")
+            let waterLabel = tr8("十二长生水法参考", "十二長生水法參考", "Twelve Changsheng water assessment", "十二長生水法參考", "십이장생 납수길흉", "Cát hung Thập Nhị Trường Sinh", "ประเมินน้ำสิบสองสภาวะฉางเซิง", "Penilaian Air Dua Belas Changsheng")
             
             var p3Text = "• \(hqLabel): \(hq.badgeText) · \(hq.waterDesc)\n"
             p3Text += "• \(bashaLabel): 【\(basha.localizedShaDir)】 · \(basha.remedy)\n"
@@ -602,14 +602,14 @@ public class TianJiShuEngine {
                 • 時家奇門時空：\(qm.title)
                 • 當前天時最優動身方：\(qm.bestNavDirection) (\(qm.bestNavReason))
                 • 住宅宅卦歸屬：【\(bz.localizedHouseGua)】 · 向首開門方：\(bz.localizedGateDirection)方納【\(bz.gateStar.localizedName)】
-                • 生氣大吉尊方：\(bz.items.first(where: { $0.star == .shengQi })?.localizedDirection ?? "生氣")方，宜作主臥或安奉神位。
+                • 生氣传统参考方位：\(bz.items.first(where: { $0.star == .shengQi })?.localizedDirection ?? "生氣")方，宜作主臥或安奉神位。
                 """
             case .ja:
                 p4Text = """
                 • 時家奇門盤：\(qm.title)
                 • 現在の最適行動方位：\(qm.bestNavDirection)（\(qm.bestNavReason)）
                 • 住宅本命卦：【\(bz.localizedHouseGua)】 · 開門方位：\(bz.localizedGateDirection) 方【\(bz.gateStar.localizedName)】
-                • 生気大吉方位：\(bz.items.first(where: { $0.star == .shengQi })?.localizedDirection ?? "生気")方、主寝室や神仏のお祀りに最適。
+                • 生気伝統参考方位：\(bz.items.first(where: { $0.star == .shengQi })?.localizedDirection ?? "生気")方、主寝室や神仏のお祀りに最適。
                 """
             case .ko:
                 p4Text = """
@@ -644,7 +644,7 @@ public class TianJiShuEngine {
                 • 时家奇门时空：\(qm.title)
                 • 当前天时最优动身方：\(qm.bestNavDirection) (\(qm.bestNavReason))
                 • 住宅宅卦归属：【\(bz.localizedHouseGua)】 · 向首开门方：\(bz.localizedGateDirection)方纳【\(bz.gateStar.localizedName)】
-                • 生气大吉尊方：\(bz.items.first(where: { $0.star == .shengQi })?.localizedDirection ?? "生气")方，宜作主卧或安奉神位。
+                • 生气传统参考方位：\(bz.items.first(where: { $0.star == .shengQi })?.localizedDirection ?? "生气")方，宜作主卧或安奉神位。
                 """
             }
             curY += drawMeasuredText(
@@ -655,9 +655,9 @@ public class TianJiShuEngine {
                 minimumHeight: 80
             ) + 20
             
-            // 8. 第五部：全屋空间调理与开光化煞清单
+            // 8. 第五部：全屋空间布局参考与环境调整清单
             let sec5Title = tr8(
-                "第五卷 · 全屋空间调理与镇煞秘诀",
+                "第五卷 · 全屋空间布局参考与镇煞秘诀",
                 "第五卷 · 全屋空間調理與鎮煞秘訣",
                 "V · WHOLE-HOME HARMONIZATION",
                 "第五巻・全室空間調和と化煞の秘訣",
@@ -731,13 +731,13 @@ public class TianJiShuEngine {
                 )
             }
             
-            // 8.2 流年紫白客星调理与催旺（含家人影响维度）
+            // 8.2 流年紫白客星布局参考与布局参考（含家人影响维度）
             curY = drawPurpleWhiteRemedies(ctx: cg, curY: curY, vermilion: vermilion, renderLanguage: renderLanguage, pwChart: pwChart, analysis: deepAnalysis)
             
             // 9. 八宅凶位化解与安镇（含家人影响维度）
             curY = drawBazhaiInjurious(ctx: cg, curY: curY, vermilion: vermilion, renderLanguage: renderLanguage, bz: bz)
             
-            // 10. 形煞自查与化煞安宅（外部形煞通用化解清单）
+            // 10. 形煞自查与环境调整（外部形煞通用化解清单）
             curY = drawShaSelfCheck(
                 ctx: cg,
                 curY: curY,
@@ -1115,13 +1115,13 @@ public class TianJiShuEngine {
         return y + 18
     }
     
-    // 8.2 紫白流年客星调理与催旺（含家人影响维度）
+    // 8.2 紫白流年客星布局参考与布局参考（含家人影响维度）
     private func drawPurpleWhiteRemedies(ctx: CGContext, curY: CGFloat, vermilion: UIColor, renderLanguage: AppLanguage, pwChart: PurpleWhiteChart, analysis: XuanKongDeepAnalysis) -> CGFloat {
         let secTitle = tr8(
-            "紫白流年 · 客星调理与催旺",
-            "紫白流年 · 客星調理與催旺",
+            "紫白流年 · 客星布局参考与布局参考",
+            "紫白流年 · 客星調理與布局参考",
             "PURPLE-WHITE YEAR · GUEST STAR REMEDIES",
-            "紫白流年・客星の調理と催旺",
+            "紫白流年・客星の調理と布局参考",
             "자백 유년 · 객성 조리와 최왕",
             "TỬ BẠCH LƯU NIÊN · ĐIỀU LÝ KHÁCH TINH",
             "ดาวม่วงขาวประจำปี · ปรับดาวเยือนและเสริมพลัง",
@@ -1159,8 +1159,8 @@ public class TianJiShuEngine {
     // 9. 八宅凶位化解与安镇（含家人影响维度）
     private func drawBazhaiInjurious(ctx: CGContext, curY: CGFloat, vermilion: UIColor, renderLanguage: AppLanguage, bz: BaZhaiAnalysis) -> CGFloat {
         let secTitle = tr8(
-            "八宅八宫 · 吉凶化解安镇",
-            "八宅八宮 · 吉凶化解安鎮",
+            "八宅八宫 · 吉凶研究参考",
+            "八宅八宮 · 吉凶研究參考",
             "EIGHT MANSIONS · ALL PALACE REMEDIES",
             "八宅八宮・吉凶の化解と安鎮",
             "팔택 팔궁 · 길흉 화해와 안진",
@@ -1192,7 +1192,7 @@ public class TianJiShuEngine {
         return y
     }
     
-    // 10. 形煞自查与化煞安宅（外部形煞通用化解清单）
+    // 10. 形煞自查与环境调整（外部形煞通用化解清单）
     private func drawShaSelfCheck(
         ctx: CGContext,
         curY: CGFloat,

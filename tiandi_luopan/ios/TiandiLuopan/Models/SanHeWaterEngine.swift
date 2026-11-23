@@ -152,14 +152,14 @@ public enum ChangShengPhase: String, CaseIterable {
             case .changSheng, .diWang: core = "來水吉，大發富貴；去水凶，損丁破財"
             case .linGuan, .guanDai: core = "貴人來水，催官發甲；出水不利"
             case .shuai: core = "巨門水，來去均宜，借庫消水"
-            case .mu, .jue: core = "去水吉，化煞為權；來水大凶，黃泉破局"
+            case .mu, .jue: core = "去水与来水的传统水法参考参数"
             case .muYu: core = "桃花水，來去皆忌，主風流蕩產"
             case .bing, .si, .tai, .yang: core = "平和之位，宜緩流靜蓄"
             }
             return core + "。出處：傳統三合十二長生水法（傳本有異文）。解釋：其中富貴、損丁與病死等語句是古法象徵，不是醫療或財務預測；請現場檢查排水與安全。"
         case .ja:
             switch self {
-            case .changSheng, .diWang: core = "来水は大吉で富貴を招き、去水は凶で散財損丁"
+            case .changSheng, .diWang: core = "来水と去水の伝統水法参考パラメータ"
             case .linGuan, .guanDai: core = "貴人の来水で出世栄達、去水は不利"
             case .shuai: core = "巨門水、出水入水ともに可、借庫消水に適す"
             case .mu, .jue: core = "去水は吉で煞を権に変え、来水は大凶で黄泉破局"
@@ -212,7 +212,7 @@ public enum ChangShengPhase: String, CaseIterable {
             case .changSheng, .diWang: core = "来水吉，大发富贵；去水凶，损丁破财"
             case .linGuan, .guanDai: core = "贵人来水，催官发甲；出水不利"
             case .shuai: core = "巨门水，来去均宜，借库消水"
-            case .mu, .jue: core = "去水吉，化煞为权；来水大凶，黄泉破局"
+            case .mu, .jue: core = "去水与来水的传统水法参考参数"
             case .muYu: core = "桃花水，来去皆忌，主风流荡产"
             case .bing, .si, .tai, .yang: core = "平和之位，宜缓流静蓄"
             }
@@ -495,7 +495,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "坤方出水は厳禁"
             } else if name == "坤" {
-                desc = "向首：【\(pName)】。楊公水法：庚方または丁方の来水は【救貧黄泉水】（大吉、家運隆盛・昇進栄達）。"
+                desc = "向首：【\(pName)】。楊公水法：庚方または丁方の来水は【救貧黄泉水】（伝統研究参考）。"
                 isJiuPin = true
                 badge = "救貧大吉の向首"
             } else if name == "乙" || name == "丙" {
@@ -503,7 +503,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "巽方出水は厳禁"
             } else if name == "巽" {
-                desc = "向首：【\(pName)】。楊公水法：乙方または丙方の来水は【救貧黄泉水】（大吉、学問文彩・繁栄長久）。"
+                desc = "向首：【\(pName)】。楊公水法：乙方または丙方の来水は【救貧黄泉水】（伝統研究参考）。"
                 isJiuPin = true
                 badge = "救貧大吉の向首"
             } else if name == "甲" || name == "癸" {
@@ -511,7 +511,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "艮方出水は厳禁"
             } else if name == "艮" {
-                desc = "向首：【\(pName)】。楊公水法：甲方または癸方の来水は【救貧催官水】（大吉、子孫発展・巨富顕達）。"
+                desc = "向首：【\(pName)】。楊公水法：甲方または癸方の来水は【救貧催官水】（伝統研究参考）。"
                 isJiuPin = true
                 badge = "救貧大吉の向首"
             } else if name == "辛" || name == "壬" {
@@ -519,7 +519,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "乾方出水は厳禁"
             } else if name == "乾" {
-                desc = "向首：【\(pName)】。楊公水法：辛方または壬方の来水は【救貧黄泉水】（大吉、金玉満堂・家門繁栄）。"
+                desc = "向首：【\(pName)】。楊公水法：辛方または壬方の来水は【救貧黄泉水】（伝統研究参考）。"
                 isJiuPin = true
                 badge = "救貧大吉の向首"
             } else {
@@ -685,33 +685,33 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌坤水破局"
             } else if name == "坤" {
-                desc = "向首为【坤向】。杨公水法：见庚方或丁方来水为【救贫黄泉水】（大吉，人兴财旺、催官进禄）；最忌此两方水直流破局。"
+                desc = "向首为【坤向】。杨公水法：见庚方或丁方来水为【救贫黄泉水】（传统研究参考）；最忌此两方水直流破局。"
                 isJiuPin = true
-                badge = "救贫大吉向首"
+                badge = "传统水法参考向首"
             } else if name == "乙" || name == "丙" {
                 desc = "向首为【\(name)山向】。水法大忌：巽方出水为八煞黄泉（大凶，官司口舌、火灾损丁）；巽方来水则吉。"
                 isDanger = true
                 badge = "大忌巽方破局"
             } else if name == "巽" {
-                desc = "向首为【巽向】。杨公水法：见乙方或丙方来水为【救贫黄泉水】（大吉，利科名文彩、发福绵长）。"
+                desc = "向首为【巽向】。杨公水法：见乙方或丙方来水为【救贫黄泉水】（传统研究参考）。"
                 isJiuPin = true
-                badge = "救贫大吉向首"
+                badge = "传统水法参考向首"
             } else if name == "甲" || name == "癸" {
                 desc = "向首为【\(name)山向】。水法大忌：艮方出水为黄泉杀水（主残疾退财、官非口舌）。"
                 isDanger = true
                 badge = "大忌艮水出煞"
             } else if name == "艮" {
-                desc = "向首为【艮向】。杨公水法：见甲方或癸方来水为【救贫催官水】（大吉，少男发达、巨富显达）。"
+                desc = "向首为【艮向】。杨公水法：见甲方或癸方来水为【救贫催官水】（传统研究参考）。"
                 isJiuPin = true
-                badge = "救贫大吉向首"
+                badge = "传统水法参考向首"
             } else if name == "辛" || name == "壬" {
                 desc = "向首为【\(name)山向】。水法大忌：乾方出水为破军黄泉（犯之主吐血、横祸、少亡破败）。"
                 isDanger = true
                 badge = "大忌乾方破局"
             } else if name == "乾" {
-                desc = "向首为【乾向】。杨公水法：见辛方或壬方来水为【救贫黄泉水】（大吉，长房显耀、金玉满堂）。"
+                desc = "向首为【乾向】。杨公水法：见辛方或壬方来水为【救贫黄泉水】（传统研究参考）。"
                 isJiuPin = true
-                badge = "救贫大吉向首"
+                badge = "传统水法参考向首"
             } else {
                 desc = "向首为【\(name)山向】。不属八路黄泉正煞位，水法依杨公三合十二长生（养生冠临旺，生来会旺、拔水入库）消纳即吉。"
                 badge = "正针纯清纳水"

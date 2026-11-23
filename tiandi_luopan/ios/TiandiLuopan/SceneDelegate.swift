@@ -156,7 +156,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     /// 处理本 App 的深链（户型测绘、AR 空间测量、设置）。
-    /// 所有历史占卜/罗盘深链统一安全回退至空间测绘首页，不再唤起罗盘或日签界面。
+    /// 所有历史罗盘深链统一安全回退至空间测绘首页，不再唤起罗盘或日签界面。
     public static func routeWidgetURL(_ url: URL) {
         guard url.scheme == "tiandiluopan" else { return }
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)

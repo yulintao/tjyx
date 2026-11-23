@@ -87,6 +87,7 @@ struct DSInfoCard: ViewModifier {
             .background(Color.surfaceCard)
             .cornerRadius(DS.radiusM)
             .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(accent, lineWidth: 1))
+            .shadow(color: Color.black.opacity(0.18), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -128,7 +129,12 @@ struct DSStatPill: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(DS.padM)
-        .background(Color.surfaceElevated)
+        .background(
+            HStack(spacing: 0) {
+                tint.frame(width: 3)
+                Color.surfaceElevated
+            }
+        )
         .cornerRadius(DS.radiusS)
         .overlay(RoundedRectangle(cornerRadius: DS.radiusS).stroke(Color.strokeSoft, lineWidth: 1))
     }
@@ -231,9 +237,10 @@ struct DSCollapsibleSection<Content: View>: View {
     }
 }
 
-// MARK: - 此刻 · 此地 · 此向 结论看板
-// 一屏给出：时间/节气、当前坐向、今日宜忌吉时、财神喜神、立向吉凶、居家布局提示。
+// MARK: - 此刻 · 此地 · 此向 测量摘要看板
+// 一屏给出：时间/节气、当前坐向、传统历法研究参考、分金空亡与折叠依据。
 // 数据全部来自本机既有的共享引擎（罗盘朝向 / 择日 / 紫白），不新增依赖。
+// 文案按「传统文化研究参考」定位，避免承诺性措辞（App Store 4.2/4.3 合规）。
 public struct DSConclusionDashboard: View {
     @ObservedObject private var motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
@@ -283,15 +290,21 @@ public struct DSConclusionDashboard: View {
             Text(timeText).adaptiveFont(size: 12).foregroundColor(.secondary)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DS.padS) {
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Auspicious (宜)" : "今日宜",
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · favorable" : "历法参考 · 宜",
                            value: yiText.isEmpty ? "—" : yiText, tint: .semJi)
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Avoid (忌)" : "今日忌",
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · avoid" : "历法参考 · 忌",
                            value: jiText.isEmpty ? "—" : jiText, tint: .semXiong)
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Wealth / Joy" : "财神 / 喜神",
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Direction notes" : "方位参考",
                            value: "\(compassGods.wealthDirection) / \(compassGods.joyDirection)", tint: .goldText)
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Fenjin" : "分金 / 空亡",
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Fenjin / void" : "分金 / 空亡",
                            value: state.fenJinDesc.isEmpty ? kwBadge.0 : state.fenJinDesc, tint: .semInfo)
             }
+
+            Text(lang.effectiveLanguage == .en
+                 ? "For traditional-culture research reference only · Not a basis for decisions"
+                 : "传统文化研究参考 · 不构成决策依据")
+                .adaptiveFont(size: 10).foregroundColor(.secondary.opacity(0.75))
+                .fixedSize(horizontal: false, vertical: true)
 
             Button {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -323,6 +336,7 @@ public struct DSConclusionDashboard: View {
         )
         .cornerRadius(DS.radiusL)
         .overlay(RoundedRectangle(cornerRadius: DS.radiusL).stroke(Color.strokeGold, lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.22), radius: 12, x: 0, y: 6)
     }
 }
 
@@ -352,9 +366,13 @@ public struct DSOrientationConclusionBar: View {
         }
         .padding(.horizontal, DS.padM)
         .padding(.vertical, DS.padS)
-        .background(Color.surfaceCard)
+        .background(
+            LinearGradient(colors: [Color.surfaceCard, Color.surfaceElevated],
+                           startPoint: .leading, endPoint: .trailing)
+        )
         .cornerRadius(DS.radiusM)
         .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.strokeGold, lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.14), radius: 6, x: 0, y: 3)
     }
 }
 

@@ -739,10 +739,10 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             case .vi: currentStandingPalace = "Trung Cung Lập Cực · Cửu Tử Đương Lệnh (Đại Cát)"
             case .th: currentStandingPalace = "จงกง (จุดศูนย์กลาง) · ดาว 9 ม่วงประจำยุค (มงคลยิ่ง)"
             case .id: currentStandingPalace = "Istana Pusat · 9 Ungu Berkuasa (Sangat Baik)"
-            case .ja: currentStandingPalace = "中宮立極 · 九紫右弼当令（大吉）"
+            case .ja: currentStandingPalace = "中宮立極 · 九紫右弼当令（研究參考）"
             case .ko: currentStandingPalace = "중궁 입극 · 구자우필 당령 (대길)"
-            case .zhHant: currentStandingPalace = "中宮立極 · 九紫右弼當令（大吉）"
-            case .auto, .zhHans: currentStandingPalace = "中宫立极 · 九紫右弼当令（大吉）"
+            case .zhHant: currentStandingPalace = "中宮立極 · 九紫右弼當令（研究参考）"
+            case .auto, .zhHans: currentStandingPalace = "中宫立极 · 九紫右弼当令（研究参考）"
             }
             return
         }
@@ -758,7 +758,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             "正南离宫 · 四绿文昌（功名位·吉）",
             "西南坤宫 · 六白武曲（偏财权印·吉）",
             "正西兑宫 · 二黑巨门（病符象征·《紫白诀》）",
-            "西北乾宫 · 一白贪狼（未来生气·大吉）"
+            "西北乾宫 · 一白贪狼（未来生气·研究参考）"
         ]
         let labelsHant = [
             "正北坎宮 · 五黃廉貞（宜靜不宜動）",
@@ -768,7 +768,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             "正南離宮 · 四綠文昌（功名位·吉）",
             "西南坤宮 · 六白武曲（偏財權印·吉）",
             "正西兌宮 · 二黑巨門（病符象徵·《紫白訣》）",
-            "西北乾宮 · 一白貪狼（未來生氣·大吉）"
+            "西北乾宮 · 一白貪狼（未來生氣·研究參考）"
         ]
         let labelsEn = [
             "North (Kan) · 5 Yellow",
@@ -818,7 +818,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             "正南離宮 · 四緑文昌（功名位・吉）",
             "南西坤宮 · 六白武曲（偏財権印・吉）",
             "正西兌宮 · 二黒巨門（病符象徴・『紫白訣』）",
-            "北西乾宮 · 一白貪狼（未来生気・大吉）"
+            "北西乾宮 · 一白貪狼（未来生気・研究参考）"
         ]
         let labelsKo = [
             "정북 감궁 · 오황염정 (정숙 권장)",

@@ -106,7 +106,7 @@ public struct QimenDunjiaView: View {
             .padding(.horizontal, isLargeLayout ? 0 : 16)
             }
             } analysis: {
-            // 选中宫位四盘参数明细与可验证天文历法依据（移除占卜/求财/出行预测卡片）
+            // 选中宫位四盘参数明细与可验证天文历法依据（移除预测导向卡片，保留可验证天文历法依据）
             VStack(spacing: 12) {
                 let solar = SolarTimeCalculator.shared.calculate(
                     date: effectiveDate,

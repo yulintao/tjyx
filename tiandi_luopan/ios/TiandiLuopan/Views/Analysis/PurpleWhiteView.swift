@@ -378,7 +378,7 @@ public struct PurpleWhiteView: View {
                 return "💡 Plain Summary: Watch for petty disputes or drain in \(item.palaceName). Keep tidy and well-lit."
             case .zhHant:
                 if isDanger { return "⚠️ 【白話速斷】流年/流月五黃二黑煞星飛臨【\(item.palaceName)】，切忌動土鑽牆或放紅色地墊，宜掛銅錢/銅葫蘆化洩。" }
-                if isJi { return "✅ 【白話速斷】流年吉星【\(item.starName)】飛臨【\(item.palaceName)】，主旺財喜文昌，宜常坐臥、開窗納氣或擺放催旺器物。" }
+                if isJi { return "✅ 【传统方位参考】流年飞星【\(item.starName)】飛臨【\(item.palaceName)】，传统研究认为与财位、文昌相关，可作为空间布局研究参考。" }
                 return "💡 【白話速斷】本宮流年見【\(item.starName)】，注意防口舌是非或小破耗，保持整潔明亮即可。"
             case .ja:
                 if isDanger { return "⚠️ 【平易解説】五黄・二黒の凶星が【\(item.palaceName)】に飛来。動土や赤い装飾を避け、銅銭や銅製ひょうたんで化殺してください。" }
@@ -402,7 +402,7 @@ public struct PurpleWhiteView: View {
                 return "💡 [Ringkasan] Sektor 【\(item.palaceName)】 bertemu 【\(item.starName)】. Jaga tetap rapi dan terang untuk menghindari perselisihan kecil."
             case .auto, .zhHans:
                 if isDanger { return "⚠️ 【白话速断】流年/流月五黄二黑煞星飞临【\(item.palaceName)】，切忌动土钻墙或放红色地垫，宜挂铜钱/铜葫芦化泄。" }
-                if isJi { return "✅ 【白话速断】流年吉星【\(item.starName)】飞临【\(item.palaceName)】，主旺财喜文昌，宜常坐卧、开窗纳气或摆放催旺器物。" }
+                if isJi { return "✅ 【传统方位参考】流年飞星【\(item.starName)】飞临【\(item.palaceName)】，传统研究认为与财位、文昌相关，可作为空间布局研究参考。" }
                 return "💡 【白话速断】本宫流年见【\(item.starName)】，注意防口舌是非或小破耗，保持整洁明亮即可。"
             }
         }()
