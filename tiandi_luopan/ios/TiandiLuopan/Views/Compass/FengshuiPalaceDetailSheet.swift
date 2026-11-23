@@ -61,7 +61,7 @@ public struct FengshuiPalaceDetailSheet: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                     }
-                    .background(Color(red: 0.09, green: 0.09, blue: 0.12))
+                    .background(Color(red: 0.086, green: 0.075, blue: 0.059))
 
                     ScrollView {
                         VStack(spacing: 12) {
@@ -106,7 +106,7 @@ public struct FengshuiPalaceDetailSheet: View {
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(lang.t("suitable_spaces"))
                                                 .adaptiveFont(size: 11, weight: .bold)
-                                                .foregroundColor(.green)
+                                                .foregroundColor(.semJi)
                                             Text(p.bestRoom)
                                                 .adaptiveFont(size: 11)
                                                 .foregroundColor(.white.opacity(0.8))
@@ -115,7 +115,7 @@ public struct FengshuiPalaceDetailSheet: View {
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(lang.t("forbidden_layouts"))
                                                 .adaptiveFont(size: 11, weight: .bold)
-                                                .foregroundColor(.red)
+                                                .foregroundColor(.semXiong)
                                             Text(p.taboo)
                                                 .adaptiveFont(size: 11)
                                                 .foregroundColor(.white.opacity(0.8))
@@ -128,7 +128,7 @@ public struct FengshuiPalaceDetailSheet: View {
                                 }
                                 .id(idx)
                                 .padding(12)
-                                .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                                .background(Color.surfaceCard)
                                 .cornerRadius(11)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 11)
@@ -140,7 +140,7 @@ public struct FengshuiPalaceDetailSheet: View {
                     }
                 }
             }
-            .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
             .navigationBarTitle(lang.t("palace_sheet_title"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()

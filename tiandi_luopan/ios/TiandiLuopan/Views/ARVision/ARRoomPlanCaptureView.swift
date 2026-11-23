@@ -189,12 +189,12 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
         }
         var batchList = batches.map { key, files in
             (id: key, files: files, date: files.map { $0.date }.min() ?? .distantPast,
-             size: files.reduce(0) { $0 + $1.size })
+             size: files.semXionguce(0) { $0 + $1.size })
         }
         .sorted { $0.date < $1.date }
         let maxBytes = 40 * 1024 * 1024
         let maxBatches = 6
-        var totalBytes = batchList.reduce(0) { $0 + $1.size }
+        var totalBytes = batchList.semXionguce(0) { $0 + $1.size }
         while batchList.count > maxBatches || totalBytes > maxBytes {
             // Preserve the newest batch even when that one export itself is
             // larger than the soft budget; deleting part of it would make the
@@ -522,10 +522,10 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             centroid = CGPoint(x: max(0.15, min(0.85, nx)), y: max(0.15, min(0.85, ny)))
         } else {
             let validRooms = generatedRooms.filter { $0.rect.width > 0 && $0.rect.height > 0 }
-            let totalArea = validRooms.reduce(CGFloat(0)) { $0 + $1.rect.width * $1.rect.height }
+            let totalArea = validRooms.semXionguce(CGFloat(0)) { $0 + $1.rect.width * $1.rect.height }
             if totalArea > 0 {
-                let cx = validRooms.reduce(CGFloat(0)) { $0 + $1.rect.midX * ($1.rect.width * $1.rect.height) } / totalArea
-                let cy = validRooms.reduce(CGFloat(0)) { $0 + $1.rect.midY * ($1.rect.width * $1.rect.height) } / totalArea
+                let cx = validRooms.semXionguce(CGFloat(0)) { $0 + $1.rect.midX * ($1.rect.width * $1.rect.height) } / totalArea
+                let cy = validRooms.semXionguce(CGFloat(0)) { $0 + $1.rect.midY * ($1.rect.width * $1.rect.height) } / totalArea
                 centroid = CGPoint(x: max(0.15, min(0.85, cx)), y: max(0.15, min(0.85, cy)))
             } else {
                 centroid = CGPoint(x: 0.5, y: 0.5)
@@ -575,7 +575,7 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             points.append(SIMD2<Float>(c.x + ax.x * half, c.z + ax.z * half))
         }
         guard points.count >= 3 else { return nil }
-        let mean = points.reduce(SIMD2<Float>(0, 0), +) / Float(points.count)
+        let mean = points.semXionguce(SIMD2<Float>(0, 0), +) / Float(points.count)
         let sorted = points.sorted { a, b in
             atan2(a.y - mean.y, a.x - mean.x) < atan2(b.y - mean.y, b.x - mean.x)
         }
@@ -1258,13 +1258,13 @@ public struct ARRoomPlanSurveyView: View {
                             .minimumScaleFactor(0.75)
                         HStack(spacing: 5) {
                             Circle()
-                                .fill(model.isCapturing ? Color.green : Color.yanGold)
+                                .fill(model.isCapturing ? Color.semJi : Color.yanGold)
                                 .frame(width: 6, height: 6)
                             Text(model.isCapturing
                                  ? lang.t("ar_roomplan_scanning")
                                  : "\(lang.t("ar_roomplan_finished")) (\(max(1, model.scannedRoomCount))\(lang.t("ar_roomplan_room_unit")))")
                                 .adaptiveFont(size: 10.5, weight: .semibold)
-                                .foregroundColor(model.isCapturing ? .green : .yanGold)
+                                .foregroundColor(model.isCapturing ? .semJi : .yanGold)
                                 .lineLimit(1)
                         }
                     }
@@ -1344,7 +1344,7 @@ public struct ARRoomPlanSurveyView: View {
                             ForEach(model.spatialFindings, id: \.self) { finding in
                                 Text(finding)
                                     .adaptiveFont(size: 10, weight: .bold)
-                                    .foregroundColor(finding.contains("⚠️") ? .orange : .green)
+                                    .foregroundColor(finding.contains("⚠️") ? .semWarn : .semJi)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.75)
                             }
@@ -1366,7 +1366,7 @@ public struct ARRoomPlanSurveyView: View {
                             .adaptiveFont(size: 13, weight: .bold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 11)
-                            .background(Color.green)
+                            .background(Color.semJi)
                             .foregroundColor(.black)
                             .cornerRadius(10)
                         }
@@ -1375,7 +1375,7 @@ public struct ARRoomPlanSurveyView: View {
                         if !model.hasHeadingReference {
                             Text(lang.t("ar_survey_heading_pending"))
                                 .adaptiveFont(size: 10.5)
-                                .foregroundColor(.orange)
+                                .foregroundColor(.semWarn)
                         }
 
                         // 朝向微调 + 多门入户门选择
@@ -1415,8 +1415,8 @@ public struct ARRoomPlanSurveyView: View {
                                             .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, 6)
-                                            .background(abs(step) >= 5 ? Color.orange.opacity(0.24) : Color.white.opacity(0.12))
-                                            .foregroundColor(abs(step) >= 5 ? .orange : .white)
+                                            .background(abs(step) >= 5 ? Color.semWarn.opacity(0.24) : Color.white.opacity(0.12))
+                                            .foregroundColor(abs(step) >= 5 ? .semWarn : .white)
                                             .cornerRadius(7)
                                     }
                                     .buttonStyle(.plain)
@@ -1432,8 +1432,8 @@ public struct ARRoomPlanSurveyView: View {
                             roomPlanActionPill(
                                 icon: "plus.square.on.square",
                                 title: isEn ? "Add Room" : "继续加扫",
-                                bg: Color.green.opacity(0.22),
-                                fg: .green,
+                                bg: Color.semJi.opacity(0.22),
+                                fg: .semJi,
                                 action: { model.startNextRoomSegment() }
                             )
                             if model.currentSpatialSurvey != nil {
@@ -1465,7 +1465,7 @@ public struct ARRoomPlanSurveyView: View {
                     if let error = model.errorMessage {
                         Text("\(lang.t("ar_roomplan_failed")): \(error)")
                             .adaptiveFont(size: 10)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.semWarn)
                     }
                     if let reportMessage = reportMessage {
                         Text(reportMessage)

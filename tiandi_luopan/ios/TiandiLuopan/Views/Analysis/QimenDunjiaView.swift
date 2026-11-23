@@ -66,10 +66,10 @@ public struct QimenDunjiaView: View {
             HStack {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Text(lang.t("qimen_header_title"))
                         .adaptiveFont(size: 14, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                 }
                 Spacer()
                 Text(chart.title)
@@ -139,7 +139,7 @@ public struct QimenDunjiaView: View {
                         .foregroundColor(.white.opacity(0.65))
                 }
                 .padding(10)
-                .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                .background(Color.surfaceCard)
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
@@ -152,9 +152,9 @@ public struct QimenDunjiaView: View {
                     VStack(alignment: .leading, spacing: 9) {
                         HStack(spacing: 6) {
                             qimenLayerPill(label: isEn ? "Palace" : "地宫", value: activeCell.localizedPalaceName, tint: .yanCyan)
-                            qimenLayerPill(label: isEn ? "Gate" : "八门", value: activeCell.localizedDoorName, tint: activeCell.isDoorAuspicious ? .green : (activeCell.isDoorInauspicious ? .red : .white))
+                            qimenLayerPill(label: isEn ? "Gate" : "八门", value: activeCell.localizedDoorName, tint: activeCell.isDoorAuspicious ? .semJi : (activeCell.isDoorInauspicious ? .semXiong : .white))
                             qimenLayerPill(label: isEn ? "Star" : "九星", value: activeCell.localizedStarName, tint: .yanGold)
-                            qimenLayerPill(label: isEn ? "Spirit" : "八神", value: activeCell.localizedGodName, tint: .orange)
+                            qimenLayerPill(label: isEn ? "Spirit" : "八神", value: activeCell.localizedGodName, tint: .semWarn)
                         }
                         Text(doorObj.classicalSourceNote)
                             .adaptiveFont(size: 10.5)
@@ -162,7 +162,7 @@ public struct QimenDunjiaView: View {
                             .lineSpacing(2)
                     }
                     .padding(11)
-                    .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                    .background(Color.surfaceElevated)
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
@@ -335,8 +335,8 @@ public struct QimenDunjiaView: View {
     private func qimenCellView(cell: QimenPalaceCell, isSelected: Bool = false) -> some View {
         let isJi = cell.isDoorAuspicious
         let isXiong = cell.isDoorInauspicious
-        let borderColor = isSelected ? Color.yanCyan : (isJi ? Color.green.opacity(0.5) : (isXiong ? Color.red.opacity(0.4) : Color.white.opacity(0.12)))
-        let bgColor = isJi ? Color.green.opacity(0.08) : (isXiong ? Color.red.opacity(0.06) : Color(red: 0.12, green: 0.13, blue: 0.18))
+        let borderColor = isSelected ? Color.yanCyan : (isJi ? Color.semJi.opacity(0.5) : (isXiong ? Color.semXiong.opacity(0.4) : Color.white.opacity(0.12)))
+        let bgColor = isJi ? Color.semJi.opacity(0.08) : (isXiong ? Color.semXiong.opacity(0.06) : Color.surfaceElevated)
         
         return VStack {
             // 顶行: 八神 / 九星
@@ -355,7 +355,7 @@ public struct QimenDunjiaView: View {
             // 中行: 八门 (大字显影)
             Text(cell.localizedDoorName)
                 .adaptiveFont(size: 15, weight: .bold, design: .serif)
-                .foregroundColor(isJi ? Color.green : (isXiong ? Color.red : Color(red: 0.95, green: 0.85, blue: 0.45)))
+                .foregroundColor(isJi ? Color.semJi : (isXiong ? Color.semXiong : Color.goldText))
             
             Spacer(minLength: 2)
             
@@ -367,7 +367,7 @@ public struct QimenDunjiaView: View {
                 Spacer()
                 Text("\(cell.localizedTianStem)/\(cell.localizedDiStem)")
                     .adaptiveFont(size: 9, weight: .bold, design: .monospaced)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
             }
         }
         .padding(isRoomyLayout ? 10 : 6)
@@ -398,7 +398,7 @@ public struct QimenDunjiaView: View {
                         }
                         .padding(.horizontal, 9)
                         .padding(.vertical, 5)
-                        .background(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : Color.white.opacity(0.08))
+                        .background(isSelected ? Color.goldText : Color.white.opacity(0.08))
                         .foregroundColor(isSelected ? .black : .white.opacity(0.85))
                         .cornerRadius(6)
                     }
@@ -425,10 +425,10 @@ public struct QimenDunjiaView: View {
             HStack(spacing: 6) {
                 Image(systemName: rec.scenario.iconName)
                     .adaptiveFont(size: 12)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Text("\(rec.scenario.localizedTitle) · \(rec.directionTitle)")
                     .adaptiveFont(size: 12, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Spacer()
                 Text(badgeLabel)
                     .adaptiveFont(size: 9, weight: .bold)
@@ -440,7 +440,7 @@ public struct QimenDunjiaView: View {
             }
             Text(rec.keyPattern)
                 .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
-                .foregroundColor(Color.green)
+                .foregroundColor(Color.semJi)
             Text(rec.actionGuide)
                 .adaptiveFont(size: 11)
                 .foregroundColor(.white.opacity(0.88))
@@ -451,7 +451,7 @@ public struct QimenDunjiaView: View {
         .cornerRadius(9)
         .overlay(
             RoundedRectangle(cornerRadius: 9)
-                .stroke(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.35), lineWidth: 1)
+                .stroke(Color.goldText.opacity(0.35), lineWidth: 1)
         )
     }
 
@@ -462,17 +462,17 @@ public struct QimenDunjiaView: View {
             HStack(spacing: 8) {
                 Image(systemName: "lock.shield.fill")
                     .adaptiveFont(size: 16)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Text(lang.t("privilege_qimen_title"))
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Spacer()
                 Text(lang.t("vip_badge_title"))
                     .adaptiveFont(size: 10, weight: .bold)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.2))
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .background(Color.goldText.opacity(0.2))
+                    .foregroundColor(Color.goldText)
                     .cornerRadius(4)
             }
 

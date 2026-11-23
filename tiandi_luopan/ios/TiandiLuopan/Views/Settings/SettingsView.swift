@@ -350,10 +350,10 @@ public struct SettingsView: View {
                             NavigationLink(destination: MasterVIPPageView(selectedProductId: $selectedProductId)) {
                                 menuRow(
                                     icon: "crown.fill",
-                                    iconColor: Color(red: 0.95, green: 0.85, blue: 0.45),
+                                    iconColor: Color.goldText,
                                     title: lang.t("settings_menu_vip"),
                                     badge: isProUnlocked ? lang.t("vip_user") : lang.t("standard_user"),
-                                    badgeColor: isProUnlocked ? .green : .yellow
+                                    badgeColor: isProUnlocked ? .semJi : .yellow
                                 )
                             }
 
@@ -376,7 +376,7 @@ public struct SettingsView: View {
                             NavigationLink(destination: AboutPageView()) {
                                 menuRow(
                                     icon: "info.circle.fill",
-                                    iconColor: Color.orange,
+                                    iconColor: Color.semWarn,
                                     title: lang.t("settings_menu_about"),
                                     subtitle: "v" + lang.t("settings_version_value")
                                 )
@@ -469,8 +469,8 @@ public struct SettingsView: View {
                         .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
-                        .background(doneCount == 3 ? Color.green.opacity(0.22) : Color.yanGold.opacity(0.2))
-                        .foregroundColor(doneCount == 3 ? .green : .yanGold)
+                        .background(doneCount == 3 ? Color.semJi.opacity(0.22) : Color.yanGold.opacity(0.2))
+                        .foregroundColor(doneCount == 3 ? .semJi : .yanGold)
                         .cornerRadius(6)
                 }
 
@@ -497,7 +497,7 @@ public struct SettingsView: View {
                     .padding(.vertical, 10)
                     .background(
                         LinearGradient(
-                            colors: [Color(red: 0.98, green: 0.85, blue: 0.42), Color(red: 0.85, green: 0.68, blue: 0.22)],
+                            colors: [Color.goldText, Color(red: 0.85, green: 0.68, blue: 0.22)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -527,12 +527,12 @@ public struct SettingsView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 7)
             .padding(.horizontal, 4)
-            .background(ok ? Color.green.opacity(0.16) : Color.white.opacity(0.06))
-            .foregroundColor(ok ? .green : .white.opacity(0.78))
+            .background(ok ? Color.semJi.opacity(0.16) : Color.white.opacity(0.06))
+            .foregroundColor(ok ? .semJi : .white.opacity(0.78))
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(ok ? Color.green.opacity(0.35) : Color.white.opacity(0.1), lineWidth: 1)
+                    .stroke(ok ? Color.semJi.opacity(0.35) : Color.white.opacity(0.1), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -546,7 +546,7 @@ public struct SettingsView: View {
                         .fill(
                             LinearGradient(
                                 colors: isProUnlocked
-                                    ? [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)]
+                                    ? [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)]
                                     : [Color(red: 0.25, green: 0.26, blue: 0.3), Color(red: 0.15, green: 0.16, blue: 0.2)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -562,10 +562,10 @@ public struct SettingsView: View {
                     HStack(spacing: 6) {
                         Text(isProUnlocked ? lang.t("vip_user") : lang.t("standard_user"))
                             .adaptiveFont(size: 16, weight: .bold)
-                            .foregroundColor(isProUnlocked ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white)
+                            .foregroundColor(isProUnlocked ? Color.goldText : .white)
                         if isProUnlocked {
                             Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.goldText)
                                 .font(.system(size: 13))
                         }
                     }
@@ -674,17 +674,17 @@ public struct MasterVIPPageView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "crown.fill")
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Text(lang.t("vip_member_center"))
                             .adaptiveFont(size: 16, weight: .bold)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Spacer()
                         Text(isProUnlocked ? lang.t("vip_user") : lang.t("standard_user"))
                             .adaptiveFont(size: 11, weight: .bold)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(isProUnlocked ? Color.green.opacity(0.3) : Color.yellow.opacity(0.3))
-                            .foregroundColor(isProUnlocked ? .green : .yellow)
+                            .background(isProUnlocked ? Color.semJi.opacity(0.3) : Color.yellow.opacity(0.3))
+                            .foregroundColor(isProUnlocked ? .semJi : .yellow)
                             .cornerRadius(6)
                     }
 
@@ -702,7 +702,7 @@ public struct MasterVIPPageView: View {
                         HStack(spacing: 8) {
                             Text(lang.t(reason))
                                 .adaptiveFont(size: 10)
-                                .foregroundColor(.orange.opacity(0.9))
+                                .foregroundColor(.semWarn.opacity(0.9))
                             Spacer()
                             Button(lang.t(reason == "iap_storage_unavailable" ? "iap_retry_purchase" : "reload_prices")) {
                                 iap.retryPurchaseAvailability()
@@ -732,7 +732,7 @@ public struct MasterVIPPageView: View {
                             .padding(.vertical, 10)
                             .background(
                                 LinearGradient(
-                                    colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                    colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -779,7 +779,7 @@ public struct MasterVIPPageView: View {
                     HStack(spacing: 6) {
                         Text(id.title)
                             .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white)
+                            .foregroundColor(isSelected ? Color.goldText : .white)
                             .fixedSize(horizontal: false, vertical: true)
                         Text(tag)
                             .adaptiveFont(size: 9, weight: .bold)
@@ -798,7 +798,7 @@ public struct MasterVIPPageView: View {
                 }
                 Text(iap.localizedBillingPrice(for: id))
                     .adaptiveFont(size: 15, weight: .bold, design: .monospaced)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -807,7 +807,7 @@ public struct MasterVIPPageView: View {
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : Color.white.opacity(0.12), lineWidth: isSelected ? 1.5 : 1)
+                    .stroke(isSelected ? Color.goldText : Color.white.opacity(0.12), lineWidth: isSelected ? 1.5 : 1)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -876,7 +876,7 @@ public struct OwnerKuaReminderPageView: View {
                             HStack(spacing: 4) {
                                 Text("\(kuaProfile.birthYear) · \(kuaProfile.localizedZodiac(language: lang.effectiveLanguage)) · \(kuaProfile.localizedLifeKuaName(language: lang.effectiveLanguage))")
                                     .adaptiveFont(size: 12, weight: .bold)
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.goldText)
                                 Image(systemName: "pencil.circle.fill")
                                     .font(.system(size: 12))
                                     .foregroundColor(Color.yanCyan)
@@ -958,7 +958,7 @@ public struct OwnerKuaReminderPageView: View {
                                         .foregroundColor(.white)
                                     Text("【\(member.localizedGuaBadge)】")
                                         .adaptiveFont(size: 11, weight: .bold)
-                                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                        .foregroundColor(Color.goldText)
                                     Spacer()
 
                                     // 出生年份微调菜单
@@ -1105,7 +1105,7 @@ public struct OwnerKuaReminderPageView: View {
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "person.text.rectangle.fill")
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Text(compat.localizedOwnerGuaName)
                     .adaptiveFont(size: 14, weight: .bold)
                     .foregroundColor(.white)
@@ -1125,7 +1125,7 @@ public struct OwnerKuaReminderPageView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(lang.effectiveLanguage == .en ? "Traditional Direction Notes" : "四大传统方位参考")
                         .adaptiveFont(size: 10, weight: .semibold)
-                        .foregroundColor(.green.opacity(0.9))
+                        .foregroundColor(.semJi.opacity(0.9))
                     Text("生气 · 延年 · 天医 · 伏位")
                         .adaptiveFont(size: 11)
                         .foregroundColor(.white.opacity(0.85))
@@ -1134,7 +1134,7 @@ public struct OwnerKuaReminderPageView: View {
                 VStack(alignment: .trailing, spacing: 3) {
                     Text(lang.effectiveLanguage == .en ? "Inauspicious Directions" : "四大凶方")
                         .adaptiveFont(size: 10, weight: .semibold)
-                        .foregroundColor(.red.opacity(0.9))
+                        .foregroundColor(.semXiong.opacity(0.9))
                     Text("绝命 · 五鬼 · 六煞 · 祸害")
                         .adaptiveFont(size: 11)
                         .foregroundColor(.white.opacity(0.85))
@@ -1216,7 +1216,7 @@ public struct LanguagePreferencesPageView: View {
                     Text(lang.t("mag_distortion"))
                     Spacer()
                     Text(motion.isDistorted ? lang.t("settings_mag_field_warning") : lang.t("settings_mag_field_normal"))
-                        .foregroundColor(motion.isDistorted ? .red : .green)
+                        .foregroundColor(motion.isDistorted ? .semXiong : .semJi)
                         .adaptiveFont(size: 13)
                 }
 
@@ -1239,7 +1239,7 @@ public struct LanguagePreferencesPageView: View {
                         Spacer()
                         Text(motion.isDistorted ? lang.t("settings_calib_status_need") : lang.t("settings_calib_status_high"))
                             .adaptiveFont(size: 12, weight: .bold)
-                            .foregroundColor(motion.isDistorted ? .orange : .green)
+                            .foregroundColor(motion.isDistorted ? .semWarn : .semJi)
                         Image(systemName: "chevron.right")
                             .adaptiveFont(size: 12)
                             .foregroundColor(.secondary)
@@ -1277,7 +1277,7 @@ public struct AboutPageView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "square.3.layers.3d")
                         .font(.system(size: 42))
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Text(appNameTitle)
                         .adaptiveFont(size: 16, weight: .bold)
                         .foregroundColor(.white)
@@ -1310,7 +1310,7 @@ public struct AboutPageView: View {
                 }) {
                     HStack {
                         Label(SettingsLocalizationHelpers.rateAppTitle(lang), systemImage: "star.bubble.fill")
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Spacer()
                         Image(systemName: "chevron.right")
                             .adaptiveFont(size: 11)
@@ -1332,7 +1332,7 @@ public struct AboutPageView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Label(lang.t("settings_safety_title"), systemImage: "exclamationmark.shield.fill")
                         .adaptiveFont(size: 13, weight: .semibold)
-                        .foregroundColor(.orange)
+                        .foregroundColor(.semWarn)
                     Text(lang.t("settings_safety_disclaimer"))
                         .adaptiveFont(size: 11)
                         .foregroundColor(.secondary)
@@ -1355,7 +1355,7 @@ public struct AboutPageView: View {
                     }
                 }
                 .adaptiveFont(size: 12, weight: .semibold)
-                .foregroundColor(.orange)
+                .foregroundColor(.semWarn)
             }
         }
         .listStyle(InsetGroupedListStyle())

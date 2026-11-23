@@ -99,10 +99,10 @@ public struct PurpleWhiteView: View {
             HStack {
                 HStack(spacing: 6) {
                     Image(systemName: "calendar.badge.clock")
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Text(lang.t("purplewhite_header_title"))
                         .adaptiveFont(size: 14, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                 }
                 Spacer()
                 let isEn = LocalizationManager.shared.effectiveLanguage == .en
@@ -123,8 +123,8 @@ public struct PurpleWhiteView: View {
 
             // P0.2 开放九宫飞星盘面与太岁三煞预警预览（先建立凶吉感知，深度断语再做 VIP 转化）
             HStack(spacing: 8) {
-                tagPill(title: lang.t("tai_sui_label"), value: chart.taiSuiDescription, color: Color.red)
-                tagPill(title: lang.t("sui_po_label"), value: chart.suiPoDescription, color: Color.orange)
+                tagPill(title: lang.t("tai_sui_label"), value: chart.taiSuiDescription, color: Color.semXiong)
+                tagPill(title: lang.t("sui_po_label"), value: chart.suiPoDescription, color: Color.semWarn)
                 tagPill(title: lang.t("san_sha_label"), value: chart.sanShaDescription, color: Color.purple)
             }
             .padding(.horizontal, 16)
@@ -173,17 +173,17 @@ public struct PurpleWhiteView: View {
             HStack(spacing: 8) {
                 Image(systemName: "lock.shield.fill")
                     .adaptiveFont(size: 16)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Text(lang.t("privilege_purplewhite_title"))
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Spacer()
                 Text(lang.t("vip_badge_title"))
                     .adaptiveFont(size: 10, weight: .bold)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.2))
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .background(Color.goldText.opacity(0.2))
+                    .foregroundColor(Color.goldText)
                     .cornerRadius(4)
             }
 
@@ -410,13 +410,13 @@ public struct PurpleWhiteView: View {
         return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Image(systemName: isDanger ? "exclamationmark.triangle.fill" : "sparkles")
-                    .foregroundColor(isDanger ? .red : Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(isDanger ? .semXiong : Color.goldText)
                 Text(item.palaceName)
                     .adaptiveFont(size: 13, weight: .bold)
                     .foregroundColor(.white)
                 Text("· \(item.starName)")
                     .adaptiveFont(size: 12, weight: .semibold)
-                    .foregroundColor(isDanger ? .red : Color.yanCyan)
+                    .foregroundColor(isDanger ? .semXiong : Color.yanCyan)
                 Spacer()
                 let remedyId = "pw_\(item.palaceId)"
                 let inRemedy = retention.remedyTasks.contains(where: { $0.id == remedyId })
@@ -448,19 +448,19 @@ public struct PurpleWhiteView: View {
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
-                    .background(inRemedy ? Color.green.opacity(0.22) : Color.yanCyan.opacity(0.18))
-                    .foregroundColor(inRemedy ? .green : Color.yanCyan)
+                    .background(inRemedy ? Color.semJi.opacity(0.22) : Color.yanCyan.opacity(0.18))
+                    .foregroundColor(inRemedy ? .semJi : Color.yanCyan)
                     .cornerRadius(5)
                 }
                 .buttonStyle(PlainButtonStyle())
                 Text("\(item.yearGuestStar) / \(lang.t("tag_month_prefix"))\(item.monthGuestStar)")
                     .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
             }
 
             Text(plainSummary)
                 .adaptiveFont(size: 11, weight: .semibold)
-                .foregroundColor(isDanger ? Color.orange : (isJi ? Color.green : Color(red: 0.95, green: 0.85, blue: 0.45)))
+                .foregroundColor(isDanger ? Color.semWarn : (isJi ? Color.semJi : Color.goldText))
                 .fixedSize(horizontal: false, vertical: true)
 
             if iap.hasUnlockedVIP {
@@ -475,11 +475,11 @@ public struct PurpleWhiteView: View {
             }
         }
         .padding(12)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .background(Color.surfaceCard)
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(isDanger ? Color.red.opacity(0.5) : (isFacing ? Color.yanCyan.opacity(0.5) : Color.white.opacity(0.1)), lineWidth: 1)
+                .stroke(isDanger ? Color.semXiong.opacity(0.5) : (isFacing ? Color.yanCyan.opacity(0.5) : Color.white.opacity(0.1)), lineWidth: 1)
         )
     }
     
@@ -489,8 +489,8 @@ public struct PurpleWhiteView: View {
         // disagree with the detail text.
         let isDanger = item.isDanger25 || item.yearGuestStar == 5 || item.monthGuestStar == 5
         let isJi = [1, 4, 6, 8, 9].contains(item.yearGuestStar)
-        let strokeColor = isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : (isFacing ? Color.yanCyan : (isDanger ? Color.red : (isJi ? Color.green.opacity(0.5) : Color.white.opacity(0.12))))
-        let bgColor = isDanger ? Color.red.opacity(0.12) : (isJi ? Color.green.opacity(0.06) : Color(red: 0.12, green: 0.13, blue: 0.18))
+        let strokeColor = isSelected ? Color.goldText : (isFacing ? Color.yanCyan : (isDanger ? Color.semXiong : (isJi ? Color.semJi.opacity(0.5) : Color.white.opacity(0.12))))
+        let bgColor = isDanger ? Color.semXiong.opacity(0.12) : (isJi ? Color.semJi.opacity(0.06) : Color.surfaceElevated)
         
         return VStack {
             // 顶行: 宫位名 + 冲犯标签
@@ -502,7 +502,7 @@ public struct PurpleWhiteView: View {
                 if item.isTaiSui {
                     Text(lang.t("tag_taisui"))
                         .adaptiveFont(size: 8, weight: .bold)
-                        .foregroundColor(.red)
+                        .foregroundColor(.semXiong)
                 } else if item.isSanSha {
                     Text(lang.t("tag_sansha"))
                         .adaptiveFont(size: 8, weight: .bold)
@@ -521,7 +521,7 @@ public struct PurpleWhiteView: View {
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text("\(item.yearGuestStar)")
                     .adaptiveFont(size: 20, weight: .bold, design: .serif)
-                    .foregroundColor(isDanger ? Color.red : (isJi ? Color(red: 0.95, green: 0.85, blue: 0.45) : Color.white.opacity(0.7)))
+                    .foregroundColor(isDanger ? Color.semXiong : (isJi ? Color.goldText : Color.white.opacity(0.7)))
                 
                 Text("\(lang.t("tag_month_prefix"))\(item.monthGuestStar)")
                     .adaptiveFont(size: 9)
@@ -533,7 +533,7 @@ public struct PurpleWhiteView: View {
             // 底行: 星名与化解提示
             Text(item.starName)
                 .adaptiveFont(size: 8)
-                .foregroundColor(isDanger ? Color.red : Color.white.opacity(0.65))
+                .foregroundColor(isDanger ? Color.semXiong : Color.white.opacity(0.65))
                 .lineLimit(1)
         }
         .padding(isRoomyLayout ? 10 : 6)

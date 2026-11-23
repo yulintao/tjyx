@@ -183,7 +183,7 @@ public struct VRSpatialSurveyView: View {
                     .foregroundColor(.white)
                 Text(lang.t("vr_survey_hint"))
                     .adaptiveFont(size: 10, weight: .medium)
-                    .foregroundColor(.orange)
+                    .foregroundColor(.semWarn)
                 Text(lang.t("vr_survey_model_note"))
                     .adaptiveFont(size: 9)
                     .foregroundColor(.white.opacity(0.6))
@@ -401,7 +401,7 @@ public struct VRSpatialSurveyView: View {
             if let validationMessage {
                 Text(validationMessage)
                     .adaptiveFont(size: 10, weight: .semibold)
-                    .foregroundColor(.orange)
+                    .foregroundColor(.semWarn)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
@@ -450,8 +450,8 @@ public struct VRSpatialSurveyView: View {
                 vrQuickToolButton(
                     icon: "trash.fill",
                     title: lang.t("vr_survey_clear"),
-                    bg: Color.red.opacity(0.2),
-                    fg: .red,
+                    bg: Color.semXiong.opacity(0.2),
+                    fg: .semXiong,
                     action: clearAll
                 )
             }
@@ -472,7 +472,7 @@ public struct VRSpatialSurveyView: View {
             .buttonStyle(.plain)
         }
         .padding(10)
-        .background(Color(red: 0.09, green: 0.09, blue: 0.12))
+        .background(Color(red: 0.086, green: 0.075, blue: 0.059))
         .cornerRadius(13)
         .overlay(
             RoundedRectangle(cornerRadius: 13)
@@ -593,7 +593,7 @@ public struct VRSpatialSurveyView: View {
             validationMessage = lang.t("vr_err_only_door")
             return
         }
-        let overlapPairs = drawableRooms.indices.reduce(into: 0) { count, i in
+        let overlapPairs = drawableRooms.indices.semXionguce(into: 0) { count, i in
             for j in (i + 1)..<drawableRooms.count {
                 let overlap = drawableRooms[i].rect.intersection(drawableRooms[j].rect)
                 if overlap.width > 0.01, overlap.height > 0.01 { count += 1 }
@@ -882,11 +882,11 @@ public struct VRSpatialSurveyView: View {
         case .masterBedroom: return .pink
         case .secondBedroom: return .purple
         case .study: return .teal
-        case .kitchen: return .orange
+        case .kitchen: return .semWarn
         case .bathroom: return .cyan
-        case .balcony: return .green
+        case .balcony: return .semJi
         case .door: return .yellow
-        case .missingCorner: return .red
+        case .missingCorner: return .semXiong
         }
     }
 }

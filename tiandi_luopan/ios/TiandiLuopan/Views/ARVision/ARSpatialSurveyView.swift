@@ -535,7 +535,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
                 return (url, date, size)
             }
             .sorted { $0.date < $1.date }
-        var totalBytes = maps.reduce(0) { $0 + $1.size }
+        var totalBytes = maps.semXionguce(0) { $0 + $1.size }
         let maxFiles = 12
         let maxBytes = 80 * 1024 * 1024
         while (maps.count > maxFiles || totalBytes > maxBytes) && maps.count > 1 {
@@ -1258,8 +1258,8 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             }
         }
 
-        let weightedX = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midX) } / Double(max(1, floorplanRooms.count))
-        let weightedY = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midY) } / Double(max(1, floorplanRooms.count))
+        let weightedX = floorplanRooms.semXionguce(0.0) { $0 + Double($1.rect.midX) } / Double(max(1, floorplanRooms.count))
+        let weightedY = floorplanRooms.semXionguce(0.0) { $0 + Double($1.rect.midY) } / Double(max(1, floorplanRooms.count))
         let currentSurvey = buildSpatialSurvey()
         if let s = currentSurvey {
             SpatialWorkflowStore.shared.recordSurvey(
@@ -1542,8 +1542,8 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
     @discardableResult
     public func finishCornerRoom() -> Bool {
         guard cornerPoints.count >= 3 else { return false }
-        let meanX = cornerPoints.reduce(Float(0)) { $0 + $1.x } / Float(cornerPoints.count)
-        let meanZ = cornerPoints.reduce(Float(0)) { $0 + $1.z } / Float(cornerPoints.count)
+        let meanX = cornerPoints.semXionguce(Float(0)) { $0 + $1.x } / Float(cornerPoints.count)
+        let meanZ = cornerPoints.semXionguce(Float(0)) { $0 + $1.z } / Float(cornerPoints.count)
         var covarianceXX: Float = 0
         var covarianceXZ: Float = 0
         var covarianceZZ: Float = 0
@@ -1767,7 +1767,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
                 lubanSpanMeters = span
                 let evaluation = LubanRulerEvaluation.evaluate(meters: span)
                 lubanEvaluation = evaluation
-                let line = Self.makeLineNode(from: a, to: b, color: evaluation.yangIsAuspicious ? .green : .red)
+                let line = Self.makeLineNode(from: a, to: b, color: evaluation.yangIsAuspicious ? .semJi : .semXiong)
                 sceneView.scene.rootNode.addChildNode(line)
                 lubanLineNode = line
             }
@@ -2945,7 +2945,7 @@ public struct ARSpatialSurveyView: View {
                 }
                 Text(model.lidarAvailable ? lang.t("ar_spatial_lidar_available") : lang.t("ar_spatial_ar_mode"))
                     .adaptiveFont(size: 10, weight: .medium)
-                    .foregroundColor(model.lidarAvailable ? .green : .orange)
+                    .foregroundColor(model.lidarAvailable ? .semJi : .semWarn)
                     .lineLimit(1)
             }
 
@@ -3088,7 +3088,7 @@ public struct ARSpatialSurveyView: View {
                         .adaptiveFont(size: 11, weight: .bold)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 9)
-                        .background(Color.orange)
+                        .background(Color.semWarn)
                         .foregroundColor(.black)
                         .cornerRadius(9)
                     }
@@ -3112,7 +3112,7 @@ public struct ARSpatialSurveyView: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(.white)
                             .padding(9)
-                            .background(Color.red.opacity(0.75))
+                            .background(Color.semXiong.opacity(0.75))
                             .cornerRadius(9)
                     }
                     .buttonStyle(.plain)
@@ -3154,7 +3154,7 @@ public struct ARSpatialSurveyView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 6)
-                    .background(model.cornerPinActive ? Color.orange : Color.white.opacity(0.14))
+                    .background(model.cornerPinActive ? Color.semWarn : Color.white.opacity(0.14))
                     .foregroundColor(model.cornerPinActive ? .black : .white)
                     .cornerRadius(10)
                 }
@@ -3204,9 +3204,9 @@ public struct ARSpatialSurveyView: View {
     }
 
     private var scanQualityColor: Color {
-        if model.scanQualityScore >= 75 { return .green }
+        if model.scanQualityScore >= 75 { return .semJi }
         if model.scanQualityScore >= 45 { return .yellow }
-        return .orange
+        return .semWarn
     }
 
     private var measurementSummaryText: String {
@@ -3237,7 +3237,7 @@ public struct ARSpatialSurveyView: View {
         return VStack(alignment: .leading, spacing: 7) {
             if !model.hasHeadingReference {
                 Text(lang.t("ar_survey_heading_pending"))
-                    .adaptiveFont(size: 11).foregroundColor(.orange)
+                    .adaptiveFont(size: 11).foregroundColor(.semWarn)
             }
 
             // 精简实时测距摘要行 + 详情折叠切换按钮
@@ -3278,7 +3278,7 @@ public struct ARSpatialSurveyView: View {
             if model.cornerPoints.count >= 2 {
                 HStack(spacing: 6) {
                     Image(systemName: "pentagon")
-                        .foregroundColor(.orange)
+                        .foregroundColor(.semWarn)
                         .adaptiveFont(size: 11)
                     if model.cornerPoints.count >= 3 {
                         Text(String(format: "%@: %.2f ㎡ · %.2f m",
@@ -3393,7 +3393,7 @@ public struct ARSpatialSurveyView: View {
                     let beamWarning = model.hasLowBeamWarning
                     Text(String(format: "%@: %.2f m · %@", lang.t("3d_metric_ceiling"), h, beamWarning ? lang.t("ar_spatial_beam_warning") : lang.t("ar_spatial_ceiling_good")))
                         .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
-                        .foregroundColor(beamWarning ? .orange : .green)
+                        .foregroundColor(beamWarning ? .semWarn : .semJi)
                 }
                 if model.lidarAvailable {
                     Text(lang.t("ar_spatial_semantic_candidate"))
@@ -3414,7 +3414,7 @@ public struct ARSpatialSurveyView: View {
                 } else {
                     Text(lang.t("ar_spatial_no_depth"))
                         .adaptiveFont(size: 10)
-                        .foregroundColor(.orange.opacity(0.9))
+                        .foregroundColor(.semWarn.opacity(0.9))
                 }
             }
             if let saveMessage = saveMessage {
@@ -3439,11 +3439,11 @@ public struct ARSpatialSurveyView: View {
                     if survey.scanMethod.contains("基础") || survey.scanMethod.contains("基礎") || survey.scanMethod.contains("基本") || survey.scanMethod.contains("기본") || survey.scanMethod.localizedCaseInsensitiveContains("Basic") || survey.scanMethod.localizedCaseInsensitiveContains("Dasar") || survey.scanMethod.localizedCaseInsensitiveContains("พื้นฐาน") || survey.scanMethod.localizedCaseInsensitiveContains("mặt phẳng") {
                         Text(lang.t("ar_spatial_basic_notice"))
                             .adaptiveFont(size: 10, weight: .semibold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.semWarn)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
                             .frame(maxWidth: .infinity)
-                            .background(Color.orange.opacity(0.1))
+                            .background(Color.semWarn.opacity(0.1))
                     }
                     House3DSpaceViewer(survey: survey, propertyID: model.propertyID)
                 }
@@ -3535,9 +3535,9 @@ public struct ARSpatialSurveyView: View {
 
     private var trackingColor: Color {
         switch model.trackingState {
-        case .normal: return .green
-        case .limited, .initializing: return .orange
-        case .unavailable: return .red
+        case .normal: return .semJi
+        case .limited, .initializing: return .semWarn
+        case .unavailable: return .semXiong
         }
     }
 

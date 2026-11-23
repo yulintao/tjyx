@@ -117,7 +117,7 @@ struct FamilyRoomAllocationSection: View {
                 .toolbar { ToolbarItem(placement: .navigationBarTrailing) {
                     Button(lang.t("done")) { showEditor = false }
                 } }
-                .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+                .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
                 .foregroundColor(.white)
             }
             .navigationViewStyle(StackNavigationViewStyle())
@@ -134,7 +134,7 @@ struct FamilyRoomAllocationSection: View {
                     Button(lang.t("fra_clear")) { onUpdate([]) }
                 }.buttonStyle(.bordered)
                 if !rooms.contains(where: FamilyRoomAllocationEngine.isAssignable) {
-                    Text(lang.t("fra_no_rooms")).foregroundColor(.orange)
+                    Text(lang.t("fra_no_rooms")).foregroundColor(.semWarn)
                 }
                 ForEach(rooms.filter(FamilyRoomAllocationEngine.isAssignable)) { room in
                     roomCard(room)

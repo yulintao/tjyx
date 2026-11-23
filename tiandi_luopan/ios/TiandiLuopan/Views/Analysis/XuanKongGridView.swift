@@ -151,7 +151,7 @@ public struct XuanKongGridView: View {
             scroll.scrollTo("analysisRootTop", anchor: .top)
         }
         }
-        .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
         .sheet(isPresented: $showTianJiShuSheet) {
             if let reportSnapshot { TianJiShuView(analysis: reportSnapshot) }
         }
@@ -367,7 +367,7 @@ public struct XuanKongGridView: View {
                                 isSelected
                                     ? AnyView(
                                         LinearGradient(
-                                            colors: [Color(red: 0.98, green: 0.85, blue: 0.42), Color(red: 0.85, green: 0.68, blue: 0.22)],
+                                            colors: [Color.goldText, Color(red: 0.85, green: 0.68, blue: 0.22)],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )
@@ -701,7 +701,7 @@ public struct XuanKongGridView: View {
                 HStack(spacing: 4) {
                     Image(systemName: usesHome ? "house.fill" : (motion.isLocked ? "lock.fill" : "location.north.line.fill"))
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(motion.isLocked ? Color.red : Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(motion.isLocked ? Color.semXiong : Color.goldText)
                     Text("\(state.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(state.facingMountain.localizedName)\(lang.t("facing_suffix")) · \(String(format: "%.1f°", state.facingAngle))")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(.white)
@@ -723,8 +723,8 @@ public struct XuanKongGridView: View {
                         .lineLimit(1)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 5)
-                        .background(motion.isLocked ? Color.red.opacity(0.22) : Color.white.opacity(0.1))
-                        .foregroundColor(motion.isLocked ? .red : .white)
+                        .background(motion.isLocked ? Color.semXiong.opacity(0.22) : Color.white.opacity(0.1))
+                        .foregroundColor(motion.isLocked ? .semXiong : .white)
                         .cornerRadius(6)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -763,15 +763,15 @@ public struct XuanKongGridView: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 5)
-                .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.2))
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .background(Color.goldText.opacity(0.2))
+                .foregroundColor(Color.goldText)
                 .cornerRadius(6)
             }
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.horizontal, 11)
         .padding(.vertical, 8)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .background(Color.surfaceCard)
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -785,7 +785,7 @@ public struct XuanKongGridView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Image(systemName: "scroll.fill")
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Text(lang.t("tianji_scroll"))
                         .adaptiveFont(size: 13, weight: .bold)
                         .foregroundColor(.white)
@@ -807,7 +807,7 @@ public struct XuanKongGridView: View {
                     .padding(.vertical, 6)
                     .background(
                         LinearGradient(
-                            colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                            colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -844,7 +844,7 @@ public struct XuanKongGridView: View {
                     HStack(spacing: 10) {
                         starLegendDot(color: .yanCyan, label: isEn ? "Mtn" : "山星")
                         starLegendDot(color: .yanGold, label: isEn ? "Period" : "运星")
-                        starLegendDot(color: .orange, label: isEn ? "Face" : "向星")
+                        starLegendDot(color: .semWarn, label: isEn ? "Face" : "向星")
                     }
                     Spacer()
                     if !isSplitLayout {
@@ -899,7 +899,7 @@ public struct XuanKongGridView: View {
         return VStack(spacing: 6) {
             Text(chart.periodMeta.label)
                 .adaptiveFont(size: 12, weight: .bold)
-                .foregroundColor(chart.periodMeta.isCurrent ? Color(red: 0.95, green: 0.85, blue: 0.45) : Color.white.opacity(0.75))
+                .foregroundColor(chart.periodMeta.isCurrent ? Color.goldText : Color.white.opacity(0.75))
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
@@ -957,8 +957,8 @@ public struct XuanKongGridView: View {
                     .adaptiveFont(size: 12, weight: .bold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.orange.opacity(0.2))
-                    .foregroundColor(Color.orange)
+                    .background(Color.semWarn.opacity(0.2))
+                    .foregroundColor(Color.semWarn)
                     .cornerRadius(6)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -988,8 +988,8 @@ public struct XuanKongGridView: View {
                             .adaptiveFont(size: 10, weight: .bold)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.2))
-                            .foregroundColor(Color.green)
+                            .background(Color.semJi.opacity(0.2))
+                            .foregroundColor(Color.semJi)
                             .cornerRadius(4)
                     }
                     if chart.isQiXingDaJie {
@@ -997,8 +997,8 @@ public struct XuanKongGridView: View {
                             .adaptiveFont(size: 10, weight: .bold)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.22))
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .background(Color.goldText.opacity(0.22))
+                            .foregroundColor(Color.goldText)
                             .cornerRadius(4)
                     }
                 }
@@ -1033,8 +1033,8 @@ public struct XuanKongGridView: View {
     private func palaceCellView(cell: XuanKongPalace) -> some View {
         let use = cell.suggestedUse
         let isSelected = cell.id == selectedPalaceIdx
-        let borderColor = isSelected ? Color.yanCyan : (use == .quiet ? Color.orange : (use == .separateUses ? Color.yanGold : Color.white.opacity(0.12)))
-        let bgColor = use == .quiet ? Color.orange.opacity(0.1) : Color(red: 0.12, green: 0.12, blue: 0.16)
+        let borderColor = isSelected ? Color.yanCyan : (use == .quiet ? Color.semWarn : (use == .separateUses ? Color.yanGold : Color.white.opacity(0.12)))
+        let bgColor = use == .quiet ? Color.semWarn.opacity(0.1) : Color.surfaceCard
         
         return VStack {
             HStack {
@@ -1044,14 +1044,14 @@ public struct XuanKongGridView: View {
                 Spacer()
                 Text("\(cell.facingStar)")
                     .adaptiveFont(size: 13, weight: .bold)
-                    .foregroundColor(Color.orange)
+                    .foregroundColor(Color.semWarn)
             }
             
             Spacer(minLength: 2)
             
             Text("\(cell.periodStar)")
                 .adaptiveFont(size: 22, weight: .bold, design: .serif)
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .foregroundColor(Color.goldText)
             
             Spacer(minLength: 2)
             
@@ -1168,7 +1168,7 @@ public struct XuanKongGridView: View {
             .accentColor(Color.yanCyan)
         }
         .padding(16)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .background(Color.surfaceCard)
         .cornerRadius(14)
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.08), lineWidth: 1))
     }
@@ -1176,7 +1176,7 @@ public struct XuanKongGridView: View {
     private func homeDataLinks(analysis: XuanKongDeepAnalysis) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             ForEach(analysis.warningKeys, id: \.self) { key in
-                Text(lang.t(key)).foregroundColor(.orange)
+                Text(lang.t(key)).foregroundColor(.semWarn)
             }
             if !analysis.missingKeys.isEmpty {
                 Text(lang.t("xkd_missing") + analysis.missingKeys.map { lang.t($0) }.joined(separator: " / "))
@@ -1261,7 +1261,7 @@ public struct XuanKongGridView: View {
 
     private func guidanceColor(_ use: XuanKongSectorUse) -> Color {
         switch use {
-        case .quiet: return .orange
+        case .quiet: return .semWarn
         case .separateUses: return Color(red: 0.8, green: 0.67, blue: 1)
         case .activity: return .yanGold
         case .rest: return .yanCyan
@@ -1484,7 +1484,7 @@ public struct Mountain24PickerSheet: View {
         let state = motion.headingState
         let isEn = (lang.effectiveLanguage == .en)
         return ZStack {
-            Color(red: 0.08, green: 0.08, blue: 0.11)
+            Color(red: 0.086, green: 0.075, blue: 0.059)
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -1572,7 +1572,7 @@ public struct Mountain24PickerSheet: View {
                 .padding(.vertical, 10)
                 .frame(maxWidth: 520)
                 .frame(maxWidth: .infinity)
-                .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                .background(Color.surfaceElevated)
                 .overlay(
                     Rectangle()
                         .fill(Color.white.opacity(0.1))
@@ -1625,7 +1625,7 @@ public struct Mountain24PickerSheet: View {
                     .frame(width: 6, height: 6)
                 Text("\(palace.name) （\(palace.directionName) · 五行属\(palace.element)）")
                     .adaptiveFont(size: 12, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Spacer()
             }
 
@@ -1654,11 +1654,11 @@ public struct Mountain24PickerSheet: View {
                 HStack(spacing: 2) {
                     Text("\(m.localizedName)山\(facingM.localizedName)向")
                         .adaptiveFont(size: 12, weight: .bold)
-                        .foregroundColor(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white)
+                        .foregroundColor(isSelected ? Color.goldText : .white)
                     if isSelected {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                     }
                 }
                 .lineLimit(1)
@@ -1677,11 +1677,11 @@ public struct Mountain24PickerSheet: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .padding(.horizontal, 4)
-            .background(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.2) : Color.white.opacity(0.06))
+            .background(isSelected ? Color.goldText.opacity(0.2) : Color.white.opacity(0.06))
             .cornerRadius(6)
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : Color.white.opacity(0.12), lineWidth: isSelected ? 1.5 : 1)
+                    .stroke(isSelected ? Color.goldText : Color.white.opacity(0.12), lineWidth: isSelected ? 1.5 : 1)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -1690,9 +1690,9 @@ public struct Mountain24PickerSheet: View {
     private func elementColor(for elem: String) -> Color {
         switch elem {
         case "水", "Water", "수", "Thủy": return Color.blue
-        case "木", "Wood", "목", "Mộc": return Color.green
-        case "火", "Fire", "화", "Hỏa": return Color.red
-        case "土", "Earth", "토", "Thổ": return Color(red: 0.8, green: 0.6, blue: 0.3)
+        case "木", "Wood", "목", "Mộc": return Color.semJi
+        case "火", "Fire", "화", "Hỏa": return Color.semXiong
+        case "土", "Earth", "토", "Thổ": return Color.goldText
         case "金", "Metal", "금", "Kim": return Color.yanGold
         default: return Color.white
         }
@@ -1705,10 +1705,10 @@ public struct Mountain24PickerSheet: View {
                 HStack(spacing: 4) {
                     Image(systemName: motion.isLocked ? "lock.fill" : "location.north.line.fill")
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(motion.isLocked ? Color.red : Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(motion.isLocked ? Color.semXiong : Color.goldText)
                     Text(motion.isLocked ? lockedStatusText : liveSensorStatusText)
                         .adaptiveFont(size: 11, weight: .bold)
-                        .foregroundColor(motion.isLocked ? Color.red : Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(motion.isLocked ? Color.semXiong : Color.goldText)
                 }
                 Spacer()
                 if motion.isLocked {
@@ -1735,11 +1735,11 @@ public struct Mountain24PickerSheet: View {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("【\(state.sittingMountain.localizedName)山\(state.facingMountain.localizedName)向】")
                     .adaptiveFont(size: 18, weight: .bold, design: .serif)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
 
                 Text(state.isJianXiang ? state.fenJinDesc : directAlignmentText)
                     .adaptiveFont(size: 11.5, weight: .medium)
-                    .foregroundColor(state.isJianXiang ? Color.orange : Color.green)
+                    .foregroundColor(state.isJianXiang ? Color.semWarn : Color.semJi)
 
                 Spacer()
 

@@ -303,7 +303,7 @@ public struct CompassDialView: View {
                             .adaptiveFont(size: 6 * grow, weight: .bold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.55)
-                            .foregroundColor(isActive ? Color.black.opacity(0.85) : Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(isActive ? Color.black.opacity(0.85) : Color.goldText)
                     }
                 }
                 .frame(width: radius * 0.24)
@@ -384,7 +384,7 @@ public struct CompassDialView: View {
     private func fenjinLayer(radius: CGFloat, grow: CGFloat = 1.0) -> some View {
         ForEach(Fenjin120Data.shared.allFenjin) { f in
             Rectangle()
-                .fill(f.isAuspicious ? Color(red: 0.95, green: 0.8, blue: 0.3) : Color.white.opacity(0.4))
+                .fill(f.isAuspicious ? Color.goldText : Color.white.opacity(0.4))
                 .frame(width: 1.0 * grow, height: (f.isAuspicious ? 6.0 : 4.0) * grow)
                 .offset(y: -radius)
                 .rotationEffect(.degrees(f.centerAngle))
@@ -410,7 +410,7 @@ public struct CompassDialView: View {
                         .adaptiveFont(size: (isMainBranch ? 16 : 13) * grow, weight: .bold, design: .serif)
                         .lineLimit(1)
                         .minimumScaleFactor(0.65)
-                        .foregroundColor(isMainBranch ? Color(red: 0.96, green: 0.35, blue: 0.3) : Color(red: 0.95, green: 0.82, blue: 0.4))
+                        .foregroundColor(isMainBranch ? Color(red: 0.96, green: 0.35, blue: 0.3) : Color.goldText)
                     Text(m.localizedElement)
                         .adaptiveFont(size: 9 * grow, weight: .medium)
                         .lineLimit(1)
@@ -677,7 +677,7 @@ public struct CompassDialView: View {
                 .frame(width: size * 0.94, height: 0.75)
             // 顶部主准星高光线
             Rectangle()
-                .fill(motion.isLocked ? Color.red.opacity(0.85) : Color.yanGold.opacity(0.85))
+                .fill(motion.isLocked ? Color.semXiong.opacity(0.85) : Color.yanGold.opacity(0.85))
                 .frame(width: 1.5, height: 18)
                 .offset(y: -size * 0.44)
         }
@@ -693,15 +693,15 @@ public struct CompassDialView: View {
         
         return ZStack {
             Circle()
-                .stroke(isLevel ? Color.green.opacity(0.48) : Color.white.opacity(0.18), lineWidth: isLevel ? 1.25 : 0.85)
+                .stroke(isLevel ? Color.semJi.opacity(0.48) : Color.white.opacity(0.18), lineWidth: isLevel ? 1.25 : 0.85)
                 .frame(width: maxRadius * 1.2, height: maxRadius * 1.2)
             
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [
-                            (isLevel ? Color.green : Color.orange).opacity(0.85),
-                            (isLevel ? Color.green : Color.orange).opacity(0.35)
+                            (isLevel ? Color.semJi : Color.semWarn).opacity(0.85),
+                            (isLevel ? Color.semJi : Color.semWarn).opacity(0.35)
                         ],
                         center: .topLeading,
                         startRadius: 1,
@@ -710,7 +710,7 @@ public struct CompassDialView: View {
                 )
                 .frame(width: 14, height: 14)
                 .overlay(Circle().stroke(Color.white.opacity(0.45), lineWidth: 0.6))
-                .shadow(color: (isLevel ? Color.green : Color.orange).opacity(0.45), radius: 4)
+                .shadow(color: (isLevel ? Color.semJi : Color.semWarn).opacity(0.45), radius: 4)
                 .offset(x: offsetX, y: offsetY)
                 .animation(.interactiveSpring(response: 0.1, dampingFraction: 0.8), value: offsetX)
         }
@@ -721,7 +721,7 @@ public struct CompassDialView: View {
     private func northSouthIndexLayer(radius: CGFloat) -> some View {
         let canvasSize = radius * 2 + 32
         let center = canvasSize / 2
-        let tint = motion.isLocked ? Color.red : Color.yanGold
+        let tint = motion.isLocked ? Color.semXiong : Color.yanGold
 
         return ZStack {
             Path { path in

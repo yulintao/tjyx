@@ -29,7 +29,7 @@ extension Color {
     public static let paperText   = Color(red: 0.95, green: 0.91, blue: 0.83)
     public static let paperSub    = Color(red: 0.66, green: 0.61, blue: 0.50)
 
-    // 语义色：吉 / 凶 / 警示 / 信息，与暖墨主题统一，替代裸 .green/.red/.orange/.purple
+    // 语义色：吉 / 凶 / 警示 / 信息，与暖墨主题统一，替代裸 .semJi/.semXiong/.semWarn/.purple
     public static let semJi     = Color(red: 0.35, green: 0.67, blue: 0.50)  // 吉 · 温润青玉
     public static let semXiong  = Color(red: 0.85, green: 0.35, blue: 0.31)  // 凶 · 朱砂红
     public static let semWarn   = Color(red: 0.88, green: 0.63, blue: 0.29)  // 留意 · 琥珀
@@ -892,7 +892,7 @@ struct ProportionalTwoPaneLayout: Layout {
             assertionFailure("ProportionalTwoPaneLayout 需要恰好 3 个子视图：主栏、分隔线、分析栏")
             return .zero
         }
-        let width = proposal.width ?? subviews.reduce(0) { $0 + $1.sizeThatFits(.unspecified).width }
+        let width = proposal.width ?? subviews.semXionguce(0) { $0 + $1.sizeThatFits(.unspecified).width }
         let (mainW, analysisW) = paneWidths(total: width)
         let mainH = subviews[0].sizeThatFits(ProposedViewSize(width: mainW, height: proposal.height)).height
         let analysisH = subviews[2].sizeThatFits(ProposedViewSize(width: analysisW, height: proposal.height)).height
@@ -1519,12 +1519,12 @@ public struct WorkflowStepperBar: View {
                     HStack(spacing: 4) {
                         ZStack {
                             Circle()
-                                .fill(done ? Color.green.opacity(0.24) : (isActive ? Color.yanGold.opacity(0.26) : Color.white.opacity(0.08)))
+                                .fill(done ? Color.semJi.opacity(0.24) : (isActive ? Color.yanGold.opacity(0.26) : Color.white.opacity(0.08)))
                                 .frame(width: 15, height: 15)
                             if done {
                                 Image(systemName: "checkmark")
                                     .font(.system(size: 8, weight: .black))
-                                    .foregroundColor(.green)
+                                    .foregroundColor(.semJi)
                             } else if idx == 3 {
                                 Image(systemName: "doc.text.fill")
                                     .font(.system(size: 7.5, weight: .bold))
@@ -1546,11 +1546,11 @@ public struct WorkflowStepperBar: View {
                     .padding(.horizontal, 4)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(isActive ? Color.yanGold.opacity(0.18) : (done ? Color.green.opacity(0.08) : Color.clear))
+                            .fill(isActive ? Color.yanGold.opacity(0.18) : (done ? Color.semJi.opacity(0.08) : Color.clear))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(isActive ? Color.yanGold.opacity(0.7) : (done ? Color.green.opacity(0.28) : Color.clear), lineWidth: 1)
+                            .stroke(isActive ? Color.yanGold.opacity(0.7) : (done ? Color.semJi.opacity(0.28) : Color.clear), lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)
@@ -1558,7 +1558,7 @@ public struct WorkflowStepperBar: View {
                 if idx < 3 {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 7, weight: .bold))
-                        .foregroundColor(done ? Color.green.opacity(0.55) : Color.white.opacity(0.22))
+                        .foregroundColor(done ? Color.semJi.opacity(0.55) : Color.white.opacity(0.22))
                 }
             }
         }
@@ -1656,7 +1656,7 @@ public struct IntegratedWorkflowReportSheet: View {
                             Text(isEn ? "Copied to clipboard" : "已复制当前报告内容至剪贴板")
                         }
                         .adaptiveFont(size: 11, weight: .semibold)
-                        .foregroundColor(.green)
+                        .foregroundColor(.semJi)
                     }
 
                     HStack(spacing: 10) {
@@ -1720,12 +1720,12 @@ public struct IntegratedWorkflowReportSheet: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .padding(.horizontal, 6)
-            .background(ok ? Color.green.opacity(0.16) : Color.orange.opacity(0.16))
-            .foregroundColor(ok ? .green : .orange)
+            .background(ok ? Color.semJi.opacity(0.16) : Color.semWarn.opacity(0.16))
+            .foregroundColor(ok ? .semJi : .semWarn)
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(ok ? Color.green.opacity(0.35) : Color.orange.opacity(0.35), lineWidth: 1)
+                    .stroke(ok ? Color.semJi.opacity(0.35) : Color.semWarn.opacity(0.35), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

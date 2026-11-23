@@ -85,15 +85,15 @@ public struct House3DSpaceViewer: View {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .adaptiveFont(size: 12, weight: .bold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.semWarn)
                         Text(lang.t("3d_centroid_warning"))
                             .adaptiveFont(size: 10, weight: .semibold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.semWarn)
                         Spacer()
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
-                    .background(Color.orange.opacity(0.15))
+                    .background(Color.semWarn.opacity(0.15))
                     .cornerRadius(10)
                     .transition(.opacity)
                 }
@@ -194,7 +194,7 @@ public struct House3DSpaceViewer: View {
                     .foregroundColor(showRoomTypePanel ? .black : .white)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 6)
-                    .background(showRoomTypePanel ? Color.orange : Color.white.opacity(0.14))
+                    .background(showRoomTypePanel ? Color.semWarn : Color.white.opacity(0.14))
                     .cornerRadius(9)
                 }
                 .buttonStyle(.plain)
@@ -268,7 +268,7 @@ public struct House3DSpaceViewer: View {
                 Spacer(minLength: 0)
             }
             .adaptiveFont(size: 9.5, weight: .semibold)
-            .foregroundColor(survey.scanMethod.contains("VR") ? .orange : .yanCyan)
+            .foregroundColor(survey.scanMethod.contains("VR") ? .semWarn : .yanCyan)
             .padding(.horizontal, 4)
         }
         .padding(11)
@@ -323,9 +323,9 @@ public struct House3DSpaceViewer: View {
     }
 
     private func scoreColor(_ score: Int) -> Color {
-        if score >= 85 { return .green }
-        if score >= 70 { return .orange }
-        return .red
+        if score >= 85 { return .semJi }
+        if score >= 70 { return .semWarn }
+        return .semXiong
     }
 
     // MARK: - 毛坯房房间类型设定面板（冷启动交互修正）
@@ -621,9 +621,9 @@ public struct House3DSpaceViewer: View {
                 Button(action: { showShaAlerts.toggle() }) {
                     Image(systemName: showShaAlerts ? "exclamationmark.triangle.fill" : "exclamationmark.triangle")
                         .adaptiveFont(size: 12, weight: .bold)
-                        .foregroundColor(showShaAlerts ? .orange : .white.opacity(0.6))
+                        .foregroundColor(showShaAlerts ? .semWarn : .white.opacity(0.6))
                         .padding(8)
-                        .background(showShaAlerts ? Color.orange.opacity(0.18) : Color.white.opacity(0.1))
+                        .background(showShaAlerts ? Color.semWarn.opacity(0.18) : Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }
                 .accessibilityLabel(lang.t("ar_sha_analysis_prefix"))
@@ -653,9 +653,9 @@ public struct House3DSpaceViewer: View {
 
     private func severityColor(_ severity: SpatialShaSeverity) -> Color {
         switch severity {
-        case .auspicious: return .green
-        case .warning: return .orange
-        case .critical: return .red
+        case .auspicious: return .semJi
+        case .warning: return .semWarn
+        case .critical: return .semXiong
         }
     }
 

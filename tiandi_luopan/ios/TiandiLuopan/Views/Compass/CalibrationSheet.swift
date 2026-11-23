@@ -21,7 +21,7 @@ public struct CalibrationSheet: View {
     
     public var body: some View {
         return ZStack {
-            Color(red: 0.08, green: 0.08, blue: 0.11)
+            Color(red: 0.086, green: 0.075, blue: 0.059)
                 .ignoresSafeArea()
             
             ScrollView {
@@ -59,8 +59,8 @@ public struct CalibrationSheet: View {
                                 .adaptiveFont(size: 10.5, weight: .semibold, design: .monospaced)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 3)
-                                .background((motion.isLevel ? Color.green : Color.orange).opacity(0.18))
-                                .foregroundColor(motion.isLevel ? .green : .orange)
+                                .background((motion.isLevel ? Color.semJi : Color.semWarn).opacity(0.18))
+                                .foregroundColor(motion.isLevel ? .semJi : .semWarn)
                                 .cornerRadius(6)
                         }
 
@@ -73,7 +73,7 @@ public struct CalibrationSheet: View {
                         .pickerStyle(.segmented)
                     }
                     .padding(14)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .background(Color.surfaceCard)
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -111,11 +111,11 @@ public struct CalibrationSheet: View {
                             title: lang.t("calib_declination_title"),
                             value: declinationDisplay,
                             isOk: true,
-                            customColor: Color(red: 0.95, green: 0.82, blue: 0.4)
+                            customColor: Color.goldText
                         )
                     }
                     .padding(14)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .background(Color.surfaceCard)
                     .cornerRadius(12)
                     
                     // 3. 双针系统与易学考据说明卡
@@ -124,12 +124,12 @@ public struct CalibrationSheet: View {
                             Text("🧭")
                             Text(lang.t("calib_dual_needle_section"))
                                 .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.goldText)
                         }
                         
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(alignment: .top, spacing: 4) {
-                                Circle().fill(Color.green).frame(width: 6, height: 6).padding(.top, 4)
+                                Circle().fill(Color.semJi).frame(width: 6, height: 6).padding(.top, 4)
                                 Text(lang.t("calib_magnetic_needle_desc"))
                                     .adaptiveFont(size: 12)
                                     .foregroundColor(.white.opacity(0.85))
@@ -137,7 +137,7 @@ public struct CalibrationSheet: View {
                             }
                             
                             HStack(alignment: .top, spacing: 4) {
-                                Circle().fill(Color(red: 0.95, green: 0.82, blue: 0.4)).frame(width: 6, height: 6).padding(.top, 4)
+                                Circle().fill(Color.goldText).frame(width: 6, height: 6).padding(.top, 4)
                                 Text(lang.t("calib_true_needle_desc"))
                                     .adaptiveFont(size: 12)
                                     .foregroundColor(.white.opacity(0.85))
@@ -154,7 +154,7 @@ public struct CalibrationSheet: View {
                         }
                     }
                     .padding(14)
-                    .background(Color(red: 0.11, green: 0.11, blue: 0.14))
+                    .background(Color.surfaceElevated)
                     .cornerRadius(12)
                     
                     // 4. “8”字形翻转校准引导卡
@@ -177,7 +177,7 @@ public struct CalibrationSheet: View {
                         }
                     }
                     .padding(14)
-                    .background(Color(red: 0.13, green: 0.12, blue: 0.11))
+                    .background(Color.surfaceCard)
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -205,7 +205,7 @@ public struct CalibrationSheet: View {
                             .padding(.vertical, 12)
                             .background(
                                 LinearGradient(
-                                    colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                    colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -273,8 +273,8 @@ public struct CalibrationSheet: View {
                 .minimumScaleFactor(0.7)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background((customColor ?? (isOk ? Color.green : Color.red)).opacity(0.15))
-                .foregroundColor(customColor ?? (isOk ? Color.green : Color.red))
+                .background((customColor ?? (isOk ? Color.semJi : Color.semXiong)).opacity(0.15))
+                .foregroundColor(customColor ?? (isOk ? Color.semJi : Color.semXiong))
                 .cornerRadius(4)
         }
     }

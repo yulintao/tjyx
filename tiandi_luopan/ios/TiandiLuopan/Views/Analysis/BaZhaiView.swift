@@ -94,7 +94,7 @@ public struct BaZhaiView: View {
         if isEmbedded { content }
         else {
             ScrollView { content }
-                .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+                .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
         }
     }
 
@@ -162,15 +162,15 @@ public struct BaZhaiView: View {
                                 .adaptiveFont(size: 10, weight: .bold)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 3)
-                                .background(Color.green.opacity(0.18))
-                                .foregroundColor(.green)
+                                .background(Color.semJi.opacity(0.18))
+                                .foregroundColor(.semJi)
                                 .cornerRadius(6)
                             Text((isEn ? "Review" : "需留意") + " \(reviewCount)")
                                 .adaptiveFont(size: 10, weight: .bold)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 3)
-                                .background(Color.orange.opacity(0.18))
-                                .foregroundColor(.orange)
+                                .background(Color.semWarn.opacity(0.18))
+                                .foregroundColor(.semWarn)
                                 .cornerRadius(6)
                         }
                     }
@@ -181,7 +181,7 @@ public struct BaZhaiView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                .background(Color.surfaceElevated)
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
@@ -242,9 +242,9 @@ public struct BaZhaiView: View {
                     } label: {
                         Text(lang.t("bz_action_list"))
                             .adaptiveFont(size: 13, weight: .semibold)
-                            .foregroundColor(.green)
+                            .foregroundColor(.semJi)
                     }
-                    .accentColor(.green)
+                    .accentColor(.semJi)
                 }
             }
             .padding(.horizontal, 16)
@@ -255,8 +255,8 @@ public struct BaZhaiView: View {
         switch use {
         case .activity: return .yanGold
         case .rest: return .yanCyan
-        case .study: return .green
-        case .review: return .orange
+        case .study: return .semJi
+        case .review: return .semWarn
         }
     }
 
@@ -338,7 +338,7 @@ public struct BaZhaiView: View {
                 .foregroundColor(.white)
             Label(lang.t("bz_do_now"), systemImage: "checkmark.circle.fill")
                 .adaptiveFont(size: 12, weight: .bold)
-                .foregroundColor(.green)
+                .foregroundColor(.semJi)
             Text(lang.t(use.actionKey))
                 .adaptiveFont(size: 13)
                 .foregroundColor(.white.opacity(0.9))
@@ -352,7 +352,7 @@ public struct BaZhaiView: View {
             }) {
                 Label(lang.t(saved ? "bz_task_saved" : "bz_task_add"), systemImage: saved ? "checkmark.circle.fill" : "plus.circle")
                     .adaptiveFont(size: 12, weight: .semibold)
-                    .foregroundColor(saved ? .green : Color.yanCyan)
+                    .foregroundColor(saved ? .semJi : Color.yanCyan)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(8)
@@ -412,8 +412,8 @@ public struct BaZhaiView: View {
                             .adaptiveFont(size: 11, weight: .bold)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(hq.isJiuPin ? Color.green.opacity(0.2) : (hq.isDanger ? Color.red.opacity(0.2) : Color.blue.opacity(0.2)))
-                            .foregroundColor(hq.isJiuPin ? Color.green : (hq.isDanger ? Color.red : Color.yanCyan))
+                            .background(hq.isJiuPin ? Color.semJi.opacity(0.2) : (hq.isDanger ? Color.semXiong.opacity(0.2) : Color.blue.opacity(0.2)))
+                            .foregroundColor(hq.isJiuPin ? Color.semJi : (hq.isDanger ? Color.semXiong : Color.yanCyan))
                             .cornerRadius(4)
                     }
                     
@@ -429,7 +429,7 @@ public struct BaZhaiView: View {
                         .foregroundColor(Color.goldDeep)
                 }
                 .padding(12)
-                .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                .background(Color.surfaceCard)
                 .cornerRadius(12)
                 .padding(.horizontal, 16)
                 
@@ -438,7 +438,7 @@ public struct BaZhaiView: View {
                     HStack {
                         HStack(spacing: 5) {
                             Image(systemName: "triangle.fill")
-                                .foregroundColor(Color.orange)
+                                .foregroundColor(Color.semWarn)
                             Text(lang.t("sitting_mountain_clash"))
                                 .adaptiveFont(size: 14, weight: .bold)
                                 .foregroundColor(.white)
@@ -448,8 +448,8 @@ public struct BaZhaiView: View {
                             .adaptiveFont(size: 11, weight: .bold)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.orange.opacity(0.2))
-                            .foregroundColor(Color.orange)
+                            .background(Color.semWarn.opacity(0.2))
+                            .foregroundColor(Color.semWarn)
                             .cornerRadius(4)
                     }
                     
@@ -483,7 +483,7 @@ public struct BaZhaiView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("\(lang.t("water_rule_12")): \(state.sittingMountain.localizedName)\(lang.t("mountain_suffix"))")
                             .adaptiveFont(size: 14, weight: .bold)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Text(lang.t("water_rule_desc"))
                             .adaptiveFont(size: 11)
                             .foregroundColor(.white.opacity(0.7))
@@ -491,7 +491,7 @@ public struct BaZhaiView: View {
                     Spacer()
                 }
                 .padding(10)
-                .background(Color(red: 0.11, green: 0.11, blue: 0.14))
+                .background(Color.surfaceElevated)
                 .cornerRadius(8)
                 .padding(.horizontal, 16)
                 
@@ -512,7 +512,7 @@ public struct BaZhaiView: View {
                             
                             Text("【\(item.phase.localizedName)】")
                                 .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(item.phase == .changSheng || item.phase == .diWang ? Color.green : (item.phase == .mu || item.phase == .jue ? Color.orange : Color.white.opacity(0.8)))
+                                .foregroundColor(item.phase == .changSheng || item.phase == .diWang ? Color.semJi : (item.phase == .mu || item.phase == .jue ? Color.semWarn : Color.white.opacity(0.8)))
                                 .frame(minWidth: (horizontalSizeClass == .regular ? 110 : 80)
                                        * AdaptiveFontMetrics.dynamicTypeScale(for: dynamicTypeSize),
                                        alignment: .leading)
@@ -530,13 +530,13 @@ public struct BaZhaiView: View {
                                     .adaptiveFont(size: 9, weight: .bold)
                                     .padding(.horizontal, 4)
                                     .padding(.vertical, 2)
-                                    .background(Color.red.opacity(0.3))
-                                    .foregroundColor(.red)
+                                    .background(Color.semXiong.opacity(0.3))
+                                    .foregroundColor(.semXiong)
                                     .cornerRadius(3)
                             }
                         }
                         .padding(10)
-                        .background(Color(red: 0.11, green: 0.11, blue: 0.14))
+                        .background(Color.surfaceElevated)
                         .cornerRadius(8)
                     }
                 }
@@ -553,17 +553,17 @@ public struct BaZhaiView: View {
             HStack(spacing: 8) {
                 Image(systemName: "lock.shield.fill")
                     .adaptiveFont(size: 16)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Text(lang.t("privilege_sanhe_title"))
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Spacer()
                 Text(lang.t("vip_badge_title"))
                     .adaptiveFont(size: 10, weight: .bold)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.2))
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .background(Color.goldText.opacity(0.2))
+                    .foregroundColor(Color.goldText)
                     .cornerRadius(4)
             }
 
@@ -641,10 +641,10 @@ public struct BaZhaiView: View {
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "checklist.checked")
-                    .foregroundColor(.green)
+                    .foregroundColor(.semJi)
                 Text(title)
                     .adaptiveFont(size: 12, weight: .bold)
-                    .foregroundColor(.green)
+                    .foregroundColor(.semJi)
                 Spacer()
             }
 
@@ -655,7 +655,7 @@ public struct BaZhaiView: View {
                         retention.toggleRemedyCompletion(id: task.id)
                     }) {
                         Image(systemName: task.isCompleted ? "checkmark.square.fill" : "square")
-                            .foregroundColor(task.isCompleted ? .green : .white.opacity(0.6))
+                            .foregroundColor(task.isCompleted ? .semJi : .white.opacity(0.6))
                             .font(.system(size: 14))
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -669,8 +669,8 @@ public struct BaZhaiView: View {
                                 .adaptiveFont(size: 9, weight: .bold, design: .monospaced)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 1)
-                                .background(Color.green.opacity(0.18))
-                                .foregroundColor(.green)
+                                .background(Color.semJi.opacity(0.18))
+                                .foregroundColor(.semJi)
                                 .cornerRadius(4)
                         }
                         Text(task.remedyAction)
@@ -793,7 +793,7 @@ public struct OwnerLifeGuaView: View {
                     .padding(.vertical, 16)
                 }
             }
-            .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
             .navigationTitle(lang.t("bz_tool_owner"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) {
@@ -903,10 +903,10 @@ public struct OwnerLifeGuaView: View {
         return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "person.text.rectangle.fill")
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Text(titleLabel)
                     .adaptiveFont(size: 13, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Spacer()
 
                 // 点击修改生辰日期与命卦按钮
@@ -917,7 +917,7 @@ public struct OwnerLifeGuaView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
                             .font(.system(size: 9))
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Text("\(yearPrefix) \(String(kua.birthYear))")
                         Image(systemName: "pencil")
                             .font(.system(size: 8, weight: .bold))
@@ -961,12 +961,12 @@ public struct OwnerLifeGuaView: View {
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background((compat.isMatchedWithHouse ? Color.green : Color.orange).opacity(0.2))
-                        .foregroundColor(compat.isMatchedWithHouse ? Color.green : Color.orange)
+                        .background((compat.isMatchedWithHouse ? Color.semJi : Color.semWarn).opacity(0.2))
+                        .foregroundColor(compat.isMatchedWithHouse ? Color.semJi : Color.semWarn)
                         .cornerRadius(4)
                     Image(systemName: "pencil.circle.fill")
                         .font(.system(size: 11))
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.85))
+                        .foregroundColor(Color.goldText.opacity(0.85))
                 }
             }
             .buttonStyle(PlainButtonStyle())
@@ -980,7 +980,7 @@ public struct OwnerLifeGuaView: View {
             HStack(spacing: 8) {
                 Text("💰 \(wealthLabel): \(compat.wealthDirection)")
                     .adaptiveFont(size: 11, weight: .semibold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Spacer()
                 Text("📚 \(studyLabel): \(compat.studyDirection)")
                     .adaptiveFont(size: 11, weight: .semibold)
@@ -993,11 +993,11 @@ public struct OwnerLifeGuaView: View {
             familyMembersSection(maleLabel: maleLabel, femaleLabel: femaleLabel)
         }
         .padding(12)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .background(Color.surfaceCard)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.25), lineWidth: 1)
+                .stroke(Color.goldText.opacity(0.25), lineWidth: 1)
         )
         .padding(.horizontal, 16)
     }
@@ -1136,7 +1136,7 @@ public struct OwnerLifeGuaView: View {
                                     .foregroundColor(.white)
                                 Text("【\(member.localizedGuaBadge)】")
                                     .adaptiveFont(size: 10, weight: .bold)
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.goldText)
                                 Spacer()
                                 Menu {
                                     ForEach((1900...UserKuaProfileManager.gregorianCalendar().component(.year, from: Date())).reversed(), id: \.self) { yr in
@@ -1267,7 +1267,7 @@ public struct CelestialDateSelectionView: View {
                                     Text(id)
                                     Spacer()
                                     Button(lang.t("cancel")) { retention.removeLegacyAuspiciousReminder(id: id) }
-                                        .foregroundColor(.orange)
+                                        .foregroundColor(.semWarn)
                                         .frame(minHeight: 44)
                                 }
                             }
@@ -1279,7 +1279,7 @@ public struct CelestialDateSelectionView: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
             .navigationTitle(lang.t("bz_tool_dates"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) {
@@ -1322,7 +1322,7 @@ public struct CelestialDateSelectionView: View {
             HStack {
                 HStack(spacing: 5) {
                     Image(systemName: "calendar.badge.clock")
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Text(lang.t("zeri_title"))
                         .adaptiveFont(size: 14, weight: .bold)
                         .foregroundColor(.white)
@@ -1332,8 +1332,8 @@ public struct CelestialDateSelectionView: View {
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(zeri.isAuspicious ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                    .foregroundColor(zeri.isAuspicious ? Color.green : Color.red)
+                    .background(zeri.isAuspicious ? Color.semJi.opacity(0.2) : Color.semXiong.opacity(0.2))
+                    .foregroundColor(zeri.isAuspicious ? Color.semJi : Color.semXiong)
                     .cornerRadius(4)
             }
 
@@ -1355,8 +1355,8 @@ public struct CelestialDateSelectionView: View {
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
-                        .background(Color.green.opacity(0.2))
-                        .foregroundColor(.green)
+                        .background(Color.semJi.opacity(0.2))
+                        .foregroundColor(.semJi)
                         .cornerRadius(3)
                     Text(zeri.yiActivities.joined(separator: " · "))
                         .adaptiveFont(size: 11)
@@ -1371,8 +1371,8 @@ public struct CelestialDateSelectionView: View {
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
-                        .background(Color.red.opacity(0.2))
-                        .foregroundColor(.red)
+                        .background(Color.semXiong.opacity(0.2))
+                        .foregroundColor(.semXiong)
                         .cornerRadius(3)
                     Text(zeri.jiActivities.joined(separator: " · "))
                         .adaptiveFont(size: 11)
@@ -1392,7 +1392,7 @@ public struct CelestialDateSelectionView: View {
             upcomingAuspiciousDaysSection(state: context)
         }
         .padding(12)
-        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+        .background(Color.surfaceCard)
         .cornerRadius(12)
         .padding(.horizontal, 16)
     }
@@ -1486,8 +1486,8 @@ public struct CelestialDateSelectionView: View {
                 }
                 .padding(.horizontal, 7)
                 .padding(.vertical, 4)
-                .background(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.2))
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .background(Color.goldText.opacity(0.2))
+                .foregroundColor(Color.goldText)
                 .cornerRadius(5)
             }
             }
@@ -1616,13 +1616,13 @@ public struct CelestialDateSelectionView: View {
                                         .adaptiveFont(size: 9, weight: .bold)
                                         .padding(.horizontal, 3.5)
                                         .padding(.vertical, 1)
-                                        .background((item.isAuspicious ? Color.green : Color.red).opacity(0.22))
-                                        .foregroundColor(item.isAuspicious ? Color.green : Color.red)
+                                        .background((item.isAuspicious ? Color.semJi : Color.semXiong).opacity(0.22))
+                                        .foregroundColor(item.isAuspicious ? Color.semJi : Color.semXiong)
                                         .cornerRadius(3)
                                 }
                                 Text(item.localizedGodName)
                                     .adaptiveFont(size: 9, weight: .medium)
-                                    .foregroundColor(item.isAuspicious ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white.opacity(0.6))
+                                    .foregroundColor(item.isAuspicious ? Color.goldText : .white.opacity(0.6))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                 Text(item.timeRange)
@@ -1635,13 +1635,13 @@ public struct CelestialDateSelectionView: View {
                             .background(
                                 isSelectedHour
                                     ? Color.yanCyan.opacity(0.18)
-                                    : (item.isAuspicious ? Color.green.opacity(0.06) : Color.white.opacity(0.04))
+                                    : (item.isAuspicious ? Color.semJi.opacity(0.06) : Color.white.opacity(0.04))
                             )
                             .cornerRadius(6)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
                                     .stroke(
-                                        isSelectedHour ? Color.yanCyan : (item.isAuspicious ? Color.green.opacity(0.25) : Color.clear),
+                                        isSelectedHour ? Color.yanCyan : (item.isAuspicious ? Color.semJi.opacity(0.25) : Color.clear),
                                         lineWidth: isSelectedHour ? 1.2 : 0.8
                                     )
                             )
@@ -1699,10 +1699,10 @@ public struct CelestialDateSelectionView: View {
             }) {
                 HStack {
                     Image(systemName: "sparkles")
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Text(toggleTitle)
                         .adaptiveFont(size: 11, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                     Spacer()
@@ -1727,7 +1727,7 @@ public struct CelestialDateSelectionView: View {
                                     .padding(.vertical, 4)
                                     .background(
                                         isSelected
-                                            ? Color(red: 0.95, green: 0.85, blue: 0.45)
+                                            ? Color.goldText
                                             : Color.white.opacity(0.08)
                                     )
                                     .foregroundColor(isSelected ? .black : .white.opacity(0.85))
@@ -1758,10 +1758,10 @@ public struct CelestialDateSelectionView: View {
                                 HStack(spacing: 6) {
                                     Text(day.dateLabel)
                                         .adaptiveFont(size: 12, weight: .bold, design: .monospaced)
-                                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                        .foregroundColor(Color.goldText)
                                     Text("【\(day.localizedDayPillar)】")
                                         .adaptiveFont(size: 12, weight: .bold)
-                                        .foregroundColor(.green)
+                                        .foregroundColor(.semJi)
                                     Text(day.dayOfficerBadge)
                                         .adaptiveFont(size: 10, weight: .bold)
                                         .padding(.horizontal, 4)
@@ -1791,8 +1791,8 @@ public struct CelestialDateSelectionView: View {
                                 }
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 3.5)
-                                .background(isScheduled ? Color.green.opacity(0.22) : Color.white.opacity(0.1))
-                                .foregroundColor(isScheduled ? Color.green : .white.opacity(0.85))
+                                .background(isScheduled ? Color.semJi.opacity(0.22) : Color.white.opacity(0.1))
+                                .foregroundColor(isScheduled ? Color.semJi : .white.opacity(0.85))
                                 .cornerRadius(5)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -2027,7 +2027,7 @@ public struct AddFamilyMemberDialog: View {
 
     public var body: some View {
         ZStack {
-            Color(red: 0.11, green: 0.11, blue: 0.15)
+            Color.surfaceElevated
                 .ignoresSafeArea()
 
             ScrollView {
@@ -2058,7 +2058,7 @@ public struct AddFamilyMemberDialog: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(roleSectionTitle)
                             .adaptiveFont(size: 11, weight: .bold)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
 
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 6)], spacing: 6) {
                             ForEach(FamilyRole.allCases) { role in
@@ -2151,14 +2151,14 @@ public struct AddFamilyMemberDialog: View {
                         VStack(spacing: 6) {
                             HStack {
                                 Image(systemName: "calendar")
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.goldText)
                                 Text(datePickerHint)
                                     .adaptiveFont(size: 12, weight: .semibold)
                                     .foregroundColor(.white.opacity(0.85))
                                 Spacer()
                                 Text(selectedDateFormatted)
                                     .adaptiveFont(size: 13, weight: .bold)
-                                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                    .foregroundColor(Color.goldText)
                             }
                             .padding(.horizontal, 4)
 
@@ -2182,10 +2182,10 @@ public struct AddFamilyMemberDialog: View {
                             HStack(spacing: 6) {
                                 Image(systemName: isDateBeforeLiChun ? "info.circle.fill" : "sparkles")
                                     .font(.system(size: 11))
-                                    .foregroundColor(isDateBeforeLiChun ? .orange : Color.yanCyan)
+                                    .foregroundColor(isDateBeforeLiChun ? .semWarn : Color.yanCyan)
                                 Text(liChunExplanationText)
                                     .adaptiveFont(size: 10.5)
-                                    .foregroundColor(isDateBeforeLiChun ? .orange : .white.opacity(0.8))
+                                    .foregroundColor(isDateBeforeLiChun ? .semWarn : .white.opacity(0.8))
                                     .lineLimit(2)
                                     .fixedSize(horizontal: false, vertical: true)
                                 Spacer()
@@ -2244,7 +2244,7 @@ public struct AddFamilyMemberDialog: View {
                                     HStack(spacing: 3) {
                                         Text("\(String(selectedYear))年")
                                             .adaptiveFont(size: 13, weight: .bold)
-                                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                            .foregroundColor(Color.goldText)
                                         Image(systemName: "chevron.down")
                                             .font(.system(size: 9, weight: .bold))
                                             .foregroundColor(.white.opacity(0.6))
@@ -2297,7 +2297,7 @@ public struct AddFamilyMemberDialog: View {
                         HStack {
                             Text("【\(previewGuaBadge)】")
                                 .adaptiveFont(size: 11, weight: .bold)
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.goldText)
                             Spacer()
                         }
                         Text(previewDirectionsSummary)
@@ -2640,7 +2640,7 @@ public struct EditOwnerKuaDialog: View {
 
     public var body: some View {
         ZStack {
-            Color(red: 0.11, green: 0.11, blue: 0.15)
+            Color.surfaceElevated
                 .ignoresSafeArea()
 
             ScrollView {
@@ -2649,7 +2649,7 @@ public struct EditOwnerKuaDialog: View {
                     HStack(spacing: 8) {
                         Image(systemName: "person.crop.circle.badge.checkmark")
                             .font(.system(size: 16))
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Text(dialogTitle)
                             .adaptiveFont(size: 15, weight: .bold)
                             .foregroundColor(.white)
@@ -2675,14 +2675,14 @@ public struct EditOwnerKuaDialog: View {
                     VStack(spacing: 6) {
                         HStack {
                             Image(systemName: "calendar")
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.goldText)
                             Text(datePickerHint)
                                 .adaptiveFont(size: 12, weight: .semibold)
                                 .foregroundColor(.white.opacity(0.85))
                             Spacer()
                             Text(selectedDateFormatted)
                                 .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.goldText)
                         }
                         .padding(.horizontal, 4)
 
@@ -2706,10 +2706,10 @@ public struct EditOwnerKuaDialog: View {
                         HStack(spacing: 6) {
                             Image(systemName: isDateBeforeLiChun ? "info.circle.fill" : "sparkles")
                                 .font(.system(size: 11))
-                                .foregroundColor(isDateBeforeLiChun ? .orange : Color.yanCyan)
+                                .foregroundColor(isDateBeforeLiChun ? .semWarn : Color.yanCyan)
                             Text(liChunExplanationText)
                                 .adaptiveFont(size: 10.5)
-                                .foregroundColor(isDateBeforeLiChun ? .orange : .white.opacity(0.8))
+                                .foregroundColor(isDateBeforeLiChun ? .semWarn : .white.opacity(0.8))
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
                             Spacer()
@@ -2763,7 +2763,7 @@ public struct EditOwnerKuaDialog: View {
                                 HStack(spacing: 4) {
                                     Text("\(String(selectedYear))年")
                                         .adaptiveFont(size: 14, weight: .bold)
-                                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                        .foregroundColor(Color.goldText)
                                     Image(systemName: "chevron.up.chevron.down")
                                         .font(.system(size: 10))
                                         .foregroundColor(.secondary)
@@ -2853,14 +2853,14 @@ public struct EditOwnerKuaDialog: View {
                     HStack {
                         Text("【\(calculatedGuaKey)卦 · \(isEastLife ? eastLifeText : westLifeText) · \(ganzhiAndZodiac)】")
                             .adaptiveFont(size: 12, weight: .bold)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Spacer()
                         Text(isMatched ? matchedBadgeText : unmatchedBadgeText)
                             .adaptiveFont(size: 10, weight: .bold)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background((isMatched ? Color.green : Color.orange).opacity(0.25))
-                            .foregroundColor(isMatched ? .green : .orange)
+                            .background((isMatched ? Color.semJi : Color.semWarn).opacity(0.25))
+                            .foregroundColor(isMatched ? .semJi : .semWarn)
                             .cornerRadius(4)
                     }
 
@@ -2877,7 +2877,7 @@ public struct EditOwnerKuaDialog: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(auspiciousHeader)
                                 .adaptiveFont(size: 9.5, weight: .semibold)
-                                .foregroundColor(.green.opacity(0.9))
+                                .foregroundColor(.semJi.opacity(0.9))
                             Text(auspiciousSummary)
                                 .adaptiveFont(size: 10)
                                 .foregroundColor(.white.opacity(0.85))
@@ -2886,7 +2886,7 @@ public struct EditOwnerKuaDialog: View {
                         VStack(alignment: .trailing, spacing: 2) {
                             Text(inauspiciousHeader)
                                 .adaptiveFont(size: 9.5, weight: .semibold)
-                                .foregroundColor(.red.opacity(0.9))
+                                .foregroundColor(.semXiong.opacity(0.9))
                             Text(inauspiciousSummary)
                                 .adaptiveFont(size: 10)
                                 .foregroundColor(.white.opacity(0.85))
@@ -2894,7 +2894,7 @@ public struct EditOwnerKuaDialog: View {
                     }
                 }
                 .padding(10)
-                .background(Color(red: 0.12, green: 0.13, blue: 0.18))
+                .background(Color.surfaceElevated)
                 .cornerRadius(8)
 
                 // 6. 底部操作按钮
@@ -2925,7 +2925,7 @@ public struct EditOwnerKuaDialog: View {
                             .padding(.vertical, 10)
                             .background(
                                 LinearGradient(
-                                    colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                    colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )

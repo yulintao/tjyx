@@ -38,7 +38,7 @@ public struct CompassMainView: View {
     public var body: some View {
         ZStack {
             // 背景渐变
-            Color(red: 0.07, green: 0.07, blue: 0.09)
+            Color(red: 0.086, green: 0.075, blue: 0.059)
                 .ignoresSafeArea()
             
             if isActive {
@@ -74,7 +74,7 @@ public struct CompassMainView: View {
                             }) {
                                 HStack(spacing: 5) {
                                     Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(Color.orange)
+                                        .foregroundColor(Color.semWarn)
                                     Text("\(lang.t("mag_warning_tap")) (\(String(format: "%.0f", motion.magneticStrengthUT)) μT) · \(lang.t("tap_to_calib"))")
                                         .adaptiveFont(size: 11, weight: .bold)
                                         .foregroundColor(.white)
@@ -88,7 +88,7 @@ public struct CompassMainView: View {
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(Color.orange.opacity(0.25))
+                                .background(Color.semWarn.opacity(0.25))
                                 .cornerRadius(6)
                                 .padding(.horizontal, 16)
                             }
@@ -115,7 +115,7 @@ public struct CompassMainView: View {
                                     sampleMagneticUT.removeAll()
                                 }
                                 .adaptiveFont(size: 10, weight: .bold)
-                                .foregroundColor(.orange)
+                                .foregroundColor(.semWarn)
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
@@ -125,10 +125,10 @@ public struct CompassMainView: View {
                         } else if showBearingAppliedToast {
                             HStack(spacing: 6) {
                                 Image(systemName: "checkmark.seal.fill")
-                                    .foregroundColor(.green)
+                                    .foregroundColor(.semJi)
                                 Text(precisionToastText)
                                     .adaptiveFont(size: 10.5, weight: .semibold)
-                                    .foregroundColor(.green)
+                                    .foregroundColor(.semJi)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                 Spacer()
@@ -140,7 +140,7 @@ public struct CompassMainView: View {
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
-                            .background(Color.green.opacity(0.14))
+                            .background(Color.semJi.opacity(0.14))
                             .cornerRadius(7)
                             .padding(.horizontal, 16)
                         }
@@ -336,7 +336,7 @@ public struct CompassMainView: View {
                 .padding(.horizontal, 8)
                 .background(
                     LinearGradient(
-                        colors: [Color(red: 0.98, green: 0.85, blue: 0.42), Color(red: 0.85, green: 0.68, blue: 0.22)],
+                        colors: [Color.goldText, Color.goldDeep],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -360,7 +360,7 @@ public struct CompassMainView: View {
         // 统一空亡语义色（与黑金主题一致，替代高饱和系统色）
         case .pure: kwColor = Color.semJi
         case .jianXiang: kwColor = Color.semWarn
-        case .smallVoid: kwColor = Color.orange
+        case .smallVoid: kwColor = Color.semWarn
         case .largeVoid: kwColor = Color.semXiong
         }
         
@@ -418,7 +418,7 @@ public struct CompassMainView: View {
                     .padding(.horizontal, DS.padM)
                     .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.08))
-                    .foregroundColor(motion.isDistorted ? Color.orange : Color(red: 0.95, green: 0.82, blue: 0.4))
+                    .foregroundColor(motion.isDistorted ? Color.semWarn : Color.goldText)
                     .cornerRadius(8)
                 }
                 .buttonStyle(.plain)
@@ -587,12 +587,12 @@ public struct CompassMainView: View {
             Spacer(minLength: 4)
             Button(action: { showCalibSheet = true }) {
                 Label(String(format: "%.0f μT", motion.magneticStrengthUT), systemImage: "waveform.path.ecg")
-                    .foregroundColor(motion.isDistorted ? .orange : .green)
+                    .foregroundColor(motion.isDistorted ? .semWarn : .semJi)
             }
             .buttonStyle(.plain)
             Spacer(minLength: 4)
             Label(levelText, systemImage: motion.isLevel ? "checkmark.circle.fill" : "level")
-                .foregroundColor(motion.isLevel ? .green : .orange)
+                .foregroundColor(motion.isLevel ? .semJi : .semWarn)
         }
         .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
         .lineLimit(1)
@@ -603,7 +603,7 @@ public struct CompassMainView: View {
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(motion.isDistorted ? Color.orange.opacity(0.45) : Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(motion.isDistorted ? Color.semWarn.opacity(0.45) : Color.white.opacity(0.08), lineWidth: 1)
         )
     }
     
@@ -625,7 +625,7 @@ public struct CompassMainView: View {
         let kwRemedyKey: String
         switch kwLevel {
         case .pure:
-            kwColor = Color.green
+            kwColor = Color.semJi
             kwGradeKey = "kw_pure_grade"
             kwDescKey = "kw_pure_desc"
             kwRemedyKey = "kw_pure_remedy"
@@ -635,12 +635,12 @@ public struct CompassMainView: View {
             kwDescKey = "kw_sub_desc"
             kwRemedyKey = "kw_sub_remedy"
         case .smallVoid:
-            kwColor = Color.orange
+            kwColor = Color.semWarn
             kwGradeKey = "kw_small_grade"
             kwDescKey = "kw_small_desc"
             kwRemedyKey = "kw_small_remedy"
         case .largeVoid:
-            kwColor = Color.red
+            kwColor = Color.semXiong
             kwGradeKey = "kw_large_grade"
             kwDescKey = "kw_large_desc"
             kwRemedyKey = "kw_large_remedy"
@@ -659,7 +659,7 @@ public struct CompassMainView: View {
                     HStack(spacing: 8) {
                         Text(String(format: "%.1f°", heading.facingAngle))
                             .adaptiveFont(size: 24, weight: .bold, design: .monospaced)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
                         Text(fenjin.localizedMountainName)
@@ -694,7 +694,7 @@ public struct CompassMainView: View {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(fenjin.localizedJiaziName)
                             .adaptiveFont(size: 13, weight: .bold, design: .serif)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                         Spacer(minLength: 4)
@@ -704,8 +704,8 @@ public struct CompassMainView: View {
                             .minimumScaleFactor(0.8)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
-                            .background(fenjin.isAuspicious ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                            .foregroundColor(fenjin.isAuspicious ? Color.green : Color.red)
+                            .background(fenjin.isAuspicious ? Color.semJi.opacity(0.2) : Color.semXiong.opacity(0.2))
+                            .foregroundColor(fenjin.isAuspicious ? Color.semJi : Color.semXiong)
                             .cornerRadius(4)
                     }
                 }
@@ -716,7 +716,7 @@ public struct CompassMainView: View {
                     .minimumScaleFactor(0.7)
                 Text(lang.t("fenjin_lore_section"))
                     .adaptiveFont(size: 11, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                 Text(fenjin.localizedLore)
                     .adaptiveFont(size: 11)
                     .foregroundColor(.white.opacity(0.85))
@@ -739,7 +739,7 @@ public struct CompassMainView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(hex.localizedName)
                         .adaptiveFont(size: 18, weight: .bold, design: .serif)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text("\(hex.localizedUpperTrigram) · \(hex.localizedLowerTrigram)")
@@ -755,8 +755,8 @@ public struct CompassMainView: View {
                             .minimumScaleFactor(0.8)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
-                            .background(hex.isGreatAuspicious ? Color.green.opacity(0.2) : Color.white.opacity(0.08))
-                            .foregroundColor(hex.isGreatAuspicious ? Color.green : .white.opacity(0.85))
+                            .background(hex.isGreatAuspicious ? Color.semJi.opacity(0.2) : Color.white.opacity(0.08))
+                            .foregroundColor(hex.isGreatAuspicious ? Color.semJi : .white.opacity(0.85))
                             .cornerRadius(4)
                     }
                 }
@@ -828,7 +828,7 @@ public struct CompassMainView: View {
                                             tint: Color.goldDeep) { showPalaceSheet = true }
                     analysisPanelToolButton(title: lang.effectiveLanguage == .en ? "Sync & Compute" : "同步至计算模块",
                                             systemImage: "arrow.triangle.branch",
-                                            tint: Color.green) {
+                                            tint: Color.semJi) {
                         if !motion.isLocked { motion.toggleLock() }
                         applyCurrentBearingToWorkflow()
                         AppNavigationRouter.shared.requestRoute(tab: 3)
@@ -841,7 +841,7 @@ public struct CompassMainView: View {
     /// 研判工作台卡片底：深色圆角 + 淡金描边（与全工程卡片口径一致）
     private func analysisPanelBackground() -> some View {
         RoundedRectangle(cornerRadius: 12)
-            .fill(Color(red: 0.12, green: 0.12, blue: 0.15))
+            .fill(Color.surfaceCard)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.goldDeep.opacity(0.2), lineWidth: 1)
@@ -884,13 +884,13 @@ public struct CompassMainView: View {
                     HStack(spacing: 6) {
                         Text(hex.localizedName)
                             .adaptiveFont(size: 15, weight: .bold, design: .serif)
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                            .foregroundColor(Color.goldText)
                         Text(fenjin.localizedJiaziName)
                             .adaptiveFont(size: 11, weight: .bold)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
-                            .background(fenjin.isAuspicious ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                            .foregroundColor(fenjin.isAuspicious ? Color.green : Color.red)
+                            .background(fenjin.isAuspicious ? Color.semJi.opacity(0.2) : Color.semXiong.opacity(0.2))
+                            .foregroundColor(fenjin.isAuspicious ? Color.semJi : Color.semXiong)
                             .cornerRadius(4)
                         Text(fenjin.localizedGrade)
                             .adaptiveFont(size: 10)
@@ -920,7 +920,7 @@ public struct CompassMainView: View {
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(red: 0.12, green: 0.12, blue: 0.15))
+                    .fill(Color.surfaceCard)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.goldDeep.opacity(0.2), lineWidth: 1)

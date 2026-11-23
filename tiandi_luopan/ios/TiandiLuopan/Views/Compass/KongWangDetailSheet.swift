@@ -27,13 +27,13 @@ public struct KongWangDetailSheet: View {
         case .largeVoid:
             kwStatusText = lang.t("kw_large_title")
             kwGradeText = lang.t("kw_large_grade")
-            kwColor = .red
+            kwColor = .semXiong
             kwDesc = lang.t("kw_large_desc")
             kwRemedyText = lang.t("kw_large_remedy")
         case .smallVoid:
             kwStatusText = lang.t("kw_small_title")
             kwGradeText = lang.t("kw_small_grade")
-            kwColor = .orange
+            kwColor = .semWarn
             kwDesc = lang.t("kw_small_desc")
             kwRemedyText = lang.t("kw_small_remedy")
         case .jianXiang:
@@ -45,7 +45,7 @@ public struct KongWangDetailSheet: View {
         case .pure:
             kwStatusText = lang.t("kw_pure_title")
             kwGradeText = lang.t("kw_pure_grade")
-            kwColor = .green
+            kwColor = .semJi
             kwDesc = lang.t("kw_pure_desc")
             kwRemedyText = lang.t("kw_pure_remedy")
         }
@@ -126,7 +126,7 @@ public struct KongWangDetailSheet: View {
                         }
                     }
                     .padding(14)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .background(Color.surfaceCard)
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -145,7 +145,7 @@ public struct KongWangDetailSheet: View {
                     }
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                    .background(Color.surfaceElevated)
                     .cornerRadius(12)
                     
                     // 地师调理
@@ -169,7 +169,7 @@ public struct KongWangDetailSheet: View {
                 }
                 .padding(16)
             }
-            .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
             .navigationBarTitle(lang.t("kw_sheet_title"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()

@@ -104,13 +104,13 @@ public struct CompassHeaderView: View {
             Text(String(format: "%.1f", state.facingAngle))
                 .adaptiveFont(size: 34, weight: .black, design: .rounded)
                 .monospacedDigit()
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .foregroundColor(Color.goldText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
                 .fixedSize(horizontal: true, vertical: false)
             Text("°")
                 .adaptiveFont(size: 17, weight: .bold)
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45).opacity(0.8))
+                .foregroundColor(Color.goldText.opacity(0.8))
         }
     }
 
@@ -167,14 +167,14 @@ public struct CompassHeaderView: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(Color.goldDeep.opacity(0.25))
-            .foregroundColor(Color(red: 0.95, green: 0.82, blue: 0.4))
+            .foregroundColor(Color.goldText)
             .cornerRadius(4)
     }
 
     private func fenjinDescLine(state: CompassHeadingState) -> some View {
         Text(state.fenJinDesc)
             .adaptiveFont(size: 12, weight: .medium)
-            .foregroundColor(state.isJianXiang ? Color.orange : Color(red: 0.8, green: 0.8, blue: 0.85))
+            .foregroundColor(state.isJianXiang ? Color.semWarn : Color(red: 0.8, green: 0.8, blue: 0.85))
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }
@@ -183,7 +183,7 @@ public struct CompassHeaderView: View {
         HStack(spacing: 4) {
             Image(systemName: "sun.max.fill")
                 .adaptiveFont(size: 11)
-                .foregroundColor(Color.orange)
+                .foregroundColor(Color.semWarn)
             Text("\(lang.t("true_solar_time_prefix")) \(motion.trueSolarTimeStr)")
                 .adaptiveFont(size: 11, weight: .medium)
                 .foregroundColor(.white.opacity(0.85))
@@ -195,7 +195,7 @@ public struct CompassHeaderView: View {
     private var pitchRollLabel: some View {
         HStack(spacing: 5) {
             Circle()
-                .fill(motion.isLevel ? Color.green : Color.orange)
+                .fill(motion.isLevel ? Color.semJi : Color.semWarn)
                 .frame(width: 6, height: 6)
             Text("\(lang.t("pitch_label")) \(String(format: "%.1f", motion.pitch))° / \(lang.t("roll_label")) \(String(format: "%.1f", motion.roll))°")
                 .adaptiveFont(size: 11, weight: .regular, design: .monospaced)

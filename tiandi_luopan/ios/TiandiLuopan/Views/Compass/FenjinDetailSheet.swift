@@ -14,7 +14,7 @@ public struct FenjinDetailSheet: View {
         let currentHeading = motion.headingState.facingAngle
         let currentFenjin = Fenjin120Data.shared.resolveFenjin(for: currentHeading)
         let isEn = (lang.effectiveLanguage == .en)
-        let accent: Color = currentFenjin.isAuspicious ? .green : .red
+        let accent: Color = currentFenjin.isAuspicious ? .semJi : .semXiong
         let rawSlotOffset = (currentHeading - currentFenjin.startAngle + 360.0).truncatingRemainder(dividingBy: 360.0)
         let slotProgress = min(max(rawSlotOffset / 3.0, 0.0), 1.0)
 
@@ -102,7 +102,7 @@ public struct FenjinDetailSheet: View {
                         .buttonStyle(.plain)
                     }
                     .padding(14)
-                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .background(Color.surfaceCard)
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -142,12 +142,12 @@ public struct FenjinDetailSheet: View {
                     }
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                    .background(Color.surfaceElevated)
                     .cornerRadius(12)
                 }
                 .padding(16)
             }
-            .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
             .navigationBarTitle(lang.t("fenjin_detail_title"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()

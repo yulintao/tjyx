@@ -59,7 +59,7 @@ public struct TianJiShuView: View {
                         Spacer()
                         VStack(spacing: 12) {
                             ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: Color(red: 0.95, green: 0.85, blue: 0.45)))
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color.goldText))
                                 .scaleEffect(1.5)
                             Text(lang.t("tianji_rendering"))
                                 .adaptiveFont(size: 14)
@@ -157,7 +157,7 @@ public struct TianJiShuView: View {
                                     .padding(.vertical, 12)
                                     .background(
                                         LinearGradient(
-                                            colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                            colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
                                             startPoint: .leading,
                                             endPoint: .trailing
                                         )
@@ -223,7 +223,7 @@ public struct TianJiShuView: View {
                     if showSavedToast {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(.green)
+                                .foregroundColor(.semJi)
                             Text(lang.t("save_success"))
                                 .adaptiveFont(size: 12, weight: .bold)
                                 .foregroundColor(.white)
@@ -393,7 +393,7 @@ public struct TianJiShuView: View {
                         .foregroundColor(Color(red: 0.95, green: 0.35, blue: 0.32))
                     Text(barTitle)
                         .adaptiveFont(size: 12, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Spacer()
                     Image(systemName: showCustomSignEditor ? "chevron.up" : "chevron.down")
                         .adaptiveFont(size: 10, weight: .bold)

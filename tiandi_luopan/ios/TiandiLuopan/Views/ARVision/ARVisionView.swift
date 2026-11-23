@@ -717,7 +717,7 @@ public struct ARVisionView: View {
                             .padding(.bottom, 12)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(red: 0.07, green: 0.07, blue: 0.09))
+                    .background(Color(red: 0.086, green: 0.075, blue: 0.059))
                 }
                 // AR 页不经过 FoldableTwoPane，需单独抵消 regular 宽屏字号放大，
                 // 否则窄栏里国际化长标题与徽章会互相穿插。
@@ -1014,7 +1014,7 @@ public struct ARVisionView: View {
         if showSnapshotToast {
             HStack(spacing: 8) {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
+                    .foregroundColor(.semJi)
                 Text(lang.t("save_success"))
                     .adaptiveFont(size: 13, weight: .bold)
                     .foregroundColor(.white)
@@ -1107,12 +1107,12 @@ public struct ARVisionView: View {
                 .frame(width: 140, height: 140)
             
             Circle()
-                .stroke(isHorizontalLevel ? Color.green.opacity(0.85) : Color.orange.opacity(0.85), lineWidth: 1.2)
+                .stroke(isHorizontalLevel ? Color.semJi.opacity(0.85) : Color.semWarn.opacity(0.85), lineWidth: 1.2)
                 .frame(width: 40, height: 40)
 
             // 电子水准珠 (倾斜 ≤ 3° 为绿，超过 3° 变橙提醒端平)
             Circle()
-                .fill(isHorizontalLevel ? Color.green.opacity(0.75) : Color.orange.opacity(0.85))
+                .fill(isHorizontalLevel ? Color.semJi.opacity(0.75) : Color.semWarn.opacity(0.85))
                 .frame(width: 9, height: 9)
                 .offset(x: bubbleOffsetX, y: bubbleOffsetY)
             
@@ -1126,7 +1126,7 @@ public struct ARVisionView: View {
             
             Text("\(String(format: "%.1f", arCameraFacingAngle))° · \(String(format: "%+.1f°", elevDeg))")
                 .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
-                .foregroundColor(isHorizontalLevel ? .yanCyan : .orange)
+                .foregroundColor(isHorizontalLevel ? .yanCyan : .semWarn)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .fixedSize(horizontal: true, vertical: false)
@@ -1135,7 +1135,7 @@ public struct ARVisionView: View {
             if cameraPosition == .back, let dist = fusionModel.distance {
                 Text("\(fusionModel.lidarAvailable ? "LiDAR" : "AR") · \(String(format: "%.2f m", dist))")
                     .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
-                    .foregroundColor(fusionModel.lidarAvailable ? .green : .yanCyan)
+                    .foregroundColor(fusionModel.lidarAvailable ? .semJi : .yanCyan)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color.black.opacity(0.6))
@@ -1194,7 +1194,7 @@ public struct ARVisionView: View {
                     if let d = targetDist {
                         Text("\(fusionModel.lidarAvailable ? "LiDAR" : "AR") · \(String(format: "%.2f m", d))")
                             .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
-                            .foregroundColor(.green)
+                            .foregroundColor(.semJi)
                     }
                 }
                 .padding(.horizontal, 8)
@@ -1238,7 +1238,7 @@ public struct ARVisionView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(lang.t("ar_title"))
                         .adaptiveFont(size: 15, weight: .bold)
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                     Text("\(lang.t("ar_physical_facing")): \(cardinalLabel(for: arCameraFacingAngle)) (\(String(format: "%.1f", arCameraFacingAngle))°)")
                         .adaptiveFont(size: 11)
                         .foregroundColor(.white.opacity(0.8))
@@ -1357,7 +1357,7 @@ public struct ARVisionView: View {
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 6)
-                        .background(Color.green.opacity(0.8))
+                        .background(Color.semJi.opacity(0.8))
                         .foregroundColor(.black)
                         .cornerRadius(14)
                     }
@@ -1459,8 +1459,8 @@ public struct ARVisionView: View {
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 5)
-                        .background(isAutoFollowingDirection ? Color.green.opacity(0.26) : Color.orange.opacity(0.26))
-                        .foregroundColor(isAutoFollowingDirection ? .green : .orange)
+                        .background(isAutoFollowingDirection ? Color.semJi.opacity(0.26) : Color.semWarn.opacity(0.26))
+                        .foregroundColor(isAutoFollowingDirection ? .semJi : .semWarn)
                         .cornerRadius(7)
                     }
                     .buttonStyle(.plain)
@@ -1516,7 +1516,7 @@ public struct ARVisionView: View {
                 if !expanded {
                     if let aiResult = aiResult {
                         HStack(spacing: 6) {
-                            Image(systemName: "checkmark.seal.fill").foregroundColor(.green)
+                            Image(systemName: "checkmark.seal.fill").foregroundColor(.semJi)
                             Text("\(lang.t("ar_ai_result")): \(String(format: "%.0f", aiResult.confidence * 100))% · \(aiResult.detectedRegions)")
                                 .adaptiveFont(size: 10, weight: .medium)
                                 .foregroundColor(.white.opacity(0.88))
@@ -1526,7 +1526,7 @@ public struct ARVisionView: View {
                     } else if let aiError = aiError {
                         Text(aiError)
                             .adaptiveFont(size: 10)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.semWarn)
                             .lineLimit(2)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -1563,7 +1563,7 @@ public struct ARVisionView: View {
                     if let aiResult = aiResult {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(.green)
+                                .foregroundColor(.semJi)
                             Text("\(lang.t("ar_ai_result")): \(String(format: "%.0f", aiResult.confidence * 100))% · \(aiResult.detectedRegions)")
                                 .adaptiveFont(size: 10, weight: .medium)
                                 .foregroundColor(.white.opacity(0.85))
@@ -1573,13 +1573,13 @@ public struct ARVisionView: View {
                         }
                         Text(lang.t("ar_ai_disclaimer"))
                             .adaptiveFont(size: 9)
-                            .foregroundColor(.orange.opacity(0.85))
+                            .foregroundColor(.semWarn.opacity(0.85))
                             .fixedSize(horizontal: false, vertical: true)
                     } else if let aiError = aiError {
                         VStack(alignment: .leading, spacing: 5) {
                             Text(aiError)
                                 .adaptiveFont(size: 10)
-                                .foregroundColor(.orange)
+                                .foregroundColor(.semWarn)
                             if photoPermissionDenied {
                                 Button(lang.t("open_system_settings")) {
                                     guard let url = URL(string: UIApplication.openSettingsURLString),
@@ -1627,8 +1627,8 @@ public struct ARVisionView: View {
                                 .adaptiveFont(size: 10.5, weight: .bold)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(Color.green.opacity(0.2))
-                                .foregroundColor(.green)
+                                .background(Color.semJi.opacity(0.2))
+                                .foregroundColor(.semJi)
                                 .cornerRadius(7)
                         }
                         .buttonStyle(.plain)
@@ -1835,9 +1835,9 @@ public struct ARVisionView: View {
             aiError = lang.t("ar_ai_temporal_ambiguous")
             return
         }
-        let confidence = results.map { $0.confidence }.reduce(0, +) / Double(results.count)
-        let targetX = results.map { $0.targetX }.reduce(0, +) / Double(results.count)
-        let targetY = results.map { $0.targetY }.reduce(0, +) / Double(results.count)
+        let confidence = results.map { $0.confidence }.semXionguce(0, +) / Double(results.count)
+        let targetX = results.map { $0.targetX }.semXionguce(0, +) / Double(results.count)
+        let targetY = results.map { $0.targetY }.semXionguce(0, +) / Double(results.count)
         let candidate = ShaAnalysisResult(
             shaID: first.shaID,
             confidence: confidence,
@@ -2266,7 +2266,7 @@ public struct ShaRemedyDetailSheet: View {
                             HStack(spacing: 4) {
                                 if isSelected {
                                     Circle()
-                                        .fill(Color(red: 0.95, green: 0.8, blue: 0.3))
+                                        .fill(Color.goldText)
                                         .frame(width: 5, height: 5)
                                 }
                                 Text(item.localizedName)
@@ -2276,13 +2276,13 @@ public struct ShaRemedyDetailSheet: View {
                             .padding(.vertical, 7)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(isSelected ? Color(red: 0.85, green: 0.7, blue: 0.2).opacity(0.25) : Color.white.opacity(0.08))
+                                    .fill(isSelected ? Color.goldText.opacity(0.25) : Color.white.opacity(0.08))
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(isSelected ? Color(red: 0.95, green: 0.8, blue: 0.3) : Color.clear, lineWidth: 1)
+                                    .stroke(isSelected ? Color.goldText : Color.clear, lineWidth: 1)
                             )
-                            .foregroundColor(isSelected ? Color(red: 0.95, green: 0.85, blue: 0.45) : .white.opacity(0.8))
+                            .foregroundColor(isSelected ? Color.goldText : .white.opacity(0.8))
                         }
                     }
                 }
@@ -2307,10 +2307,10 @@ public struct ShaRemedyDetailSheet: View {
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 4)
-                    .background(Color.red.opacity(0.2))
+                    .background(Color.semXiong.opacity(0.2))
                     .foregroundColor(Color(red: 1.0, green: 0.4, blue: 0.4))
                     .cornerRadius(8)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.4), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.semXiong.opacity(0.4), lineWidth: 1))
             }
             
             Divider().background(Color.white.opacity(0.12))
@@ -2330,7 +2330,7 @@ public struct ShaRemedyDetailSheet: View {
             VStack(alignment: .leading, spacing: 4) {
                 Label(lang.t("ar_sha_harm_title"), systemImage: "bolt.trianglebranch.fill")
                     .adaptiveFont(size: 12, weight: .semibold)
-                    .foregroundColor(Color.orange)
+                    .foregroundColor(Color.semWarn)
                 Text(currentSha.localizedMetaphysicsHarm)
                     .adaptiveFont(size: 12)
                     .foregroundColor(.white.opacity(0.9))
@@ -2349,7 +2349,7 @@ public struct ShaRemedyDetailSheet: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(red: 0.22, green: 0.17, blue: 0.08).opacity(0.6))
                     .cornerRadius(8)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(red: 0.8, green: 0.65, blue: 0.25).opacity(0.35), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.goldText.opacity(0.35), lineWidth: 1))
             }
         }
         .padding(14)
@@ -2364,14 +2364,14 @@ public struct ShaRemedyDetailSheet: View {
             HStack {
                 Label(lang.t("ar_sha_steps_title"), systemImage: "checkmark.circle.fill")
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(.green)
+                    .foregroundColor(.semJi)
                 Spacer()
                 Text(lang.t("ar_sha_steps_badge"))
                     .adaptiveFont(size: 10, weight: .medium)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color.green.opacity(0.18))
-                    .foregroundColor(.green)
+                    .background(Color.semJi.opacity(0.18))
+                    .foregroundColor(.semJi)
                     .cornerRadius(6)
             }
             
@@ -2387,12 +2387,12 @@ public struct ShaRemedyDetailSheet: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color(red: 0.12, green: 0.15, blue: 0.13))
                 .cornerRadius(10)
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.semJi.opacity(0.3), lineWidth: 1))
         }
         .padding(14)
         .background(Color(red: 0.10, green: 0.13, blue: 0.12))
         .cornerRadius(12)
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.green.opacity(0.25), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.semJi.opacity(0.25), lineWidth: 1))
     }
     
     // MARK: - 4. 进阶调理参考（免费：玄空避忌 + 择日安放）
@@ -2401,14 +2401,14 @@ public struct ShaRemedyDetailSheet: View {
             HStack {
                 Label(lang.t("ar_sha_adv_title"), systemImage: "text.book.closed.fill")
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.0, green: 1.0, blue: 1.0))
+                    .foregroundColor(Color.yanCyan)
                 Spacer()
                 Text(lang.t("ar_sha_free_badge"))
                     .adaptiveFont(size: 10, weight: .medium)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color(red: 0.0, green: 1.0, blue: 1.0).opacity(0.18))
-                    .foregroundColor(Color(red: 0.0, green: 1.0, blue: 1.0))
+                    .background(Color.yanCyan.opacity(0.18))
+                    .foregroundColor(Color.yanCyan)
                     .cornerRadius(6)
             }
             
@@ -2430,7 +2430,7 @@ public struct ShaRemedyDetailSheet: View {
         .padding(14)
         .background(Color(red: 0.10, green: 0.13, blue: 0.16))
         .cornerRadius(12)
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(red: 0.0, green: 1.0, blue: 1.0).opacity(0.3), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.yanCyan.opacity(0.3), lineWidth: 1))
     }
     
     // MARK: - 5. 进阶法物参考（VIP 可选：材质规格与挂法）
@@ -2439,14 +2439,14 @@ public struct ShaRemedyDetailSheet: View {
             HStack {
                 Label(lang.t("ar_sha_talisman_section"), systemImage: "shield.checkered")
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(Color(red: 0.95, green: 0.8, blue: 0.3))
+                    .foregroundColor(Color.goldText)
                 Spacer()
                 Text(lang.t("ar_sha_vip_optional"))
                     .adaptiveFont(size: 10, weight: .medium)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color.yellow.opacity(0.15))
-                    .foregroundColor(Color(red: 0.95, green: 0.8, blue: 0.3))
+                    .foregroundColor(Color.goldText)
                     .cornerRadius(6)
             }
             
@@ -2488,7 +2488,7 @@ public struct ShaRemedyDetailSheet: View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title)
                 .adaptiveFont(size: 12, weight: .bold)
-                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                .foregroundColor(Color.goldText)
             Text(content)
                 .adaptiveFont(size: 11)
                 .foregroundColor(.white.opacity(0.9))
@@ -2504,10 +2504,10 @@ public struct ShaRemedyDetailSheet: View {
         HStack(alignment: .top, spacing: 8) {
             Text(tag)
                 .adaptiveFont(size: 10, weight: .bold)
-                .foregroundColor(.orange)
+                .foregroundColor(.semWarn)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
-                .background(Color.orange.opacity(0.18))
+                .background(Color.semWarn.opacity(0.18))
                 .cornerRadius(4)
             Text(content)
                 .adaptiveFont(size: 11)
@@ -2559,10 +2559,10 @@ private struct ShaPanoramaReportSheet: View {
     private func severityColor(for record: ExteriorShaRecord) -> Color {
         guard let sev = effectiveSeverity(for: record) else { return .gray }
         switch sev {
-        case .critical: return .red
-        case .warning: return .orange
+        case .critical: return .semXiong
+        case .warning: return .semWarn
         case .minor: return .yellow
-        case .notice: return .green
+        case .notice: return .semJi
         }
     }
 
@@ -2591,7 +2591,7 @@ private struct ShaPanoramaReportSheet: View {
                         VStack {
                             Text("\(records.filter { effectiveSeverity(for: $0) == .critical }.count)")
                                 .adaptiveFont(size: 26, weight: .bold)
-                                .foregroundColor(.red)
+                                .foregroundColor(.semXiong)
                             Text(lang.t("ar_panorama_critical"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -2663,7 +2663,7 @@ private struct ShaPanoramaReportSheet: View {
                                                     .font(.caption2.weight(.bold))
                                                     .padding(.horizontal, 6)
                                                     .padding(.vertical, 3)
-                                                    .background(sev == .critical ? Color.red.opacity(0.15) : (sev == .warning ? Color.orange.opacity(0.15) : (sev == .minor ? Color.yellow.opacity(0.15) : Color.green.opacity(0.15))))
+                                                    .background(sev == .critical ? Color.semXiong.opacity(0.15) : (sev == .warning ? Color.semWarn.opacity(0.15) : (sev == .minor ? Color.yellow.opacity(0.15) : Color.semJi.opacity(0.15))))
                                                     .cornerRadius(6)
                                             }
                                             Button(action: {
@@ -2671,7 +2671,7 @@ private struct ShaPanoramaReportSheet: View {
                                             }) {
                                                 Image(systemName: "trash")
                                                     .adaptiveFont(size: 12)
-                                                    .foregroundColor(.red.opacity(0.75))
+                                                    .foregroundColor(.semXiong.opacity(0.75))
                                                     .padding(6)
                                                     .contentShape(Rectangle())
                                             }
@@ -2701,7 +2701,7 @@ private struct ShaPanoramaReportSheet: View {
                                 Text(lang.t("ar_panorama_clear"))
                             }
                             .adaptiveFont(size: 13, weight: .medium)
-                            .foregroundColor(.red)
+                            .foregroundColor(.semXiong)
                         }
                     }
                 }

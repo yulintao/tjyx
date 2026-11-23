@@ -37,7 +37,7 @@ public struct VIPLockCardView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 6) {
                     Image(systemName: "lock.shield.fill")
-                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                        .foregroundColor(Color.goldText)
                         .adaptiveFont(size: 20)
                     Text(badge)
                         .adaptiveFont(size: 10, weight: .bold)
@@ -69,7 +69,7 @@ public struct VIPLockCardView: View {
                     .padding(.vertical, 9)
                     .background(
                         LinearGradient(
-                            colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                            colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -82,7 +82,7 @@ public struct VIPLockCardView: View {
             }
         }
         .padding(14)
-        .background(Color(red: 0.13, green: 0.12, blue: 0.11))
+        .background(Color.surfaceCard)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -185,7 +185,7 @@ struct PurchaseDisclosureView: View {
                     .accessibilityIdentifier("purchase.subscription.billing")
                 } else {
                     Text(iap.isLoadingProducts ? lang.t("price_loading") : lang.t("subscription_details_unavailable"))
-                        .font(.system(size: 13)).foregroundColor(.orange)
+                        .font(.system(size: 13)).foregroundColor(.semWarn)
                 }
                 Text(lang.t("vip_legal_agreement"))
                     .font(.system(size: 12)).foregroundColor(.white.opacity(0.8))
@@ -268,7 +268,7 @@ public struct VIPPaywallSheet: View {
                                   ? (selectedIAPProduct == .floorplanSingle ? "house.fill" : "scroll.fill")
                                   : "crown.fill")
                                 .adaptiveFont(size: 40)
-                                .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                                .foregroundColor(Color.goldText)
                                 .padding(.top, 12)
                             
                             Text(selectedIsSingleProduct
@@ -332,7 +332,7 @@ public struct VIPPaywallSheet: View {
                             HStack(spacing: 8) {
                                 Text(lang.t(reason))
                                     .adaptiveFont(size: 10)
-                                    .foregroundColor(.orange.opacity(0.9))
+                                    .foregroundColor(.semWarn.opacity(0.9))
                                 Spacer()
                                 Button(lang.t(reason == "iap_storage_unavailable" ? "iap_retry_purchase" : "reload_prices")) {
                                     iap.retryPurchaseAvailability()
@@ -369,7 +369,7 @@ public struct VIPPaywallSheet: View {
                                 .padding(.vertical, 13)
                                 .background(
                                     LinearGradient(
-                                        colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
+                                        colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
@@ -388,7 +388,7 @@ public struct VIPPaywallSheet: View {
                         VStack(spacing: 4) {
                             Text(LocalizationManager.shared.t("settings_safety_disclaimer"))
                                 .adaptiveFont(size: 10)
-                                .foregroundColor(.orange.opacity(0.75))
+                                .foregroundColor(.semWarn.opacity(0.75))
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.horizontal, 24)
@@ -541,7 +541,7 @@ public struct VIPPaywallSheet: View {
                 
                 Text(iap.localizedBillingPrice(for: id))
                     .adaptiveFont(size: 15, weight: .bold, design: .monospaced)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+                    .foregroundColor(Color.goldText)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
