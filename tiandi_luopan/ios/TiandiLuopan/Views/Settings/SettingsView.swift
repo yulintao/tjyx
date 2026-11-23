@@ -304,6 +304,7 @@ public struct SettingsView: View {
     @State private var paymentError: String = ""
     @State private var paymentAlertIsError: Bool = true
     @State private var showPaymentError: Bool = false
+    @State private var showTrainingProfile: Bool = false
 
     private static let appearanceConfigured: Void = {
         UITableView.appearance().backgroundColor = UIColor(red: 18/255.0, green: 18/255.0, blue: 22/255.0, alpha: 1.0)
@@ -328,6 +329,20 @@ public struct SettingsView: View {
 
                         // 工作流进度与综合报告快捷入口
                         workflowQuickSection
+
+                        // 测绘训练档案：查看全模块关卡进度与成就徽章
+                        Section {
+                            Button { showTrainingProfile = true } label: {
+                                menuRow(
+                                    icon: "rosette",
+                                    iconColor: .goldText,
+                                    title: lang.effectiveLanguage == .en ? "Survey Training Profile" : "测绘训练档案",
+                                    badge: "LV.\(CompassTrainingStore.shared.level)",
+                                    badgeColor: .goldText
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
 
                         // 功能模块菜单组（仅保留免费个人资料清理与会员/语言/关于，避免命理导向入口）
                         Section {
@@ -401,6 +416,9 @@ public struct SettingsView: View {
                 }
                 .navigationViewStyle(StackNavigationViewStyle())
                 .preferredColorScheme(.dark)
+                .sheet(isPresented: $showTrainingProfile) {
+                    TrainingProfileSheet()
+                }
             } else {
                 Color.clear.ignoresSafeArea()
             }

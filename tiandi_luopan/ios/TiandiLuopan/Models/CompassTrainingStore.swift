@@ -14,6 +14,14 @@ public enum TrainingBadge: String, CaseIterable, Identifiable {
     case twoStations   = "two_stations"
     case cleanRead     = "clean_read"
     case explorer      = "explorer"
+    // 分析模块
+    case palaceScout   = "palace_scout"
+    case chartReader   = "chart_reader"
+    case sourceVerifier = "source_verifier"
+    // 户型模块
+    case roomPlanner   = "room_planner"
+    case layoutAuditor = "layout_auditor"
+    case areaMeasurer  = "area_measurer"
 
     public var id: String { rawValue }
 
@@ -26,6 +34,12 @@ public enum TrainingBadge: String, CaseIterable, Identifiable {
         case .twoStations: return "mappin.and.ellipse"
         case .cleanRead:   return "checkmark.seal.fill"
         case .explorer:    return "sparkles"
+        case .palaceScout: return "square.grid.3x3.fill"
+        case .chartReader: return "chart.bar.doc.horizontal"
+        case .sourceVerifier: return "doc.badge.gearshape"
+        case .roomPlanner: return "bed.double.fill"
+        case .layoutAuditor: return "checklist"
+        case .areaMeasurer: return "ruler"
         }
     }
 
@@ -38,6 +52,12 @@ public enum TrainingBadge: String, CaseIterable, Identifiable {
         case .twoStations: return isEn ? "Site Surveyor"  : "多点勘测"
         case .cleanRead:   return isEn ? "Clean Signal"   : "信号纯净"
         case .explorer:    return isEn ? "Explorer"       : "探索者"
+        case .palaceScout: return isEn ? "Palace Scout"   : "九宫探查"
+        case .chartReader: return isEn ? "Chart Reader"   : "盘面解读"
+        case .sourceVerifier: return isEn ? "Source Checker" : "溯源核验"
+        case .roomPlanner: return isEn ? "Room Planner"   : "房间规划"
+        case .layoutAuditor: return isEn ? "Layout Auditor" : "户型体检"
+        case .areaMeasurer: return isEn ? "Area Measurer"  : "面积测算"
         }
     }
 
@@ -50,6 +70,12 @@ public enum TrainingBadge: String, CaseIterable, Identifiable {
         case .twoStations: return isEn ? "Record two survey stations" : "记录两个及以上勘测站点"
         case .cleanRead:   return isEn ? "Sample with low magnetic interference" : "在低磁干扰下完成采样"
         case .explorer:    return isEn ? "Try every instrument tool once" : "体验全部仪器工具"
+        case .palaceScout: return isEn ? "Inspect palaces in the nine-grid chart" : "查看九宫盘面中的宫位"
+        case .chartReader: return isEn ? "Open a calculation module" : "打开一个可验证计算模块"
+        case .sourceVerifier: return isEn ? "View the computation audit card" : "查看算法溯源核验卡"
+        case .roomPlanner: return isEn ? "Add or adjust a room in the floorplan" : "在户型中添加或调整房间"
+        case .layoutAuditor: return isEn ? "Run a whole-home layout audit" : "完成一次全屋布局体检"
+        case .areaMeasurer: return isEn ? "Measure a room area in AR" : "用 AR 测量房间面积"
         }
     }
 }
@@ -59,6 +85,8 @@ public enum TrainingDrill: String, CaseIterable, Identifiable {
     case sample   = "sample"
     case lock     = "lock"
     case sync     = "sync"
+    case explore  = "explore"
+    case audit     = "audit"
 
     public var id: String { rawValue }
 
@@ -68,6 +96,8 @@ public enum TrainingDrill: String, CaseIterable, Identifiable {
         case .sample: return "scope"
         case .lock:   return "lock.fill"
         case .sync:   return "square.and.arrow.up"
+        case .explore: return "square.grid.3x3.fill"
+        case .audit:   return "checklist"
         }
     }
 
@@ -77,6 +107,8 @@ public enum TrainingDrill: String, CaseIterable, Identifiable {
         case .sample: return isEn ? "Sample"   : "采样"
         case .lock:   return isEn ? "Lock"     : "锁定"
         case .sync:   return isEn ? "Sync"     : "同步"
+        case .explore: return isEn ? "Explore" : "探查"
+        case .audit:   return isEn ? "Audit"   : "体检"
         }
     }
 
@@ -86,6 +118,17 @@ public enum TrainingDrill: String, CaseIterable, Identifiable {
         case .sample: return 25
         case .lock:   return 15
         case .sync:   return 20
+        case .explore: return 12
+        case .audit:   return 18
+        }
+    }
+
+    /// 关卡所属模块，用于分模块展示进度
+    public var module: String {
+        switch self {
+        case .level, .sample, .lock, .sync: return "compass"
+        case .explore: return "analysis"
+        case .audit:   return "floorplan"
         }
     }
 }

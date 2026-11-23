@@ -269,6 +269,7 @@ public struct FloorplanView: View {
     @ObservedObject var lang = LocalizationManager.shared
     @ObservedObject private var familyProfile = UserKuaProfileManager.shared
     @ObservedObject private var workflow = SpatialWorkflowStore.shared
+    @ObservedObject private var training = CompassTrainingStore.shared
     
     @State private var rooms: [FloorplanRoom] = FloorplanEngine.shared.generateSampleRooms()
     @State private var centroid: CGPoint = CGPoint(x: 0.5, y: 0.5) // 归一化重心
@@ -470,6 +471,11 @@ public struct FloorplanView: View {
                     // 左栏内容（画布 + 全部操作工具）：展开态与折叠态共用同一份定义
                     let mainColumn = VStack(spacing: 8) {
                                 WorkflowStepperBar(activeStep: 0)
+                                    .frame(maxWidth: contentMax)
+                                    .padding(.horizontal, 16)
+
+                                // 测绘训练进度：户型模块（体检），真实布局操作驱动
+                                DSTrainingProgressHUD(module: "floorplan")
                                     .frame(maxWidth: contentMax)
                                     .padding(.horizontal, 16)
 
@@ -1752,6 +1758,9 @@ public struct FloorplanView: View {
         if let selectedID = selectedRoom?.id {
             selectedRoom = result.auditedRooms.first(where: { $0.id == selectedID })
         }
+        // 测绘训练：完成全屋体检关卡与徽章（不改变任何审计结果）
+        training.completeDrill(.audit, isEn: lang.effectiveLanguage == .en)
+        training.earnBadge(.layoutAuditor, isEn: lang.effectiveLanguage == .en)
     }
 
     private var hasFloorplanAccess: Bool {
@@ -2896,6 +2905,8 @@ public struct FloorplanView: View {
         roomDetectionMessage = nil
         persistLayout()
         refreshAudit(force: true)
+        training.earnBadge(.roomPlanner, isEn: lang.effectiveLanguage == .en)
+        training.earnBadge(.areaMeasurer, isEn: lang.effectiveLanguage == .en)
     }
 
     private func updateRoomType(roomID: String, type: FloorplanRoomType) {
@@ -2909,6 +2920,7 @@ public struct FloorplanView: View {
         persistLayout()
         refreshAudit(force: true)
         selectedRoom = nil
+        training.earnBadge(.roomPlanner, isEn: lang.effectiveLanguage == .en)
     }
 
     private func addRoom(type: FloorplanRoomType) {
@@ -2925,6 +2937,7 @@ public struct FloorplanView: View {
         isEditingRooms = true
         persistLayout()
         refreshAudit(force: true)
+        training.earnBadge(.roomPlanner, isEn: lang.effectiveLanguage == .en)
     }
 
     /// Choose the least-overlapping slot in a bounded editing grid. The old

@@ -6,8 +6,10 @@ import SwiftUI
 public struct DSTrainingProgressHUD: View {
     @ObservedObject private var training = CompassTrainingStore.shared
     @ObservedObject private var lang = LocalizationManager.shared
+    /// 仅展示该模块的关卡；nil 表示展示全部。
+    public var module: String? = nil
 
-    public init() {}
+    public init(module: String? = nil) { self.module = module }
 
     public var body: some View {
         let isEn = lang.effectiveLanguage == .en
@@ -40,7 +42,8 @@ public struct DSTrainingProgressHUD: View {
             .frame(height: 6)
 
             HStack(spacing: 6) {
-                ForEach(TrainingDrill.allCases) { drill in
+                let drills = TrainingDrill.allCases.filter { module == nil || $0.module == module }
+                ForEach(drills) { drill in
                     DrillChip(drill: drill, done: training.isDrillDone(drill), isEn: isEn)
                 }
             }
@@ -202,5 +205,97 @@ public struct DSFlipCard<Front: View, Back: View>: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             withAnimation { flipped.toggle() }
         }
+    }
+}
+
+// MARK: - 训练档案总览 (Training Profile Sheet)
+public struct TrainingProfileSheet: View {
+    @Environment(\.presentationMode) private var presentationMode
+    @ObservedObject private var training = CompassTrainingStore.shared
+    @ObservedObject private var lang = LocalizationManager.shared
+
+    public init() {}
+
+    private var modules: [(key: String, title: String, icon: String)] {
+        let isEn = lang.effectiveLanguage == .en
+        return [
+            ("compass", isEn ? "Compass" : "罗盘测绘", "safari.fill"),
+            ("analysis", isEn ? "Analysis" : "方位分析", "square.grid.3x3.fill"),
+            ("floorplan", isEn ? "Floorplan" : "户型布局", "house.fill")
+        ]
+    }
+
+    public var body: some View {
+        let isEn = lang.effectiveLanguage == .en
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // 等级头卡
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "rosette").foregroundColor(.goldText).adaptiveFont(size: 26)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("LV.\(training.level) · \(training.levelTitle(isEn: isEn))")
+                                    .adaptiveFont(size: 18, weight: .bold, design: .rounded)
+                                    .foregroundColor(.white)
+                                Text(isEn ? "Survey training profile" : "测绘训练档案 · 全部数据保存在本机")
+                                    .adaptiveFont(size: 11).foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Text("\(training.xp) XP")
+                                .adaptiveFont(size: 14, weight: .bold, design: .monospaced)
+                                .foregroundColor(.yanCyan)
+                        }
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule().fill(Color.white.opacity(0.10))
+                                Capsule()
+                                    .fill(LinearGradient(colors: [.goldDeep, .goldText], startPoint: .leading, endPoint: .trailing))
+                                    .frame(width: max(4, geo.size.width * training.levelProgress))
+                            }
+                        }
+                        .frame(height: 8)
+                        Text(isEn ? "Next level at \((training.level * 100)) XP" : "距下一级还差 \(training.level * 100 - training.xp) XP")
+                            .adaptiveFont(size: 10).foregroundColor(.secondary)
+                    }
+                    .padding(DS.padL)
+                    .background(Color.surfaceCard)
+                    .cornerRadius(DS.radiusL)
+                    .overlay(RoundedRectangle(cornerRadius: DS.radiusL).stroke(Color.strokeGold, lineWidth: 1))
+
+                    // 按模块的关卡进度
+                    ForEach(modules, id: \.key) { module in
+                        let drills = TrainingDrill.allCases.filter { $0.module == module.key }
+                        VStack(alignment: .leading, spacing: DS.padS) {
+                            HStack {
+                                Image(systemName: module.icon).foregroundColor(.goldText).adaptiveFont(size: 13)
+                                Text(module.title).adaptiveFont(size: 13, weight: .bold).foregroundColor(.goldText)
+                                Spacer()
+                                let doneCount = drills.filter { training.isDrillDone($0) }.count
+                                Text("\(doneCount)/\(drills.count)")
+                                    .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
+                                    .foregroundColor(.yanCyan)
+                            }
+                            HStack(spacing: 6) {
+                                ForEach(drills) { drill in
+                                    DrillChip(drill: drill, done: training.isDrillDone(drill), isEn: isEn)
+                                }
+                            }
+                        }
+                        .padding(DS.padM)
+                        .background(Color.surfaceCard)
+                        .cornerRadius(DS.radiusM)
+                        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.strokeSoft, lineWidth: 1))
+                    }
+
+                    DSTrainingBadgeShelf(compact: false)
+                }
+                .padding(16)
+            }
+            .navigationBarTitle(isEn ? "Training Profile" : "测绘训练档案", displayMode: .inline)
+            .navigationBarItems(trailing: Button(isEn ? "Done" : "完成") { presentationMode.wrappedValue.dismiss() })
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .preferredColorScheme(.dark)
     }
 }

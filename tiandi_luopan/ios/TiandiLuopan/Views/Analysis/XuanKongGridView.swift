@@ -11,6 +11,7 @@ public struct XuanKongGridView: View {
     @ObservedObject var lang = LocalizationManager.shared
     @ObservedObject private var workspace = FloorplanWorkspaceStore.shared
     @ObservedObject private var surveyStore = ShaSurveyStore.shared
+    @ObservedObject private var training = CompassTrainingStore.shared
     @State private var analyzeHome = false
     @State private var didChooseSource = false
     @State private var analysisDate = Date()
@@ -103,6 +104,9 @@ public struct XuanKongGridView: View {
                 VStack(spacing: 14) {
                 Color.clear.frame(height: 1).id("analysisRootTop")
                 WorkflowStepperBar(activeStep: 2)
+                    .padding(.horizontal, 16)
+                // 测绘训练进度：分析模块（探查/体检），真实操作驱动
+                DSTrainingProgressHUD(module: "analysis")
                     .padding(.horizontal, 16)
                 // 结论式改造：当前坐向 + 空亡状态常驻置顶，各派排盘共享
                 DSOrientationConclusionBar(moduleName: "当前方位 · 各派共用")
@@ -273,6 +277,8 @@ public struct XuanKongGridView: View {
     }
 
     private func openFeature(_ feature: AnalysisFeature) {
+        let isEn = lang.effectiveLanguage == .en
+        training.earnBadge(.chartReader, isEn: isEn)
         if feature == .owner || feature == .dates {
             toolRequest = AnalysisToolRequest(tool: feature == .owner ? .owner : .dates, context: analysisHeading)
         } else {
@@ -421,6 +427,7 @@ public struct XuanKongGridView: View {
                     withAnimation(.easeInOut(duration: 0.18)) {
                         showAuditDetails.toggle()
                     }
+                    if showAuditDetails { training.earnBadge(.sourceVerifier, isEn: lang.effectiveLanguage == .en) }
                 }) {
                     HStack(spacing: 5) {
                         Image(systemName: "checkmark.shield.fill")
@@ -1247,6 +1254,9 @@ public struct XuanKongGridView: View {
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
             selectedPalaceIdx = id
         }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        training.completeDrill(.explore, isEn: lang.effectiveLanguage == .en)
+        training.earnBadge(.palaceScout, isEn: lang.effectiveLanguage == .en)
     }
 
     private func guidanceColor(_ use: XuanKongSectorUse) -> Color {
