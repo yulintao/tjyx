@@ -23,7 +23,7 @@ public class ViewController: UIHostingController<RootContentView> {
 
     override public func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 18/255.0, green: 18/255.0, blue: 22/255.0, alpha: 1.0)
+        view.backgroundColor = UIColor(red: 22/255.0, green: 19/255.0, blue: 15/255.0, alpha: 1.0)
         
         // RootContentView owns the sensor lifecycle and starts it only for an
         // active feature tab. Starting here as well caused duplicate startup

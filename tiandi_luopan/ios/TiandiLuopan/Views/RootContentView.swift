@@ -2,32 +2,44 @@ import SwiftUI
 import UIKit
 
 // MARK: - iOS 14.0 颜色向下兼容扩展
+// 新中式雅致色板：暖墨底 + 纸色文字 + 古金 / 朱红点缀。
+// 既有符号名（yanCyan / yanGold / yanBrown）保留，避免散落各视图的引用编译断裂。
 extension Color {
-    public static let yanCyan = Color(red: 0.0, green: 0.82, blue: 0.95)
-    public static let yanBrown = Color(red: 0.65, green: 0.45, blue: 0.25)
-    public static let yanGold = Color(red: 0.95, green: 0.80, blue: 0.25)
+    /// 信息青（去霓虹的 muted 黛青）
+    public static let yanCyan = Color(red: 0.32, green: 0.62, blue: 0.61)
+    /// 木褐（暖棕，用于次要底色 / 木纹点缀）
+    public static let yanBrown = Color(red: 0.55, green: 0.42, blue: 0.27)
+    /// 古金（主强调色，低饱和哑光金）
+    public static let yanGold = Color(red: 0.80, green: 0.63, blue: 0.31)
 }
 
 // MARK: - 统一设计语言 Design Tokens
 // 目标：把散落在各视图的 6 种金、系统色、魔数圆角收敛到一组语义常量。
 // 所有新代码优先使用这里的语义色，旧视图逐步迁移；不改变 yanGold 等既有符号，避免破坏现有编译。
 extension Color {
-    // 金色三阶：主色 / 深金（选中底、边框）/ 文字金（高对比）
-    public static let goldPrimary = Color(red: 0.95, green: 0.80, blue: 0.25)
-    public static let goldDeep    = Color(red: 0.83, green: 0.68, blue: 0.21)
-    public static let goldText    = Color(red: 0.95, green: 0.85, blue: 0.45)
+    // 金色三阶：古金主色 / 深金（选中底、边框）/ 文字金（高对比）
+    public static let goldPrimary = Color(red: 0.80, green: 0.63, blue: 0.31)
+    public static let goldDeep    = Color(red: 0.63, green: 0.49, blue: 0.23)
+    public static let goldText    = Color(red: 0.91, green: 0.78, blue: 0.52)
 
-    // 语义色：吉 / 凶 / 警示 / 信息，与黑金主题统一，替代裸 .green/.red/.orange/.purple
-    public static let semJi     = Color(red: 0.36, green: 0.78, blue: 0.53)  // 吉 · 柔和青绿
-    public static let semXiong  = Color(red: 0.90, green: 0.38, blue: 0.36)  // 凶 · 暗红
-    public static let semWarn   = Color(red: 0.92, green: 0.68, blue: 0.30)  // 留意 · 琥珀
+    // 朱红：强调 / 警示主点缀（替代高饱和霓虹红）
+    public static let vermilion   = Color(red: 0.71, green: 0.27, blue: 0.23)
+
+    // 纸色文字：主文字 / 次级文字
+    public static let paperText   = Color(red: 0.95, green: 0.91, blue: 0.83)
+    public static let paperSub    = Color(red: 0.66, green: 0.61, blue: 0.50)
+
+    // 语义色：吉 / 凶 / 警示 / 信息，与暖墨主题统一，替代裸 .green/.red/.orange/.purple
+    public static let semJi     = Color(red: 0.35, green: 0.67, blue: 0.50)  // 吉 · 温润青玉
+    public static let semXiong  = Color(red: 0.85, green: 0.35, blue: 0.31)  // 凶 · 朱砂红
+    public static let semWarn   = Color(red: 0.88, green: 0.63, blue: 0.29)  // 留意 · 琥珀
     public static let semInfo   = Color.yanCyan
 
-    // 表面与描边：统一的卡片底、分隔线
-    public static let surfaceCard   = Color(red: 0.11, green: 0.11, blue: 0.15)
-    public static let surfaceElevated = Color(red: 0.13, green: 0.13, blue: 0.18)
-    public static let strokeSoft    = Color.white.opacity(0.12)
-    public static let strokeGold    = Color.goldPrimary.opacity(0.28)
+    // 表面与描边：暖墨卡片底、柔和分隔线
+    public static let surfaceCard   = Color(red: 0.141, green: 0.122, blue: 0.090)
+    public static let surfaceElevated = Color(red: 0.169, green: 0.145, blue: 0.106)
+    public static let strokeSoft    = Color(red: 0.95, green: 0.91, blue: 0.83).opacity(0.10)
+    public static let strokeGold    = Color.goldPrimary.opacity(0.26)
 }
 
 // 布局常量：统一间距 / 圆角 / 触摸目标
@@ -752,7 +764,7 @@ public struct FoldableTwoPane<Main: View, Analysis: View>: View {
 
     public init(mainColumnRatio: CGFloat? = nil,
                 compactSpacing: CGFloat = 8,
-                analysisBackground: Color = Color(red: 0.07, green: 0.07, blue: 0.09),
+                analysisBackground: Color = Color(red: 0.086, green: 0.075, blue: 0.059),
                 analysisAlignment: Alignment = .top,
                 independentScroll: Bool = false,
                 @ViewBuilder main: () -> Main,
@@ -971,20 +983,22 @@ public struct RootContentView: View {
     private static func applyTabBarAppearance(isLargeLayout: Bool) {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(red: 14/255.0, green: 14/255.0, blue: 17/255.0, alpha: 1.0)
+        // 暖墨底色，与卡片表面同系
+        appearance.backgroundColor = UIColor(red: 22/255.0, green: 19/255.0, blue: 15/255.0, alpha: 1.0)
 
         let itemAppearance = UITabBarItemAppearance()
         // Tab 标签是 UIKit 固定字号，不会自动跟随 Dynamic Type：用 UIFontMetrics 补齐，
         // 并给 maximumPointSize = 1.3x 上限，避免放大后撑出 49pt 的 TabBar 高度。
-        // 统一金色 + 提升小屏 Tab 字号到 11.5pt（原 10pt 与正文说明同级，主次不清）
-        let tabGold = UIColor(red: 242/255.0, green: 217/255.0, blue: 115/255.0, alpha: 1.0)
+        // 统一古金 + 提升小屏 Tab 字号到 11.5pt（原 10pt 与正文说明同级，主次不清）
+        let tabGold = UIColor(red: 205/255.0, green: 161/255.0, blue: 79/255.0, alpha: 1.0)
+        let tabNormal = UIColor(red: 169/255.0, green: 156/255.0, blue: 128/255.0, alpha: 1.0)
         let baseTabFontSize: CGFloat = isLargeLayout ? 13 : 11.5
         let tabFont = UIFontMetrics(forTextStyle: .caption1)
             .scaledFont(for: UIFont.systemFont(ofSize: baseTabFontSize, weight: .semibold),
                         maximumPointSize: baseTabFontSize * 1.3)
-        itemAppearance.normal.iconColor = UIColor.systemGray2
+        itemAppearance.normal.iconColor = tabNormal
         itemAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor.systemGray2,
+            .foregroundColor: tabNormal,
             .font: tabFont
         ]
 
@@ -1021,7 +1035,7 @@ public struct RootContentView: View {
             }
             tabBar.items?.forEach { item in
                 item.setTitleTextAttributes(
-                    [.foregroundColor: UIColor.systemGray2, .font: normalFont],
+                    [.foregroundColor: UIColor(red: 169/255.0, green: 156/255.0, blue: 128/255.0, alpha: 1.0), .font: normalFont],
                     for: .normal
                 )
                 item.setTitleTextAttributes(
@@ -1078,7 +1092,7 @@ public struct RootContentView: View {
                 }
                 .tag(4)
         }
-        .accentColor(Color(red: 0.95, green: 0.85, blue: 0.45))
+        .accentColor(Color.goldText)
         .preferredColorScheme(.dark)
         // 采集真实窗口尺寸并同步注入 Environment：iPad 旋转不改变 size class，
         // 各页靠 interfaceOrientation + 尺寸切换「横屏双栏 / 竖屏单列」。
@@ -1348,7 +1362,7 @@ public struct CameraExclusiveGate<Content: View>: View {
                 deniedCard
             case .pending:
                 // 等窗口场景标识的一帧：用与相机页一致的深色底，避免闪白。
-                Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea()
+                Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
             }
         }
         .background(
@@ -1385,7 +1399,7 @@ public struct CameraExclusiveGate<Content: View>: View {
                 .padding(.horizontal, 28)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
+        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
     }
 
     private func tryAcquire(onReturn: Bool = false) {
@@ -1418,7 +1432,7 @@ private struct ARSurveyTabHostView: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea()
+            Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
             if isActive {
                 if showExteriorSiteObserver {
                     ZStack(alignment: .topTrailing) {
@@ -1588,7 +1602,7 @@ public struct IntegratedWorkflowReportSheet: View {
         let isEn = (lang.effectiveLanguage == .en)
         return NavigationView {
             ZStack {
-                Color(red: 0.07, green: 0.07, blue: 0.10).ignoresSafeArea()
+                Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
                 VStack(spacing: 12) {
                     // 三阶段完整度状态摘要（未完成项支持点击直达对应工作台）
                     VStack(alignment: .leading, spacing: 6) {
