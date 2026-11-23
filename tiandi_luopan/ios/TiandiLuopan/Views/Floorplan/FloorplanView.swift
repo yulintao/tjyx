@@ -3992,33 +3992,39 @@ public struct RoomAuditDetailSheet: View {
                         .background(Color(red: 0.12, green: 0.12, blue: 0.16))
                         .cornerRadius(12)
 
-                        if let onEditType = onEditType {
-                            Button(action: { showTypeEditor = true }) {
-                                Label(lang.t("floorplan_room_type"), systemImage: "tag")
-                                    .adaptiveFont(size: 12, weight: .semibold)
-                                    .foregroundColor(.yanCyan)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .padding(12)
-                            .background(Color.yanCyan.opacity(0.10))
-                            .cornerRadius(10)
-                            .sheet(isPresented: $showTypeEditor) {
-                                FloorplanRoomTypeEditor(room: room) { type in
-                                    onEditType(type)
+                        if onEditType != nil || onDelete != nil {
+                            HStack(spacing: 10) {
+                                if let onEditType = onEditType {
+                                    Button(action: { showTypeEditor = true }) {
+                                        Label(lang.t("floorplan_room_type"), systemImage: "tag.fill")
+                                            .adaptiveFont(size: 12, weight: .bold)
+                                            .foregroundColor(.yanCyan)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 10)
+                                            .background(Color.yanCyan.opacity(0.14))
+                                            .cornerRadius(9)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .sheet(isPresented: $showTypeEditor) {
+                                        FloorplanRoomTypeEditor(room: room) { type in
+                                            onEditType(type)
+                                        }
+                                    }
+                                }
+
+                                if onDelete != nil {
+                                    Button(action: { showDeleteConfirmation = true }) {
+                                        Label(lang.t("floorplan_delete_room"), systemImage: "trash.fill")
+                                            .adaptiveFont(size: 12, weight: .bold)
+                                            .foregroundColor(.red)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 10)
+                                            .background(Color.red.opacity(0.14))
+                                            .cornerRadius(9)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
-                        }
-
-                        if onDelete != nil {
-                            Button(action: { showDeleteConfirmation = true }) {
-                                Label(lang.t("floorplan_delete_room"), systemImage: "trash")
-                                    .adaptiveFont(size: 12, weight: .semibold)
-                                    .foregroundColor(.red)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .padding(12)
-                            .background(Color.red.opacity(0.10))
-                            .cornerRadius(10)
                         }
                         
                         // 2. 气场格局诊断
@@ -4096,6 +4102,7 @@ public struct RoomAuditDetailSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .preferredColorScheme(.dark)
         .overlay(
             Group {
                 if showDeleteConfirmation, let onDelete = onDelete {

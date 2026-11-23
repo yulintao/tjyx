@@ -345,53 +345,61 @@ public struct HexagramItem: Identifiable, Codable {
     public var localizedLuckDegree: String {
         switch LocalizationManager.shared.effectiveLanguage {
         case .auto, .zhHans:
-            return luckDegree
+            switch luckDegree {
+            case "大吉": return "中心稳态"
+            case "中吉": return "标准扇区"
+            case "慎用": return "边界复核"
+            default: return "常规扇区"
+            }
         case .zhHant:
-            return luckDegree
+            switch luckDegree {
+            case "大吉": return "中心穩態"
+            case "中吉": return "標準扇區"
+            case "慎用": return "邊界複核"
+            default: return "常規扇區"
+            }
         case .en:
             switch luckDegree {
-            case "大吉": return "Great Auspicious"
-            case "中吉": return "Auspicious"
-            case "慎用": return "Use with Care"
-            default: return "Neutral"
+            case "大吉": return "Center Band"
+            case "中吉": return "Standard Band"
+            case "慎用": return "Boundary Check"
+            default: return "Neutral Band"
             }
         case .ja:
             switch luckDegree {
-            case "大吉": return "大吉"
-            case "中吉": return "中吉"
-            case "慎用": return "慎用"
-            default: return "平"
+            case "大吉": return "中心帯域"
+            case "中吉": return "標準帯域"
+            case "慎用": return "境界確認"
+            default: return "通常帯域"
             }
         case .ko:
             switch luckDegree {
-            case "大吉": return "대길 (大吉)"
-            case "中吉": return "중길 (中吉)"
-            case "慎用": return "신용 (慎用)"
-            default: return "평 (平)"
+            case "大吉": return "중심 구간"
+            case "中吉": return "표준 구간"
+            case "慎用": return "경계 확인"
+            default: return "일반 구간"
             }
         case .vi:
             switch luckDegree {
-            case "大吉": return "Đại Cát"
-            case "中吉": return "Trung Cát"
-            case "慎用": return "Thận Dụng"
-            default: return "Bình"
+            case "大吉": return "Vùng trung tâm"
+            case "中吉": return "Vùng chuẩn"
+            case "慎用": return "Kiểm biên"
+            default: return "Vùng thường"
             }
         case .th:
             switch luckDegree {
-            case "大吉": return "มหามงคล"
-            case "中吉": return "มงคลปานกลาง"
-            case "慎用": return "ควรระวัง"
-            default: return "ปานกลาง"
+            case "大吉": return "ช่วงกลางเสถียร"
+            case "中吉": return "ช่วงมาตรฐาน"
+            case "慎用": return "ตรวจแนวขอบ"
+            default: return "ช่วงปกติ"
             }
         case .id:
             switch luckDegree {
-            case "大吉": return "Sangat Baik"
-            case "中吉": return "Cukup Baik"
-            case "慎用": return "Hati-hati"
-            default: return "Netral"
+            case "大吉": return "Pita Tengah"
+            case "中吉": return "Pita Standar"
+            case "慎用": return "Cek Batas"
+            default: return "Pita Normal"
             }
-        default:
-            return luckDegree
         }
     }
 
@@ -411,7 +419,7 @@ public struct HexagramItem: Identifiable, Codable {
         case .zhHant:
             return tri.replacingOccurrences(of: "离", with: "離").replacingOccurrences(of: "兑", with: "兌")
         case .ja:
-            return ["坤": "坤 (天)", "艮": "艮 (山)", "坎": "坎 (水)", "巽": "巽 (風)", "震": "震 (雷)", "离": "離 (火)", "兑": "兌 (沢)", "乾": "乾 (天)"][tri] ?? tri
+            return ["坤": "坤 (地)", "艮": "艮 (山)", "坎": "坎 (水)", "巽": "巽 (風)", "震": "震 (雷)", "离": "離 (火)", "兑": "兌 (沢)", "乾": "乾 (天)"][tri] ?? tri
         case .ko:
             return ["坤": "곤 (坤)", "艮": "간 (艮)", "坎": "감 (坎)", "巽": "손 (巽)", "震": "진 (震)", "离": "이 (離)", "兑": "태 (兌)", "乾": "건 (乾)"][tri] ?? tri
         case .vi:
@@ -427,127 +435,115 @@ public struct HexagramItem: Identifiable, Codable {
         }
     }
 
-    /// Preserve the original Yi/Fenjin wording and add a source note for
-    /// health and wealth phrases such as “Flourishing health and wealth”.
+    /// 64 等分圆周（5.625°/格）角度扇区说明与传统编码索引说明。
     public var localizedFenJinDetail: String {
         baseLocalizedFenJinDetail + "\n\n" + classicalSourceNote
     }
 
     private var baseLocalizedFenJinDetail: String {
         let lang = LocalizationManager.shared.effectiveLanguage
-        if lang == .zhHans {
-            return fenJinDetail
-        }
-        if lang == .zhHant {
-            return fenJinDetail
-                .replacingOccurrences(of: "财", with: "財")
-                .replacingOccurrences(of: "两", with: "兩")
-                .replacingOccurrences(of: "关", with: "關")
-                .replacingOccurrences(of: "显", with: "顯")
-                .replacingOccurrences(of: "贵", with: "貴")
-                .replacingOccurrences(of: "动", with: "動")
-                .replacingOccurrences(of: "稳", with: "穩")
-                .replacingOccurrences(of: "展", with: "展")
-                .replacingOccurrences(of: "虚", with: "虛")
-                .replacingOccurrences(of: "煞", with: "煞")
-                .replacingOccurrences(of: "差错", with: "差錯")
-                .replacingOccurrences(of: "换", with: "換")
-                .replacingOccurrences(of: "解", with: "解")
-        }
         switch lang {
-        case .en:
-            if fenJinDetail.contains("旺相得令") {
-                return "Prosperous and in season · Flourishing health and wealth · Pure intake of qi"
-            } else if fenJinDetail.contains("合十通关") {
-                return "Harmonious combination · Academic and career nobility · Promoting official rank"
-            } else if fenJinDetail.contains("平常平和") {
-                return "Balanced and calm · Best kept quiet · Steady development"
+        case .auto, .zhHans:
+            if luckDegree == "大吉" {
+                return "5.625° 中心扇区 · 远离主轴分缝 · 适合作为平面图朝向基准读数"
+            } else if luckDegree == "中吉" {
+                return "5.625° 标准扇区 · 方位角读数稳定 · 可直接记录为测站参考"
+            } else if luckDegree == "平" {
+                return "5.625° 常规扇区 · 建议配合双轴水平仪与稳态采样确认读数"
             } else {
-                return "Lone-void sha energy · Void and error line · Requires line transformation remedy"
+                return "靠近 5.625° 扇区过渡带 · 建议远离金属干扰并执行多样本复测"
+            }
+        case .zhHant:
+            if luckDegree == "大吉" {
+                return "5.625° 中心扇區 · 遠離主軸分縫 · 適合作為平面圖朝向基準讀數"
+            } else if luckDegree == "中吉" {
+                return "5.625° 標準扇區 · 方位角讀數穩定 · 可直接記錄為測站參考"
+            } else if luckDegree == "平" {
+                return "5.625° 常規扇區 · 建議配合雙軸水平儀與穩態採樣確認讀數"
+            } else {
+                return "靠近 5.625° 扇區過渡帶 · 建議遠離金屬干擾並執行多樣本複測"
+            }
+        case .en:
+            if luckDegree == "大吉" {
+                return "5.625° center sector · clear of major axis seams · well suited as a blueprint bearing reference"
+            } else if luckDegree == "中吉" {
+                return "5.625° standard sector · stable azimuth readout · ready to log as a station reference"
+            } else if luckDegree == "平" {
+                return "5.625° neutral sector · verify with the dual-axis level and multi-sample averaging"
+            } else {
+                return "Near a 5.625° sector transition · step away from metallic interference and re-sample"
             }
         case .ja:
-            if fenJinDetail.contains("旺相得令") {
-                return "旺相得令・人財両旺・純清の気を納める"
-            } else if fenJinDetail.contains("合十通关") {
-                return "合十通関・文昌顕貴・官位昇進と高貴を促す"
-            } else if fenJinDetail.contains("平常平和") {
-                return "平常平穏・静を尊び動を避ける・安定した発展"
+            if luckDegree == "大吉" {
+                return "5.625° 中心セクター・主要境界から十分離隔・図面方位の基準値に適合"
+            } else if luckDegree == "中吉" {
+                return "5.625° 標準セクター・方位角の読取りが安定・測点記録にそのまま利用可能"
+            } else if luckDegree == "平" {
+                return "5.625° 通常セクター・二軸水準器と定常サンプリングでの確認を推奨"
             } else {
-                return "孤虚出煞・空亡差錯・爻変による化解を要す"
+                return "5.625° 境界付近・金属干渉を避けて複数回再計測することを推奨"
             }
         case .ko:
-            if fenJinDetail.contains("旺相得令") {
-                return "왕상득령 · 인재양왕 · 순청한 기운을 수용함"
-            } else if fenJinDetail.contains("合十通关") {
-                return "합십통관 · 문창현귀 · 관록과 귀함을 촉진함"
-            } else if fenJinDetail.contains("平常平和") {
-                return "평상평화 · 정적인 것이 유리 · 안정적인 발전"
+            if luckDegree == "大吉" {
+                return "5.625° 중심 섹터 · 주축 경계와 이격 · 도면 방위 기준값으로 적합"
+            } else if luckDegree == "中吉" {
+                return "5.625° 표준 섹터 · 방위각 판독 안정 · 측점 기준값으로 바로 기록 가능"
+            } else if luckDegree == "平" {
+                return "5.625° 일반 섹터 · 2축 수평계와 안정 샘플링으로 확인 권장"
             } else {
-                return "고허출살 · 공망착오 · 효변을 통한 화해 필요"
+                return "5.625° 섹터 경계 부근 · 금속 간섭을 피해 다중 샘플 재측정 권장"
             }
         case .vi:
-            if fenJinDetail.contains("旺相得令") {
-                return "Vượng tướng đắc lệnh · Đinh tài lưỡng vượng · Nạp khí thuần thanh"
-            } else if fenJinDetail.contains("合十通关") {
-                return "Hợp thập thông quan · Văn xương hiển quý · Thôi quan sinh quý"
-            } else if fenJinDetail.contains("平常平和") {
-                return "Bình thường bình hòa · Nghi tĩnh bất nghi động · Phát triển ổn định"
+            if luckDegree == "大吉" {
+                return "Phân khu trung tâm 5.625° · cách xa đường ranh trục chính · phù hợp làm mốc phương vị bản vẽ"
+            } else if luckDegree == "中吉" {
+                return "Phân khu chuẩn 5.625° · góc phương vị ổn định · có thể lưu trực tiếp làm điểm đo tham chiếu"
+            } else if luckDegree == "平" {
+                return "Phân khu thường 5.625° · nên đối chiếu thêm bằng thước thủy 2 trục và lấy mẫu trung bình"
             } else {
-                return "Cô hư xuất sát · Không vong sai thất · Cần trừu hào hoán tượng hóa giải"
+                return "Gần ranh chuyển tiếp 5.625° · tránh vật kim loại và đo lặp nhiều mẫu để xác nhận"
             }
         case .th:
-            if fenJinDetail.contains("旺相得令") {
-                return "รุ่งเรืองตามฤดูกาล · ทรัพย์และครอบครัวรุ่งเรือง · รับพลังงานบริสุทธิ์"
-            } else if fenJinDetail.contains("合十通关") {
-                return "รวมสิบประสานพลัง · เจริญก้าวหน้าทางวิชาการและยศศักดิ์"
-            } else if fenJinDetail.contains("平常平和") {
-                return "ราบเรียบสงบสุข · ควรสงบมากกว่าเคลื่อนไหว · พัฒนาอย่างมั่นคง"
+            if luckDegree == "大吉" {
+                return "ช่วงกลาง 5.625° · ห่างจากแนวรอยต่อหลัก · เหมาะใช้เป็นค่าอ้างอิงทิศทางของแปลน"
+            } else if luckDegree == "中吉" {
+                return "ช่วงมาตรฐาน 5.625° · ค่ามุมทิศทางนิ่ง · บันทึกเป็นจุดอ้างอิงการวัดได้ทันที"
+            } else if luckDegree == "平" {
+                return "ช่วงปกติ 5.625° · แนะนำตรวจสอบร่วมกับระดับน้ำ 2 แกนและการเฉลี่ยหลายตัวอย่าง"
             } else {
-                return "พลังโดดเดี่ยวว่างเปล่าปะทะ · ข้อผิดพลาดความว่างเปล่า · ต้องปรับเปลี่ยนเส้นพลังแก้ไข"
+                return "ใกล้รอยต่อช่วง 5.625° · หลีกเลี่ยงโลหะรบกวนและวัดซ้ำหลายครั้งเพื่อยืนยัน"
             }
         case .id:
-            if fenJinDetail.contains("旺相得令") {
-                return "Makmur dan beruntung · Keturunan & rezeki melimpah · Energi murni seimbang"
-            } else if fenJinDetail.contains("合十通关") {
-                return "Harmonis selaras sepuluh · Kejayaan akademis & karir meningkat"
-            } else if fenJinDetail.contains("平常平和") {
-                return "Biasa dan tenang · Lebih baik diam daripada bergerak · Berkembang stabil"
+            if luckDegree == "大吉" {
+                return "Sektor tengah 5.625° · jauh dari batas sumbu utama · cocok sebagai acuan arah denah"
+            } else if luckDegree == "中吉" {
+                return "Sektor standar 5.625° · pembacaan azimut stabil · siap dicatat sebagai stasiun referensi"
+            } else if luckDegree == "平" {
+                return "Sektor normal 5.625° · verifikasi dengan waterpass 2 sumbu dan rata-rata sampel"
             } else {
-                return "Energi sha terasing · Garis kekosongan keliru · Perlu perbaikan transformasi garis"
+                return "Dekat transisi sektor 5.625° · jauhi gangguan logam dan lakukan pengambilan sampel ulang"
             }
-        default:
-            return fenJinDetail
         }
     }
 
     private var classicalSourceNote: String {
-        let isProsperityLine = fenJinDetail.contains("旺相得令")
-        let sourceEn = isProsperityLine
-            ? "Book of Changes (Zhou Yi), Tai hexagram judgment, ‘Small go, great come; good fortune and success.’"
-            : "the original judgment of this hexagram in the Book of Changes (Zhou Yi)"
-        let sourceHans = isProsperityLine
-            ? "《周易·泰卦》卦辞：“小往大来，吉亨。”"
-            : "《周易》本卦卦辞"
-        let sourceHant = isProsperityLine
-            ? "《周易·泰卦》卦辭：「小往大來，吉亨。」"
-            : "《周易》本卦卦辭"
         switch LocalizationManager.shared.effectiveLanguage {
         case .en:
-            return "Classical source: \(sourceEn) Interpretation: the prosperity, health and wealth wording is a traditional symbolic reading of the hexagram; it is not a medical, financial or outcome guarantee."
+            return "Scale note: the 64-sector ring divides 360° into equal 5.625° angular indices using traditional 6-bit binary labels for reference only."
         case .zhHant:
-            return "古籍出处：\(sourceHant)解釋：文中興盛、健康與財帛語句是卦象的傳統文化解讀，不是醫療診斷、財務建議或結果保證。"
+            return "刻度說明：64 等分圓環按每格 5.625° 劃分 360° 圓周，採用傳統 6 位二進制符號作為角度索引參考。"
         case .ja:
-            return "出典：『周易』泰卦の卦辞「小往き大来たる。吉にして亨る」。解釈：繁栄・健康・財に関する表現は卦象の伝統的な象徴解釈であり、医学的診断、金融助言、結果の保証ではありません。"
+            return "目盛注記：64等分リングは360°を5.625°刻みで分割し、伝統的な6ビット符号を角度インデックスとして表示します。"
         case .ko:
-            return "출처: 《주역》 태괘 괘사 ‘소왕대래, 길하고 형통하다’. 해석: 번영·건강·재물 표현은 괘상의 전통적 상징 해석이며 의학적 진단, 재무 조언 또는 결과 보장이 아닙니다."
+            return "눈금 안내: 64등분 원환은 360°를 5.625° 간격으로 분할하며 전통 6비트 기호를 각도 인덱스로 표시합니다."
         case .vi:
-            return "Nguồn cổ: quẻ Thái trong Kinh Dịch, quái từ ‘Tiểu vãng đại lai, cát hanh’. Giải thích: các từ về hưng thịnh, sức khỏe và tài lộc là cách đọc biểu tượng truyền thống của quẻ, không phải chẩn đoán y khoa, tư vấn tài chính hay bảo đảm kết quả."
+            return "Ghi chú thang đo: vòng 64 phân khu chia 360° thành từng bước 5.625°, dùng ký hiệu nhị phân 6-bit truyền thống để tra cứu góc."
         case .th:
-            return "ที่มาโบราณ: คำตัดสินของกว้าไท่ในคัมภีร์โจวอี้ ‘สิ่งเล็กไป สิ่งใหญ่มา เป็นมงคลและราบรื่น’ คำอธิบาย: ถ้อยคำเรื่องความรุ่งเรือง สุขภาพ และทรัพย์สินเป็นการตีความเชิงสัญลักษณ์แบบดั้งเดิม ไม่ใช่การวินิจฉัย คำแนะนำทางการเงิน หรือการรับประกันผล"
+            return "หมายเหตุสเกล: วงแหวน 64 ส่วนแบ่ง 360° เป็นช่องละ 5.625° โดยใช้สัญลักษณ์ฐานสอง 6 บิตแบบดั้งเดิมเป็นดัชนีอ้างอิงมุม"
         case .id:
-            return "Sumber klasik: keputusan heksagram Tai dalam Kitab Perubahan, ‘Yang kecil pergi, yang besar datang; keberuntungan dan kelancaran.’ Penjelasan: ungkapan kemakmuran, kesehatan, dan rezeki adalah tafsir simbolik tradisional, bukan diagnosis medis, nasihat keuangan, atau jaminan hasil."
+            return "Catatan skala: cincin 64 sektor membagi 360° menjadi langkah 5.625° dengan label biner 6-bit tradisional sebagai indeks sudut."
         case .auto, .zhHans:
-            return "古籍出处：\(sourceHans)解释：文中兴盛、健康与财帛语句是卦象的传统文化解读，不是医疗诊断、财务建议或结果保证。"
+            return "刻度说明：64 等分圆环按每格 5.625° 划分 360° 圆周，采用传统 6 位二进制符号作为角度索引参考。"
         }
     }
 }
@@ -558,7 +554,7 @@ public final class Hexagram64Data {
     public let hexagrams: [HexagramItem]
     
     private init() {
-        // 圆周64卦按先天圆图顺布生成
+        // 圆周64等分（5.625°/格）角度索引生成
         let names = [
             "坤为地", "山地剥", "水地比", "风地观", "雷地豫", "火地晋", "泽地萃", "天地否",
             "地山谦", "艮为山", "水山蹇", "风山渐", "雷山小过", "火山旅", "泽山咸", "天山遁",
@@ -580,20 +576,20 @@ public final class Hexagram64Data {
             let luck: String
             let detail: String
             
-            // 易经分金吉凶判定：旺相孤虚煞曜
+            // 5.625° 角度扇区稳态分级（保留内部键兼容既有逻辑）
             switch i % 8 {
             case 0, 7:
                 luck = "大吉"
-                detail = "旺相得令 · 丁财两旺 · 纳气纯清"
+                detail = "5.625° 中心扇区 · 远离主轴分缝 · 适合作为平面图朝向基准读数"
             case 1, 3, 5:
                 luck = "中吉"
-                detail = "合十通关 · 文昌显贵 · 催官生贵"
+                detail = "5.625° 标准扇区 · 方位角读数稳定 · 可直接记录为测站参考"
             case 2:
                 luck = "平"
-                detail = "平常平和 · 宜静不宜动 · 平稳发展"
+                detail = "5.625° 常规扇区 · 建议配合双轴水平仪与稳态采样确认读数"
             default:
                 luck = "慎用"
-                detail = "孤虚出煞 · 空亡差错 · 需抽爻换象化解"
+                detail = "靠近 5.625° 扇区过渡带 · 建议远离金属干扰并执行多样本复测"
             }
             
             let item = HexagramItem(

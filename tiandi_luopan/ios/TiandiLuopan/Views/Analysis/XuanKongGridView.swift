@@ -1430,73 +1430,104 @@ public struct Mountain24PickerSheet: View {
     }
 
     public var body: some View {
-        ZStack {
-            Color(red: 0.11, green: 0.11, blue: 0.15)
+        let state = motion.headingState
+        let isEn = (lang.effectiveLanguage == .en)
+        return ZStack {
+            Color(red: 0.08, green: 0.08, blue: 0.11)
                 .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 12) {
-                    // 1. 顶栏标题与关闭按钮
-                    HStack(spacing: 8) {
-                        Image(systemName: "dial.medium.fill")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                        Text(dialogTitle)
-                            .adaptiveFont(size: 15, weight: .bold)
-                            .foregroundColor(.white)
-                        Spacer()
-                        Button(action: { isPresented = false }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white.opacity(0.45))
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-
-                    Text(dialogSubtitle)
-                        .adaptiveFont(size: 11)
-                        .foregroundColor(.white.opacity(0.7))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    // 2. 当前坐山朝向与锁盘状态卡片
-                    currentSittingCard
-
-                    // 3. 向首度数微调控制 (支持正向/兼向测试)
-                    fineTuningSection
-
-                    // 4. 八宫分类快捷标签栏
-                    palaceFilterBar
-
-                    // 5. 二十四山宫位网格
+            VStack(spacing: 0) {
+                ScrollView {
                     VStack(spacing: 12) {
-                        ForEach(displayedPalaces) { palace in
-                            palaceSection(palace: palace)
+                        // 1. 顶栏标题与关闭按钮
+                        HStack(spacing: 8) {
+                            Image(systemName: "dial.medium.fill")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(Color.yanGold)
+                            Text(dialogTitle)
+                                .adaptiveFont(size: 15, weight: .bold)
+                                .foregroundColor(.white)
+                            Spacer()
+                            Button(action: { isPresented = false }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.white.opacity(0.45))
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+
+                        Text(dialogSubtitle)
+                            .adaptiveFont(size: 11)
+                            .foregroundColor(.white.opacity(0.7))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // 2. 当前坐山朝向与锁盘状态卡片
+                        currentSittingCard
+
+                        // 3. 向首度数微调控制 (支持正向/兼向测试)
+                        fineTuningSection
+
+                        // 4. 八宫分类快捷标签栏
+                        palaceFilterBar
+
+                        // 5. 二十四山宫位网格
+                        VStack(spacing: 12) {
+                            ForEach(displayedPalaces) { palace in
+                                palaceSection(palace: palace)
+                            }
                         }
                     }
+                    .padding(16)
+                    .frame(maxWidth: 520)
+                    .frame(maxWidth: .infinity)
+                }
 
-                    // 6. 底部确认与关闭按钮
+                // 6. 吸底常驻确认底座（无需滚到底部即可一键确认并同步工作流）
+                HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(state.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(state.facingMountain.localizedName)\(lang.t("facing_suffix"))")
+                            .adaptiveFont(size: 13, weight: .bold, design: .serif)
+                            .foregroundColor(.yanGold)
+                            .lineLimit(1)
+                        Text(String(format: "%.1f°", state.facingAngle))
+                            .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
+                            .foregroundColor(.yanCyan)
+                    }
+                    Spacer(minLength: 4)
                     Button(action: {
+                        SpatialWorkflowStore.shared.recordInstrumentBearing(
+                            bearingDegrees: state.facingAngle,
+                            northReferenceRaw: motion.northReference.rawValue,
+                            declinationDegrees: motion.currentDeclination,
+                            magneticStrengthUT: motion.magneticStrengthUT,
+                            isLevel: motion.isLevel,
+                            pitchDegrees: motion.pitch,
+                            rollDegrees: motion.roll,
+                            sourceLabel: isEn ? "24-Mountain Manual Pick" : "手选24山锁定"
+                        )
                         isPresented = false
                     }) {
                         Text(confirmButtonText)
-                            .adaptiveFont(size: 14, weight: .bold)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color(red: 0.95, green: 0.8, blue: 0.35), Color(red: 0.75, green: 0.55, blue: 0.2)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
+                            .adaptiveFont(size: 13.5, weight: .bold)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 11)
+                            .background(Color.yanGold)
                             .foregroundColor(.black)
                             .cornerRadius(10)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .padding(.top, 4)
                 }
-                .padding(16)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
                 .frame(maxWidth: 520)
+                .frame(maxWidth: .infinity)
+                .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                .overlay(
+                    Rectangle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 1),
+                    alignment: .top
+                )
             }
         }
         .preferredColorScheme(.dark)
@@ -1607,11 +1638,11 @@ public struct Mountain24PickerSheet: View {
 
     private func elementColor(for elem: String) -> Color {
         switch elem {
-        case "水": return Color.blue
-        case "木": return Color.green
-        case "火": return Color.red
-        case "土": return Color(red: 0.8, green: 0.6, blue: 0.3)
-        case "金": return Color(red: 0.95, green: 0.85, blue: 0.45)
+        case "水", "Water", "수", "Thủy": return Color.blue
+        case "木", "Wood", "목", "Mộc": return Color.green
+        case "火", "Fire", "화", "Hỏa": return Color.red
+        case "土", "Earth", "토", "Thổ": return Color(red: 0.8, green: 0.6, blue: 0.3)
+        case "金", "Metal", "금", "Kim": return Color.yanGold
         default: return Color.white
         }
     }

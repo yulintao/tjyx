@@ -675,8 +675,8 @@ public struct RootContentView: View {
                 }
                 .tag(0)
             
-            // Tab 2: AR 实景空间测绘与 LiDAR 三维扫描（质量评分、多边形面积周长、点对点测距、快照）
-            ARVisionView(isActive: selectedTab == 1)
+            // Tab 2: 默认直接进入 AR/LiDAR 实景空间测绘（距离/多边形面积周长/RoomPlan 3D 建模），支持一键切换建筑实景方位观测
+            ARSurveyTabHostView(isActive: selectedTab == 1)
                 .tabItem {
                     Image(systemName: "camera.viewfinder")
                     Text(lang.t("tab_ar"))
@@ -1037,6 +1037,49 @@ public struct CameraExclusiveGate<Content: View>: View {
 
 public extension Notification.Name {
     static let didRequestWorkflowReport = Notification.Name("com.yanxiang.compass.didRequestWorkflowReport")
+}
+
+/// Tab 2 宿主视图：默认优先展示真实 ARKit / LiDAR 空间测绘工具（点对点测距、多边形面积周长、RoomPlan 3D 建模），
+/// 支持一键切换至实景方位与建筑外部几何特征观测模式，且在非活动 Tab 时释放相机资源。
+private struct ARSurveyTabHostView: View {
+    let isActive: Bool
+    @State private var showExteriorSiteObserver: Bool = false
+    @ObservedObject private var lang = LocalizationManager.shared
+
+    var body: some View {
+        ZStack {
+            Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea()
+            if isActive {
+                if showExteriorSiteObserver {
+                    ZStack(alignment: .topTrailing) {
+                        ARVisionView(isActive: true)
+                        Button(action: { showExteriorSiteObserver = false }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arkit")
+                                Text(lang.effectiveLanguage == .en ? "AR Measure" : "返回测绘")
+                            }
+                            .adaptiveFont(size: 10.5, weight: .bold)
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.yanGold)
+                            .cornerRadius(14)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.top, 54)
+                        .padding(.trailing, 62)
+                    }
+                } else {
+                    CameraExclusiveGate {
+                        ARSpatialSurveyView(
+                            isEmbedded: true,
+                            onSwitchToExteriorView: { showExteriorSiteObserver = true }
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// 四步专业工作流状态条：挂载于户型测绘、AR 测绘、电子方位仪与专业计算顶部，一键串联全流程。

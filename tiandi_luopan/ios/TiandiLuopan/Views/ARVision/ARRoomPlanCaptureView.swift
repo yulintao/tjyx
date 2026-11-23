@@ -1242,154 +1242,43 @@ public struct ARRoomPlanSurveyView: View {
     }
 
     public var body: some View {
-        ZStack {
+        let isEn = (lang.effectiveLanguage == .en)
+        return ZStack {
             ARRoomPlanPreviewView(model: model)
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                HStack(spacing: 8) {
+            VStack(spacing: 8) {
+                // 顶部精简状态栏：标题 + 实时扫描状态 + 关闭键
+                HStack(spacing: 10) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(lang.t("ar_roomplan_title"))
-                            .adaptiveFont(size: 16, weight: .bold)
+                            .adaptiveFont(size: 15.5, weight: .bold)
                             .foregroundColor(.white)
                             .lineLimit(1)
-                            .minimumScaleFactor(0.72)
-                        Text(model.isCapturing ? lang.t("ar_roomplan_scanning") : "\(lang.t("ar_roomplan_finished")) (\(max(1, model.scannedRoomCount))\(lang.t("ar_roomplan_room_unit")))")
-                            .adaptiveFont(size: 10, weight: .medium)
-                            .foregroundColor(model.isCapturing ? .green : .orange)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                    .frame(maxWidth: horizontalSizeClass == .regular ? 240 : 150, alignment: .leading)
-                    .layoutPriority(1)
-
-                    // 扫描完成态同一行要并列 6 个控件（继续加扫 / 3D / 大门朝向旋钮 / 同步 / 分享），
-                    // 固定部分就有 416pt，iPhone 375~430pt 屏宽下必然溢出。
-                    // 这里把操作区放进横向滚动兜底，标题留在左侧、关闭键常驻右侧，任何宽度下都能点全。
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            if model.isCapturing {
-                                Button(action: { model.finishCurrentRoomSegment() }) {
-                                    Image(systemName: "checkmark")
-                                        .adaptiveFont(size: 13, weight: .bold)
-                                        .foregroundColor(.black)
-                                        .padding(9)
-                                        .background(Color.green)
-                                        .clipShape(Circle())
-                                }
-                                .accessibilityLabel(lang.t("ar_roomplan_finish"))
-                            } else if model.didFinish {
-                                Button(action: { model.startNextRoomSegment() }) {
-                                    Image(systemName: "plus.square.on.square")
-                                        .adaptiveFont(size: 13, weight: .bold)
-                                        .foregroundColor(.black)
-                                        .padding(9)
-                                        .background(Color.green.opacity(0.9))
-                                        .clipShape(Circle())
-                                }
-                                .accessibilityLabel(lang.t("ar_roomplan_next_room"))
-                                if model.currentSpatialSurvey != nil {
-                                    Button(action: { show3DViewer = true }) {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "cube.transparent")
-                                                .adaptiveFont(size: 13, weight: .bold)
-                                            Text(lang.t("ar_3d_space"))
-                                                .adaptiveFont(size: 10, weight: .bold)
-                                        }
-                                        .foregroundColor(.black)
-                                        .padding(.horizontal, 9)
-                                        .padding(.vertical, 6)
-                                        .background(Color.yanGold)
-                                        .cornerRadius(14)
-                                    }
-                                    .accessibilityLabel(lang.t("ar_3d_model_title"))
-                                }
-                                if !model.hasHeadingReference {
-                                    Text(lang.t("ar_survey_heading_pending"))
-                                        .adaptiveFont(size: 11).foregroundColor(.orange)
-                                }
-                                if model.entranceOptions.count > 1 {
-                                    Menu {
-                                        ForEach(Array(model.entranceOptions.enumerated()), id: \.element.id) { index, door in
-                                            Button(action: { model.confirmEntrance(id: door.id) }) {
-                                                let heading = HouseSpatialSurveyEngine.resolveHouseFacing(
-                                                    openings: [door], centroid: model.currentSpatialSurvey?.centroid ?? .zero,
-                                                    coordinateHeading: model.currentSpatialSurvey?.compassHeading ?? 0)
-                                                let angle = heading.map { String(format: "%.0f°", $0) } ?? "--"
-                                                Text("\(index + 1) · \(String(format: "%.2f m", door.width)) · \(angle)\(model.currentEntranceID == door.id ? " ✓" : "")")
-                                            }
-                                        }
-                                    } label: {
-                                        Label(lang.t("ar_roomplan_confirm_entrance"), systemImage: "door.left.hand.open")
-                                            .adaptiveFont(size: 11).foregroundColor(.yanGold)
-                                    }
-                                }
-                                // 大门朝向罗盘校准旋钮：以实测罗盘度数为准微调，立即刷新报告
-                                VStack(spacing: 2) {
-                                    Text("\(lang.t(model.currentSpatialSurvey?.resolvedHouseFacing == nil ? "ar_roomplan_coordinate_heading" : "ar_roomplan_door_heading")) \(model.effectiveHeadingForDisplay.map { String(format: "%.1f°", $0) } ?? "--")")
-                                        .adaptiveFont(size: 9, weight: .bold, design: .monospaced)
-                                        .foregroundColor(.white)
-                                    HStack(spacing: 3) {
-                                        Button(action: { model.applyHeadingOffset(model.headingOffsetDegrees - 5.0) }) {
-                                            Text("−5°")
-                                                .adaptiveFont(size: 9, weight: .bold)
-                                                .foregroundColor(.black)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 4)
-                                                .background(Color.orange)
-                                                .cornerRadius(8)
-                                        }
-                                        Button(action: { model.applyHeadingOffset(model.headingOffsetDegrees - 1.0) }) {
-                                            Text("−1°")
-                                                .adaptiveFont(size: 9, weight: .bold)
-                                                .foregroundColor(.black)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 4)
-                                                .background(Color.white.opacity(0.85))
-                                                .cornerRadius(8)
-                                        }
-                                        Button(action: { model.applyHeadingOffset(model.headingOffsetDegrees + 1.0) }) {
-                                            Text("+1°")
-                                                .adaptiveFont(size: 9, weight: .bold)
-                                                .foregroundColor(.black)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 4)
-                                                .background(Color.white.opacity(0.85))
-                                                .cornerRadius(8)
-                                        }
-                                        Button(action: { model.applyHeadingOffset(model.headingOffsetDegrees + 5.0) }) {
-                                            Text("+5°")
-                                                .adaptiveFont(size: 9, weight: .bold)
-                                                .foregroundColor(.black)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 4)
-                                                .background(Color.orange)
-                                                .cornerRadius(8)
-                                        }
-                                    }
-                                }
-                                .accessibilityLabel(lang.t(model.currentSpatialSurvey?.resolvedHouseFacing == nil ? "ar_roomplan_coordinate_heading" : "ar_roomplan_door_heading"))
-                                Button(action: syncToFloorplan) {
-                                    Image(systemName: "scope")
-                                        .adaptiveFont(size: 13, weight: .bold)
-                                        .foregroundColor(.black)
-                                        .padding(9)
-                                        .background(Color.yanCyan)
-                                        .clipShape(Circle())
-                                }
-                                .accessibilityLabel(lang.t("tab_floorplan"))
-                                Button(action: shareReport) {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .adaptiveFont(size: 13, weight: .bold)
-                                        .foregroundColor(.white)
-                                        .padding(9)
-                                        .background(Color.blue.opacity(0.8))
-                                        .clipShape(Circle())
-                                }
-                                .accessibilityLabel(lang.t("ar_roomplan_share"))
-                            }
+                            .minimumScaleFactor(0.75)
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(model.isCapturing ? Color.green : Color.yanGold)
+                                .frame(width: 6, height: 6)
+                            Text(model.isCapturing
+                                 ? lang.t("ar_roomplan_scanning")
+                                 : "\(lang.t("ar_roomplan_finished")) (\(max(1, model.scannedRoomCount))\(lang.t("ar_roomplan_room_unit")))")
+                                .adaptiveFont(size: 10.5, weight: .semibold)
+                                .foregroundColor(model.isCapturing ? .green : .yanGold)
+                                .lineLimit(1)
                         }
-                        .padding(.vertical, 2)
+                    }
+
+                    Spacer(minLength: 4)
+
+                    if model.estimatedAreaSqMeters > 0 {
+                        Text(String(format: "%.1f m²", model.estimatedAreaSqMeters))
+                            .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
+                            .foregroundColor(.yanCyan)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.yanCyan.opacity(0.16))
+                            .cornerRadius(7)
                     }
 
                     Button(action: {
@@ -1400,40 +1289,56 @@ public struct ARRoomPlanSurveyView: View {
                             .adaptiveFont(size: 13, weight: .bold)
                             .foregroundColor(.white)
                             .padding(9)
-                            .background(Color.black.opacity(0.6))
+                            .background(Color.white.opacity(0.14))
                             .clipShape(Circle())
                     }
                     .accessibilityLabel(lang.t("ar_spatial_close"))
                 }
-                .padding(10)
-                .background(Color.black.opacity(0.7))
-                .cornerRadius(12)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .background(Color.black.opacity(0.72))
+                .cornerRadius(13)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 13)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
                 .padding(.horizontal, 14)
                 .padding(.top, 10)
 
                 Spacer()
 
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(lang.t("ar_roomplan_semantic_note"))
-                        .adaptiveFont(size: 10, weight: .medium)
-                        .foregroundColor(.white.opacity(0.72))
+                // 底部实时指标 + 拇指区操作底座
+                VStack(alignment: .leading, spacing: 9) {
                     if model.estimatedAreaSqMeters > 0 {
-                        Text(String(
-                            format: "%.2f × %.2f m (%.1f m²)",
-                            model.estimatedWidthMeters,
-                            model.estimatedDepthMeters,
-                            model.estimatedAreaSqMeters
-                        ))
-                        .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
-                        .foregroundColor(.yanCyan)
+                        HStack {
+                            Text(String(
+                                format: "%.2f × %.2f m (%.1f m²)",
+                                model.estimatedWidthMeters,
+                                model.estimatedDepthMeters,
+                                model.estimatedAreaSqMeters
+                            ))
+                            .adaptiveFont(size: 11.5, weight: .bold, design: .monospaced)
+                            .foregroundColor(.yanCyan)
+                            Spacer()
+                            Text(lang.t("ar_roomplan_semantic_note"))
+                                .adaptiveFont(size: 9.5)
+                                .foregroundColor(.white.opacity(0.6))
+                                .lineLimit(1)
+                        }
+                    } else {
+                        Text(lang.t("ar_roomplan_semantic_note"))
+                            .adaptiveFont(size: 10, weight: .medium)
+                            .foregroundColor(.white.opacity(0.72))
                     }
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
                         semanticCount("ar_spatial_wall", value: model.wallCount, icon: "rectangle.portrait")
                         semanticCount("ar_spatial_door", value: model.doorCount, icon: "door.left.hand.open")
                         semanticCount("ar_spatial_window", value: model.windowCount, icon: "window.vertical.open")
                         semanticCount("ar_roomplan_opening", value: model.openingCount, icon: "rectangle.dashed")
                         semanticCount("ar_roomplan_object", value: model.objectCount, icon: "cube")
                     }
+
                     if !model.spatialFindings.isEmpty {
                         VStack(alignment: .leading, spacing: 3) {
                             ForEach(model.spatialFindings, id: \.self) { finding in
@@ -1450,6 +1355,113 @@ public struct ARRoomPlanSurveyView: View {
                         .background(Color.white.opacity(0.08))
                         .cornerRadius(8)
                     }
+
+                    // 扫描完成态：朝向校准步进条 + 大门确认 + 四键拇指操作行
+                    if model.isCapturing {
+                        Button(action: { model.finishCurrentRoomSegment() }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text(lang.t("ar_roomplan_finish"))
+                            }
+                            .adaptiveFont(size: 13, weight: .bold)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 11)
+                            .background(Color.green)
+                            .foregroundColor(.black)
+                            .cornerRadius(10)
+                        }
+                        .buttonStyle(.plain)
+                    } else if model.didFinish {
+                        if !model.hasHeadingReference {
+                            Text(lang.t("ar_survey_heading_pending"))
+                                .adaptiveFont(size: 10.5)
+                                .foregroundColor(.orange)
+                        }
+
+                        // 朝向微调 + 多门入户门选择
+                        VStack(spacing: 6) {
+                            HStack {
+                                Text("\(lang.t(model.currentSpatialSurvey?.resolvedHouseFacing == nil ? "ar_roomplan_coordinate_heading" : "ar_roomplan_door_heading")): \(model.effectiveHeadingForDisplay.map { String(format: "%.1f°", $0) } ?? "--")")
+                                    .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                                    .foregroundColor(.yanGold)
+                                Spacer()
+                                if model.entranceOptions.count > 1 {
+                                    Menu {
+                                        ForEach(Array(model.entranceOptions.enumerated()), id: \.element.id) { index, door in
+                                            Button(action: { model.confirmEntrance(id: door.id) }) {
+                                                let heading = HouseSpatialSurveyEngine.resolveHouseFacing(
+                                                    openings: [door], centroid: model.currentSpatialSurvey?.centroid ?? .zero,
+                                                    coordinateHeading: model.currentSpatialSurvey?.compassHeading ?? 0)
+                                                let angle = heading.map { String(format: "%.0f°", $0) } ?? "--"
+                                                Text("\(index + 1) · \(String(format: "%.2f m", door.width)) · \(angle)\(model.currentEntranceID == door.id ? " ✓" : "")")
+                                            }
+                                        }
+                                    } label: {
+                                        Label(lang.t("ar_roomplan_confirm_entrance"), systemImage: "door.left.hand.open")
+                                            .adaptiveFont(size: 10, weight: .bold)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.yanGold.opacity(0.18))
+                                            .foregroundColor(.yanGold)
+                                            .cornerRadius(6)
+                                    }
+                                }
+                            }
+
+                            HStack(spacing: 6) {
+                                ForEach([-5.0, -1.0, 1.0, 5.0], id: \.self) { step in
+                                    Button(action: { model.applyHeadingOffset(model.headingOffsetDegrees + step) }) {
+                                        Text(step > 0 ? String(format: "+%.0f°", step) : String(format: "%.0f°", step))
+                                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 6)
+                                            .background(abs(step) >= 5 ? Color.orange.opacity(0.24) : Color.white.opacity(0.12))
+                                            .foregroundColor(abs(step) >= 5 ? .orange : .white)
+                                            .cornerRadius(7)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                        .padding(8)
+                        .background(Color.white.opacity(0.06))
+                        .cornerRadius(9)
+
+                        // 四键拇指操作行（无需横向滑动）
+                        HStack(spacing: 6) {
+                            roomPlanActionPill(
+                                icon: "plus.square.on.square",
+                                title: isEn ? "Add Room" : "继续加扫",
+                                bg: Color.green.opacity(0.22),
+                                fg: .green,
+                                action: { model.startNextRoomSegment() }
+                            )
+                            if model.currentSpatialSurvey != nil {
+                                roomPlanActionPill(
+                                    icon: "cube.transparent",
+                                    title: lang.t("ar_3d_space"),
+                                    bg: Color.yanGold,
+                                    fg: .black,
+                                    action: { show3DViewer = true }
+                                )
+                            }
+                            roomPlanActionPill(
+                                icon: "scope",
+                                title: isEn ? "To Plan" : "同步户型",
+                                bg: Color.yanCyan.opacity(0.22),
+                                fg: .yanCyan,
+                                action: syncToFloorplan
+                            )
+                            roomPlanActionPill(
+                                icon: "square.and.arrow.up",
+                                title: isEn ? "Share" : "分享",
+                                bg: Color.white.opacity(0.14),
+                                fg: .white,
+                                action: shareReport
+                            )
+                        }
+                    }
+
                     if let error = model.errorMessage {
                         Text("\(lang.t("ar_roomplan_failed")): \(error)")
                             .adaptiveFont(size: 10)
@@ -1462,8 +1474,12 @@ public struct ARRoomPlanSurveyView: View {
                     }
                 }
                 .padding(12)
-                .background(Color.black.opacity(0.8))
-                .cornerRadius(12)
+                .background(Color.black.opacity(0.82))
+                .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
                 .padding(.horizontal, 14)
                 .padding(.bottom, 12)
             }
@@ -1484,6 +1500,26 @@ public struct ARRoomPlanSurveyView: View {
                 House3DSpaceViewer(survey: survey, propertyID: model.propertyID)
             }
         }
+    }
+
+    private func roomPlanActionPill(icon: String, title: String, bg: Color, fg: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .bold))
+                Text(title)
+                    .adaptiveFont(size: 9.5, weight: .bold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 4)
+            .background(bg)
+            .foregroundColor(fg)
+            .cornerRadius(9)
+        }
+        .buttonStyle(.plain)
     }
 
     private func syncToFloorplan() {

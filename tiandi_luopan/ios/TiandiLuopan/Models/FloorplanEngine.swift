@@ -1377,259 +1377,259 @@ public class FloorplanEngine {
         switch (type, palaceGua) {
         case (.kitchen, "乾"), (.kitchen, "Qian"), (.kitchen, "건"), (.kitchen, "Càn"), (.kitchen, "เฉียน"):
             return (
-                tr8("火烧天门大煞", "火燒天門大煞", "Heaven Gate Fire Sha", "火焼天門殺", "화소천문살", "Hỏa Thiêu Thiên Môn Đại Sát", "เคราะห์ไฟเผาประตูสวรรค์", "Sha Api Membakar Gerbang Surga"),
+                tr8("西北角厨房排烟与热源核验", "西北角廚房排煙與熱源核驗", "Northwest Kitchen Exhaust & Heat Check", "北西キッチン換気・熱源確認", "북서 주방 배기 및 열원 점검", "Kiểm tra hút mùi & nhiệt bếp Tây Bắc", "ตรวจการระบายอากาศและความร้อนครัวตะวันตกเฉียงเหนือ", "Cek Ventilasi & Panas Dapur Barat Laut"),
                 "严重煞气",
                 tr8(
-                    "《阳宅十书》原文有“乾为天为父为首，灶火克乾金，极不利男主人头部、血压及事业运”。此句属于古籍象征性判断，请现场核对通风、热源距离与消防安全。",
-                    "《陽宅十書》原文有「乾為天為父為首，灶火克乾金，極不利男主人頭部、血壓及事業運」。此句屬於古籍象徵性判斷，請現場核對通風、熱源距離與消防安全。",
-                    "The Yang Zhai Ten Books states, “Qian represents Heaven, the father and the head; stove fire overcomes Qian Metal and is highly unfavorable to the male head, blood pressure and career.” This is a historical text reference; verify ventilation, heat clearance and fire safety on site.",
-                    "乾は天、父親、首座を象徴します。キッチンの火気と空間配置についての伝統文化上の参考提示です。換気と安全を現場で確認してください。",
-                    "건위는 하늘과 가장을 상징합니다. 주방의 화기가 건금을 극하여 가장의 두부, 혈압 및 사업운에 불리합니다.",
-                    "《Dương Trạch Thập Thư》ghi: “Càn tượng trưng cho Trời, người cha và người đứng đầu; hỏa bếp khắc Càn Kim, bất lợi cho đầu, huyết áp và sự nghiệp của gia chủ nam”. Đây là trích dẫn cổ thư; hãy kiểm tra thông gió, khoảng cách nhiệt và an toàn cháy nổ tại chỗ.",
-                    "《หยางไจ๋สือซู》กล่าวว่า “เฉียนคือสวรรค์ บิดา และผู้นำ ไฟจากเตาชนะทองเฉียน ส่งผลไม่ดีต่อศีรษะ ความดันโลหิต และการงานของเจ้าบ้านชาย” นี่เป็นข้อความอ้างอิงโบราณ โปรดตรวจสอบการระบายอากาศ ระยะห่างจากความร้อน และความปลอดภัยจากไฟหน้างาน",
-                    "《Yang Zhai Ten Books》menyatakan, “Qian melambangkan Surga, ayah, dan kepala rumah; api dapur mengalahkan Logam Qian dan tidak menguntungkan kepala, tekanan darah, serta karier kepala rumah.” Ini kutipan klasik; periksa ventilasi, jarak panas, dan keselamatan kebakaran di lokasi."
+                    "西北方位冬季常迎主导寒风，夏季下午易受西晒叠加热负荷，厨房设于此区需重点核验油烟倒灌、隔热距离与消防排风。",
+                    "西北方位冬季常迎主導寒風，夏季下午易受西曬疊加熱負荷，廚房設於此區需重點核驗油煙倒灌、隔熱距離與消防排風。",
+                    "Northwest kitchens often face prevailing winter crosswinds and afternoon western solar heat gain. Verify exhaust backdraft prevention, thermal clearance, and ventilation airflow on site.",
+                    "北西側のキッチンは冬季の季節風や西日の熱負荷を受けやすいため、排気の逆流防止・断熱距離・換気経路を現地で確認してください。",
+                    "북서쪽 주방은 겨울철 북서풍과 오후 서향 일사 열부하의 영향을 받기 쉬우므로 배기 역류 방지, 단열 거리, 환기 효율을 점검하세요.",
+                    "Bếp hướng Tây Bắc thường chịu gió mùa và bức xạ nắng chiều; cần kiểm tra van chống gió ngược ống hút mùi, cách nhiệt và thông gió.",
+                    "ครัวทิศตะวันตกเฉียงเหนือมักรับลมและแดดบ่าย ควรตรวจวาล์วกันลมย้อนของเครื่องดูดควัน ระยะกันความร้อน และการระบายอากาศ",
+                    "Dapur barat laut sering terkena angin dan panas matahari sore; periksa katup anti-aliran balik exhaust, jarak panas, dan ventilasi."
                 ),
                 tr8(
-                    "灶台旁安放天然黄色陶瓷罐，或悬挂真品六帝铜钱以土泄火生金。",
-                    "灶台旁安放天然黃色陶瓷罐，或懸掛真品六帝銅錢，以土洩火生金。",
-                    "Place a natural yellow ceramic vessel beside the stove, or hang Six Emperor coins so Earth can drain Fire and generate Metal.",
-                    "コンロの横に黄色の陶器瓶を置くか、六帝銭を吊るして土気で火を和らげ金を助けます。",
-                    "가스레인지 옆에 황색 도자기를 두거나 육제전을 걸어 토로 화기를 설기하고 금을 생조하세요.",
-                    "Đặt bình gốm màu vàng cạnh bếp, hoặc treo chuỗi tiền Lục Đế để dùng Thổ tiết Hỏa sinh Kim.",
-                    "วางโถเซรามิกสีเหลืองธรรมชาติไว้ข้างเตา หรือแขวนเหรียญหกจักรพรรดิเพื่อใช้ธาตุดินถ่ายเทพลังไฟหนุนธาตุทอง",
-                    "Letakkan wadah keramik kuning di dekat kompor atau gantung Koin Enam Kaisar agar Tanah dapat meredam Api dan menghasilkan Logam."
+                    "建议安装止逆阀与大风量侧吸油烟机，西向窗配置隔热遮阳帘并保持明火与可燃物安全间距。",
+                    "建議安裝止逆閥與大風量側吸油煙機，西向窗配置隔熱遮陽簾並保持明火與可燃物安全間距。",
+                    "Install a backdraft damper with a high-CFM range hood, add solar heat-blocking blinds on west-facing windows, and maintain safe fire clearance.",
+                    "逆流防止ダンパー付き高排気レンジフードと遮熱ブラインドを採用し、火気周辺の安全な離隔距離を確保してください。",
+                    "역류 방지 댐퍼와 고풍량 후드를 설치하고 서향 창에 차열 블라인드를 적용하며 화기 안전 거리를 확보하세요.",
+                    "Lắp van một chiều cho ống hút mùi công suất cao, dùng rèm cách nhiệt cho cửa sổ hướng Tây và giữ khoảng cách an toàn cháy nổ.",
+                    "ติดตั้งวาล์วกันลมย้อนพร้อมเครื่องดูดควันกำลังสูง ติดม่านกันความร้อนฝั่งตะวันตก และเว้นระยะปลอดภัยรอบเตา",
+                    "Pasang katup anti-balik pada penghisap asap berkapasitas tinggi, tirai penahan panas di jendela barat, dan jaga jarak aman api."
                 )
             )
         case (.bathroom, "乾"), (.bathroom, "Qian"), (.bathroom, "건"), (.bathroom, "Càn"), (.bathroom, "เฉียน"):
             return (
-                tr8("水浸天门污秽大煞", "水浸天門污穢大煞", "Heaven Gate Water Pollution Sha", "水浸天門殺", "수침천문살", "Thủy Tẩm Thiên Môn Ô Uế Đại Sát", "เคราะห์น้ำท่วมประตูสวรรค์", "Sha Air Mencemari Gerbang Surga"),
+                tr8("西北角卫浴防潮与采暖核验", "西北角衛浴防潮與採暖核驗", "Northwest Bathroom Moisture & Warmth Check", "北西浴室の防湿・断熱確認", "북서 욕실 결로 및 단열 점검", "Kiểm tra chống ẩm & thông gió vệ sinh Tây Bắc", "ตรวจความชื้นและฉนวนห้องน้ำตะวันตกเฉียงเหนือ", "Cek Kelembapan & Isolasi Kamar Mandi Barat Laut"),
                 "严重煞气",
                 tr8(
-                    "乾为天为父，卫浴设于西北，金水相寒污浊天门，主男主人事业阻滞、脑血管与呼吸道隐患。出处：《阳宅十书》相关“水浸天门”论。解释：此为古籍传统象征，请结合防水、通风、干燥和动线现场复核。",
-                    "乾為天為父，衛浴設於西北，金水相寒污濁天門，主男主人事業阻滯、腦血管與呼吸道隱患。出處：《陽宅十書》相關「水浸天門」論。解釋：此為古籍傳統象徵，請結合防水、通風、乾燥和動線現場複核。",
-                    "The Yang Zhai Ten Books describes a northwest bathroom as “water immersing the Heaven Gate,” traditionally associated with the male householder's career, circulation and breathing. This is a historical quotation; verify waterproofing, ventilation, dryness and circulation on site.",
-                    "『陽宅十書』は北西の浴室を「天門に水が浸る」と表現し、家長の事業、循環器・呼吸器の不調に結び付けます。古典の引用として示し、防水、換気、乾燥、動線を現地で確認してください。",
-                    "《양택십서》는 서북 욕실을 ‘천문에 물이 잠긴다’고 하며 가장의 사업과 뇌혈관·호흡기 문제에 연결합니다. 고전 인용으로 제시하며 방수·환기·건조·동선을 현장에서 확인하세요.",
-                    "Càn là vị trí của người cha; vệ sinh ở Tây Bắc làm Kim Thủy thêm lạnh và ô nhiễm thiên môn, gây trắc trở sự nghiệp và hô hấp.",
-                    "《หยางไจ๋สือซู》เรียกห้องน้ำตะวันตกเฉียงเหนือว่า “น้ำท่วมประตูสวรรค์” และเชื่อมโยงกับการงานของผู้นำบ้าน ระบบไหลเวียนและการหายใจ นี่เป็นการอ้างอิงคัมภีร์ โปรดตรวจสอบการกันน้ำ การระบายอากาศ ความแห้ง และทางเดินหน้างาน",
-                    "Kamar mandi di barat laut mencemari gerbang surga, melemahkan sirkulasi pernapasan dan menghambat kemajuan karir pria."
+                    "西北角冬季气温偏低、迎风面散热快，卫浴水汽易在冷墙面结露发霉，需重点核对墙地防水层、热风换气及干湿分区。",
+                    "西北角冬季氣溫偏低、迎風面散熱快，衛浴水汽易在冷牆面結露發霉，需重點核對牆地防水層、熱風換氣及乾濕分區。",
+                    "Northwest exterior corners experience faster winter heat loss, increasing condensation and mold risk in wet zones. Verify waterproofing, heated exhaust, and wet-dry separation.",
+                    "北西の外壁コーナーは冬季に冷えやすく結露・カビのリスクが高いため、防水施工・換気乾燥機・乾湿分離を現地で確認してください。",
+                    "북서 외벽 코너는 겨울철 결로와 곰팡이 위험이 높으므로 방수 시공, 온풍 환기, 건식·습식 분리를 현장에서 확인하세요.",
+                    "Góc Tây Bắc dễ lạnh vào mùa đông gây đọng sương và nấm mốc trong khu ướt; cần kiểm tra chống thấm, quạt thông gió và phân khu khô–ướt.",
+                    "มุมตะวันตกเฉียงเหนือมักเย็นและชื้นง่าย เกิดเชื้อราได้ง่าย ควรตรวจระบบกันซึม พัดลมดูดอากาศ และการแยกส่วนเปียก–แห้ง",
+                    "Sudut barat laut lebih rentan kondensasi dan jamur di area basah; periksa lapisan kedap air, exhaust fan, dan pemisahan area basah-kering."
                 ),
                 tr8(
-                    "卫生间门常闭，门槛下安放真品五帝古钱，内置纯铜金蟾或粗盐陶罐吸纳湿浊。",
-                    "衛生間門常閉，門檻下安放真品五帝古錢，內置純銅金蟾或粗鹽陶罐吸納濕濁。",
-                    "Keep the bathroom door closed; place Five Emperor coins under the threshold and a brass toad or salt vessel inside to absorb damp qi.",
-                    "浴室のドアを常に閉め、敷居に五帝銭を配置し、室内に粗塩や銅製の置物を置いて湿気を浄化します。",
-                    "욕실 문을 항상 닫아두고, 문턱 아래에 오제전을 배치하며 굵은 소금 단지를 두어 습기를 정화하세요.",
-                    "Thường xuyên đóng cửa phòng vệ sinh, đặt tiền Ngũ Đế dưới ngạch cửa, đặt hũ muối thô hoặc cóc đồng để hút ẩm.",
-                    "ปิดประตูห้องน้ำเสมอ วางเหรียญห้าจักรพรรดิใต้ธรณีประตู และตั้งโถเกลือเม็ดหรือคางคกทองเหลืองเพื่อดูดซับความชื้น",
-                    "Tutup pintu kamar mandi; letakkan Koin Lima Kaisar di bawah ambang pintu dan wadah garam kasar di dalam untuk menyerap kelembapan."
+                    "建议做实体干湿分离与闭门器，配置延时排风浴霸及墙体保温防潮涂层，保持室内干燥。",
+                    "建議做實體乾濕分離與閉門器，配置延時排風浴霸及牆體保溫防潮塗層，保持室內乾燥。",
+                    "Add a physical wet-dry partition, timed humidity-sensing exhaust fan, and thermal moisture-barrier wall finish to keep the space dry.",
+                    "乾湿分離パーティション、湿度センサー付き換気乾燥機、防カビ断熱仕上げを導入して乾燥状態を維持してください。",
+                    "건습 분리 파티션, 습도 감지 지연 환기팬, 단열 방습 마감을 적용해 실내를 쾌적하게 유지하세요.",
+                    "Tách khu khô–ướt rõ ràng, lắp quạt hút ẩm có hẹn giờ và sơn chống thấm chống mốc cho tường.",
+                    "กั้นโซนเปียก–แห้ง ติดพัดลมดูดอากาศตั้งเวลา และทาสีกันชื้นป้องกันเชื้อรา",
+                    "Buat pemisahan area basah-kering, pasang exhaust fan dengan pengatur waktu, dan gunakan pelapis dinding anti-lembap."
                 )
             )
         case (.kitchen, "坎"), (.kitchen, "Kan"), (.kitchen, "감"), (.kitchen, "Khảm"), (.kitchen, "ข่าน"):
             return (
-                tr8("水火相战未济煞", "水火相戰未濟煞", "Water–Fire Clash", "水火相剋殺", "수화상전 미제살", "Thủy Hỏa Tương Chiến Vị Tế Sát", "เคราะห์น้ำไฟปะทะ", "Sha Benturan Air dan Api"),
+                tr8("北向厨房采光与冬季排风核验", "北向廚房採光與冬季排風核驗", "North Kitchen Daylight & Airflow Check", "北側キッチンの採光・換気確認", "북향 주방 채광 및 환기 점검", "Kiểm tra ánh sáng & thông gió bếp hướng Bắc", "ตรวจแสงธรรมชาติและระบายอากาศครัวทิศเหนือ", "Cek Pencahayaan & Ventilasi Dapur Utara"),
                 "预警",
                 tr8(
-                    "北方坎水见烈火，水火不相容，主心肾不交、情绪烦躁与血液循环受损。出处：《易经》“水火不相容”。解释：此为古籍传统象征，请现场核对热源距离、通风、用电与消防安全。",
-                    "北方坎水見烈火，水火不相容，主心腎不交、情緒煩躁與血液循環受損。出處：《易經》「水火不相容」。解釋：此為古籍傳統象徵，請現場核對熱源距離、通風、用電與消防安全。",
-                    "The I Ching uses “Water and Fire do not coexist” for Kan Water meeting strong Fire; traditional interpretation mentions heart-kidney balance, mood and circulation. This is a historical text reference; verify heat clearance, ventilation, power and fire safety on site.",
-                    "北方の坎水とコンロの烈火が対立し、心身のバランスの乱れや情緒不安定を招きます。",
-                    "북방 감수와 주방의 화기가 상충하여 심신 불균형, 정서 불안 및 혈액순환 장애를 부를 수 있습니다.",
-                    "Khảm Thủy phương Bắc gặp Hỏa của bếp dẫn đến thủy hỏa tương khắc, tâm thần bất an, ảnh hưởng tuần hoàn máu.",
-                    "น้ำทิศเหนือปะทะไฟจากเตา น้ำและไฟเข้ากันไม่ได้ ส่งผลต่ออารมณ์ฉุนเฉียวและระบบไหลเวียนโลหิต",
-                    "Air Kan di utara berbenturan dengan Api kompor, mengganggu ketenangan emosi dan sirkulasi peredaran darah."
+                    "正北方位直射日照较少、冬季湿度相对偏高，厨房高频用水与热源并存时需关注操作台补光、防滑排水及油烟排湿。",
+                    "正北方位直射日照較少、冬季濕度相對偏高，廚房高頻用水與熱源並存時需關注操作台補光、防滑排水及油煙排濕。",
+                    "North-facing kitchens receive minimal direct sunlight and retain higher winter humidity. Check task lighting, slip-resistant flooring, and moisture extraction.",
+                    "北向きキッチンは直射日光が少なく湿気がこもりやすいため、手元照明・滑りにくい床材・排湿換気を重点的に確認してください。",
+                    "정북향 주방은 직사광선이 적고 습도가 높아지기 쉬우므로 조리대 작업 조명, 미끄럼 방지 바닥, 제습 환기를 점검하세요.",
+                    "Bếp hướng Bắc ít nắng trực tiếp và độ ẩm cao; cần bổ sung đèn chiếu sáng khu bếp, sàn chống trượt và hút ẩm hiệu quả.",
+                    "ครัวทิศเหนือรับแสงแดดตรงน้อยและชื้นง่าย ควรเพิ่มไฟส่องเคาน์เตอร์ ปูพื้นกันลื่น และติดพัดลมระบายความชื้น",
+                    "Dapur menghadap utara minim sinar matahari langsung dan lebih lembap; periksa lampu kerja, lantai anti-slip, dan ventilasi uap."
                 ),
                 tr8(
-                    "以木通关，厨房内增添绿植或实木厨具，令水生木、木生火，化克为生。",
-                    "以木通關，廚房內增添綠植或實木廚具，令水生木、木生火，化克為生。",
-                    "Use Wood as a bridge: add plants or wooden utensils so Water feeds Wood and Wood feeds Fire.",
-                    "木気を取り入れ、観葉植物や木製調理器具を配置して水生木・木生火の調和を図ります。",
-                    "목 기운으로 중재하세요. 주방에 녹색 식물이나 원목 조리도구를 두어 수생목, 목생화로 화합하게 하세요.",
-                    "Dùng Mộc thông quan: thêm cây xanh nhỏ hoặc dụng cụ bằng gỗ để Thủy sinh Mộc, Mộc sinh Hỏa hóa giải xung khắc.",
-                    "ใช้ธาตุไม้เป็นสะพานเชื่อม เพิ่มต้นไม้กระถางเล็กหรือเครื่องครัวไม้ เพื่อให้ธาตุน้ำหล่อเลี้ยงไม้และไม้หนุนไฟ",
-                    "Gunakan Elemen Kayu sebagai jembatan: tambahkan tanaman hijau atau perkakas kayu agar Air menghidupkan Kayu dan Kayu menghidupkan Api."
+                    "建议在吊柜下方增设 4000K 中性任务照明，采用浅色易洁台面并保证水槽与灶具间隔 ≥ 60 cm。",
+                    "建議在吊櫃下方增設 4000K 中性任務照明，採用淺色易潔台面並保證水槽與灶具間隔 ≥ 60 cm。",
+                    "Add 4000K under-cabinet task lighting, use bright easy-clean surfaces, and keep at least 60 cm clearance between sink and cooktop.",
+                    "吊戸棚下に4000Kの作業照明を設け、明るい仕上げ材とシンク・コンロ間60cm以上の離隔を確保してください。",
+                    "상부장 하부에 4000K 작업 조명을 추가하고 밝은 마감재와 싱크대-쿡탑 간 60cm 이상 간격을 확보하세요.",
+                    "Lắp đèn LED 4000K dưới tủ bếp, dùng bề mặt sáng dễ vệ sinh và giữ khoảng cách bồn rửa–bếp tối thiểu 60 cm.",
+                    "ติดไฟ LED 4000K ใต้ตู้แขวน ใช้พื้นผิวสีสว่างทำความสะอาดง่าย และเว้นระยะอ่างล้างจานกับเตาอย่างน้อย 60 ซม.",
+                    "Tambahkan lampu LED 4000K di bawah kabinet, gunakan permukaan terang mudah dibersihkan, dan jaga jarak wastafel-kompor ≥ 60 cm."
                 )
             )
         case (.kitchen, "艮"), (.kitchen, "坤"), (.kitchen, "Gen"), (.kitchen, "Kun"),
              (.kitchen, "간"), (.kitchen, "곤"), (.kitchen, "Cấn"), (.kitchen, "Khôn"),
              (.kitchen, "เกิ่น"), (.kitchen, "คุน"):
             return (
-                tr8("火燥鬼门伤脾土", "火燥鬼門傷脾土", "Dry Fire in the Ghost Gate", "火燥鬼門殺", "화조귀문살", "Hỏa Táo Quỷ Môn Thương Tỳ Thổ", "เคราะห์ไฟแผดเผาประตูปิศาจ", "Sha Api Membakar Gerbang Roh"),
+                tr8("东北/西南角厨房温湿与通风核验", "東北/西南角廚房溫濕與通風核驗", "NE/SW Corner Kitchen Thermal & Ventilation Check", "北東・南西キッチン温湿・換気確認", "동북/서남 코너 주방 온습도·환기 점검", "Kiểm tra nhiệt ẩm & thông gió bếp góc ĐB/TN", "ตรวจอุณหภูมิและระบายอากาศครัวมุมตะวันออกเฉียงเหนือ/ตะวันตกเฉียงใต้", "Cek Termal & Ventilasi Dapur Sudut TL/BD"),
                 "预警",
                 tr8(
-                    "艮坤属土为鬼门，烈火燥土，易致家人口腔上火、脾胃虚热及皮肤过敏。出处：《阳宅十书》相关火土论。解释：艮坤是传统方位称谓，以上为古籍象征，请核对通风、热源距离和消防安全。",
-                    "艮坤屬土為鬼門，烈火燥土，易致家人口腔上火、脾胃虛熱及皮膚過敏。出處：《陽宅十書》相關火土論。解釋：艮坤是傳統方位稱謂，以上為古籍象徵，請核對通風、熱源距離和消防安全。",
-                    "The Yang Zhai Ten Books says, “Dry Fire scorches Earth and may bring oral heat, digestive heat and skin sensitivity.” Gen and Kun are traditional direction names; this is a historical text reference. Verify ventilation, heat clearance and fire safety.",
-                    "艮・坤は土に属し鬼門とされます。火気が土を焼き、胃腸の不調や肌トラブルを招きやすくなります。",
-                    "《양택십서》는 ‘열화가 토를 건조하게 하여 구강·비위·피부에 영향을 준다’고 기록합니다. 간·곤은 전통 귀문 방위 명칭이며, 환기·열원 거리·화재 안전을 현장에서 확인하세요.",
-                    "Cấn Khôn thuộc Thổ là Quỷ môn; hỏa nhiệt làm khô đất, dễ khiến tỳ vị suy yếu, nóng trong và dị ứng da.",
-                    "เกิ่นและคุนเป็นธาตุดินและทิศประตูปิศาจ ไฟที่รุนแรงทำให้ดินแห้งผาก กระทบระบบย่อยอาหารและผิวหนัง",
-                    "Gen dan Kun adalah Gerbang Tanah; api yang kering memicu gangguan pencernaan dan sensitivitas kulit."
+                    "东北角阴凉偏湿、西南角午后日照强烈（西晒显著），厨房设于斜角方位时温差与油烟滞留风险较高，需做好通风与隔热规划。",
+                    "東北角陰涼偏濕、西南角午後日照強烈（西曬顯著），廚房設於斜角方位時溫差與油煙滯留風險較高，需做好通風與隔熱規劃。",
+                    "Northeast corners stay cool and damp while southwest corners receive intense afternoon sun. Check thermal insulation, exhaust routing, and food storage temperature.",
+                    "北東角は低温多湿、南西角は西日が強いため、断熱・換気経路および食品保管エリアの温度管理を確認してください。",
+                    "동북 코너는 냉습하고 서남 코너는 오후 일사가 강해 온도 차와 환기 정체에 유의해야 합니다.",
+                    "Góc Đông Bắc dễ ẩm lạnh còn góc Tây Nam chịu nắng chiều gắt; cần tối ưu cách nhiệt, hút mùi và khu bảo quản thực phẩm.",
+                    "มุมตะวันออกเฉียงเหนือมักเย็นชื้น ส่วนมุมตะวันตกเฉียงใต้แดดบ่ายแรง ควรดูแลฉนวนกันความร้อนและการระบายอากาศ",
+                    "Sudut timur laut cenderung lembap sementara barat daya terkena panas sore; optimalkan isolasi panas dan sirkulasi udara."
                 ),
                 tr8(
-                    "台面摆放白水晶球或黄色陶瓷葫芦化泄烈火，增厚中和地气。",
-                    "台面擺放白水晶球或黃色陶瓷葫蘆化洩烈火，增厚中和地氣。",
-                    "Place a white crystal sphere or yellow ceramic gourd on the counter to diffuse Fire and steady Earth qi.",
-                    "調理台に白水晶球や黄色い陶器の瓢箪を置き、火気を和らげて地の気を安定させます。",
-                    "조리대 위에 백수정구나 황색 세라믹 호리병을 두어 화기를 설기하고 지기를 안정시키세요.",
-                    "Đặt quả cầu thạch anh trắng hoặc hồ lô gốm màu vàng trên kệ bếp để tiêu trừ hỏa khí, làm dày địa khí.",
-                    "วางลูกแก้วควอตซ์ขาวหรือน้ำเต้าเซรามิกสีเหลืองบนเคาน์เตอร์เพื่อระบายพลังไฟและสร้างสมดุลให้พลังดิน",
-                    "Letakkan bola kristal kuarsa putih atau labu keramik kuning di meja dapur untuk meredam api dan menenangkan tanah."
+                    "建议采用双层 Low-E 隔热窗或遮阳百叶，优化排烟管道弯头数量（≤2 处），冰箱远离直射日照与灶具。",
+                    "建議採用雙層 Low-E 隔熱窗或遮陽百葉，優化排煙管道彎頭數量（≤2 處），冰箱遠離直射日照與灶具。",
+                    "Use Low-E insulated glazing or louvers, minimize exhaust duct bends (≤ 2), and position the refrigerator away from direct sun and heat.",
+                    "Low-E断熱ガラスやブラインドを採用し、排気ダクトの屈曲を2箇所以下に抑え、冷蔵庫を直射日光と熱源から離してください。",
+                    "Low-E 단열 유리나 블라인드를 사용하고 배기 덕트 굴곡을 2회 이하로 줄이며 냉장고를 직사광선과 열원에서 분리하세요.",
+                    "Dùng kính cách nhiệt Low-E hoặc rèm sáo, hạn chế gấp khúc ống khói (≤ 2 đoạn) và đặt tủ lạnh xa nắng gắt, xa bếp.",
+                    "ใช้กระจกกันความร้อน Low-E หรือมู่ลี่ ลดข้อต่อท่อดูดควัน (≤ 2 จุด) และวางตู้เย็นให้ห่างแดดและเตา",
+                    "Gunakan kaca insulasi Low-E, minimalkan belokan pipa exhaust (≤ 2), dan jauhkan kulkas dari sinar matahari langsung serta kompor."
                 )
             )
         case (.bathroom, "艮"), (.bathroom, "坤"), (.bathroom, "Gen"), (.bathroom, "Kun"),
              (.bathroom, "간"), (.bathroom, "곤"), (.bathroom, "Cấn"), (.bathroom, "Khôn"),
              (.bathroom, "เกิ่น"), (.bathroom, "คุน"):
             return (
-                tr8("鬼门卫浴秽气冲射", "鬼門衛浴穢氣衝射", "Ghost Gate Bathroom Sha", "鬼門水濁殺", "귀문욕실 오기살", "Quỷ Môn Vệ Sinh Uế Khí Xung", "เคราะห์ห้องน้ำประตูปิศาจ", "Sha Kamar Mandi Gerbang Roh"),
+                tr8("斜角卫浴排水坡度与防霉核验", "斜角衛浴排水坡度與防霉核驗", "Corner Bathroom Drainage & Humidity Check", "コーナー浴室の排水勾配・防カビ確認", "코너 욕실 배수 구배 및 방습 점검", "Kiểm tra thoát nước & chống ẩm vệ sinh góc", "ตรวจความลาดเอียงท่อน้ำทิ้งและกันชื้นห้องน้ำมุม", "Cek Drainase & Kelembapan Kamar Mandi Sudut"),
                 "预警",
                 tr8(
-                    "东北艮为表鬼门，西南坤为里鬼门，卫浴见水污地气，易损脾胃与人丁健康。出处：传统阳宅鬼门论（传本有异文）。解释：这是古籍对艮坤卫浴的象征性判断，请结合防水、通风与使用安全复核。",
-                    "東北艮為表鬼門，西南坤為裏鬼門，衛浴見水污地氣，易損脾胃與人丁健康。出處：傳統陽宅鬼門論（傳本有異文）。解釋：這是古籍對艮坤衛浴的象徵性判斷，請結合防水、通風與使用安全複核。",
-                    "Bathrooms in the northeast or southwest pollute Earth qi and may affect digestion and family wellbeing.",
-                    "北東は表鬼門、南西は裏鬼門。水回りと空間配置についての伝統文化上の参考提示です。防水と換気を現場で確認してください。",
-                    "동북과 서남은 전통 방위 명칭입니다. 욕실 배치에 대해 방수·환기·건조·사용 안전을 현장에서 확인하세요.",
-                    "Đông Bắc Cấn là biểu Quỷ môn, Tây Nam Khôn là lý Quỷ môn; nhà vệ sinh ẩm ướt làm ô uế địa khí, theo truyền thống ảnh hưởng đến tỳ vị và sức khỏe gia đình. Hãy kiểm tra chống thấm, thông gió và độ khô ráo tại hiện trường.",
-                    "ทิศตะวันออกเฉียงเหนือและตะวันตกเฉียงใต้เป็นประตูปิศาจ ห้องน้ำที่ชื้นแฉะทำลายพลังดิน กระทบระบบย่อยอาหาร",
-                    "Kamar mandi di timur laut atau barat daya adalah referensi tata ruang budaya tradisional; periksa kedap air, ventilasi, kekeringan, dan keselamatan penggunaan di lokasi."
+                    "东北/西南端头卫浴若无对流外窗，湿气易在墙角积聚并影响相邻房间墙面返潮，建议现场核验地漏坡度（≥1.5%）与排风效率。",
+                    "東北/西南端頭衛浴若無對流外窗，濕氣易在牆角積聚並影響相鄰房間牆面返潮，建議現場核驗地漏坡度（≥1.5%）與排風效率。",
+                    "Corner bathrooms without cross-ventilation can trap moisture and cause dampness on adjacent walls. Verify floor drainage slope (≥ 1.5%) and continuous exhaust capacity.",
+                    "通風窓のないコーナー浴室は湿気が滞留し隣接壁の結露原因になります。床の排水勾配（1.5%以上）と換気風量を確認してください。",
+                    "맞통풍 창이 없는 코너 욕실은 습기가 정체되어 인접 벽면 곰팡이를 유발할 수 있습니다. 바닥 배수 구배(1.5% 이상)와 환기량을 점검하세요.",
+                    "Phòng vệ sinh góc thiếu thông gió chéo dễ đọng ẩm sang tường phòng kề; hãy kiểm tra độ dốc thoát sàn (≥ 1,5%) và quạt hút.",
+                    "ห้องน้ำมุมที่ไม่มีหน้าต่างระบายอากาศข้ามฝั่งมักอับชื้น ควรตรวจความลาดเอียงพื้น (≥ 1.5%) และประสิทธิภาพพัดลมดูดอากาศ",
+                    "Kamar mandi sudut tanpa ventilasi silang rentan lembap ke dinding sebelah; periksa kemiringan drainase (≥ 1,5%) dan kapasitas exhaust."
                 ),
                 tr8(
-                    "卫浴常开排风保持干燥，门槛下安放真品五帝钱或粗盐陶罐净化。",
-                    "衛浴常開排風保持乾燥，門檻下安放真品五帝錢或粗鹽陶罐淨化。",
-                    "Keep ventilation running and the room dry; place Five Emperor coins or a salt vessel under the threshold.",
-                    "換気扇を常時回して乾燥を保ち、敷居に五帝銭や粗塩の壺を配置して浄化します。",
-                    "환기팬을 가동해 건조함을 유지하고, 문턱 아래에 오제전이나 굵은 소금 단지를 두어 정화하세요.",
-                    "Thường xuyên bật quạt thông gió giữ khô ráo; đặt tiền Ngũ Đế hoặc hũ muối thô dưới ngạch cửa để thanh lọc.",
-                    "เปิดพัดลมระบายอากาศเพื่อรักษาความแห้ง แขวนเหรียญห้าจักรพรรดิหรือวางโถเกลือเพื่อขจัดพลังลบ",
-                    "Jaga ventilasi tetap menyala dan ruangan tetap kering; pasang Koin Lima Kaisar atau wadah garam di bawah ambang pintu."
+                    "建议选用防臭深水封地漏与大风量静音换气扇，邻近卧室墙体背面刷涂防水防潮底漆。",
+                    "建議選用防臭深水封地漏與大風量靜音換氣扇，鄰近臥室牆體背面刷塗防水防潮底漆。",
+                    "Use deep-seal floor drains, a quiet high-volume exhaust fan, and apply a waterproof vapor-barrier primer on shared bedroom walls.",
+                    "防臭トラップ排水口と静音高風量換気扇を採用し、隣接寝室側の壁面に防湿プライマーを施工してください。",
+                    "방취 트랩 배수구와 저소음 대풍량 환기팬을 설치하고 인접 침실 벽면에 방습 프라이머를 시공하세요.",
+                    "Dùng phễu thu sàn ngăn mùi, quạt hút êm công suất cao và quét lớp lót chống thấm cho vách giáp phòng ngủ.",
+                    "ใช้ตะแกรงกันกลิ่นแบบกักน้ำลึก พัดลมดูดอากาศเสียงเงียบกำลังสูง และทารองพื้นกันชื้นผนังด้านติดห้องนอน",
+                    "Gunakan floor drain anti-bau, exhaust fan senyap berkapasitas besar, dan primer anti-lembap pada dinding yang berbatasan dengan kamar tidur."
                 )
             )
         case (.bathroom, "中"), (.bathroom, "Center"), (.bathroom, "중"), (.bathroom, "Trung"), (.bathroom, "กลาง"), (.bathroom, "Tengah"):
             return (
-                tr8("水浸中宫大忌", "水浸中宮大忌", "Central Palace Water Sha", "水浸中宮大忌", "수침중궁대기", "Thủy Tẩm Trung Cung Đại Kỵ", "เคราะห์น้ำท่วมจุดศูนย์กลาง", "Sha Air Merendam Pusat Rumah"),
+                tr8("核心区无窗暗卫通风与隔音核验", "核心區無窗暗衛通風與隔音核驗", "Central Windowless Bathroom Ventilation Check", "中央コア暗浴室の換気・防音確認", "중앙 무창 욕실 환기 및 방음 점검", "Kiểm tra thông gió & cách âm vệ sinh trung tâm", "ตรวจระบายอากาศและกันเสียงห้องน้ำใจกลางบ้าน", "Cek Ventilasi & Akustik Kamar Mandi Tengah"),
                 "严重煞气",
                 tr8(
-                    "房屋心脏太极受污，病气弥漫全屋，主宅运反复、家人腰腹疾厄。出处：《阳宅十书》“太极受污，病气弥漫全屋”。解释：此为古籍病气象征，请结合防水、通风、干燥、排水和动线现场复核。",
-                    "房屋心臟太極受污，病氣瀰漫全屋，主宅運反覆、家人腰腹疾厄。出處：《陽宅十書》「太極受污，病氣瀰漫全屋」。解釋：此為古籍病氣象徵，請結合防水、通風、乾燥、排水和動線現場複核。",
-                    "Water pollutes the home's central Tai Ji, spreading stagnant qi and affecting fortune and abdominal wellbeing.",
-                    "家の中心部の水回り配置についての伝統文化上の参考提示です。防水と換気を現場で確認してください。",
-                    "《양택십서》는 ‘태극이 오염되면 병기가 집 전체에 퍼진다’고 기록합니다. 집 중앙 욕실은 고전의 병기 상징으로 설명되며 방수·환기·건조·배수·동선을 현장에서 확인하세요.",
-                    "Trung cung là trái tim của ngôi nhà; nhà vệ sinh ở giữa nhà làm tán khí, gia vận bất ổn, dễ đau lưng bụng.",
-                    "คัมภีร์โบราณกล่าวว่า “ไท่จี๋เปื้อนมลทิน พลังโรคกระจายทั่วบ้าน” ตำแหน่งห้องน้ำกลางบ้านเป็นสัญลักษณ์ตามคัมภีร์ โปรดตรวจสอบการกันน้ำ การระบายอากาศ ความแห้ง การระบายน้ำ และทางเดินหน้างาน",
-                    "Kitab klasik menyebut, “Saat Tai Ji rumah tercemar, qi penyakit menyebar ke seluruh rumah.” Kamar mandi di tengah adalah simbol dalam teks tradisional; periksa kedap air, ventilasi, kekeringan, drainase, dan sirkulasi di lokasi."
+                    "卫浴位于户型几何中心通常属于无外窗暗卫，自然采光与自然通风受限，异味与水汽易向四周起居空间扩散，同时排水立管易产生噪音传导。",
+                    "衛浴位於戶型幾何中心通常屬於無外窗暗衛，自然採光與自然通風受限，異味與水汽易向四周起居空間擴散，同時排水立管易產生噪音傳導。",
+                    "A centrally located bathroom typically lacks exterior windows, limiting natural daylight and ventilation while allowing humidity and pipe noise to spread into surrounding rooms.",
+                    "住戸中央の浴室は無窓になりやすく、自然採光・換気が不足して湿気や排水音が周囲の居室へ伝わりやすくなります。",
+                    "평면 중앙 욕실은 창문이 없는 암실 구조가 많아 자연 채광과 환기가 불리하고 습기·배관 소음이 주변 방으로 퍼지기 쉽습니다.",
+                    "Nhà vệ sinh ở tâm mặt bằng thường thiếu cửa sổ tự nhiên, dễ bí ẩm và truyền tiếng ồn ống xả sang các phòng xung quanh.",
+                    "ห้องน้ำกลางบ้านมักไม่มีหน้าต่าง ทำให้ขาดแสงธรรมชาติและการระบายอากาศ รวมถึงมีเสียงท่อน้ำรบกวนห้องรอบข้าง",
+                    "Kamar mandi di tengah denah umumnya tanpa jendela sehingga minim cahaya alami, rawan lembap, dan suara pipa mudah menyebar."
                 ),
                 tr8(
-                    "门头安放纯铜八卦凸镜，卫浴内常亮暖黄长明灯排浊。",
-                    "門頭安放純銅八卦凸鏡，衛浴內常亮暖黃長明燈排濁。",
-                    "Mount a brass convex Bagua mirror above the door and keep a warm light on to clear damp qi.",
-                    "ドアの上に八卦凸面鏡を設置し、浴室内に暖色系の常夜灯を灯して濁気を排します。",
-                    "문 위에 황동 볼록 팔괘경을 걸고 욕실 내에 따뜻한 조명을 켜두어 탁기를 몰아내세요.",
-                    "Treo gương Bát Quái lồi bằng đồng trên cửa, thắp đèn vàng ấm thường xuyên để hóa giải xú khí.",
-                    "ติดกระจกนูนแปดทิศทองเหลืองเหนือประตู และเปิดไฟโทนสีเหลืองอุ่นไว้ตลอดเพื่อสลายพลังหมองหม่น",
-                    "Pasang cermin cembung Bagua di atas pintu dan nyalakan lampu kuning hangat untuk mengusir qi lembap."
+                    "建议配置带新风联动或 24 小时低噪微排风系统、排水管包覆隔音棉，并采用高显色防雾照明与密闭门条。",
+                    "建議配置帶新風聯動或 24 小時低噪微排風系統、排水管包覆隔音棉，並採用高顯色防霧照明與密閉門條。",
+                    "Install continuous low-noise mechanical exhaust, wrap drain stacks with acoustic insulation, and add high-CRI anti-fog lighting plus door perimeter seals.",
+                    "24時間静音換気システムと排水管の防音被覆を導入し、高演色防曇照明と気密ドアパッキンを設置してください。",
+                    "24시간 저소음 상시 환기 시스템과 배수관 흡음재를 적용하고 고연색 방습 조명 및 기밀 도어 씰을 설치하세요.",
+                    "Lắp quạt thông gió liên tục độ ồn thấp, bọc cách âm ống thoát nước, dùng đèn chống mờ CRI cao và gioăng kín cửa.",
+                    "ติดตั้งพัดลมระบายอากาศต่อเนื่องเสียงเบา หุ้มฉนวนกันเสียงท่อน้ำ ใช้ไฟกันฝ้าค่า CRI สูง และซีลขอบประตู",
+                    "Pasang exhaust fan kontinu rendah bising, balut pipa drainase dengan peredam suara, serta gunakan lampu anti-embun CRI tinggi dan seal pintu."
                 )
             )
         case (.study, "巽"), (.study, "坎"), (.study, "Xun"), (.study, "Kan"),
              (.study, "손"), (.study, "감"), (.study, "Tốn"), (.study, "Khảm"),
              (.study, "ซวิ่น"), (.study, "ข่าน"):
             return (
-                tr8("文昌生旺大吉位", "文昌生旺大吉位", "Wenchang Scholarly Auspicious Position", "文昌吉位", "문창생왕 대길위", "Văn Xương Sinh Vượng Đại Cát Vị", "ทิศมงคลส่งเสริมการเรียนรู้", "Posisi Wenchang Sangat Menguntungkan"),
+                tr8("书房采光柔和 · 静谧读写分区", "書房採光柔和 · 靜謐讀寫分區", "Soft-Daylight Quiet Study Zone", "穏やかな採光の書斎ゾーン", "부드러운 채광의 정숙 서재 구역", "Khu phòng làm việc ánh sáng dịu & yên tĩnh", "โซนห้องทำงานแสงนุ่มนวลและเงียบสงบ", "Zona Ruang Kerja Cahaya Lembut & Tenang"),
                 "吉",
                 tr8(
-                    "巽为四绿文曲木，坎水生文昌，大利考学、升职与名誉构思。",
-                    "巽為四綠文曲木，坎水生文昌，大利考學、升職與名譽構思。",
-                    "Xun's Wenchang Wood and Kan Water nourish study, promotion and creative reputation.",
-                    "巽の木気と坎の水気が文昌を養い、学業成就や昇進、創作活動に大きな力を授けます。",
-                    "손위의 사록 문곡목과 감수의 조화로 문창을 생조하여 시험 합격, 승진 및 명예에 크게 길합니다.",
-                    "Tốn là Tứ Lục Văn Khúc Mộc, Khảm Thủy sinh Văn Xương, rất có lợi cho học vấn thi cử, thăng chức và danh tiếng.",
-                    "ธาตุไม้ทิศซวิ่นและธาตุน้ำทิศข่านส่งเสริมดาวเหวินชางอย่างยิ่ง หนุนนำการสอบ การเลื่อนตำแหน่ง และความคิดสร้างสรรค์",
-                    "Kayu Xun dan Air Kan memelihara Wenchang, sangat mendukung keberhasilan ujian, promosi kerja, dan reputasi kreatif."
+                    "东南/正北方位眩光较少、自然光均匀柔和，适合长时间阅读、屏幕办公与专注工作，减少午后屏幕反光疲劳。",
+                    "東南/正北方位眩光較少、自然光均勻柔和，適合長時間閱讀、螢幕辦公與專注工作，減少午後螢幕反光疲勞。",
+                    "Southeast and north sectors offer even, low-glare natural light ideal for reading, screen work, and sustained focus with minimal afternoon glare.",
+                    "南東・北側はまぶしさが少なく均一な自然光が得られ、読書やモニター作業に適した落ち着いたワークスペースになります。",
+                    "동남 및 북향 구역은 눈부심이 적고 균일한 자연광이 들어와 독서와 모니터 작업에 쾌적한 집중 환경을 제공합니다.",
+                    "Hướng Đông Nam và Bắc có ánh sáng tự nhiên dịu đều, ít chói màn hình, rất phù hợp làm việc và đọc sách lâu dài.",
+                    "ทิศตะวันออกเฉียงใต้และทิศเหนือมีแสงธรรมชาติสม่ำเสมอ ไม่แยงตา เหมาะสำหรับการอ่านหนังสือและทำงานหน้าจอ",
+                    "Sektor tenggara dan utara memberikan cahaya alami merata minim silau, ideal untuk membaca dan bekerja di depan layar."
                 ),
                 tr8(
-                    "书桌宜设于此方，书架摆放四支水养富贵竹或天然白水晶文昌塔。",
-                    "書桌宜設於此方，書架擺放四支水養富貴竹或天然白水晶文昌塔。",
-                    "Place the desk here; add four water-grown lucky bamboos or a natural white-crystal Wenchang tower.",
-                    "机をこの方位に配置し、本棚に水耕栽培の竹や水晶の置物を飾るのが理想的です。",
-                    "책상을 이 방위에 배치하고 서가에 수경재배 개운죽 네 줄기나 천연 백수정 문창탑을 두세요.",
-                    "Nên đặt bàn học ở đây; trên giá sách cắm bốn cành trúc phát tài thủy sinh hoặc tháp Văn Xương thạch anh trắng.",
-                    "ควรตั้งโต๊ะทำงานในทิศนี้ วางต้นไผ่กวนอิมสี่กิ่งหรือเจดีย์บุ๋นเชียงคริสตัลเพื่อส่งเสริมสติปัญญา",
-                    "Letakkan meja kerja di sini; letakkan empat batang bambu hoki air atau pagoda kristal kuarsa putih di rak buku."
+                    "建议书桌与窗户呈 90° 侧向采光，配置无频闪护眼台灯与人体工学椅，提升专注舒适度。",
+                    "建議書桌與窗戶呈 90° 側向採光，配置無頻閃護眼台燈與人體工學椅，提升專注舒適度。",
+                    "Position the desk at 90° to the window for glare-free side daylight, paired with flicker-free task lighting and ergonomic seating.",
+                    "窓に対して90°の横向き採光となるようにデスクを配置し、フリッカーフリーの照明とエルゴノミクスチェアを組み合わせてください。",
+                    "창문과 90° 측면 채광이 되도록 책상을 배치하고 플리커 프리 조명과 인체공학 의자를 함께 구성하세요.",
+                    "Đặt bàn vuông góc 90° với cửa sổ để nhận ánh sáng ngang chống chói, kết hợp đèn bàn không nhấp nháy và ghế công thái học.",
+                    "จัดโต๊ะทำมุม 90° กับหน้าต่างเพื่อรับแสงด้านข้างไม่สะท้อนจอ พร้อมโคมไฟถนอมสายตาและเก้าอี้เพื่อสุขภาพ",
+                    "Posisikan meja 90° terhadap jendela untuk cahaya samping bebas silau, lengkapi lampu kerja bebas kedip dan kursi ergonomis."
                 )
             )
         case (.masterBedroom, "坤"), (.masterBedroom, "延年"), (.masterBedroom, "Kun"), (.masterBedroom, "Yan Nian"),
              (.masterBedroom, "곤"), (.masterBedroom, "Khôn"), (.masterBedroom, "คุน"):
             return (
-                tr8("主卧得位气场稳固", "主臥得位氣場穩固", "Master Bedroom in a Stable Position", "主寝室得位吉", "주침실 득위 기장안정", "Phòng Ngủ Chính Đắc Vị Khí Trường Vững Chắc", "ห้องนอนใหญ่ตำแหน่งมงคลมั่นคง", "Kamar Tidur Utama di Posisi Sangat Stabil"),
+                tr8("主卧静区布局 · 休憩采光均衡", "主臥靜區佈局 · 休憩採光均衡", "Well-Positioned Quiet Master Bedroom", "静寂で均衡の取れた主寝室配置", "안정적인 정숙 구역 주침실 배치", "Phòng ngủ chính khu tĩnh & cân bằng sáng", "ห้องนอนใหญ่โซนเงียบสงบและแสงสมดุล", "Kamar Tidur Utama Zona Tenang & Seimbang"),
                 "吉",
                 tr8(
-                    "居于生旺方，身心放松，夫妻和睦，睡眠充盈利于事业蓄力。",
-                    "居於生旺方，身心放鬆，夫妻和睦，睡眠充盈利於事業蓄力。",
-                    "A prosperous position supports rest, harmony, sleep and renewed career energy.",
-                    "吉方に位置し、心身がくつろぎ、夫婦円満と良好な睡眠でエネルギーを蓄えられます。",
-                    "길방에 위치하여 심신이 편안해지고 부부 화합과 숙면을 도와 일상의 활력을 충전합니다.",
-                    "An ngự ở phương sinh vượng giúp thân tâm thư thái, vợ chồng hòa thuận, giấc ngủ sâu tích lũy năng lượng cho sự nghiệp.",
-                    "ตั้งอยู่ในทิศมงคล ช่วยให้ผ่อนคลาย สามีภรรยาปรองดอง หลับสบายฟื้นฟูพลังงาน",
-                    "Posisi yang makmur mendukung istirahat yang dalam, keharmonisan pasangan, dan mengumpulkan tenaga untuk kesuksesan karir."
+                    "该方位远离高频公共噪音动线且日照时长充足，有利于形成稳定的睡眠微气候与私密休憩体验。",
+                    "該方位遠離高頻公共噪音動線且日照時長充足，有利於形成穩定的睡眠微氣候與私密休憩體驗。",
+                    "Well separated from high-traffic public circulation with balanced daylight duration, supporting acoustic privacy and comfortable sleep.",
+                    "共用動線の騒音から離れ日照バランスも良好で、プライバシーと快適な睡眠環境を確保しやすい配置です。",
+                    "공용 동선 소음에서 분리되고 채광 균형이 좋아 프라이버시와 쾌적한 수면 환경을 유지하기 유리합니다.",
+                    "Tách biệt luồng giao thông ồn ào và có thời lượng chiếu sáng hợp lý, tạo không gian nghỉ ngơi riêng tư yên tĩnh.",
+                    "แยกจากเส้นทางสัญจรที่มีเสียงรบกวนและได้รับแสงพอเหมาะ ช่วยให้พักผ่อนได้อย่างเป็นส่วนตัวและสบาย",
+                    "Terpisah dari jalur lalu lintas bising dengan durasi cahaya seimbang, mendukung privasi akustik dan tidur nyenyak."
                 ),
                 tr8(
-                    "床头宜靠实墙，忌上方横梁压顶或正冲镜面。",
-                    "床頭宜靠實牆，忌上方橫梁壓頂或正衝鏡面。",
-                    "Keep the headboard against a solid wall; avoid overhead beams and mirrors facing the bed.",
-                    "ベッドヘッドはしっかりした壁に付け、頭上の梁や鏡の映り込みを避けてください。",
-                    "침대 머리는 견고한 벽에 기대고, 머리 위 대들보나 거울이 침대를 마주 보지 않도록 하세요.",
-                    "Đầu giường nên tựa vào tường vững chắc, tránh xà ngang đè đầu hoặc gương chiếu thẳng vào giường.",
-                    "หัวเตียงควรชิดผนังทึบ หลีกเลี่ยงคานทับศีรษะหรือกระจกเงาส่องตรงที่นอน",
-                    "Sandarkan kepala tempat tidur ke dinding kokoh; hindari balok gantung di atas kepala dan cermin yang langsung menghadap ranjang."
+                    "建议床头紧靠实墙避开卫生间排水管，配置双层遮光窗帘与柔和 2700K 睡前照明。",
+                    "建議床頭緊靠實牆避開衛生間排水管，配置雙層遮光窗簾與柔和 2700K 睡前照明。",
+                    "Place the headboard against a solid wall away from plumbing stacks, and use blackout curtains with warm 2700K bedside lighting.",
+                    "ベッドヘッドは排水管を避けた堅固な壁面に配置し、遮光カーテンと2700Kの暖色系間接照明を採用してください。",
+                    "침대 헤드는 배수관을 피한 단단한 벽에 배치하고 암막 커튼과 2700K 따뜻한 취침 조명을 사용하세요.",
+                    "Đặt đầu giường tựa tường đặc tránh hộp kỹ thuật ống nước, kết hợp rèm cản sáng hai lớp và đèn ngủ 2700K dịu mắt.",
+                    "วางหัวเตียงชิดผนังทึบห่างท่อน้ำ ใช้ม่านทึบแสงสองชั้นและไฟหัวเตียงโทนอุ่น 2700K",
+                    "Sandarkan kepala ranjang ke dinding solid jauh dari pipa air, gunakan tirai blackout dan lampu tidur hangat 2700K."
                 )
             )
         case (.door, "离"), (.door, "Li"), (.door, "이"), (.door, "Ly"), (.door, "หลี"):
             return (
-                tr8("南向明堂纳阳吉向", "南向明堂納陽吉向", "South-Facing Bright Hall", "南向明堂納気吉", "남향 명당 납양길향", "Nam Hướng Minh Đường Nạp Dương Cát Hướng", "ลานหน้าบ้านหันทิศใต้รับแสงมงคล", "Lobi Menghadap Selatan Sangat Berkah"),
+                tr8("南向入户 · 采光与通风优良", "南向入戶 · 採光與通風優良", "South-Facing Entry · High Daylight & Airflow", "南向き玄関・優れた採光と通風", "남향 현관 · 우수한 채광 및 통풍", "Lối vào hướng Nam · Sáng & thông thoáng", "ทางเข้าทิศใต้ · แสงธรรมชาติและลมถ่ายเทดี", "Pintu Masuk Selatan · Cahaya & Sirkulasi Optimal"),
                 "吉",
                 tr8(
-                    "离火纳气，采光充沛，主热情光明与远见名望。",
-                    "離火納氣，採光充沛，主熱情光明與遠見名望。",
-                    "Li Fire gathers bright qi and daylight, supporting warmth, vision and reputation.",
-                    "南方の離火の気を取り込み、陽光に恵まれ、前向きな活力と名声を育みます。",
-                    "이화의 기운을 받아 채광이 풍부하며, 온화함과 진취적인 명성을 복돋웁니다.",
-                    "Ly Hỏa nạp khí, ánh sáng dồi dào, chủ nhiệt huyết quang minh và uy tín danh vọng vươn xa.",
-                    "เปิดรับพลังชี่แห่งทิศใต้ แสงแดดส่องสว่าง เสริมสร้างบารมี ความอบอุ่น และชื่อเสียงเกียรติยศ",
-                    "Api Li menyerap energi terang dan limpahan sinar matahari, membina kehangatan, visi masa depan, dan reputasi."
+                    "正南朝向拥有全年最佳的冬季日照获取与夏季主导风通风条件，玄关明亮干燥、入户视觉体验通透。",
+                    "正南朝向擁有全年最佳的冬季日照獲取與夏季主導風通風條件，玄關明亮乾燥、入戶視覺體驗通透。",
+                    "South-facing orientation maximizes winter passive solar gain and prevailing summer breeze ventilation, keeping the entryway bright and dry.",
+                    "南向きは冬季の自然採光と夏季の通風に最も有利で、明るく乾燥した快適なエントランスを形成できます。",
+                    "정남향은 겨울철 일조 확보와 여름철 통풍에 유리해 밝고 쾌적한 현관 동선을 구성하기 좋습니다.",
+                    "Hướng Nam đón nắng ấm mùa đông và gió mát mùa hè tối ưu, giúp sảnh vào luôn sáng sủa, khô ráo.",
+                    "ทิศใต้รับแสงธรรมชาติและลมถ่ายเทได้ดีตลอดปี ทำให้โถงทางเข้าสว่าง แห้ง และโปร่งสบาย",
+                    "Orientasi selatan memaksimalkan cahaya alami dan sirkulasi udara, menjaga area masuk tetap terang dan kering."
                 ),
                 tr8(
-                    "玄关保持整洁开阔，点亮暖金射灯迎祥纳福。",
-                    "玄關保持整潔開闊，點亮暖金射燈迎祥納福。",
-                    "Keep the entry clean and open, with warm lighting to welcome auspicious qi.",
-                    "玄関を常に広く清潔に保ち、暖色系の照明で吉気を迎え入れましょう。",
-                    "현관을 청결하고 넓게 유지하며, 따뜻한 금빛 조명으로 상서로운 기운을 맞이하세요.",
-                    "Huyền quan cần giữ sạch sẽ thông thoáng, thắp đèn ánh vàng ấm áp để nghênh đón cát tường.",
-                    "รักษาบริเวณโถงทางเข้าให้สะอาดกว้างขวาง เปิดไฟโทนสีทองอบอุ่นเพื่อต้อนรับสิริมงคล",
-                    "Jaga area masuk tetap bersih dan lapang, nyalakan lampu keemasan hangat untuk menyambut qi keberkahan."
+                    "建议保持玄关通道净宽 ≥ 1.1 m，配合感应暖光照明与换鞋收纳柜提升归家动线效率。",
+                    "建議保持玄關通道淨寬 ≥ 1.1 m，配合感應暖光照明與換鞋收納櫃提升歸家動線效率。",
+                    "Keep entry clearance ≥ 1.1 m wide with motion-activated warm lighting and organized shoe storage for smooth circulation.",
+                    "玄関通路の有効幅を1.1m以上に保ち、人感センサー照明と収納で快適な動線を整えてください。",
+                    "현관 통로 유효 폭을 1.1m 이상 유지하고 센서 조명과 수납장을 배치해 출입 동선을 최적화하세요.",
+                    "Giữ lối đi sảnh rộng tối thiểu 1,1 m, kết hợp đèn cảm biến ánh sáng ấm và tủ giày gọn gàng.",
+                    "รักษาความกว้างทางเดินโถงอย่างน้อย 1.1 เมตร พร้อมไฟเซ็นเซอร์แสงอุ่นและตู้เก็บรองเท้าที่เป็นระเบียบ",
+                    "Jaga lebar bersih jalur masuk ≥ 1,1 m dengan lampu sensor hangat dan rak sepatu rapi untuk kelancaran sirkulasi."
                 )
             )
         default:
             return (
-                tr8("方位得所气场安和", "方位得所氣場安和", "Balanced Spatial Qi", "方位調和安穏", "방위 득소 기장안화", "Phương Vị Đắc Sở Khí Trường An Hòa", "ทิศทางเหมาะสมชี่ราบรื่น", "Posisi Selaras dan Energi Tenang"),
+                tr8("空间分区均衡 · 指标正常", "空間分區均衡 · 指標正常", "Balanced Spatial Layout", "バランスの取れた空間配置", "균형 잡힌 공간 구획", "Phân khu không gian cân bằng", "การจัดแบ่งพื้นที่สมดุล", "Tata Ruang Seimbang"),
                 "平",
                 tr8(
-                    "空间阴阳协调，无明显形理相克。",
-                    "空間陰陽協調，無明顯形理相克。",
-                    "Yin and yang are balanced with no obvious form or element conflict.",
-                    "陰陽の調和が取れており、目立った五行の衝突は見られません。",
-                    "음양이 조화롭고 뚜렷한 상극 충돌이 없습니다.",
-                    "Không gian âm dương điều hòa, không có hình thế hay ngũ hành tương khắc rõ rệt.",
-                    "หยินและหยางสมดุลกันดี ไม่มีจุดขัดแย้งของธาตุอย่างเห็นได้ชัด",
-                    "Yin dan yang seimbang tanpa ada benturan elemen yang mengganggu."
+                    "该房间功能定位与方位采光、通风动线无明显冲突，整体空间利用率与舒适度均衡。",
+                    "該房間功能定位與方位採光、通風動線無明顯衝突，整體空間利用率與舒適度均衡。",
+                    "Room function aligns well with orientation daylight and ventilation paths with no major layout conflicts.",
+                    "部屋の用途と方位の採光・通風動線に大きな矛盾はなく、快適性と空間効率のバランスが良好です。",
+                    "실 용도와 방위 채광·환기 동선 간 뚜렷한 충돌이 없으며 공간 활용도가 균형적입니다.",
+                    "Công năng phòng phù hợp với hướng chiếu sáng và thông gió, không có xung đột bố cục đáng kể.",
+                    "การใช้งานห้องสอดคล้องกับทิศแสงและทางลม ไม่พบข้อขัดแย้งด้านผังพื้นที่ที่สำคัญ",
+                    "Fungsi ruangan selaras dengan pencahayaan orientasi dan jalur ventilasi tanpa konflik tata letak utama."
                 ),
                 tr8(
-                    "按日常居住动线与洁净要求维护即可。",
-                    "按日常居住動線與潔淨要求維護即可。",
-                    "Maintain normal circulation, cleanliness and ventilation.",
-                    "通常の清掃や風通しを心掛けることで良好な状態を維持できます。",
-                    "일상적인 청결과 통풍을 유지하며 편안하게 생활하시면 됩니다.",
-                    "Chỉ cần duy trì nếp sinh hoạt sạch sẽ, thông thoáng thường ngày.",
-                    "ดูแลรักษาความสะอาดและการระบายอากาศตามการใช้งานประจำวัน",
-                    "Cukup jaga kebersihan, sirkulasi yang teratur, dan ventilasi harian yang baik."
+                    "按常规家具尺度留足 75–90 cm 通行净距，并保持日常开窗换气与清洁维护即可。",
+                    "按常規家具尺度留足 75–90 cm 通行淨距，並保持日常開窗換氣與清潔維護即可。",
+                    "Maintain 75–90 cm furniture circulation clearance along with routine ventilation and upkeep.",
+                    "家具周囲に75〜90cmの通行幅を確保し、日常的な換気と清掃を維持してください。",
+                    "가구 주변에 75~90cm 통행 폭을 확보하고 일상적인 환기와 청결을 유지하세요.",
+                    "Duy trì lối đi quanh nội thất 75–90 cm và thông gió, vệ sinh định kỳ.",
+                    "เว้นระยะทางเดินรอบเฟอร์นิเจอร์ 75–90 ซม. และเปิดระบายอากาศทำความสะอาดตามปกติ",
+                    "Pertahankan jarak sirkulasi furnitur 75–90 cm beserta ventilasi dan perawatan rutin."
                 )
             )
         }

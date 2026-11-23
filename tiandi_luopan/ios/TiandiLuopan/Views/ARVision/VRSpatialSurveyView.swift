@@ -372,14 +372,17 @@ public struct VRSpatialSurveyView: View {
             .onEnded { _ in lastDrag[id] = nil }
     }
 
-    // MARK: - 工具栏
+    // MARK: - 工具栏（分组化防挤压双行底座）
 
     private var toolbar: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 9) {
+            // 1. 实测尺寸行
             HStack(spacing: 6) {
                 Text(lang.t("vr_survey_dimensions_m"))
                     .adaptiveFont(size: 10, weight: .semibold)
                     .foregroundColor(.white.opacity(0.8))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                 dimensionField(title: lang.t("floorplan_width_hint"), text: $widthMetersText)
                 dimensionField(title: lang.t("floorplan_depth_hint"), text: $depthMetersText)
                 dimensionField(title: lang.t("vr_survey_ceiling_hint"), text: $ceilingMetersText)
@@ -388,7 +391,11 @@ public struct VRSpatialSurveyView: View {
                         isDimensionFieldFocused = false
                     }
                     .adaptiveFont(size: 11, weight: .bold)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Color.yanCyan.opacity(0.2))
                     .foregroundColor(.yanCyan)
+                    .cornerRadius(6)
                 }
             }
             if let validationMessage {
@@ -397,69 +404,100 @@ public struct VRSpatialSurveyView: View {
                     .foregroundColor(.orange)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            // 2. 房间类型快捷选条
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(selectableTypes, id: \.self) { type in
+                        let isSelected = (selectedType == type)
                         Button(action: { selectedType = type }) {
                             Text(type.localizedName)
-                                .adaptiveFont(size: 11, weight: .semibold)
-                                .foregroundColor(selectedType == type ? .black : .white)
+                                .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
+                                .foregroundColor(isSelected ? .black : .white.opacity(0.9))
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(selectedType == type ? tint(for: type) : Color.white.opacity(0.12))
-                                .cornerRadius(12)
+                                .background(isSelected ? tint(for: type) : Color.white.opacity(0.1))
+                                .cornerRadius(9)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
-            HStack(spacing: 8) {
-                Button(action: { addRoom(at: nil, in: nil) }) {
-                    Label(lang.t("vr_survey_add_room"), systemImage: "plus.square.on.square")
-                        .adaptiveFont(size: 11, weight: .semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
-                        .background(Color.blue.opacity(0.75))
-                        .cornerRadius(12)
-                }
-                Button(action: { addOpening(isDoor: true) }) {
-                    Label(lang.t("vr_survey_add_door"), systemImage: "door.left.hand.open")
-                        .adaptiveFont(size: 11, weight: .semibold)
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
-                        .background(Color.yellow.opacity(0.9))
-                        .cornerRadius(12)
-                }
-                Button(action: { addOpening(isDoor: false) }) {
-                    Label(lang.t("vr_survey_add_window"), systemImage: "rectangle.split.3x1")
-                        .adaptiveFont(size: 11, weight: .semibold)
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
-                        .background(Color.cyan.opacity(0.9))
-                        .cornerRadius(12)
-                }
-                Button(action: clearAll) {
-                    Label(lang.t("vr_survey_clear"), systemImage: "trash")
-                        .adaptiveFont(size: 11, weight: .semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
-                        .background(Color.red.opacity(0.7))
-                        .cornerRadius(12)
-                }
-                Button(action: generateReport) {
-                    Label(lang.t("vr_survey_generate"), systemImage: "wand.and.stars")
-                        .adaptiveFont(size: 11, weight: .bold)
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Color.yanGold)
-                        .cornerRadius(12)
-                }
+
+            // 3. 构件增删 4 键等宽条（不再与生成按钮挤在同一行）
+            HStack(spacing: 6) {
+                vrQuickToolButton(
+                    icon: "plus.square.on.square",
+                    title: lang.t("vr_survey_add_room"),
+                    bg: Color.blue.opacity(0.24),
+                    fg: .yanCyan,
+                    action: { addRoom(at: nil, in: nil) }
+                )
+                vrQuickToolButton(
+                    icon: "door.left.hand.open",
+                    title: lang.t("vr_survey_add_door"),
+                    bg: Color.yanGold.opacity(0.22),
+                    fg: .yanGold,
+                    action: { addOpening(isDoor: true) }
+                )
+                vrQuickToolButton(
+                    icon: "rectangle.split.3x1",
+                    title: lang.t("vr_survey_add_window"),
+                    bg: Color.yanCyan.opacity(0.22),
+                    fg: .yanCyan,
+                    action: { addOpening(isDoor: false) }
+                )
+                vrQuickToolButton(
+                    icon: "trash.fill",
+                    title: lang.t("vr_survey_clear"),
+                    bg: Color.red.opacity(0.2),
+                    fg: .red,
+                    action: clearAll
+                )
             }
+
+            // 4. 全宽主操作 CTA：生成 3D 空间模型与报告
+            Button(action: generateReport) {
+                HStack(spacing: 6) {
+                    Image(systemName: "wand.and.stars")
+                    Text(lang.t("vr_survey_generate"))
+                }
+                .adaptiveFont(size: 13, weight: .bold)
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 11)
+                .background(Color.yanGold)
+                .cornerRadius(10)
+            }
+            .buttonStyle(.plain)
         }
+        .padding(10)
+        .background(Color(red: 0.09, green: 0.09, blue: 0.12))
+        .cornerRadius(13)
+        .overlay(
+            RoundedRectangle(cornerRadius: 13)
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+        )
+    }
+
+    private func vrQuickToolButton(icon: String, title: String, bg: Color, fg: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .bold))
+                Text(title)
+                    .adaptiveFont(size: 9.5, weight: .bold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 7)
+            .padding(.horizontal, 4)
+            .background(bg)
+            .foregroundColor(fg)
+            .cornerRadius(9)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - 添加与清空

@@ -2780,6 +2780,8 @@ private struct ARSpatialShareSheet: UIViewControllerRepresentable {
 /// ARKit powered room survey.  On devices without ARWorldTracking support it
 /// keeps the camera based AR experience available and explains the limitation.
 public struct ARSpatialSurveyView: View {
+    public var isEmbedded: Bool = false
+    public var onSwitchToExteriorView: (() -> Void)? = nil
     @Environment(\.cameraLeaseToken) private var cameraLeaseToken
     @ObservedObject private var lang = LocalizationManager.shared
     @StateObject private var model: ARSpatialSurveyModel
@@ -2818,7 +2820,13 @@ public struct ARSpatialSurveyView: View {
         (.seat, "ar_spatial_seat", "chair"),
     ]
 
-    public init(propertyID: UUID = ShaSurveyStore.shared.propertyID) {
+    public init(
+        propertyID: UUID = ShaSurveyStore.shared.propertyID,
+        isEmbedded: Bool = false,
+        onSwitchToExteriorView: (() -> Void)? = nil
+    ) {
+        self.isEmbedded = isEmbedded
+        self.onSwitchToExteriorView = onSwitchToExteriorView
         self._model = StateObject(wrappedValue: ARSpatialSurveyModel(propertyID: propertyID))
     }
 
@@ -2836,6 +2844,9 @@ public struct ARSpatialSurveyView: View {
 
             GeometryReader { geo in
                 VStack(spacing: 8) {
+                    if isEmbedded {
+                        WorkflowStepperBar(activeStep: 0)
+                    }
                     header
                     Spacer(minLength: 8)
                     // 底部可折叠实测数据面板 + 拇指区三键测绘操作底座，
@@ -3022,15 +3033,35 @@ public struct ARSpatialSurveyView: View {
                 .cornerRadius(16)
             }
 
-            Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                Image(systemName: "xmark")
-                    .adaptiveFont(size: 13, weight: .bold)
-                    .foregroundColor(.white)
-                    .padding(9)
-                    .background(Color.white.opacity(0.14))
-                    .clipShape(Circle())
+            if let onSwitchToExteriorView = onSwitchToExteriorView {
+                Button(action: onSwitchToExteriorView) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "camera.viewfinder")
+                            .font(.system(size: 11, weight: .bold))
+                        Text(isEn ? "Site View" : "实景观测")
+                            .adaptiveFont(size: 10.5, weight: .bold)
+                            .lineLimit(1)
+                    }
+                    .foregroundColor(.yanCyan)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 8)
+                    .background(Color.yanCyan.opacity(0.18))
+                    .cornerRadius(16)
+                }
+                .buttonStyle(.plain)
             }
-            .accessibilityLabel(lang.t("ar_spatial_close"))
+
+            if !isEmbedded {
+                Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                    Image(systemName: "xmark")
+                        .adaptiveFont(size: 13, weight: .bold)
+                        .foregroundColor(.white)
+                        .padding(9)
+                        .background(Color.white.opacity(0.14))
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel(lang.t("ar_spatial_close"))
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 9)

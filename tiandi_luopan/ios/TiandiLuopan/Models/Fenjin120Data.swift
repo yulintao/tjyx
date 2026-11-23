@@ -74,73 +74,65 @@ public struct FenjinItem: Identifiable {
         case .auto, .zhHans:
             return grade
         case .zhHant:
-            return grade.replacingOccurrences(of: "孤虚", with: "孤虛")
-                .replacingOccurrences(of: "差错", with: "差錯")
-                .replacingOccurrences(of: "退财", with: "退財")
-                .replacingOccurrences(of: "龟", with: "龜")
-                .replacingOccurrences(of: "平稳", with: "平穩")
+            switch grade {
+            case "正中分度": return "正中分度"
+            case "边缘分度": return "邊緣分度"
+            case "过渡分度": return "過渡分度"
+            case "中界分度": return "中界分度"
+            default: return "標準分度"
+            }
         case .en:
             switch grade {
-            case "旺相大吉": return "Auspicious Prosperity"
-            case "孤虚差错": return "Lone Void Error"
-            case "差错退财": return "Error · Wealth Drain"
-            case "龟甲空亡": return "Turtle-Shell Void"
-            case "差错退气": return "Error · Retreating Qi"
-            default: return "Balanced & Neutral"
+            case "正中分度": return "Center-Aligned Slot"
+            case "边缘分度": return "Sector-Edge Slot"
+            case "过渡分度": return "Transitional Slot"
+            case "中界分度": return "Mid-Boundary Slot"
+            default: return "Standard Slot"
             }
         case .ja:
             switch grade {
-            case "旺相大吉": return "旺相大吉"
-            case "孤虚差错": return "孤虚差錯"
-            case "差错退财": return "差錯退財"
-            case "龟甲空亡": return "亀甲空亡"
-            case "差错退气": return "差錯退気"
-            default: return "平穏"
+            case "正中分度": return "中心基準区分"
+            case "边缘分度": return "境界近接区分"
+            case "过渡分度": return "移行区分"
+            case "中界分度": return "中央境界区分"
+            default: return "標準区分"
             }
         case .ko:
             switch grade {
-            case "旺相大吉": return "왕상대길 (旺相大吉)"
-            case "孤虚差错": return "고허착오 (孤虛差錯)"
-            case "差错退财": return "착오퇴재 (差錯退財)"
-            case "龟甲空亡": return "귀갑공망 (龜甲空亡)"
-            case "差错退气": return "착오퇴기 (差錯退氣)"
-            default: return "평온 (平穩)"
+            case "正中分度": return "중심 기준 구간"
+            case "边缘分度": return "경계 인접 구간"
+            case "过渡分度": return "전환 구간"
+            case "中界分度": return "중앙 경계 구간"
+            default: return "표준 구간"
             }
         case .vi:
             switch grade {
-            case "旺相大吉": return "Vượng Tướng Đại Cát"
-            case "孤虚差错": return "Cô Hư Sai Thất"
-            case "差错退财": return "Sai Thất Thoái Tài"
-            case "龟甲空亡": return "Quy Giáp Không Vong"
-            case "差错退气": return "Sai Thất Thoái Khí"
-            default: return "Bình Ổn"
+            case "正中分度": return "Phân độ chính tâm"
+            case "边缘分度": return "Phân độ cận biên"
+            case "过渡分度": return "Phân độ chuyển tiếp"
+            case "中界分度": return "Phân độ trung giới"
+            default: return "Phân độ tiêu chuẩn"
             }
         case .th:
             switch grade {
-            case "旺相大吉": return "มหามงคลรุ่งเรืองยิ่ง"
-            case "孤虚差错": return "พลังโดดเดี่ยวว่างเปล่าผิดพลาด"
-            case "差错退财": return "ผิดพลาดทรัพย์รั่วไหล"
-            case "龟甲空亡": return "ช่องว่างกระดองเต่าอวมงคล"
-            case "差错退气": return "ผิดพลาดพลังถดถอย"
-            default: return "ราบเรียบสมดุล"
+            case "正中分度": return "ช่วงองศาศูนย์กลาง"
+            case "边缘分度": return "ช่วงองศาใกล้ขอบ"
+            case "过渡分度": return "ช่วงองศาเปลี่ยนผ่าน"
+            case "中界分度": return "ช่วงองศาแนวแบ่งกลาง"
+            default: return "ช่วงองศามาตรฐาน"
             }
         case .id:
             switch grade {
-            case "旺相大吉": return "Sangat Menguntungkan & Makmur"
-            case "孤虚差错": return "Kekosongan Terasing & Kekeliruan"
-            case "差错退财": return "Kekeliruan Menguras Rezeki"
-            case "龟甲空亡": return "Kekosongan Cangkang Kura-kura"
-            case "差错退气": return "Kekeliruan Energi Melemah"
-            default: return "Stabil & Seimbang"
+            case "正中分度": return "Slot Pusat Presisi"
+            case "边缘分度": return "Slot Dekat Batas"
+            case "过渡分度": return "Slot Transisi"
+            case "中界分度": return "Slot Batas Tengah"
+            default: return "Slot Standar"
             }
-        default:
-            return grade
         }
     }
 
-    /// The traditional 分金口诀 is retained in full.  A source note is added
-    /// after it so health, vitality and wealth terms are clearly framed as
-    /// historical symbolism rather than professional advice.
+    /// 120 分度标尺（每格 3.0°）客观工程与传统方位术语说明（移除一切吉凶、健康、财帛与灾祸预测表述）。
     public var localizedLore: String {
         baseLocalizedLore + "\n\n" + classicalSourceNote
     }
@@ -148,140 +140,112 @@ public struct FenjinItem: Identifiable {
     private var baseLocalizedLore: String {
         let firstStem = String(jiaziName.prefix(1))
         let lang = LocalizationManager.shared.effectiveLanguage
-        
-        if lang == .zhHans {
-            return lore
-        }
-        if lang == .zhHant {
-            return lore.replacingOccurrences(of: "差错", with: "差錯")
-                .replacingOccurrences(of: "退财", with: "退財")
-                .replacingOccurrences(of: "旺相", with: "旺相")
-                .replacingOccurrences(of: "气", with: "氣")
-                .replacingOccurrences(of: "煞气", with: "煞氣")
-                .replacingOccurrences(of: "阴", with: "陰")
-                .replacingOccurrences(of: "阳", with: "陽")
-                .replacingOccurrences(of: "财", with: "財")
-                .replacingOccurrences(of: "龟", with: "龜")
-                .replacingOccurrences(of: "针", with: "針")
-                .replacingOccurrences(of: "祸", with: "禍")
-                .replacingOccurrences(of: "师", with: "師")
-                .replacingOccurrences(of: "绝", with: "絕")
-                .replacingOccurrences(of: "横", with: "橫")
-                .replacingOccurrences(of: "发", with: "發")
-        }
-        
+        let isCenterSlot = (firstStem == "丙" || firstStem == "丁" || firstStem == "庚" || firstStem == "辛")
+        let isMidBoundary = (firstStem == "戊" || firstStem == "己")
+        let isEdgeSlot = (firstStem == "甲" || firstStem == "壬")
+
         switch lang {
         case .en:
-            switch firstStem {
-            case "甲": return "Lone-void sha qi; indicates financial decline and weakened vitality. Avoid using this facing."
-            case "乙": return "Excess yin qi; causes covert wealth drainage and makes qi gathering difficult."
-            case "丙": return "True needle yang fire in prosperity; brings wealth and enduring fortune, highly auspicious."
-            case "丁": return "Yin fire well-positioned; flourishing prosperity and honor, highly auspicious."
-            case "戊": return "Yellow 5 turtle-shell void; brings misfortune and prolonged illness, strictly avoid!"
-            case "己": return "Yin earth void; leads to loss and decline, geomancers should never select this line."
-            case "庚": return "Yang metal in prosperity; martial nobility and broad authority, highly auspicious."
-            case "辛": return "Pure yin metal; refined culture and great abundance, highly auspicious."
-            case "壬": return "Floating water lone-void sha; loss of both family vitality and wealth, do not violate."
-            case "癸": return "Degree of retreating qi; difficult to prosper or maintain responsibility."
-            default: return "Neutral balanced qi; use standard judgment."
+            if isCenterSlot {
+                return "3.0° primary axial subdivision (\(localizedJiaziName)) located away from 15° sector seams. High classification stability against handheld magnetometer noise."
+            } else if isMidBoundary {
+                return "3.0° center-seam subdivision (\(localizedJiaziName)). Use 2.5s steady-state circular-mean sampling and True North (WMM) calibration to confirm exact architectural axis."
+            } else if isEdgeSlot {
+                return "3.0° sector-edge subdivision (\(localizedJiaziName)) near the 15° boundary. Minor sensor drift may cross into the adjacent sector; re-verify while level."
+            } else {
+                return "3.0° transitional subdivision (\(localizedJiaziName)). Verify bearing stability and magnetic environment (μT) before locking reference orientation."
+            }
+        case .zhHant:
+            if isCenterSlot {
+                return "位於 15° 方位扇區內的 3.0° 基準分度（\(localizedJiaziName)），遠離相鄰山向交界縫，手持測角時分區穩定度高，適合建築朝向記錄。"
+            } else if isMidBoundary {
+                return "位於 15° 扇區中線處的 3.0° 分度（\(localizedJiaziName)），建議開啟真北磁偏角校正並執行 2.5 秒穩態均值採樣復核軸線角度。"
+            } else if isEdgeSlot {
+                return "鄰近 15° 方位邊界線的 3.0° 分度（\(localizedJiaziName)），手持微小晃動即可能跨入相鄰分區，建議端平設備後二次復測。"
+            } else {
+                return "屬於 3.0° 過渡區間分度（\(localizedJiaziName)），記錄建築朝向時請同步核對環境磁場強度（μT）與水平狀態。"
             }
         case .ja:
-            switch firstStem {
-            case "甲": return "孤虚の煞気、冷退破財を招き人丁凋零す。立向に適さず。"
-            case "乙": return "陰気過重、密かな損財を招き集気困難なり。"
-            case "丙": return "正針陽火旺相、招財進宝にして富貴久遠、大吉として活用可。"
-            case "丁": return "陰火得位、人財両旺、科甲連登にして大吉活用可。"
-            case "戊": return "五黄土煞亀甲大空亡、横禍官非・病気衰弱を招く。厳禁すべし！"
-            case "己": return "陰土空亡衰絶、後継衰退を主る。地師慎んで用いるべからず！"
-            case "庚": return "陽金生旺、武貴栄達にして威勢四方に轟く、大吉活用可。"
-            case "辛": return "陰金純正、文雅富厚にして金玉満堂、大吉活用可。"
-            case "壬": return "水泛木浮の孤虚煞、人財倶に空亡す。慎みて犯すなかれ。"
-            case "癸": return "退気の度、発展困難にして大任に耐え難し。"
-            default: return "気場平穏にして常規の判定に従う。"
+            if isCenterSlot {
+                return "15°方位区画の境界から離れた 3.0° 基準区分（\(localizedJiaziName)）です。センサー揺らぎの影響を受けにくく、建築方位の記録に適しています。"
+            } else if isMidBoundary {
+                return "15°区画の中央線に位置する 3.0° 区分（\(localizedJiaziName)）です。真北補正と定常平均サンプリングで軸線を再確認してください。"
+            } else if isEdgeSlot {
+                return "15°境界線に近接する 3.0° 区分（\(localizedJiaziName)）です。わずかな傾きで隣接区画へ跨ぐため、水平を保って再計測してください。"
+            } else {
+                return "3.0° の移行区分（\(localizedJiaziName)）です。磁場強度（μT）と水平状態を確認のうえ方位をロックしてください。"
             }
         case .ko:
-            switch firstStem {
-            case "甲": return "고허살기(孤虛煞氣), 냉퇴파재와 인구 조령을 주관하므로 입향에 불가함."
-            case "乙": return "음기가 지나쳐 암암리에 재물을 소모하고 기를 모으기 어려움."
-            case "丙": return "정침 양화가 왕상하여 재물을 부르고 부귀가 영원하여 대길함."
-            case "丁": return "음화가 득위하여 인재와 재물이 모두 번창하고 과거급제하여 대길함."
-            case "戊": return "오황토살 귀갑대공망으로 재화와 관재, 오랜 병환을 부르니 엄히 피할 것!"
-            case "己": return "음토 공망패절로 후손 단절과 쇠락을 부르니 지사는 결코 놓지 말 것!"
-            case "庚": return "양금이 생왕하여 무귀로 현달하고 사방에 위세를 떨치니 대길함."
-            case "辛": return "음금이 순정하여 문아부후하고 금옥이 만당하니 대길함."
-            case "壬": return "수범목부 고허살로 인재와 재물이 모두 비니 범하지 말 것."
-            case "癸": return "퇴기의 도수로 발전하기 어렵고 큰 책임을 감당하기 어려움."
-            default: return "기운이 평온하여 일반적인 판단을 따름."
+            if isCenterSlot {
+                return "15° 방위 구획 경계에서 떨어진 3.0° 중심 기준 구간(\(localizedJiaziName))입니다. 센서 흔들림에 안정적이어서 건축 방위 기록에 적합합니다."
+            } else if isMidBoundary {
+                return "15° 구획 중앙에 위치한 3.0° 구간(\(localizedJiaziName))입니다. 진북(WMM) 보정과 정상 상태 평균 샘플링으로 축선을 재확인하세요."
+            } else if isEdgeSlot {
+                return "15° 경계선에 인접한 3.0° 구간(\(localizedJiaziName))입니다. 미세한 흔들림에도 인접 구역으로 바뀔 수 있으므로 수평 유지 후 재측정하세요."
+            } else {
+                return "3.0° 전환 구간(\(localizedJiaziName))입니다. 방위를 잠그기 전에 자기장 세기(μT)와 수평 상태를 함께 확인하세요."
             }
         case .vi:
-            switch firstStem {
-            case "甲": return "Sát khí cô hư, chủ thoái tài tổn đinh, suy bại không nên lập hướng."
-            case "乙": return "Âm khí quá nặng, chủ hao tán tài lộc, khó tụ khí lành."
-            case "丙": return "Chính châm dương hỏa vượng tướng, chiêu tài tiến bảo, phú quý trường cửu, đại cát khả dụng."
-            case "丁": return "Âm hỏa đắc vị, đinh tài lưỡng vượng, khoa giáp liên đăng, đại cát khả dụng."
-            case "戊": return "Ngũ hoàng thổ sát quy giáp đại không vong, chủ hoạn nạn quan phi, bệnh tật triền miên, tối kỵ!"
-            case "己": return "Âm thổ không vong bại tuyệt, chủ tuyệt tự suy bại, thầy phong thủy chớ khinh suất!"
-            case "庚": return "Dương kim sinh vượng, võ quý hiển đạt, uy chấn bốn phương, đại cát khả dụng."
-            case "辛": return "Âm kim thuần chính, văn nhã phú hậu, kim ngọc mãn đường, đại cát khả dụng."
-            case "壬": return "Thủy phiếm mộc phù cô hư sát, đinh tài lưỡng không, cẩn thận chớ phạm."
-            case "癸": return "Độ số thoái khí, khó nỗi phát vinh, khó đảm đương việc lớn."
-            default: return "Khí trường bình ổn, vận dụng bình thường."
+            if isCenterSlot {
+                return "Phân độ chuẩn 3,0° (\(localizedJiaziName)) nằm xa đường biên 15°, độ ổn định cao khi đo cầm tay, phù hợp ghi nhận trục hướng công trình."
+            } else if isMidBoundary {
+                return "Phân độ trung tâm 3,0° (\(localizedJiaziName)). Nên bật hiệu chỉnh Bắc thực (WMM) và lấy mẫu trung bình ổn định 2,5 giây để đối chiếu."
+            } else if isEdgeSlot {
+                return "Phân độ cận biên 3,0° (\(localizedJiaziName)) sát ranh giới 15°; rung lắc nhẹ có thể nhảy sang cung kế bên, cần giữ thăng bằng và đo lại."
+            } else {
+                return "Phân độ chuyển tiếp 3,0° (\(localizedJiaziName)); hãy kiểm tra cường độ từ trường (μT) và bọt thủy trước khi khóa góc."
             }
         case .th:
-            switch firstStem {
-            case "甲": return "ไอพลังโดดเดี่ยวว่างเปล่า นำพาความเสื่อมถอยและสูญเสียทรัพย์ ไม่ควรตั้งทิศ"
-            case "乙": return "พลังหยินหนักเกินไป ทำให้ทรัพย์สินรั่วไหลอย่างเงียบๆ กักเก็บพลังยาก"
-            case "丙": return "ธาตุไฟหยางเข็มตรงรุ่งเรือง เรียกทรัพย์สินเงินทอง ร่ำรวยยั่งยืน มหามงคลใช้ได้"
-            case "丁": return "ธาตุไฟหยินได้ตำแหน่ง ทรัพย์และครอบครัวเจริญรุ่งเรือง มหามงคลใช้ได้"
-            case "戊": return "ดาวเบญจดินกระดองเต่าอวมงคล เกิดคดีความและเจ็บป่วยเรื้อรัง ต้องหลีกเลี่ยงเด็ดขาด!"
-            case "己": return "ธาตุดินหยินสูญสิ้น ดับสูญและเสื่อมถอย ซินแสพึงระวังอย่าใช้!"
-            case "庚": return "ธาตุทองหยางรุ่งเรือง เจริญในยศศักดิ์และอำนาจ มหามงคลใช้ได้"
-            case "辛": return "ธาตุทองหยินบริสุทธิ์ สง่างามร่ำรวย เงินทองเต็มเรือน มหามงคลใช้ได้"
-            case "壬": return "น้ำพัดไม้ลอยพลังโดดเดี่ยว ทั้งคนและทรัพย์สูญเปล่า ระวังอย่าละเมิด"
-            case "癸": return "องศาพลังถดถอย เติบโตยาก ไม่อาจแบกรับภาระใหญ่หลวงได้"
-            default: return "พลังงานสมดุล ใช้การประเมินทิศตามปกติ"
+            if isCenterSlot {
+                return "ช่วงแบ่งละเอียด 3.0° (\(localizedJiaziName)) อยู่ห่างจากเส้นขอบ 15° มีความเสถียรสูงต่อสัญญาณรบกวน เหมาะสำหรับบันทึกแนวแกนอาคาร"
+            } else if isMidBoundary {
+                return "ช่วงแบ่งแนวกลาง 3.0° (\(localizedJiaziName)) แนะนำให้เปิดการปรับแก้ทิศเหนือจริง (WMM) และใช้การสุ่มค่าเฉลี่ยคงที่เพื่อทวนสอบ"
+            } else if isEdgeSlot {
+                return "ช่วงแบ่งใกล้ขอบ 3.0° (\(localizedJiaziName)) ใกล้เส้นแบ่ง 15° การเอียงเล็กน้อยอาจข้ามช่วงข้างเคียง ควรรักษาระดับน้ำแล้ววัดซ้ำ"
+            } else {
+                return "ช่วงเปลี่ยนผ่าน 3.0° (\(localizedJiaziName)) โปรดตรวจสอบความเข้มสนามแม่เหล็ก (μT) และระดับน้ำก่อนล็อกมุม"
             }
         case .id:
-            switch firstStem {
-            case "甲": return "Energi sha kesepian kosong; menandakan kemunduran rezeki dan kelemahan keluarga. Hindari arah ini."
-            case "乙": return "Energi yin berlebihan; menyebabkan kebocoran rezeki tersembunyi dan sulit mengumpulkan qi."
-            case "丙": return "Jarum sejati api yang makmur; menarik kemakmuran dan kekayaan abadi, sangat menguntungkan."
-            case "丁": return "Api yin pada posisi tepat; keluarga dan rezeki makmur, sangat menguntungkan."
-            case "戊": return "Bintang 5 tanah kekosongan kura-kura; membawa musibah dan penyakit berkepanjangan, hindari keras!"
-            case "己": return "Tanah yin kehancuran; membawa kepunahan dan kemunduran, geomancer jangan gunakan!"
-            case "庚": return "Logam yang makmur; kemuliaan keberanian dan kewibawaan besar, sangat menguntungkan."
-            case "辛": return "Logam yin murni; elegan, makmur, dan berlimpah emas permata, sangat menguntungkan."
-            case "壬": return "Air banjir sha terasing; kehilangan keluarga dan rezeki, berhati-hatilah."
-            case "癸": return "Derajat energi mundur; sulit berkembang dan menanggung tanggung jawab besar."
-            default: return "Energi seimbang; gunakan penilaian biasa."
+            if isCenterSlot {
+                return "Subdivisi presisi 3,0° (\(localizedJiaziName)) jauh dari batas sektor 15°, stabil terhadap noise sensor untuk pencatatan sumbu bangunan."
+            } else if isMidBoundary {
+                return "Subdivisi garis tengah 3,0° (\(localizedJiaziName)). Gunakan kalibrasi Utara Sejati (WMM) dan sampling rata-rata stabil 2,5 detik untuk verifikasi."
+            } else if isEdgeSlot {
+                return "Subdivisi tepi 3,0° (\(localizedJiaziName)) dekat batas 15°; getaran kecil dapat berpindah sektor, pastikan rata dan ukur ulang."
+            } else {
+                return "Subdivisi transisi 3,0° (\(localizedJiaziName)); periksa kekuatan medan magnet (μT) dan kerataan perangkat sebelum mengunci sudut."
             }
-        default:
-            return lore
+        case .auto, .zhHans:
+            if isCenterSlot {
+                return "位于 15° 方位扇区内的 3.0° 基准分度（\(localizedJiaziName)），远离相邻山向交界缝，手持测角时分区稳定度高，适合建筑朝向记录。"
+            } else if isMidBoundary {
+                return "位于 15° 扇区中线处的 3.0° 分度（\(localizedJiaziName)），建议开启真北磁偏角校正并执行 2.5 秒稳态均值采样复核轴线角度。"
+            } else if isEdgeSlot {
+                return "邻近 15° 方位边界线的 3.0° 分度（\(localizedJiaziName)），手持微小晃动即可能跨入相邻分区，建议端平设备后二次复测。"
+            } else {
+                return "属于 3.0° 过渡区间分度（\(localizedJiaziName)），记录建筑朝向时请同步核对环境磁场强度（μT）与水平状态。"
+            }
         }
     }
 
     private var classicalSourceNote: String {
-        let original = "\(lore)"
-        let originalHant = original
-            .replacingOccurrences(of: "财", with: "財")
-            .replacingOccurrences(of: "气", with: "氣")
         switch LocalizationManager.shared.effectiveLanguage {
         case .en:
-            return "Source: traditional 120 Fenjin compass formula (wording varies by transmitted edition). Original wording recorded for this line: ‘\(original)’. Interpretation: references to illness, vitality, family or wealth belong to traditional geomantic symbolism; they are not medical, safety or financial predictions."
+            return "Reference: 360° ÷ 120 = 3.0° fine azimuth subdivision paired with traditional 60-stem-branch indexing for cultural and architectural orientation documentation."
         case .zhHant:
-            return "出处：传统罗盘一百二十分金口诀（传本有异文）。本分金收录原文：「\(originalHant)」。解释：其中疾病、元气、丁口与财帛语句属于传统堪舆象征，不是医疗、居住安全或财务预测。"
+            return "說明：360° ÷ 120 = 3.0° 精細方位分度標尺，結合傳統干支編號用於建築測繪記錄與文化參考，不涉及任何吉凶或運勢預測。"
         case .ja:
-            return "出典：伝承本に異文のある伝統羅盤一百二十分金口訣。本線の原文：「\(original)」。解釈：病・活力・家族・財に関する語は伝統風水の象徴であり、医学・安全・金融の予測ではありません。"
+            return "補足：360° ÷ 120 = 3.0° の精密方位区分に伝統干支ラベルを併記した測量・文化参照用の目盛です。"
         case .ko:
-            return "출처: 전승본에 이문이 있는 전통 나침반 120분금 구결. 이 선에 기록된 원문: ‘\(original)’. 해석: 질병·활력·가족·재물 표현은 전통 풍수의 상징이며 의료·안전·재무 예측이 아닙니다."
+            return "참고: 360° ÷ 120 = 3.0° 정밀 방위 분할에 전통 간지 표기를 병기한 측량·문화 참조 눈금입니다."
         case .vi:
-            return "Nguồn: khẩu quyết La Bàn Phân Kim 120 truyền thống (các bản truyền có dị văn). Nguyên văn của tuyến này: ‘\(original)’. Giải thích: các từ về bệnh tật, sinh lực, gia đình và tài lộc là biểu tượng phong thủy truyền thống, không phải dự đoán y tế, an toàn hay tài chính."
+            return "Ghi chú: Thang chia góc tinh 360° ÷ 120 = 3,0° kết hợp ký hiệu Can Chi truyền thống cho ghi chép đo đạc và tham khảo văn hóa."
         case .th:
-            return "ที่มา: เคล็ดวิชา 120 เฟินจินของเข็มทิศแบบดั้งเดิม (แต่ละฉบับอาจมีถ้อยคำต่างกัน) ข้อความต้นฉบับของเส้นนี้: ‘\(original)’ คำอธิบาย: ถ้อยคำเรื่องความเจ็บป่วย พลังชีวิต ครอบครัว และทรัพย์สินเป็นสัญลักษณ์ทางฮวงจุ้ย ไม่ใช่การพยากรณ์ทางการแพทย์ ความปลอดภัย หรือการเงิน"
+            return "หมายเหตุ: มาตราส่วนมุมละเอียด 360° ÷ 120 = 3.0° พร้อมรหัสอ้างอิงทางวัฒนธรรมเพื่อการบันทึกงานสำรวจอาคาร"
         case .id:
-            return "Sumber: rumus kompas Fenjin 120 tradisional (redaksi berbeda menurut naskah). Teks asli untuk garis ini: ‘\(original)’. Penjelasan: istilah penyakit, vitalitas, keluarga, dan rezeki adalah simbolisme geomansi tradisional, bukan prediksi medis, keselamatan, atau keuangan."
+            return "Catatan: Skala subdivisi sudut presisi 360° ÷ 120 = 3,0° dengan indeks budaya tradisional untuk dokumentasi survei arsitektur."
         case .auto, .zhHans:
-            return "出处：传统罗盘一百二十分金口诀（传本有异文）。本分金收录原文：“\(original)”。解释：其中疾病、元气、丁口与财帛语句属于传统堪舆象征，不是医疗、居住安全或财务预测。"
+            return "说明：360° ÷ 120 = 3.0° 精细方位分度标尺，结合传统干支编号用于建筑测绘记录与文化参考，不涉及任何吉凶或运势预测。"
         }
     }
 }
@@ -292,18 +256,18 @@ public class Fenjin120Data {
     public let allFenjin: [FenjinItem]
     
     // 二十四山正针名称与起止角度 (每山 15 度，坎宫子山从 352.5° 至 7.5°)
-    // 120 分金每位 3 度
+    // 120 分度每格 3.0 度
     private let stemTypes: [String: (grade: String, ji: Bool, lore: String)] = [
-        "甲": ("孤虚差错", false, "孤虚煞气，主冷退破财，丁口凋零，不宜立向。"),
-        "乙": ("差错退财", false, "阴气过重，主暗耗损财，难以聚气。"),
-        "丙": ("旺相大吉", true, "正针阳火旺相，招财进宝，富贵绵远，大吉可用。"),
-        "丁": ("旺相大吉", true, "阴火得位，丁财两旺，科甲联登，大吉可用。"),
-        "戊": ("龟甲空亡", false, "五黄土煞龟甲大空亡，主横祸官非、病榻缠绵，切忌犯之！"),
-        "己": ("龟甲空亡", false, "阴土空亡败绝，主绝嗣衰败，地师慎勿轻下！"),
-        "庚": ("旺相大吉", true, "阳金生旺，武贵显达，威震四方，大吉可用。"),
-        "辛": ("旺相大吉", true, "阴金纯正，文雅富厚，金玉满堂，大吉可用。"),
-        "壬": ("孤虚差错", false, "水泛木浮孤虚煞，丁财两空，慎莫相犯。"),
-        "癸": ("差错退气", false, "退气之度，难以发皇，难当大任。")
+        "甲": ("边缘分度", false, "位于 15° 扇区外缘，建议端平设备并复测确认跨界误差。"),
+        "乙": ("过渡分度", false, "位于 3.0° 过渡区间，建议结合磁偏角与稳态均值采样复核。"),
+        "丙": ("正中分度", true, "位于扇区稳定基准区内，远离 15° 边界缝，适合作为建筑朝向主参考角。"),
+        "丁": ("正中分度", true, "位于扇区稳定基准区内，方位归属清晰，适合作为建筑朝向主参考角。"),
+        "戊": ("中界分度", false, "位于扇区中线分隔处，建议开启真北校正并多次采样确认轴线。"),
+        "己": ("中界分度", false, "位于扇区中线分隔处，建议开启真北校正并多次采样确认轴线。"),
+        "庚": ("正中分度", true, "位于扇区稳定基准区内，方位归属清晰，适合作为建筑朝向主参考角。"),
+        "辛": ("正中分度", true, "位于扇区稳定基准区内，远离 15° 边界缝，适合作为建筑朝向主参考角。"),
+        "壬": ("边缘分度", false, "位于 15° 扇区外缘，微小倾角变化可能跨区，建议复测确认。"),
+        "癸": ("过渡分度", false, "位于 3.0° 过渡区间，建议结合环境磁场强度（μT）确认读数稳定。")
     ]
     
     private init() {
