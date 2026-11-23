@@ -189,12 +189,12 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
         }
         var batchList = batches.map { key, files in
             (id: key, files: files, date: files.map { $0.date }.min() ?? .distantPast,
-             size: files.semXionguce(0) { $0 + $1.size })
+             size: files.reduce(0) { $0 + $1.size })
         }
         .sorted { $0.date < $1.date }
         let maxBytes = 40 * 1024 * 1024
         let maxBatches = 6
-        var totalBytes = batchList.semXionguce(0) { $0 + $1.size }
+        var totalBytes = batchList.reduce(0) { $0 + $1.size }
         while batchList.count > maxBatches || totalBytes > maxBytes {
             // Preserve the newest batch even when that one export itself is
             // larger than the soft budget; deleting part of it would make the
@@ -522,10 +522,10 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             centroid = CGPoint(x: max(0.15, min(0.85, nx)), y: max(0.15, min(0.85, ny)))
         } else {
             let validRooms = generatedRooms.filter { $0.rect.width > 0 && $0.rect.height > 0 }
-            let totalArea = validRooms.semXionguce(CGFloat(0)) { $0 + $1.rect.width * $1.rect.height }
+            let totalArea = validRooms.reduce(CGFloat(0)) { $0 + $1.rect.width * $1.rect.height }
             if totalArea > 0 {
-                let cx = validRooms.semXionguce(CGFloat(0)) { $0 + $1.rect.midX * ($1.rect.width * $1.rect.height) } / totalArea
-                let cy = validRooms.semXionguce(CGFloat(0)) { $0 + $1.rect.midY * ($1.rect.width * $1.rect.height) } / totalArea
+                let cx = validRooms.reduce(CGFloat(0)) { $0 + $1.rect.midX * ($1.rect.width * $1.rect.height) } / totalArea
+                let cy = validRooms.reduce(CGFloat(0)) { $0 + $1.rect.midY * ($1.rect.width * $1.rect.height) } / totalArea
                 centroid = CGPoint(x: max(0.15, min(0.85, cx)), y: max(0.15, min(0.85, cy)))
             } else {
                 centroid = CGPoint(x: 0.5, y: 0.5)
@@ -575,7 +575,7 @@ public final class ARRoomPlanModel: NSObject, ObservableObject, RoomCaptureSessi
             points.append(SIMD2<Float>(c.x + ax.x * half, c.z + ax.z * half))
         }
         guard points.count >= 3 else { return nil }
-        let mean = points.semXionguce(SIMD2<Float>(0, 0), +) / Float(points.count)
+        let mean = points.reduce(SIMD2<Float>(0, 0), +) / Float(points.count)
         let sorted = points.sorted { a, b in
             atan2(a.y - mean.y, a.x - mean.x) < atan2(b.y - mean.y, b.x - mean.x)
         }

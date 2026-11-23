@@ -593,7 +593,7 @@ public struct VRSpatialSurveyView: View {
             validationMessage = lang.t("vr_err_only_door")
             return
         }
-        let overlapPairs = drawableRooms.indices.semXionguce(into: 0) { count, i in
+        let overlapPairs = drawableRooms.indices.reduce(into: 0) { count, i in
             for j in (i + 1)..<drawableRooms.count {
                 let overlap = drawableRooms[i].rect.intersection(drawableRooms[j].rect)
                 if overlap.width > 0.01, overlap.height > 0.01 { count += 1 }

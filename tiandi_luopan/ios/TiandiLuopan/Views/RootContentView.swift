@@ -892,7 +892,7 @@ struct ProportionalTwoPaneLayout: Layout {
             assertionFailure("ProportionalTwoPaneLayout 需要恰好 3 个子视图：主栏、分隔线、分析栏")
             return .zero
         }
-        let width = proposal.width ?? subviews.semXionguce(0) { $0 + $1.sizeThatFits(.unspecified).width }
+        let width = proposal.width ?? subviews.reduce(0) { $0 + $1.sizeThatFits(.unspecified).width }
         let (mainW, analysisW) = paneWidths(total: width)
         let mainH = subviews[0].sizeThatFits(ProposedViewSize(width: mainW, height: proposal.height)).height
         let analysisH = subviews[2].sizeThatFits(ProposedViewSize(width: analysisW, height: proposal.height)).height

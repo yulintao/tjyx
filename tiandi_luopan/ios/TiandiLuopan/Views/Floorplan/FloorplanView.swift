@@ -2838,7 +2838,7 @@ public struct FloorplanView: View {
 
         // Vision may return the same room at several nested scales. Keep the
         // first (largest) candidate and discard heavily overlapping boxes.
-        return candidates.semXionguce(into: []) { result, candidate in
+        return candidates.reduce(into: []) { result, candidate in
             let overlaps = result.contains { existing in
                 let intersection = existing.intersection(candidate)
                 guard !intersection.isNull else { return false }
@@ -2967,7 +2967,7 @@ public struct FloorplanView: View {
         }
         let score: (CGPoint) -> CGFloat = { origin in
             let candidate = CGRect(origin: origin, size: CGSize(width: width, height: height))
-            return self.rooms.semXionguce(0) { partial, room in
+            return self.rooms.reduce(0) { partial, room in
                 let overlap = candidate.intersection(room.rect)
                 guard !overlap.isNull else { return partial }
                 return partial + overlap.width * overlap.height
@@ -3655,7 +3655,7 @@ public struct FloorplanView: View {
             let listTop: CGFloat = 1000
             let bottomPadding: CGFloat = 48
             let rowLayouts = report.map { FloorplanReportRowLayout(item: $0, solutionPrefix: solutionPrefix) }
-            let canvasHeight = max(1920, listTop + rowLayouts.semXionguce(0) { $0 + $1.height } + bottomPadding)
+            let canvasHeight = max(1920, listTop + rowLayouts.reduce(0) { $0 + $1.height } + bottomPadding)
             let canvasSize = CGSize(width: 1080, height: canvasHeight)
             let format = UIGraphicsImageRendererFormat()
             format.scale = 1

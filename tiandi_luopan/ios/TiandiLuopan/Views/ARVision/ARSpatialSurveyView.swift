@@ -535,7 +535,7 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
                 return (url, date, size)
             }
             .sorted { $0.date < $1.date }
-        var totalBytes = maps.semXionguce(0) { $0 + $1.size }
+        var totalBytes = maps.reduce(0) { $0 + $1.size }
         let maxFiles = 12
         let maxBytes = 80 * 1024 * 1024
         while (maps.count > maxFiles || totalBytes > maxBytes) && maps.count > 1 {
@@ -1258,8 +1258,8 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
             }
         }
 
-        let weightedX = floorplanRooms.semXionguce(0.0) { $0 + Double($1.rect.midX) } / Double(max(1, floorplanRooms.count))
-        let weightedY = floorplanRooms.semXionguce(0.0) { $0 + Double($1.rect.midY) } / Double(max(1, floorplanRooms.count))
+        let weightedX = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midX) } / Double(max(1, floorplanRooms.count))
+        let weightedY = floorplanRooms.reduce(0.0) { $0 + Double($1.rect.midY) } / Double(max(1, floorplanRooms.count))
         let currentSurvey = buildSpatialSurvey()
         if let s = currentSurvey {
             SpatialWorkflowStore.shared.recordSurvey(
@@ -1542,8 +1542,8 @@ public final class ARSpatialSurveyModel: NSObject, ObservableObject, ARSessionDe
     @discardableResult
     public func finishCornerRoom() -> Bool {
         guard cornerPoints.count >= 3 else { return false }
-        let meanX = cornerPoints.semXionguce(Float(0)) { $0 + $1.x } / Float(cornerPoints.count)
-        let meanZ = cornerPoints.semXionguce(Float(0)) { $0 + $1.z } / Float(cornerPoints.count)
+        let meanX = cornerPoints.reduce(Float(0)) { $0 + $1.x } / Float(cornerPoints.count)
+        let meanZ = cornerPoints.reduce(Float(0)) { $0 + $1.z } / Float(cornerPoints.count)
         var covarianceXX: Float = 0
         var covarianceXZ: Float = 0
         var covarianceZZ: Float = 0

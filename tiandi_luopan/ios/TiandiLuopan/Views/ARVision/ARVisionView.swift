@@ -1835,9 +1835,9 @@ public struct ARVisionView: View {
             aiError = lang.t("ar_ai_temporal_ambiguous")
             return
         }
-        let confidence = results.map { $0.confidence }.semXionguce(0, +) / Double(results.count)
-        let targetX = results.map { $0.targetX }.semXionguce(0, +) / Double(results.count)
-        let targetY = results.map { $0.targetY }.semXionguce(0, +) / Double(results.count)
+        let confidence = results.map { $0.confidence }.reduce(0, +) / Double(results.count)
+        let targetX = results.map { $0.targetX }.reduce(0, +) / Double(results.count)
+        let targetY = results.map { $0.targetY }.reduce(0, +) / Double(results.count)
         let candidate = ShaAnalysisResult(
             shaID: first.shaID,
             confidence: confidence,
