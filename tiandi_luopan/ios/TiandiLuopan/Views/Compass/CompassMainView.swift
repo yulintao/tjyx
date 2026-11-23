@@ -26,6 +26,8 @@ public struct CompassMainView: View {
     @State private var sampleMagneticUT: [Double] = []
     @State private var lastSampleSummary: BearingSampleSummary? = nil
     @ObservedObject private var workflow = SpatialWorkflowStore.shared
+    @ObservedObject private var training = CompassTrainingStore.shared
+    @State private var levelHoldStart: Date? = nil
     private static let precisionSampleTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     private static let precisionTargetCount = 25
     
@@ -50,6 +52,10 @@ public struct CompassMainView: View {
 
                         // 0. 结论看板：此刻·此地·此向 + 四类结论（一屏看尽）
                         DSConclusionDashboard()
+                            .padding(.horizontal, 16)
+
+                        // 0.5 测绘训练进度：真实测量动作驱动，纯工具技能反馈
+                        DSTrainingProgressHUD()
                             .padding(.horizontal, 16)
 
                         // 1. 顶部数据仪表
@@ -162,21 +168,28 @@ public struct CompassMainView: View {
                                                 vertical: verticalSizeClass,
                                                 form: layoutForm) {
                         ScrollView {
-                            unfoldedCompassAnalysisPanel()
-                                .padding(16)
-                                // iOS 27 浮动 TabBar 不占 safe area，会盖住右栏末尾卡片；
-                                // 直接给可滚动内容留底部余量，保证最后一张卡能完整滚出。
-                                .padding(.bottom, 80)
+                            VStack(spacing: 12) {
+                                unfoldedCompassAnalysisPanel()
+                                DSTrainingBadgeShelf(compact: false)
+                            }
+                            .padding(16)
+                            // iOS 27 浮动 TabBar 不占 safe area，会盖住右栏末尾卡片；
+                            // 直接给可滚动内容留底部余量，保证最后一张卡能完整滚出。
+                            .padding(.bottom, 80)
                         }
                     } else {
                         // 单列宽屏（iPad 竖屏 / Duo 折叠外屏）下底部卡片会被拉得很宽，
                         // 收在 900pt（与户型/设置同一套内容宽度口径）后居中；
                         // iPad 横屏走上面的右栏工作台分支，不会到这里。
-                        bottomStatusCard()
-                            .frame(maxWidth: 900)
-                            .padding(.horizontal, 16)
-                            .frame(maxWidth: .infinity)
-                            .padding(.bottom, 8)
+                        VStack(spacing: 12) {
+                            bottomStatusCard()
+                                .frame(maxWidth: 900)
+                            DSTrainingBadgeShelf(compact: true)
+                                .frame(maxWidth: 900)
+                        }
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 8)
                     }
                 }
             }
@@ -208,6 +221,20 @@ public struct CompassMainView: View {
                 motion.refreshTimeAndSolarTerm()
             }
         }
+        // 测绘训练：连续水平 3 秒达标（真实姿态，不改变测量逻辑）
+        .onChange(of: motion.isLevel) { level in
+            if level {
+                levelHoldStart = Date()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    guard let start = levelHoldStart, Date().timeIntervalSince(start) >= 3.0,
+                          motion.isLevel, isActive else { return }
+                    training.completeDrill(.level, isEn: lang.effectiveLanguage == .en)
+                    training.earnBadge(.levelMaster, isEn: lang.effectiveLanguage == .en)
+                }
+            } else {
+                levelHoldStart = nil
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
             motion.refreshTimeAndSolarTerm()
         }
@@ -233,6 +260,7 @@ public struct CompassMainView: View {
             Button(action: {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 motion.toggleLock()
+                if motion.isLocked { training.completeDrill(.lock, isEn: isEn) }
             }) {
                 HStack(spacing: 5) {
                     Image(systemName: motion.isLocked ? "lock.fill" : "lock.open")
@@ -291,6 +319,8 @@ public struct CompassMainView: View {
                     motion.toggleLock()
                 }
                 applyCurrentBearingToWorkflow()
+                training.completeDrill(.sync, isEn: isEn)
+                if workflow.bearingStations.count >= 2 { training.earnBadge(.twoStations, isEn: isEn) }
             }) {
                 HStack(spacing: 5) {
                     Image(systemName: "arrow.triangle.branch")
@@ -470,6 +500,14 @@ public struct CompassMainView: View {
             sampleCount: summary.sampleCount
         )
         showBearingAppliedToast = true
+
+        // 测绘训练：完成真实采样关卡与相关徽章（不改变任何测量数据）
+        let isEn = lang.effectiveLanguage == .en
+        training.completeDrill(.sample, isEn: isEn)
+        training.earnBadge(.firstSample, isEn: isEn)
+        training.earnBadge(.levelMaster, isEn: isEn)
+        training.earnBadge(.cleanRead, isEn: isEn)
+        training.earnBadge(.navAligned, isEn: isEn)
     }
 
     private func bearingStationsStrip() -> some View {

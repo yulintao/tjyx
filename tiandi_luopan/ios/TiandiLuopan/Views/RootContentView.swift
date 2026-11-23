@@ -244,7 +244,6 @@ struct DSCollapsibleSection<Content: View>: View {
 public struct DSConclusionDashboard: View {
     @ObservedObject private var motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var showDetail: Bool = false
     private let now: Date
 
     public init(now: Date = Date()) { self.now = now }
@@ -289,15 +288,39 @@ public struct DSConclusionDashboard: View {
 
             Text(timeText).adaptiveFont(size: 12).foregroundColor(.secondary)
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DS.padS) {
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · favorable" : "历法参考 · 宜",
-                           value: yiText.isEmpty ? "—" : yiText, tint: .semJi)
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · avoid" : "历法参考 · 忌",
-                           value: jiText.isEmpty ? "—" : jiText, tint: .semXiong)
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Direction notes" : "方位参考",
-                           value: "\(compassGods.wealthDirection) / \(compassGods.joyDirection)", tint: .goldText)
-                DSStatPill(label: lang.effectiveLanguage == .en ? "Fenjin / void" : "分金 / 空亡",
-                           value: state.fenJinDesc.isEmpty ? kwBadge.0 : state.fenJinDesc, tint: .semInfo)
+            // 翻转卡片：正面四类读数，背面详细依据；点按翻面，保留结论在上。
+            DSFlipCard {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DS.padS) {
+                    DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · favorable" : "历法参考 · 宜",
+                               value: yiText.isEmpty ? "—" : yiText, tint: .semJi)
+                    DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · avoid" : "历法参考 · 忌",
+                               value: jiText.isEmpty ? "—" : jiText, tint: .semXiong)
+                    DSStatPill(label: lang.effectiveLanguage == .en ? "Direction notes" : "方位参考",
+                               value: "\(compassGods.wealthDirection) / \(compassGods.joyDirection)", tint: .goldText)
+                    DSStatPill(label: lang.effectiveLanguage == .en ? "Fenjin / void" : "分金 / 空亡",
+                               value: state.fenJinDesc.isEmpty ? kwBadge.0 : state.fenJinDesc, tint: .semInfo)
+                }
+                .frame(minHeight: 132, alignment: .top)
+            } back: {
+                VStack(alignment: .leading, spacing: DS.padS) {
+                    HStack {
+                        Image(systemName: "doc.text.magnifyingglass").foregroundColor(.goldText).adaptiveFont(size: 13)
+                        Text(lang.effectiveLanguage == .en ? "Basis & Notes" : "详细盘面与依据")
+                            .adaptiveFont(size: 12, weight: .bold).foregroundColor(.goldText)
+                        Spacer()
+                        Image(systemName: "arrow.uturn.left").adaptiveFont(size: 11).foregroundColor(.secondary)
+                    }
+                    Text(daily.detailsText).adaptiveFont(size: 11).foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(minHeight: 132, alignment: .top)
+            }
+
+            HStack {
+                Image(systemName: "rotate.3d").adaptiveFont(size: 11).foregroundColor(.goldText)
+                Text(lang.effectiveLanguage == .en ? "Tap the card above to flip for basis" : "点按上方卡片翻面查看依据")
+                    .adaptiveFont(size: 10).foregroundColor(.secondary)
+                Spacer()
             }
 
             Text(lang.effectiveLanguage == .en
@@ -305,29 +328,6 @@ public struct DSConclusionDashboard: View {
                  : "传统文化研究参考 · 不构成决策依据")
                 .adaptiveFont(size: 10).foregroundColor(.secondary.opacity(0.75))
                 .fixedSize(horizontal: false, vertical: true)
-
-            Button {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                withAnimation(.easeInOut(duration: 0.2)) { showDetail.toggle() }
-            } label: {
-                HStack {
-                    Text(showDetail
-                         ? (lang.effectiveLanguage == .en ? "Hide details" : "收起详情")
-                         : (lang.effectiveLanguage == .en ? "Show details" : "展开详细盘面与依据"))
-                        .adaptiveFont(size: 12, weight: .semibold).foregroundColor(.goldText)
-                    Spacer()
-                    Image(systemName: "chevron.down").adaptiveFont(size: 12).foregroundColor(.goldText)
-                        .rotationEffect(.degrees(showDetail ? 180 : 0))
-                }
-                .padding(.vertical, DS.padS)
-            }
-            .buttonStyle(.plain)
-
-            if showDetail {
-                Text(daily.detailsText).adaptiveFont(size: 12).foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .transition(.opacity)
-            }
         }
         .padding(DS.padL)
         .background(
