@@ -249,6 +249,52 @@ struct DSCollapsibleSection<Content: View>: View {
     }
 }
 
+// MARK: - 透明折叠容器（内容保留各自卡片底色，不额外套框）
+struct DSFoldableSection<Content: View>: View {
+    let title: String
+    let subtitle: String?
+    @State private var expanded: Bool
+    let content: Content
+
+    init(title: String, subtitle: String? = nil, defaultExpanded: Bool = false,
+         @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.subtitle = subtitle
+        self.content = content()
+        _expanded = State(initialValue: defaultExpanded)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DS.padS) {
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
+            } label: {
+                HStack(spacing: DS.padS) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title).adaptiveFont(size: 12, weight: .semibold).foregroundColor(.paperSub)
+                        if let subtitle = subtitle {
+                            Text(subtitle).adaptiveFont(size: 10).foregroundColor(.paperSub.opacity(0.7))
+                        }
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .adaptiveFont(size: 11).foregroundColor(.paperSub)
+                        .rotationEffect(.degrees(expanded ? 180 : 0))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(title)
+            .accessibilityHint(expanded ? "收起详情" : "展开详情")
+
+            if expanded {
+                content.transition(.opacity)
+            }
+        }
+    }
+}
+
 // MARK: - 此刻 · 此地 · 此向 测量摘要看板
 // 一屏给出：时间/节气、当前坐向、传统历法研究参考、分金空亡与折叠依据。
 // 数据全部来自本机既有的共享引擎（罗盘朝向 / 择日 / 紫白），不新增依赖。

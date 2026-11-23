@@ -54,11 +54,14 @@ public struct CompassMainView: View {
                         DSConclusionDashboard()
                             .padding(.horizontal, 16)
 
-                        // 0.5 测绘训练进度：真实测量动作驱动，纯工具技能反馈
-                        DSTrainingProgressHUD(module: "compass")
+                        // 0.5 训练与每日挑战：默认收起，首屏只留仪表 / 盘体 / 主操作
+                        DSFoldableSection(title: "训练 · 每日挑战", defaultExpanded: false) {
+                            VStack(spacing: DS.padS) {
+                                DSTrainingProgressHUD(module: "compass")
+                                DSDailyChallengeCard()
+                            }
                             .padding(.horizontal, 16)
-                        DSDailyChallengeCard()
-                            .padding(.horizontal, 16)
+                        }
 
                         // 1. 顶部数据仪表
                         CompassHeaderView()
