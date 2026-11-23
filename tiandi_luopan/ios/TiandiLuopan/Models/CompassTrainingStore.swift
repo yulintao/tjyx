@@ -131,6 +131,15 @@ public enum TrainingDrill: String, CaseIterable, Identifiable {
         case .audit:   return "floorplan"
         }
     }
+
+    /// 对应主 Tab 索引，供每日挑战一键跳转
+    public var targetTab: Int {
+        switch module {
+        case "compass": return 2
+        case "analysis": return 3
+        default: return 0
+        }
+    }
 }
 
 public final class CompassTrainingStore: ObservableObject {
@@ -188,15 +197,22 @@ public final class CompassTrainingStore: ObservableObject {
 
     // MARK: - 日期 / 每日挑战 / 连续打卡
 
-    private func dayKey(_ date: Date) -> String {
+    private static let dayFormatter: DateFormatter = {
         let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"
-        return f.string(from: date)
+        return f
+    }()
+    private static let seedFormatter: DateFormatter = {
+        let f = DateFormatter(); f.dateFormat = "yyyyMMdd"
+        return f
+    }()
+
+    private func dayKey(_ date: Date) -> String {
+        Self.dayFormatter.string(from: date)
     }
 
     /// 每天按日期确定性轮换一个关卡（同一天所有设备一致）。
     public func dailyChallenge(for date: Date = Date()) -> TrainingDrill {
-        let f = DateFormatter(); f.dateFormat = "yyyyMMdd"
-        let seed = Int(f.string(from: date)) ?? 0
+        let seed = Int(Self.seedFormatter.string(from: date)) ?? 0
         return TrainingDrill.allCases[seed % TrainingDrill.allCases.count]
     }
 
@@ -264,18 +280,30 @@ public final class CompassTrainingStore: ObservableObject {
         persist()
     }
 
+    private var toastToken: Int = 0
+
     private func addXP(_ amount: Int, title: String) {
         let oldLevel = level
         xp += amount
         if !title.isEmpty {
             lastEarnedTitle = "+\(amount) XP · \(title)"
+            toastToken += 1
+            let token = toastToken
             withAnimation { showEarnedToast = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                guard token == self.toastToken else { return }
                 withAnimation { self.showEarnedToast = false }
             }
         }
         if level > oldLevel {
             lastEarnedTitle = isEnLocalizedLevelUp()
+            toastToken += 1
+            let token = toastToken
+            withAnimation { showEarnedToast = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                guard token == self.toastToken else { return }
+                withAnimation { self.showEarnedToast = false }
+            }
         }
     }
 

@@ -123,46 +123,54 @@ private struct DrillChip: View {
 public struct DSDailyChallengeCard: View {
     @ObservedObject private var training = CompassTrainingStore.shared
     @ObservedObject private var lang = LocalizationManager.shared
+    /// 跳转前的额外动作（例如在 sheet 中先关闭）
+    public var onNavigate: (() -> Void)? = nil
 
-    public init() {}
+    public init(onNavigate: (() -> Void)? = nil) { self.onNavigate = onNavigate }
 
     public var body: some View {
         let isEn = lang.effectiveLanguage == .en
         let drill = training.dailyChallenge()
         let done = training.isDailyChallengeDone()
-        return HStack(spacing: DS.padM) {
-            ZStack {
-                Circle().fill(done ? Color.semJi.opacity(0.18) : Color.goldPrimary.opacity(0.15))
-                    .frame(width: 40, height: 40)
-                Image(systemName: done ? "checkmark.circle.fill" : drill.icon)
-                    .foregroundColor(done ? .semJi : .goldText)
-                    .adaptiveFont(size: 18)
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 5) {
-                    Image(systemName: "calendar.badge.clock").adaptiveFont(size: 10).foregroundColor(.goldText)
-                    Text(isEn ? "Daily Challenge" : "每日挑战")
-                        .adaptiveFont(size: 11, weight: .bold).foregroundColor(.goldText)
+        return Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            onNavigate?()
+            AppNavigationRouter.shared.requestRoute(tab: drill.targetTab)
+        } label: {
+            HStack(spacing: DS.padM) {
+                ZStack {
+                    Circle().fill(done ? Color.semJi.opacity(0.18) : Color.goldPrimary.opacity(0.15))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: done ? "checkmark.circle.fill" : drill.icon)
+                        .foregroundColor(done ? .semJi : .goldText)
+                        .adaptiveFont(size: 18)
                 }
-                Text(isEn
-                     ? "\(drill.title(isEn)) · +\(drill.xp * 2) XP"
-                     : "\(drill.title(isEn)) · +\(drill.xp * 2) XP")
-                    .adaptiveFont(size: 13, weight: .semibold).foregroundColor(.white)
-                Text(done
-                     ? (isEn ? "Done today · Come back tomorrow" : "今日已完成 · 明日再来")
-                     : (isEn ? "Complete this in its module for double XP" : "在对应模块完成可获得双倍经验"))
-                    .adaptiveFont(size: 10).foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "calendar.badge.clock").adaptiveFont(size: 10).foregroundColor(.goldText)
+                        Text(isEn ? "Daily Challenge" : "每日挑战")
+                            .adaptiveFont(size: 11, weight: .bold).foregroundColor(.goldText)
+                    }
+                    Text("\(drill.title(isEn)) · +\(drill.xp * 2) XP")
+                        .adaptiveFont(size: 13, weight: .semibold).foregroundColor(.white)
+                    Text(done
+                         ? (isEn ? "Done today · Come back tomorrow" : "今日已完成 · 明日再来")
+                         : (isEn ? "Tap to go to this module · Double XP" : "点按前往对应模块 · 双倍经验"))
+                        .adaptiveFont(size: 10).foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 4)
+                if !done {
+                    Image(systemName: "chevron.right").adaptiveFont(size: 11).foregroundColor(.secondary)
+                }
             }
-            Spacer(minLength: 4)
-            if !done {
-                Image(systemName: "chevron.right").adaptiveFont(size: 11).foregroundColor(.secondary)
-            }
+            .padding(DS.padM)
+            .background(Color.surfaceCard)
+            .cornerRadius(DS.radiusM)
+            .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(done ? Color.semJi.opacity(0.4) : Color.strokeGold, lineWidth: 1))
         }
-        .padding(DS.padM)
-        .background(Color.surfaceCard)
-        .cornerRadius(DS.radiusM)
-        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(done ? Color.semJi.opacity(0.4) : Color.strokeGold, lineWidth: 1))
+        .buttonStyle(.plain)
+        .accessibilityLabel(isEn ? "Daily challenge: \(drill.title(isEn))" : "每日挑战：\(drill.title(isEn))")
     }
 }
 
@@ -357,7 +365,9 @@ public struct TrainingProfileSheet: View {
                                  label: isEn ? "Badges" : "徽章", color: .goldText)
                     }
 
-                    DSDailyChallengeCard()
+                    DSDailyChallengeCard {
+                        presentationMode.wrappedValue.dismiss()
+                    }
 
                     // 按模块的关卡进度
                     ForEach(modules, id: \.key) { module in
