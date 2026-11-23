@@ -75,7 +75,7 @@ public enum TrainingBadge: String, CaseIterable, Identifiable {
         case .sourceVerifier: return isEn ? "Review the calculation audit card" : "查看算法溯源核验卡"
         case .roomPlanner: return isEn ? "Add or adjust a room in the floorplan" : "在户型中添加或调整房间"
         case .layoutAuditor: return isEn ? "Complete a whole-home layout review" : "完成一次全屋布局体检"
-        case .areaMeasurer: return isEn ? "Measure a room area with AR" : "用 AR 测量房间面积"
+        case .areaMeasurer: return isEn ? "Measure a room area" : "完成房间面积测算"
         }
     }
 }
@@ -150,6 +150,7 @@ public final class CompassTrainingStore: ObservableObject {
     @Published public private(set) var completedDrills: Set<String> = []
     @Published public private(set) var drillCounts: [String: Int] = [:]
     @Published public private(set) var activeDays: Set<String> = []
+    @Published public private(set) var usedTools: Set<String> = []
     @Published public private(set) var dailyChallengeDoneDate: String = ""
     @Published public private(set) var lastEarnedTitle: String = ""
     @Published public private(set) var showEarnedToast: Bool = false
@@ -160,6 +161,7 @@ public final class CompassTrainingStore: ObservableObject {
     private let drillsKey = "compass_training_drills"
     private let countsKey = "compass_training_counts"
     private let daysKey = "compass_training_days"
+    private let toolsKey = "compass_training_tools"
     private let dailyDoneKey = "compass_training_daily_done"
 
     private init() {
@@ -168,6 +170,7 @@ public final class CompassTrainingStore: ObservableObject {
         if let saved = defaults.stringArray(forKey: drillsKey) { self.completedDrills = Set(saved) }
         if let saved = defaults.dictionary(forKey: countsKey) as? [String: Int] { self.drillCounts = saved }
         if let saved = defaults.stringArray(forKey: daysKey) { self.activeDays = Set(saved) }
+        if let saved = defaults.stringArray(forKey: toolsKey) { self.usedTools = Set(saved) }
         self.dailyChallengeDoneDate = defaults.string(forKey: dailyDoneKey) ?? ""
     }
 
@@ -269,34 +272,36 @@ public final class CompassTrainingStore: ObservableObject {
         // 连续打卡加成
         if streakDays >= 3 { earned += 5 }
 
-        addXP(earned, title: note)
+        addXP(earned, title: note, isEn: isEn)
         persist()
     }
 
     public func earnBadge(_ badge: TrainingBadge, isEn: Bool = false) {
         guard badges.insert(badge.rawValue).inserted else { return }
         activeDays.insert(dayKey(Date()))
-        addXP(30, title: badge.title(isEn))
+        addXP(30, title: badge.title(isEn), isEn: isEn)
         persist()
+    }
+
+    /// 记录一次仪器工具的使用；体验齐全后解锁探索者徽章。
+    public func recordTool(_ tool: String, isEn: Bool = false) {
+        guard usedTools.insert(tool).inserted else { return }
+        activeDays.insert(dayKey(Date()))
+        if usedTools.count >= 4 { earnBadge(.explorer, isEn: isEn) }
+        else { persist() }
     }
 
     private var toastToken: Int = 0
 
-    private func addXP(_ amount: Int, title: String) {
+    private func addXP(_ amount: Int, title: String, isEn: Bool) {
         let oldLevel = level
         xp += amount
-        if !title.isEmpty {
-            lastEarnedTitle = "+\(amount) XP · \(title)"
-            toastToken += 1
-            let token = toastToken
-            withAnimation { showEarnedToast = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                guard token == self.toastToken else { return }
-                withAnimation { self.showEarnedToast = false }
-            }
-        }
-        if level > oldLevel {
-            lastEarnedTitle = isEnLocalizedLevelUp()
+        // 升级优先展示升级文案；否则展示本次动作文案。
+        // 两条路径只调度一次 toast，避免同一动作产生多次发布与多次持久化。
+        let message = level > oldLevel ? levelUpText(isEn: isEn)
+                                       : (title.isEmpty ? "" : "+\(amount) XP · \(title)")
+        if !message.isEmpty {
+            lastEarnedTitle = message
             toastToken += 1
             let token = toastToken
             withAnimation { showEarnedToast = true }
@@ -307,8 +312,8 @@ public final class CompassTrainingStore: ObservableObject {
         }
     }
 
-    private func isEnLocalizedLevelUp() -> String {
-        "LEVEL \(level) · \(levelTitle(isEn: false))"
+    private func levelUpText(isEn: Bool) -> String {
+        "LEVEL \(level) · \(levelTitle(isEn: isEn))"
     }
 
     private func persist() {
@@ -317,6 +322,7 @@ public final class CompassTrainingStore: ObservableObject {
         defaults.set(Array(completedDrills), forKey: drillsKey)
         defaults.set(drillCounts, forKey: countsKey)
         defaults.set(Array(activeDays), forKey: daysKey)
+        defaults.set(Array(usedTools), forKey: toolsKey)
         defaults.set(dailyChallengeDoneDate, forKey: dailyDoneKey)
     }
 }

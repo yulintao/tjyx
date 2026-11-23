@@ -70,6 +70,8 @@
 		1079 /* TraditionalEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2079 /* TraditionalEvidence.swift */; };
 		1081 /* FamilyRoomAllocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2093 /* FamilyRoomAllocationView.swift */; };
 		1080 /* FamilyRoomAllocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2092 /* FamilyRoomAllocation.swift */; };
+		1082 /* CompassTrainingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2094 /* CompassTrainingStore.swift */; };
+		1083 /* CompassTrainingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2095 /* CompassTrainingViews.swift */; };
 		9100 /* WidgetAlmanacSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9200 /* WidgetAlmanacSnapshot.swift */; };
 		9101 /* TiandiLuopanAlmanacWidget.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 9201 /* TiandiLuopanAlmanacWidget.swift */; };
 		9102 /* AlmanacWidgetViews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 9202 /* AlmanacWidgetViews.swift */; };
@@ -161,6 +163,8 @@
 		2079 /* TraditionalEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/TraditionalEvidence.swift"; sourceTree = "<group>"; };
 		2093 /* FamilyRoomAllocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Floorplan/FamilyRoomAllocationView.swift"; sourceTree = "<group>"; };
 		2092 /* FamilyRoomAllocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/FamilyRoomAllocation.swift"; sourceTree = "<group>"; };
+		2094 /* CompassTrainingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/CompassTrainingStore.swift"; sourceTree = "<group>"; };
+		2095 /* CompassTrainingViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/CompassTrainingViews.swift"; sourceTree = "<group>"; };
 		9200 /* WidgetAlmanacSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/WidgetAlmanacSnapshot.swift"; sourceTree = "<group>"; };
 		9201 /* TiandiLuopanAlmanacWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiandiLuopanAlmanacWidget.swift; sourceTree = "<group>"; };
 		9202 /* AlmanacWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlmanacWidgetViews.swift; sourceTree = "<group>"; };
@@ -264,6 +268,8 @@
 				2079 /* TraditionalEvidence.swift */,
 				2093 /* FamilyRoomAllocationView.swift */,
 				2092 /* FamilyRoomAllocation.swift */,
+				2094 /* CompassTrainingStore.swift */,
+				2095 /* CompassTrainingViews.swift */,
 				2023 /* BaZhaiEngine.swift */,
 				2024 /* SanHeWaterEngine.swift */,
 				2025 /* SolarTimeCalculator.swift */,
@@ -565,6 +571,8 @@
 				1079 /* TraditionalEvidence.swift in Sources */,
 				1081 /* FamilyRoomAllocationView.swift in Sources */,
 				1080 /* FamilyRoomAllocation.swift in Sources */,
+				1082 /* CompassTrainingStore.swift in Sources */,
+				1083 /* CompassTrainingViews.swift in Sources */,
 				9100 /* WidgetAlmanacSnapshot.swift in Sources */,
 
 

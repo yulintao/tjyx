@@ -197,9 +197,11 @@ public struct DSTrainingBadgeShelf: View {
             }
 
             if compact {
-                HStack(spacing: 10) {
-                    ForEach(TrainingBadge.allCases) { badge in
-                        BadgeDot(badge: badge, earned: training.isBadgeEarned(badge), isEn: isEn)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(TrainingBadge.allCases) { badge in
+                            BadgeDot(badge: badge, earned: training.isBadgeEarned(badge), isEn: isEn)
+                        }
                     }
                 }
             } else {

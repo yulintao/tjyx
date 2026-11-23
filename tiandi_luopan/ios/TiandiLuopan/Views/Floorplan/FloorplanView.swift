@@ -1758,9 +1758,16 @@ public struct FloorplanView: View {
         if let selectedID = selectedRoom?.id {
             selectedRoom = result.auditedRooms.first(where: { $0.id == selectedID })
         }
-        // 测绘训练：完成全屋体检关卡与徽章（不改变任何审计结果）
-        training.completeDrill(.audit, isEn: lang.effectiveLanguage == .en)
-        training.earnBadge(.layoutAuditor, isEn: lang.effectiveLanguage == .en)
+        // 注意：refreshAudit 会被传感器/定时器高频自动调用，训练关卡不可在此发放，
+        // 否则用户仅转动手机即可刷分并触发高频 UserDefaults 写入。
+        // 体检关卡改由用户显式点击「全屋体检」入口时发放（见 rewardAuditTrainingIfNeeded）。
+    }
+
+    /// 用户显式触发体检时发放训练奖励（与自动刷新路径隔离）。
+    private func rewardAuditTrainingIfNeeded() {
+        let isEn = lang.effectiveLanguage == .en
+        training.completeDrill(.audit, isEn: isEn)
+        training.earnBadge(.layoutAuditor, isEn: isEn)
     }
 
     private var hasFloorplanAccess: Bool {
@@ -2905,8 +2912,7 @@ public struct FloorplanView: View {
         roomDetectionMessage = nil
         persistLayout()
         refreshAudit(force: true)
-        training.earnBadge(.roomPlanner, isEn: lang.effectiveLanguage == .en)
-        training.earnBadge(.areaMeasurer, isEn: lang.effectiveLanguage == .en)
+        // 撤销是回退操作，不发放训练徽章。
     }
 
     private func updateRoomType(roomID: String, type: FloorplanRoomType) {
@@ -2938,6 +2944,7 @@ public struct FloorplanView: View {
         persistLayout()
         refreshAudit(force: true)
         training.earnBadge(.roomPlanner, isEn: lang.effectiveLanguage == .en)
+        training.earnBadge(.areaMeasurer, isEn: lang.effectiveLanguage == .en)
     }
 
     /// Choose the least-overlapping slot in a bounded editing grid. The old
@@ -3418,6 +3425,7 @@ public struct FloorplanView: View {
                     Button(action: {
                         if acquireFloorplanAccess() {
                             exportFloorplanReport()
+                            rewardAuditTrainingIfNeeded()
                         }
                     }) {
                         HStack(spacing: 4) {

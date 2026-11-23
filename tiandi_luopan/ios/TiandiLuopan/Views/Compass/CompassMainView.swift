@@ -231,7 +231,7 @@ public struct CompassMainView: View {
                     guard let start = levelHoldStart, Date().timeIntervalSince(start) >= 3.0,
                           motion.isLevel, isActive else { return }
                     training.completeDrill(.level, isEn: lang.effectiveLanguage == .en)
-                    training.earnBadge(.levelMaster, isEn: lang.effectiveLanguage == .en)
+                    training.earnBadge(.steadyHand, isEn: lang.effectiveLanguage == .en)
                 }
             } else {
                 levelHoldStart = nil
@@ -369,6 +369,7 @@ public struct CompassMainView: View {
                 // 手选24山快速选向与锁定
                 Button(action: {
                     showMountainPickerSheet = true
+                    training.recordTool("mountain_picker", isEn: lang.effectiveLanguage == .en)
                 }) {
                     HStack(spacing: 4) {
                         Image(systemName: "dial.medium.fill")
@@ -386,6 +387,7 @@ public struct CompassMainView: View {
                 // 空亡全景诊断
                 Button(action: {
                     showKongwangSheet = true
+                    training.recordTool("kongwang", isEn: lang.effectiveLanguage == .en)
                 }) {
                     HStack(spacing: 4) {
                         Circle().fill(kwColor).frame(width: 6, height: 6)
@@ -406,6 +408,7 @@ public struct CompassMainView: View {
                 // 校准
                 Button(action: {
                     showCalibSheet = true
+                    training.recordTool("calibration", isEn: lang.effectiveLanguage == .en)
                 }) {
                     HStack(spacing: 4) {
                         Image(systemName: "safari.fill")
@@ -423,6 +426,7 @@ public struct CompassMainView: View {
                 // 图层设置
                 Button(action: {
                     showLayerSheet = true
+                    training.recordTool("layers", isEn: lang.effectiveLanguage == .en)
                 }) {
                     HStack(spacing: 4) {
                         Image(systemName: "square.3.layers.3d")
@@ -503,13 +507,17 @@ public struct CompassMainView: View {
         )
         showBearingAppliedToast = true
 
-        // 测绘训练：完成真实采样关卡与相关徽章（不改变任何测量数据）
+        // 测绘训练：按真实采样条件发放徽章（不改变任何测量数据）
         let isEn = lang.effectiveLanguage == .en
         training.completeDrill(.sample, isEn: isEn)
         training.earnBadge(.firstSample, isEn: isEn)
-        training.earnBadge(.levelMaster, isEn: isEn)
-        training.earnBadge(.cleanRead, isEn: isEn)
-        training.earnBadge(.navAligned, isEn: isEn)
+        if motion.isLevel { training.earnBadge(.levelMaster, isEn: isEn) }
+        if !motion.isDistorted && motion.magneticStrengthUT < 70 {
+            training.earnBadge(.cleanRead, isEn: isEn)
+        }
+        if motion.northReference == .trueNorth && motion.hasDeclination {
+            training.earnBadge(.navAligned, isEn: isEn)
+        }
     }
 
     private func bearingStationsStrip() -> some View {
