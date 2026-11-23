@@ -46,36 +46,36 @@ public enum TrainingBadge: String, CaseIterable, Identifiable {
     public func title(_ isEn: Bool) -> String {
         switch self {
         case .firstSample: return isEn ? "First Reading"  : "首次测量"
-        case .steadyHand:  return isEn ? "Steady Hand"    : "稳如磐石"
+        case .steadyHand:  return isEn ? "Steady Hands"    : "稳如磐石"
         case .levelMaster: return isEn ? "Level Pro"      : "水平达人"
-        case .navAligned:  return isEn ? "North Aligned"  : "真北对齐"
+        case .navAligned:  return isEn ? "True North Ready"  : "真北对齐"
         case .twoStations: return isEn ? "Site Surveyor"  : "多点勘测"
-        case .cleanRead:   return isEn ? "Clean Signal"   : "信号纯净"
+        case .cleanRead:   return isEn ? "Clear Signal"   : "信号纯净"
         case .explorer:    return isEn ? "Explorer"       : "探索者"
         case .palaceScout: return isEn ? "Palace Scout"   : "九宫探查"
-        case .chartReader: return isEn ? "Chart Reader"   : "盘面解读"
-        case .sourceVerifier: return isEn ? "Source Checker" : "溯源核验"
+        case .chartReader: return isEn ? "Chart Interpreter"   : "盘面解读"
+        case .sourceVerifier: return isEn ? "Source Verifier" : "溯源核验"
         case .roomPlanner: return isEn ? "Room Planner"   : "房间规划"
-        case .layoutAuditor: return isEn ? "Layout Auditor" : "户型体检"
-        case .areaMeasurer: return isEn ? "Area Measurer"  : "面积测算"
+        case .layoutAuditor: return isEn ? "Layout Reviewer" : "户型体检"
+        case .areaMeasurer: return isEn ? "Area Measurement"  : "面积测算"
         }
     }
 
     public func detail(_ isEn: Bool) -> String {
         switch self {
         case .firstSample: return isEn ? "Complete a steady bearing sample" : "完成一次稳态均值采样"
-        case .steadyHand:  return isEn ? "Keep the device level for 3 seconds" : "连续保持设备水平 3 秒"
-        case .levelMaster: return isEn ? "Finish sampling while perfectly level" : "在水平状态下完成采样"
-        case .navAligned:  return isEn ? "Calibrate with true north enabled" : "在真北校准后完成测量"
-        case .twoStations: return isEn ? "Record two survey stations" : "记录两个及以上勘测站点"
+        case .steadyHand:  return isEn ? "Hold the device level for 3 seconds" : "连续保持设备水平 3 秒"
+        case .levelMaster: return isEn ? "Complete sampling while the device is level" : "在水平状态下完成采样"
+        case .navAligned:  return isEn ? "Measure after true-north calibration" : "在真北校准后完成测量"
+        case .twoStations: return isEn ? "Log two or more survey stations" : "记录两个及以上勘测站点"
         case .cleanRead:   return isEn ? "Sample with low magnetic interference" : "在低磁干扰下完成采样"
-        case .explorer:    return isEn ? "Try every instrument tool once" : "体验全部仪器工具"
-        case .palaceScout: return isEn ? "Inspect palaces in the nine-grid chart" : "查看九宫盘面中的宫位"
-        case .chartReader: return isEn ? "Open a calculation module" : "打开一个可验证计算模块"
-        case .sourceVerifier: return isEn ? "View the computation audit card" : "查看算法溯源核验卡"
+        case .explorer:    return isEn ? "Try all instrument tools" : "体验全部仪器工具"
+        case .palaceScout: return isEn ? "Explore palaces in the nine-grid chart" : "查看九宫盘面中的宫位"
+        case .chartReader: return isEn ? "Open a verification module" : "打开一个可验证计算模块"
+        case .sourceVerifier: return isEn ? "Review the calculation audit card" : "查看算法溯源核验卡"
         case .roomPlanner: return isEn ? "Add or adjust a room in the floorplan" : "在户型中添加或调整房间"
-        case .layoutAuditor: return isEn ? "Run a whole-home layout audit" : "完成一次全屋布局体检"
-        case .areaMeasurer: return isEn ? "Measure a room area in AR" : "用 AR 测量房间面积"
+        case .layoutAuditor: return isEn ? "Complete a whole-home layout review" : "完成一次全屋布局体检"
+        case .areaMeasurer: return isEn ? "Measure a room area with AR" : "用 AR 测量房间面积"
         }
     }
 }
@@ -180,7 +180,7 @@ public final class CompassTrainingStore: ObservableObject {
     /// 完成一次关卡动作；重复动作给少量经验，首次额外提示。
     public func completeDrill(_ drill: TrainingDrill, isEn: Bool = false) {
         let first = completedDrills.insert(drill.rawValue).inserted
-        addXP(first ? drill.xp : max(2, drill.xp / 5), title: first ? drill.title(isEn) + (isEn ? " complete" : " · 完成") : "")
+        addXP(first ? drill.xp : max(2, drill.xp / 5), title: first ? drill.title(isEn) + (isEn ? " completed" : "完成") : "")
         persist()
     }
 

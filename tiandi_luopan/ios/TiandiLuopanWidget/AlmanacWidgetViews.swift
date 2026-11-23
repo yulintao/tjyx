@@ -203,7 +203,7 @@ enum WidgetZeRiText {
         case (.description, .en): return "Real-time check for sitting clashes, Grand Duke clashes, and construction taboos"
         case (.description, .ja): return "自宅坐山の衝克、歳破・月破および動土・安門の伝統的参考を表示"
         case (.description, .ko): return "자택 좌산 충극, 세파·월파 신살 및 동토·안문 전통 참고 실시간 자검"
-        case (.description, .vi): return "Kiểm tra xung tọa sơn, Tuế Phá, Nguyệt Phá và tham khảo động thổ an môn"
+        case (.description, .vi): return "Kiểm tra xung tọa sơn, Tuế Phá, Nguyệt Phá và tham khảo về động thổ và an môn"
         case (.description, .th): return "ตรวจสอบทิศพิง ปะทะปี/เดือน และฤกษ์ลงเสาเอกตั้งประตูแบบเรียลไทม์"
         case (.description, .id): return "Cek benturan arah duduk, benturan tahun/bulan, dan tabu renovasi"
 

@@ -154,7 +154,7 @@ enum SettingsLocalizationHelpers {
 
     static func emptyFamilySubtitle(_ lang: LocalizationManager) -> String {
         switch lang.effectiveLanguage {
-        case .en: return "Tap to add family members and record traditional room references"
+        case .en: return "Tap to add family members and note traditional room placement"
         case .zhHant: return "點擊添加配偶、父母或子女，記錄全家傳統方位參考與房間安排"
         case .ja: return "タップして配偶者・両親・子供を追加し、伝統的な方位の参考を記録"
         case .ko: return "터치하여 배우자, 부모, 자녀를 추가하고 전통적 방위 참고를 기록하세요"
@@ -169,7 +169,7 @@ enum SettingsLocalizationHelpers {
         switch lang.effectiveLanguage {
         case .zhHans: return "系统将于二十四节气交节当日及九星换月当日早 08:30 推送节气气候与当月飞星变化提示，仅供传统文化研究参考。"
         case .zhHant: return "系統將於二十四節氣交節當日及九星換月當日早 08:30 推送節氣氣候與當月飛星變化提示，僅供傳統文化研究參考。"
-        case .en: return "Solar term and monthly Flying Star change alerts at 08:30 AM on transition days, for traditional culture research reference."
+        case .en: return "Get solar-term and monthly Flying Star change alerts at 8:30 AM on transition days, for traditional culture research reference."
         case .ja: return "二十四節気の交節日および九星換月の当日の朝 08:30 に、気候と飛星の変化をお知らせします。伝統文化研究の参考用です。"
         case .ko: return "24절기 입절일 및 월반 교체 당일 오전 08:30에 절기 기후와 월별 비성 변화 알림을 보내드립니다. 전통 문화 연구 참고용입니다."
         case .vi: return "Gửi thông báo khí hậu tiết khí và sự thay đổi phi tinh hàng tháng lúc 08:30 ngày giao tiết, chỉ để tham khảo nghiên cứu văn hóa truyền thống."

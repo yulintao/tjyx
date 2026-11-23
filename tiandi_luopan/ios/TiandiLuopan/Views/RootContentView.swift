@@ -305,7 +305,7 @@ public struct DSConclusionDashboard: View {
                 VStack(alignment: .leading, spacing: DS.padS) {
                     HStack {
                         Image(systemName: "doc.text.magnifyingglass").foregroundColor(.goldText).adaptiveFont(size: 13)
-                        Text(lang.effectiveLanguage == .en ? "Basis & Notes" : "详细盘面与依据")
+                        Text(lang.effectiveLanguage == .en ? "Details & Notes" : "详细盘面与依据")
                             .adaptiveFont(size: 12, weight: .bold).foregroundColor(.goldText)
                         Spacer()
                         Image(systemName: "arrow.uturn.left").adaptiveFont(size: 11).foregroundColor(.secondary)
@@ -318,13 +318,13 @@ public struct DSConclusionDashboard: View {
 
             HStack {
                 Image(systemName: "rotate.3d").adaptiveFont(size: 11).foregroundColor(.goldText)
-                Text(lang.effectiveLanguage == .en ? "Tap the card above to flip for basis" : "点按上方卡片翻面查看依据")
+                Text(lang.effectiveLanguage == .en ? "Tap the card above to flip for details" : "点按上方卡片翻面查看依据")
                     .adaptiveFont(size: 10).foregroundColor(.secondary)
                 Spacer()
             }
 
             Text(lang.effectiveLanguage == .en
-                 ? "For traditional-culture research reference only · Not a basis for decisions"
+                 ? "For traditional culture research reference only · Not for decision-making"
                  : "传统文化研究参考 · 不构成决策依据")
                 .adaptiveFont(size: 10).foregroundColor(.secondary.opacity(0.75))
                 .fixedSize(horizontal: false, vertical: true)

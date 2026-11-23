@@ -74,7 +74,7 @@ public struct QimenDoor {
             ][name] ?? lore
         case .zhHant:
             return [
-                "休门": "传统方位参考，水清木秀", "生门": "传统方位参考，土旺金生",
+                "休门": "传统方位参考：水清木秀", "生门": "传统方位参考：土旺金生",
                 "伤门": "討債索敵宜，出行防傷災", "杜门": "潛伏隱匿避災，閉藏門戶",
                 "景门": "文書考試宴請吉，火炎防急", "死门": "吊喪刑戮宜，出行造葬大凶",
                 "惊门": "官非驚恐口舌，捕盜宜", "开门": "經商開業動身，百事通亨"
@@ -116,7 +116,7 @@ public struct QimenDoor {
             ][name] ?? lore
         case .auto, .zhHans:
             return [
-                "休门": "传统方位参考，水清木秀", "生门": "传统方位参考，土旺金生",
+                "休门": "传统方位参考：水清木秀", "生门": "传统方位参考：土旺金生",
                 "伤门": "讨债索敌宜，出行防伤灾", "杜门": "潜伏隐匿避灾，闭藏门户",
                 "景门": "文书考试宴请吉，火炎防急", "死门": "吊丧刑戮宜，出行造葬大凶",
                 "惊门": "官非惊恐口舌，捕盗宜", "开门": "经商开业动身，百事通亨"
@@ -302,8 +302,8 @@ public class QimenEngine {
     public static let shared = QimenEngine()
     
     private let eightDoors: [QimenDoor] = [
-        QimenDoor(name: "休门", palace: 1, isAuspicious: true, luckType: "吉", lore: "传统方位参考，水清木秀"),
-        QimenDoor(name: "生门", palace: 8, isAuspicious: true, luckType: "大吉", lore: "传统方位参考，土旺金生"),
+        QimenDoor(name: "休门", palace: 1, isAuspicious: true, luckType: "吉", lore: "传统方位参考：水清木秀"),
+        QimenDoor(name: "生门", palace: 8, isAuspicious: true, luckType: "大吉", lore: "传统方位参考：土旺金生"),
         QimenDoor(name: "伤门", palace: 3, isAuspicious: false, luckType: "凶", lore: "讨债索敌宜，出行防伤灾"),
         QimenDoor(name: "杜门", palace: 4, isAuspicious: false, luckType: "平", lore: "潜伏隐匿避灾，闭藏门户"),
         QimenDoor(name: "景门", palace: 9, isAuspicious: false, luckType: "平", lore: "文书考试宴请吉，火炎防急"),

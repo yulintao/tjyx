@@ -657,7 +657,7 @@ public class TianJiShuEngine {
             
             // 8. 第五部：全屋空间布局参考与环境调整清单
             let sec5Title = tr8(
-                "第五卷 · 全屋空间布局参考与镇煞秘诀",
+                "第五卷 · 全屋空间布局参考要点",
                 "第五卷 · 全屋空間調理與鎮煞秘訣",
                 "V · WHOLE-HOME HARMONIZATION",
                 "第五巻・全室空間調和と空間調整の参考",
@@ -731,7 +731,7 @@ public class TianJiShuEngine {
                 )
             }
             
-            // 8.2 流年紫白客星布局参考与布局参考（含家人影响维度）
+            // 8.2 流年紫白客星布局参考（含家人影响维度）
             curY = drawPurpleWhiteRemedies(ctx: cg, curY: curY, vermilion: vermilion, renderLanguage: renderLanguage, pwChart: pwChart, analysis: deepAnalysis)
             
             // 9. 八宅凶位化解与安镇（含家人影响维度）
@@ -1115,13 +1115,13 @@ public class TianJiShuEngine {
         return y + 18
     }
     
-    // 8.2 紫白流年客星布局参考与布局参考（含家人影响维度）
+    // 8.2 紫白流年客星布局参考（含家人影响维度）
     private func drawPurpleWhiteRemedies(ctx: CGContext, curY: CGFloat, vermilion: UIColor, renderLanguage: AppLanguage, pwChart: PurpleWhiteChart, analysis: XuanKongDeepAnalysis) -> CGFloat {
         let secTitle = tr8(
-            "紫白流年 · 客星布局参考与布局参考",
-            "紫白流年 · 客星調理與布局参考",
+            "紫白流年 · 客星布局参考",
+            "紫白流年 · 客星布局參考",
             "PURPLE-WHITE YEAR · GUEST STAR REMEDIES",
-            "紫白流年・客星の調理と布局参考",
+            "紫白流年・客星の配置参考",
             "자백 유년 · 객성 조리와 최왕",
             "TỬ BẠCH LƯU NIÊN · ĐIỀU LÝ KHÁCH TINH",
             "ดาวม่วงขาวประจำปี · ปรับดาวเยือนและเสริมพลัง",
@@ -1159,8 +1159,8 @@ public class TianJiShuEngine {
     // 9. 八宅凶位化解与安镇（含家人影响维度）
     private func drawBazhaiInjurious(ctx: CGContext, curY: CGFloat, vermilion: UIColor, renderLanguage: AppLanguage, bz: BaZhaiAnalysis) -> CGFloat {
         let secTitle = tr8(
-            "八宅八宫 · 吉凶研究参考",
-            "八宅八宮 · 吉凶研究參考",
+            "八宅八宫 · 方位研究参考",
+            "八宅八宮 · 方位研究參考",
             "EIGHT MANSIONS · ALL PALACE REMEDIES",
             "八宅八宮・方位研究参考",
             "팔택 팔궁 · 길흉 화해와 안진",

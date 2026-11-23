@@ -3126,7 +3126,7 @@ public struct EditOwnerKuaDialog: View {
         case .en:
             return "Auspicious! The owner's life group matches the house's sitting energy, producing harmonious qi and fortune."
         case .zhHant:
-            return "傳統方位研究提示：宅主方位參數與宅盤五行同組，參數相近，可作為布局研究參考。"
+            return "傳統方位研究提示：宅主方位參數與宅盤五行同組，兩者相近，可作為布局參考。"
         case .ja:
             return "大吉！家主の本命卦と建物の座向が同組となり、人と家の気が調和して繁栄をもたらします。"
         case .ko:
@@ -3138,7 +3138,7 @@ public struct EditOwnerKuaDialog: View {
         case .id:
             return "Sangat menguntungkan! Energi pemilik selaras dengan energi rumah, menghasilkan harmoni dan rezeki."
         case .auto, .zhHans:
-            return "传统方位研究提示：宅主方位参数与宅盘五行同组，参数相近，可作为布局研究参考。"
+            return "传统方位研究提示：宅主方位参数与宅盘五行同组，两者相近，可作为布局参考。"
         }
     }
 

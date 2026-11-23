@@ -152,14 +152,14 @@ public enum ChangShengPhase: String, CaseIterable {
             case .changSheng, .diWang: core = "來水吉，大發富貴；去水凶，損丁破財"
             case .linGuan, .guanDai: core = "貴人來水，催官發甲；出水不利"
             case .shuai: core = "巨門水，來去均宜，借庫消水"
-            case .mu, .jue: core = "去水与来水的传统水法参考参数"
+            case .mu, .jue: core = "传统水法中来水与去水的参考"
             case .muYu: core = "桃花水，來去皆忌，主風流蕩產"
             case .bing, .si, .tai, .yang: core = "平和之位，宜緩流靜蓄"
             }
             return core + "。出處：傳統三合十二長生水法（傳本有異文）。解釋：其中富貴、損丁與病死等語句是古法象徵，不是醫療或財務預測；請現場檢查排水與安全。"
         case .ja:
             switch self {
-            case .changSheng, .diWang: core = "来水と去水の伝統水法参考パラメータ"
+            case .changSheng, .diWang: core = "来水と去水の伝統的な水法参考"
             case .linGuan, .guanDai: core = "貴人の来水で出世栄達、去水は不利"
             case .shuai: core = "巨門水、出水入水ともに可、借庫消水に適す"
             case .mu, .jue: core = "去水は吉で煞を権に変え、来水は大凶で黄泉破局"
@@ -212,7 +212,7 @@ public enum ChangShengPhase: String, CaseIterable {
             case .changSheng, .diWang: core = "来水吉，大发富贵；去水凶，损丁破财"
             case .linGuan, .guanDai: core = "贵人来水，催官发甲；出水不利"
             case .shuai: core = "巨门水，来去均宜，借库消水"
-            case .mu, .jue: core = "去水与来水的传统水法参考参数"
+            case .mu, .jue: core = "传统水法中来水与去水的参考"
             case .muYu: core = "桃花水，来去皆忌，主风流荡产"
             case .bing, .si, .tai, .yang: core = "平和之位，宜缓流静蓄"
             }
@@ -465,7 +465,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌巽方破局"
             } else if name == "巽" {
-                desc = "向首為【\(pName)】。楊公水法：見乙方或丙方來水為【傳統黃泉水參考】（传统研究参考）。"
+                desc = "向首為【\(pName)】。楊公水法：見乙方或丙方來水為【傳統黃泉水參考】。"
                 isJiuPin = true
                 badge = "傳統水法參考向首"
             } else if name == "甲" || name == "癸" {
@@ -473,7 +473,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌艮水出煞"
             } else if name == "艮" {
-                desc = "向首為【\(pName)】。楊公水法：見甲方或癸方來水為【傳統催官水參考】（传统研究参考）。"
+                desc = "向首為【\(pName)】。楊公水法：見甲方或癸方來水為【傳統催官水參考】。"
                 isJiuPin = true
                 badge = "傳統水法參考向首"
             } else if name == "辛" || name == "壬" {
@@ -481,7 +481,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌乾方破局"
             } else if name == "乾" {
-                desc = "向首為【\(pName)】。楊公水法：見辛方或壬方來水為【傳統黃泉水參考】（传统研究参考）。"
+                desc = "向首為【\(pName)】。楊公水法：見辛方或壬方來水為【傳統黃泉水參考】。"
                 isJiuPin = true
                 badge = "傳統水法參考向首"
             } else {
@@ -685,7 +685,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌坤水破局"
             } else if name == "坤" {
-                desc = "向首为【坤向】。杨公水法：见庚方或丁方来水为【传统黄泉水参考】（传统研究参考）；最忌此两方水直流破局。"
+                desc = "向首为【坤向】。杨公水法：见庚方或丁方来水为【传统黄泉水参考】；最忌此两方水直流破局。"
                 isJiuPin = true
                 badge = "传统水法参考向首"
             } else if name == "乙" || name == "丙" {
@@ -693,7 +693,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌巽方破局"
             } else if name == "巽" {
-                desc = "向首为【巽向】。杨公水法：见乙方或丙方来水为【传统黄泉水参考】（传统研究参考）。"
+                desc = "向首为【巽向】。杨公水法：见乙方或丙方来水为【传统黄泉水参考】。"
                 isJiuPin = true
                 badge = "传统水法参考向首"
             } else if name == "甲" || name == "癸" {
@@ -701,7 +701,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌艮水出煞"
             } else if name == "艮" {
-                desc = "向首为【艮向】。杨公水法：见甲方或癸方来水为【传统催官水参考】（传统研究参考）。"
+                desc = "向首为【艮向】。杨公水法：见甲方或癸方来水为【传统催官水参考】。"
                 isJiuPin = true
                 badge = "传统水法参考向首"
             } else if name == "辛" || name == "壬" {
@@ -709,7 +709,7 @@ public final class SanHeWaterEngine {
                 isDanger = true
                 badge = "大忌乾方破局"
             } else if name == "乾" {
-                desc = "向首为【乾向】。杨公水法：见辛方或壬方来水为【传统黄泉水参考】（传统研究参考）。"
+                desc = "向首为【乾向】。杨公水法：见辛方或壬方来水为【传统黄泉水参考】。"
                 isJiuPin = true
                 badge = "传统水法参考向首"
             } else {
