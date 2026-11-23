@@ -145,6 +145,11 @@ public struct CompassMainView: View {
                             .padding(.horizontal, 8)
                         
                         Spacer(minLength: 4)
+
+                        // 4. 拇指区核心操作底座（锁定 / 稳态采样 / 一键同步工作流，无需横向滑动）
+                        primaryInstrumentActionDock()
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 2)
                     }
                 } analysis: {
                     // 4. 展开态右侧专业研判工作台（独立滚动）/ 单列态底部快捷卡片
@@ -216,7 +221,88 @@ public struct CompassMainView: View {
         }
     }
     
-    // MARK: - 罗盘工具条
+    // MARK: - 拇指区高频主操作底座（锁定 / 稳态均值采样 / 一键同步测绘与计算）
+    private func primaryInstrumentActionDock() -> some View {
+        let isEn = (lang.effectiveLanguage == .en)
+        return HStack(spacing: 8) {
+            // 1. 锁定 / 解锁朝向
+            Button(action: {
+                motion.toggleLock()
+            }) {
+                HStack(spacing: 5) {
+                    Image(systemName: motion.isLocked ? "lock.fill" : "lock.open")
+                    Text(motion.isLocked ? lang.t("locked_heading") : lang.t("lock_heading"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .adaptiveFont(size: 11.5, weight: .bold)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 8)
+                .background(motion.isLocked ? Color.red.opacity(0.22) : Color.white.opacity(0.1))
+                .foregroundColor(motion.isLocked ? .red : .white)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(motion.isLocked ? Color.red.opacity(0.55) : Color.white.opacity(0.12), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(motion.isLocked ? lang.t("locked_heading") : lang.t("lock_heading"))
+
+            // 2. 2.5 秒多样本圆周均值稳态采集
+            Button(action: {
+                startPrecisionSampling()
+            }) {
+                HStack(spacing: 5) {
+                    Image(systemName: isPrecisionSampling ? "hourglass" : "scope")
+                    Text(isPrecisionSampling
+                         ? "\(sampleAngles.count)/\(Self.precisionTargetCount)"
+                         : (isEn ? "Sample" : "稳态采样"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .adaptiveFont(size: 11.5, weight: .bold)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 8)
+                .background(isPrecisionSampling ? Color.yanCyan.opacity(0.32) : Color.yanCyan.opacity(0.18))
+                .foregroundColor(.yanCyan)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.yanCyan.opacity(0.45), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isPrecisionSampling)
+
+            // 3. 锁定并同步实测方位到测绘与计算工作流
+            Button(action: {
+                if !motion.isLocked {
+                    motion.toggleLock()
+                }
+                applyCurrentBearingToWorkflow()
+            }) {
+                HStack(spacing: 5) {
+                    Image(systemName: "arrow.triangle.branch")
+                    Text(isEn ? "Sync" : "同步方位")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .adaptiveFont(size: 11.5, weight: .bold)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 8)
+                .background(Color.yanGold)
+                .foregroundColor(.black)
+                .cornerRadius(10)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - 罗盘辅助工具条（手选24山 / 空亡诊断 / 校准 / 图层 / 八方全鉴）
     private func compassToolBar() -> some View {
         // 判级复用 Mountain24.kongWangLevel 统一口径（与详勘 sheet 一致）：
         // 大空亡 ≥6.8°+子午卯酉缝 / 小空亡 ≥6.5° / 兼向 ≥1.5° / 其余纯清
@@ -231,144 +317,94 @@ public struct CompassMainView: View {
         }
         
         return ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-            // 锁定朝向按钮
-            Button(action: {
-                motion.toggleLock()
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: motion.isLocked ? "lock.fill" : "lock.open")
-                    Text(motion.isLocked ? lang.t("locked_heading") : lang.t("lock_heading"))
+            HStack(spacing: 7) {
+                // 手选24山快速选向与锁定
+                Button(action: {
+                    showMountainPickerSheet = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "dial.medium.fill")
+                        Text(lang.effectiveLanguage == .en ? "24 Mtns" : "手选24山")
+                    }
+                    .adaptiveFont(size: 11, weight: .bold)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(Color.yanCyan.opacity(0.16))
+                    .foregroundColor(Color.yanCyan)
+                    .cornerRadius(8)
                 }
-                .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(motion.isLocked ? Color.red.opacity(0.2) : Color.white.opacity(0.1))
-                .foregroundColor(motion.isLocked ? .red : .white)
-                .cornerRadius(6)
-            }
-            .accessibilityLabel(motion.isLocked ? lang.t("locked_heading") : lang.t("lock_heading"))
+                .buttonStyle(.plain)
 
-            // 手选24山快速选向与锁定
-            Button(action: {
-                showMountainPickerSheet = true
-            }) {
-                HStack(spacing: 3) {
-                    Image(systemName: "dial.medium.fill")
-                    Text(lang.effectiveLanguage == .en ? "24 Mtns" : "手选24山")
+                // 空亡全景诊断
+                Button(action: {
+                    showKongwangSheet = true
+                }) {
+                    HStack(spacing: 4) {
+                        Circle().fill(kwColor).frame(width: 6, height: 6)
+                        Text(kwStatus)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .bold))
+                    }
+                    .adaptiveFont(size: 11, weight: .bold)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(kwColor.opacity(0.15))
+                    .foregroundColor(kwColor)
+                    .cornerRadius(8)
                 }
-                .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 7)
-                .background(Color.yanCyan.opacity(0.18))
-                .foregroundColor(Color.yanCyan)
-                .cornerRadius(6)
-            }
+                .buttonStyle(.plain)
+                .accessibilityLabel(kwStatus)
 
-            // 空亡全景诊断
-            Button(action: {
-                showKongwangSheet = true
-            }) {
-                HStack(spacing: 3) {
-                    Circle().fill(kwColor).frame(width: 6, height: 6)
-                    Text(kwStatus)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .bold))
+                // 校准
+                Button(action: {
+                    showCalibSheet = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "safari.fill")
+                        Text(lang.t("btn_calib"))
+                    }
+                    .adaptiveFont(size: 11, weight: .medium)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(Color.white.opacity(0.08))
+                    .foregroundColor(motion.isDistorted ? Color.orange : Color(red: 0.95, green: 0.82, blue: 0.4))
+                    .cornerRadius(8)
                 }
-                .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(kwColor.opacity(0.15))
-                .foregroundColor(kwColor)
-                .cornerRadius(6)
-            }
-            .accessibilityLabel(kwStatus)
-            
-            Spacer()
-            
-            // 校准
-            Button(action: {
-                showCalibSheet = true
-            }) {
-                HStack(spacing: 3) {
-                    Image(systemName: "safari.fill")
-                    Text(lang.t("btn_calib"))
-                }
-                .adaptiveFont(size: 11, weight: .medium)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 7)
-                .background(Color.white.opacity(0.08))
-                .foregroundColor(motion.isDistorted ? Color.orange : Color(red: 0.95, green: 0.82, blue: 0.4))
-                .cornerRadius(6)
-            }
+                .buttonStyle(.plain)
 
-            // 图层设置
-            Button(action: {
-                showLayerSheet = true
-            }) {
-                HStack(spacing: 3) {
-                    Image(systemName: "square.3.layers.3d")
-                    Text(lang.t("btn_layers"))
+                // 图层设置
+                Button(action: {
+                    showLayerSheet = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "square.3.layers.3d")
+                        Text(lang.t("btn_layers"))
+                    }
+                    .adaptiveFont(size: 11, weight: .medium)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(Color.white.opacity(0.08))
+                    .foregroundColor(Color.yanCyan)
+                    .cornerRadius(8)
                 }
-                .adaptiveFont(size: 11, weight: .medium)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(Color.white.opacity(0.08))
-                .foregroundColor(Color.yanCyan)
-                .cornerRadius(6)
-            }
-            
-            // 八方全鉴
-            Button(action: {
-                showPalaceSheet = true
-            }) {
-                HStack(spacing: 3) {
-                    Image(systemName: "square.grid.2x2")
-                    Text(lang.t("btn_palace_all"))
-                }
-                .adaptiveFont(size: 11, weight: .medium)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 7)
-                .background(Color.white.opacity(0.08))
-                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
-                .cornerRadius(6)
-            }
-            
-            // 2.5 秒多样本圆周均值稳态采集按钮
-            Button(action: {
-                startPrecisionSampling()
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: isPrecisionSampling ? "hourglass" : "scope")
-                    Text(lang.effectiveLanguage == .en ? "3s Sample" : "稳态采样")
-                }
-                .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 7)
-                .background(isPrecisionSampling ? Color.yanCyan.opacity(0.35) : Color.yanCyan.opacity(0.2))
-                .foregroundColor(.yanCyan)
-                .cornerRadius(6)
-            }
-            .disabled(isPrecisionSampling)
+                .buttonStyle(.plain)
 
-            // 锁定并同步实测方位到测绘与计算工作流
-            Button(action: {
-                if !motion.isLocked {
-                    motion.toggleLock()
+                // 八方全鉴
+                Button(action: {
+                    showPalaceSheet = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "square.grid.2x2")
+                        Text(lang.t("btn_palace_all"))
+                    }
+                    .adaptiveFont(size: 11, weight: .medium)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(Color.white.opacity(0.08))
+                    .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                    .cornerRadius(8)
                 }
-                applyCurrentBearingToWorkflow()
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.triangle.branch")
-                    Text(lang.effectiveLanguage == .en ? "Sync Bearing" : "同步至测绘/计算")
-                }
-                .adaptiveFont(size: 11, weight: .bold)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(Color.yanGold.opacity(0.9))
-                .foregroundColor(.black)
-                .cornerRadius(6)
-            }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 16)
         }
@@ -471,7 +507,7 @@ public struct CompassMainView: View {
         showBearingAppliedToast = true
     }
 
-    /// 电子方位仪工程遥测状态条：真北/磁北、磁偏角、磁场强度与双轴水准状态一目了然。
+    /// 电子方位仪工程遥测状态条：真北/磁北、磁偏角、磁场强度（轻点校准）与双轴水准状态一目了然。
     private func instrumentTelemetryStrip() -> some View {
         let isEn = (lang.effectiveLanguage == .en)
         let refText = motion.northReference == .trueNorth
@@ -479,11 +515,17 @@ public struct CompassMainView: View {
             : (isEn ? "Mag N" : "磁北")
         let levelText = motion.isLevel ? (isEn ? "Level OK" : "水平就绪") : (isEn ? "Tilt" : "请端平")
         return HStack(spacing: 8) {
-            Label("\(refText) \(String(format: "%+.1f°", motion.currentDeclination))", systemImage: "location.north.line")
-                .foregroundColor(.yanCyan)
+            Button(action: { showCalibSheet = true }) {
+                Label("\(refText) \(String(format: "%+.1f°", motion.currentDeclination))", systemImage: "location.north.line")
+                    .foregroundColor(.yanCyan)
+            }
+            .buttonStyle(.plain)
             Spacer(minLength: 4)
-            Label(String(format: "%.0f μT", motion.magneticStrengthUT), systemImage: "waveform.path.ecg")
-                .foregroundColor(motion.isDistorted ? .orange : .green)
+            Button(action: { showCalibSheet = true }) {
+                Label(String(format: "%.0f μT", motion.magneticStrengthUT), systemImage: "waveform.path.ecg")
+                    .foregroundColor(motion.isDistorted ? .orange : .green)
+            }
+            .buttonStyle(.plain)
             Spacer(minLength: 4)
             Label(levelText, systemImage: motion.isLevel ? "checkmark.circle.fill" : "level")
                 .foregroundColor(motion.isLevel ? .green : .orange)
@@ -491,10 +533,14 @@ public struct CompassMainView: View {
         .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
         .lineLimit(1)
         .minimumScaleFactor(0.72)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 6)
         .background(Color.white.opacity(0.06))
-        .cornerRadius(7)
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(motion.isDistorted ? Color.orange.opacity(0.45) : Color.white.opacity(0.08), lineWidth: 1)
+        )
     }
     
     // MARK: - 今日吉方导引条 (财神/喜神/奇门实时比对)

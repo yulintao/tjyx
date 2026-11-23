@@ -93,6 +93,7 @@ public struct CompassHeaderView: View {
         HStack(alignment: .top, spacing: 2) {
             Text(String(format: "%.1f", state.facingAngle))
                 .adaptiveFont(size: 34, weight: .black, design: .rounded)
+                .monospacedDigit()
                 .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)

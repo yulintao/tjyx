@@ -46,6 +46,40 @@ public struct CalibrationSheet: View {
                     }
                     .padding(.top, 16)
                     
+                    // 1.5 快速北向基准切换（真北 WMM 校正 / 磁北原始地磁）
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Label(lang.t("heading_reference"), systemImage: "location.north.line.fill")
+                                .adaptiveFont(size: 13, weight: .bold)
+                                .foregroundColor(.yanCyan)
+                            Spacer()
+                            Text(motion.isLevel
+                                 ? (lang.effectiveLanguage == .en ? "Level OK" : "双轴水平就绪")
+                                 : String(format: "%.1f° / %.1f°", motion.pitch, motion.roll))
+                                .adaptiveFont(size: 10.5, weight: .semibold, design: .monospaced)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background((motion.isLevel ? Color.green : Color.orange).opacity(0.18))
+                                .foregroundColor(motion.isLevel ? .green : .orange)
+                                .cornerRadius(6)
+                        }
+
+                        Picker(lang.t("heading_reference"), selection: $motion.northReference) {
+                            Text(lang.effectiveLanguage == .en ? "True North (WMM)" : "真北（WMM 磁偏角校正）")
+                                .tag(CompassNorthReference.trueNorth)
+                            Text(lang.effectiveLanguage == .en ? "Magnetic North" : "磁北（地磁原向）")
+                                .tag(CompassNorthReference.magneticNorth)
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    .padding(14)
+                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.yanCyan.opacity(0.25), lineWidth: 1)
+                    )
+
                     // 2. 传感器实时健康度指标卡
                     VStack(spacing: 10) {
                         statusRow(

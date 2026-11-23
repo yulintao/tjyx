@@ -145,25 +145,52 @@ public struct BaZhaiView: View {
     
     // MARK: - 住宅方位：宅卦概览 → 八方图 → 选中方位的行动
     private func baZhaiContent(bz: BaZhaiAnalysis, state: CompassHeadingState) -> some View {
-        FoldableTwoPane(compactSpacing: 14) {
+        let isEn = (lang.effectiveLanguage == .en)
+        let auspiciousCount = bz.items.filter { $0.star.suggestedHouseUse != .review }.count
+        let reviewCount = bz.items.count - auspiciousCount
+
+        return FoldableTwoPane(compactSpacing: 14) {
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(lang.t("bz_house_title"))
-                        .adaptiveFont(size: 13, weight: .semibold)
-                        .foregroundColor(Color.yanGold)
+                    HStack {
+                        Text(lang.t("bz_house_title"))
+                            .adaptiveFont(size: 12.5, weight: .semibold)
+                            .foregroundColor(Color.yanGold)
+                        Spacer()
+                        HStack(spacing: 6) {
+                            Text((isEn ? "Favorable" : "宜用") + " \(auspiciousCount)")
+                                .adaptiveFont(size: 10, weight: .bold)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color.green.opacity(0.18))
+                                .foregroundColor(.green)
+                                .cornerRadius(6)
+                            Text((isEn ? "Review" : "需留意") + " \(reviewCount)")
+                                .adaptiveFont(size: 10, weight: .bold)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color.orange.opacity(0.18))
+                                .foregroundColor(.orange)
+                                .cornerRadius(6)
+                        }
+                    }
                     Text(bz.localizedHouseGua + " · " + bz.localizedHouseType)
-                        .adaptiveFont(size: 22, weight: .bold)
+                        .adaptiveFont(size: 21, weight: .bold)
                         .foregroundColor(.white)
                 }
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white.opacity(0.05))
+                .background(Color(red: 0.11, green: 0.11, blue: 0.15))
                 .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.yanGold.opacity(0.24), lineWidth: 1)
+                )
 
                 houseDirectionMap(bz: bz)
-                DisclosureGroup(lang.effectiveLanguage == .en ? "Verifiable 8-Palace Derivation Table" : "八宅大游年推演校验表") {
-                    VStack(alignment: .leading, spacing: 6) {
+                DisclosureGroup(isEn ? "Verifiable 8-Palace Derivation Table" : "八宅大游年推演校验表") {
+                    VStack(alignment: .leading, spacing: 7) {
                         ForEach(bz.items) { item in
                             HStack {
                                 Text("\(item.localizedDirection) (\(item.guaName))")
@@ -177,12 +204,22 @@ public struct BaZhaiView: View {
                                     .adaptiveFont(size: 10)
                                     .foregroundColor(.white.opacity(0.7))
                             }
+                            if item.id != bz.items.last?.id {
+                                Divider().background(Color.white.opacity(0.07))
+                            }
                         }
                     }
-                    .padding(.top, 6)
+                    .padding(.top, 8)
                 }
                 .adaptiveFont(size: 11.5, weight: .semibold)
                 .foregroundColor(.yanCyan)
+                .padding(12)
+                .background(Color.white.opacity(0.04))
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.yanCyan.opacity(0.22), lineWidth: 1)
+                )
 
                 DisclosureGroup(lang.t("analysis_usage")) {
                     Text(lang.t("bz_house_intro"))

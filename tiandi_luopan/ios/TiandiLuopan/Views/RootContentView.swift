@@ -1051,14 +1051,14 @@ public struct WorkflowStepperBar: View {
 
     private var stepTitles: [String] {
         switch lang.effectiveLanguage {
-        case .en: return ["1. Survey", "2. Bearing", "3. Compute", "4. Report"]
-        case .zhHant: return ["1. 空間測繪", "2. 方位測量", "3. 專業計算", "4. 綜合報告"]
-        case .ja: return ["1. 空間測量", "2. 方位計測", "3. 数理計算", "4. 総合報告"]
-        case .ko: return ["1. 공간측량", "2. 방위계측", "3. 수리계산", "4. 종합보고"]
-        case .vi: return ["1. Đo đạc", "2. Phương vị", "3. Tính toán", "4. Báo cáo"]
-        case .th: return ["1. สำรวจ", "2. วัดทิศ", "3. คำนวณ", "4. รายงาน"]
-        case .id: return ["1. Survei", "2. Azimut", "3. Hitung", "4. Laporan"]
-        case .auto, .zhHans: return ["1. 空间测绘", "2. 方位测量", "3. 专业计算", "4. 综合报告"]
+        case .en: return ["Survey", "Bearing", "Compute", "Report"]
+        case .zhHant: return ["空間測繪", "方位測量", "專業計算", "綜合報告"]
+        case .ja: return ["空間測量", "方位計測", "数理計算", "総合報告"]
+        case .ko: return ["공간측량", "방위계측", "수리계산", "종합보고"]
+        case .vi: return ["Đo đạc", "Phương vị", "Tính toán", "Báo cáo"]
+        case .th: return ["สำรวจ", "วัดทิศ", "คำนวณ", "รายงาน"]
+        case .id: return ["Survei", "Azimut", "Hitung", "Laporan"]
+        case .auto, .zhHans: return ["空间测绘", "方位测量", "专业计算", "综合报告"]
         }
     }
 
@@ -1089,33 +1089,63 @@ public struct WorkflowStepperBar: View {
                 let isActive = idx == activeStep
                 let done = isStepDone(idx)
                 Button(action: { handleTap(idx) }) {
-                    HStack(spacing: 3) {
-                        Image(systemName: done ? "checkmark.circle.fill" : (idx == 3 ? "doc.text.fill" : "circle"))
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(done ? .green : (isActive ? Color.yanGold : .white.opacity(0.45)))
+                    HStack(spacing: 4) {
+                        ZStack {
+                            Circle()
+                                .fill(done ? Color.green.opacity(0.24) : (isActive ? Color.yanGold.opacity(0.26) : Color.white.opacity(0.08)))
+                                .frame(width: 15, height: 15)
+                            if done {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 8, weight: .black))
+                                    .foregroundColor(.green)
+                            } else if idx == 3 {
+                                Image(systemName: "doc.text.fill")
+                                    .font(.system(size: 7.5, weight: .bold))
+                                    .foregroundColor(isActive ? Color.yanGold : .white.opacity(0.6))
+                            } else {
+                                Text("\(idx + 1)")
+                                    .font(.system(size: 8.5, weight: .bold, design: .rounded))
+                                    .foregroundColor(isActive ? Color.yanGold : .white.opacity(0.62))
+                            }
+                        }
                         Text(titles[idx])
-                            .adaptiveFont(size: 9.5, weight: isActive ? .bold : .medium)
-                            .foregroundColor(isActive ? Color.yanGold : (done ? .white : .white.opacity(0.68)))
+                            .adaptiveFont(size: 10, weight: isActive ? .bold : .semibold)
+                            .foregroundColor(isActive ? Color.yanGold : (done ? .white : .white.opacity(0.72)))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.65)
+                            .minimumScaleFactor(0.68)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 5)
+                    .frame(minHeight: 30)
                     .padding(.horizontal, 4)
-                    .background(isActive ? Color.yanGold.opacity(0.16) : Color.white.opacity(0.05))
-                    .cornerRadius(6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(isActive ? Color.yanGold.opacity(0.18) : (done ? Color.green.opacity(0.08) : Color.clear))
+                    )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(isActive ? Color.yanGold.opacity(0.65) : Color.white.opacity(0.08), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(isActive ? Color.yanGold.opacity(0.7) : (done ? Color.green.opacity(0.28) : Color.clear), lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)
+
+                if idx < 3 {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 7, weight: .bold))
+                        .foregroundColor(done ? Color.green.opacity(0.55) : Color.white.opacity(0.22))
+                }
             }
         }
+        .padding(3)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white.opacity(0.09), lineWidth: 1)
+        )
     }
 }
 
-/// 综合测绘、方位仪读数与可验证数理计算分析报告弹窗（支持可读报告与结构化 JSON 切换、一键复制与系统分享导出）。
+/// 综合测绘、方位仪读数与可验证数理计算分析报告弹窗（支持可读报告与结构化 JSON 切换、缺失步骤一键跳转、一键复制与系统分享导出）。
 public struct IntegratedWorkflowReportSheet: View {
     private enum ReportFormat: Int, CaseIterable {
         case readable = 0
@@ -1137,17 +1167,34 @@ public struct IntegratedWorkflowReportSheet: View {
         format == .readable ? reportText : reportJSON
     }
 
+    private var completedStageCount: Int {
+        (workflow.hasSurvey ? 1 : 0) + (workflow.hasBearing ? 1 : 0) + (workflow.hasCalculation ? 1 : 0)
+    }
+
     public var body: some View {
         let isEn = (lang.effectiveLanguage == .en)
         return NavigationView {
             ZStack {
                 Color(red: 0.07, green: 0.07, blue: 0.10).ignoresSafeArea()
                 VStack(spacing: 12) {
-                    // 三阶段完整度状态摘要
-                    HStack(spacing: 8) {
-                        statusPill(title: isEn ? "Spatial Survey" : "空间测绘", ok: workflow.hasSurvey)
-                        statusPill(title: isEn ? "Instrument Bearing" : "方位测量", ok: workflow.hasBearing)
-                        statusPill(title: isEn ? "Calculation" : "专业计算", ok: workflow.hasCalculation)
+                    // 三阶段完整度状态摘要（未完成项支持点击直达对应工作台）
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text(isEn ? "Workflow Readiness (\(completedStageCount)/3)" : "全流程数据就绪度（\(completedStageCount)/3）")
+                                .adaptiveFont(size: 11, weight: .semibold)
+                                .foregroundColor(.white.opacity(0.72))
+                            Spacer()
+                            if completedStageCount < 3 {
+                                Text(isEn ? "Tap pending step to complete" : "轻点待补项可直达")
+                                    .adaptiveFont(size: 10)
+                                    .foregroundColor(.yanCyan.opacity(0.85))
+                            }
+                        }
+                        HStack(spacing: 8) {
+                            statusPill(title: isEn ? "Spatial Survey" : "空间测绘", ok: workflow.hasSurvey, targetTab: 0)
+                            statusPill(title: isEn ? "Bearing" : "方位测量", ok: workflow.hasBearing, targetTab: 2)
+                            statusPill(title: isEn ? "Calculation" : "专业计算", ok: workflow.hasCalculation, targetTab: 3)
+                        }
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
@@ -1177,9 +1224,12 @@ public struct IntegratedWorkflowReportSheet: View {
                     }
 
                     if copiedToast {
-                        Text(isEn ? "Copied to clipboard" : "已复制当前报告内容至剪贴板")
-                            .adaptiveFont(size: 11, weight: .semibold)
-                            .foregroundColor(.green)
+                        HStack(spacing: 5) {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text(isEn ? "Copied to clipboard" : "已复制当前报告内容至剪贴板")
+                        }
+                        .adaptiveFont(size: 11, weight: .semibold)
+                        .foregroundColor(.green)
                     }
 
                     HStack(spacing: 10) {
@@ -1190,20 +1240,20 @@ public struct IntegratedWorkflowReportSheet: View {
                             Label(isEn ? "Copy" : "复制内容", systemImage: "doc.on.doc")
                                 .adaptiveFont(size: 12, weight: .bold)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 11)
+                                .padding(.vertical, 12)
                                 .background(Color.white.opacity(0.1))
                                 .foregroundColor(.yanCyan)
-                                .cornerRadius(9)
+                                .cornerRadius(10)
                         }
 
                         Button(action: { showShareSheet = true }) {
                             Label(isEn ? "Export / Share" : "导出并分享", systemImage: "square.and.arrow.up")
                                 .adaptiveFont(size: 12, weight: .bold)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 11)
+                                .padding(.vertical, 12)
                                 .background(Color.yanGold)
                                 .foregroundColor(.black)
-                                .cornerRadius(9)
+                                .cornerRadius(10)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -1227,20 +1277,30 @@ public struct IntegratedWorkflowReportSheet: View {
         }
     }
 
-    private func statusPill(title: String, ok: Bool) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: ok ? "checkmark.seal.fill" : "clock.badge.exclamationmark")
-                .font(.system(size: 10, weight: .bold))
-            Text(title)
-                .adaptiveFont(size: 10, weight: .semibold)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
+    private func statusPill(title: String, ok: Bool, targetTab: Int) -> some View {
+        Button(action: {
+            presentationMode.wrappedValue.dismiss()
+            AppNavigationRouter.shared.requestRoute(tab: targetTab)
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: ok ? "checkmark.seal.fill" : "arrow.up.right.circle.fill")
+                    .font(.system(size: 10, weight: .bold))
+                Text(title)
+                    .adaptiveFont(size: 10.5, weight: .semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 6)
+            .background(ok ? Color.green.opacity(0.16) : Color.orange.opacity(0.16))
+            .foregroundColor(ok ? .green : .orange)
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(ok ? Color.green.opacity(0.35) : Color.orange.opacity(0.35), lineWidth: 1)
+            )
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 6)
-        .padding(.horizontal, 6)
-        .background(ok ? Color.green.opacity(0.18) : Color.orange.opacity(0.15))
-        .foregroundColor(ok ? .green : .orange)
-        .cornerRadius(7)
+        .buttonStyle(.plain)
     }
 }

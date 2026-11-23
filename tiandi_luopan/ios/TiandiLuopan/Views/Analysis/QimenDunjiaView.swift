@@ -142,23 +142,25 @@ public struct QimenDunjiaView: View {
 
                 if let activeCell = chart.cells.first(where: { $0.palaceId == (selectedPalaceId ?? 4) }), !activeCell.isTaiJiCenter {
                     let doorObj = QimenDoor(name: activeCell.doorName, palace: activeCell.palaceId, isAuspicious: activeCell.isDoorAuspicious, luckType: activeCell.doorLuck, lore: "")
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 8) {
-                            Text("【\(activeCell.localizedPalaceName)】")
-                                .adaptiveFont(size: 12, weight: .bold)
-                                .foregroundColor(Color.yanCyan)
-                            Text("\(activeCell.localizedDoorName) · \(activeCell.localizedGodName) · \(activeCell.localizedStarName)")
-                                .adaptiveFont(size: 11.5, weight: .semibold)
-                                .foregroundColor(.white)
-                            Spacer()
+                    VStack(alignment: .leading, spacing: 9) {
+                        HStack(spacing: 6) {
+                            qimenLayerPill(label: isEn ? "Palace" : "地宫", value: activeCell.localizedPalaceName, tint: .yanCyan)
+                            qimenLayerPill(label: isEn ? "Gate" : "八门", value: activeCell.localizedDoorName, tint: activeCell.isDoorAuspicious ? .green : (activeCell.isDoorInauspicious ? .red : .white))
+                            qimenLayerPill(label: isEn ? "Star" : "九星", value: activeCell.localizedStarName, tint: .yanGold)
+                            qimenLayerPill(label: isEn ? "Spirit" : "八神", value: activeCell.localizedGodName, tint: .orange)
                         }
                         Text(doorObj.classicalSourceNote)
-                            .adaptiveFont(size: 10)
-                            .foregroundColor(.white.opacity(0.72))
+                            .adaptiveFont(size: 10.5)
+                            .foregroundColor(.white.opacity(0.75))
+                            .lineSpacing(2)
                     }
-                    .padding(10)
-                    .background(Color.white.opacity(0.05))
-                    .cornerRadius(8)
+                    .padding(11)
+                    .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.yanCyan.opacity(0.28), lineWidth: 1)
+                    )
                     .padding(.horizontal, 16)
                 }
             }
@@ -193,7 +195,26 @@ public struct QimenDunjiaView: View {
         }
     }
 
+    private func qimenLayerPill(label: String, value: String, tint: Color) -> some View {
+        VStack(spacing: 2) {
+            Text(label)
+                .adaptiveFont(size: 9, weight: .medium)
+                .foregroundColor(.white.opacity(0.55))
+            Text(value)
+                .adaptiveFont(size: 11, weight: .bold)
+                .foregroundColor(tint)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 4)
+        .background(tint.opacity(0.1))
+        .cornerRadius(7)
+    }
+
     private func qimenTimeControlBar() -> some View {
+        let isEn = (lang.effectiveLanguage == .en)
         let prevLabel: String
         let nextLabel: String
         let nowLabel: String
@@ -203,9 +224,9 @@ public struct QimenDunjiaView: View {
         case .zhHant:
             prevLabel = "上一時辰"; nextLabel = "下一時辰"; nowLabel = "回到此刻"
         case .ja:
-            prevLabel = "-2時間(前刻)"; nextLabel = "+2時間(次刻)"; nowLabel = "現在へ"
+            prevLabel = "-2時間"; nextLabel = "+2時間"; nowLabel = "現在へ"
         case .ko:
-            prevLabel = "이전 시진(-2h)"; nextLabel = "다음 시진(+2h)"; nowLabel = "현재"
+            prevLabel = "-2시간"; nextLabel = "+2시간"; nowLabel = "현재"
         case .vi:
             prevLabel = "-2 giờ"; nextLabel = "+2 giờ"; nowLabel = "Hiện tại"
         case .th:
@@ -216,64 +237,72 @@ public struct QimenDunjiaView: View {
             prevLabel = "上一时辰"; nextLabel = "下一时辰"; nowLabel = "回到此刻"
         }
 
-        return HStack(spacing: 8) {
-            Button(action: {
-                let base = isUsingCustomDate ? selectedDate : Date()
-                selectedDate = Calendar.current.date(byAdding: .hour, value: -2, to: base) ?? base
-                isUsingCustomDate = true
-                refreshChart(force: true)
-            }) {
-                Text(prevLabel)
-                    .adaptiveFont(size: 10, weight: .semibold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.08))
-                    .foregroundColor(.white)
-                    .cornerRadius(6)
-            }
-
-            DatePicker("", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
-                .labelsHidden()
-                .colorScheme(.dark)
-                .scaleEffect(0.88)
-                .onChange(of: selectedDate) { _ in
-                    isUsingCustomDate = true
-                    refreshChart(force: true)
-                }
-
-            Button(action: {
-                let base = isUsingCustomDate ? selectedDate : Date()
-                selectedDate = Calendar.current.date(byAdding: .hour, value: 2, to: base) ?? base
-                isUsingCustomDate = true
-                refreshChart(force: true)
-            }) {
-                Text(nextLabel)
-                    .adaptiveFont(size: 10, weight: .semibold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.08))
-                    .foregroundColor(.white)
-                    .cornerRadius(6)
-            }
-
-            if isUsingCustomDate {
-                Button(action: {
-                    isUsingCustomDate = false
-                    selectedDate = Date()
-                    refreshChart(force: true)
-                }) {
-                    Text(nowLabel)
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 4)
-                        .background(Color.yanCyan.opacity(0.2))
-                        .foregroundColor(Color.yanCyan)
-                        .cornerRadius(6)
+        return VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.yanGold)
+                DatePicker("", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+                    .labelsHidden()
+                    .colorScheme(.dark)
+                    .onChange(of: selectedDate) { _ in
+                        isUsingCustomDate = true
+                        refreshChart(force: true)
+                    }
+                Spacer(minLength: 4)
+                if isUsingCustomDate {
+                    Button(action: {
+                        isUsingCustomDate = false
+                        selectedDate = Date()
+                        refreshChart(force: true)
+                    }) {
+                        Text(nowLabel)
+                            .adaptiveFont(size: 10.5, weight: .bold)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 5)
+                            .background(Color.yanCyan.opacity(0.2))
+                            .foregroundColor(Color.yanCyan)
+                            .cornerRadius(7)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
 
-            Spacer(minLength: 0)
+            HStack(spacing: 6) {
+                qimenStepButton(title: isEn ? "-1d" : "前一日", hours: -24)
+                qimenStepButton(title: prevLabel, hours: -2)
+                qimenStepButton(title: nextLabel, hours: 2)
+                qimenStepButton(title: isEn ? "+1d" : "后一日", hours: 24)
+            }
         }
+        .padding(10)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white.opacity(0.09), lineWidth: 1)
+        )
+    }
+
+    private func qimenStepButton(title: String, hours: Int) -> some View {
+        Button(action: {
+            let base = isUsingCustomDate ? selectedDate : Date()
+            selectedDate = Calendar.current.date(byAdding: .hour, value: hours, to: base) ?? base
+            isUsingCustomDate = true
+            refreshChart(force: true)
+        }) {
+            Text(title)
+                .adaptiveFont(size: 10, weight: .semibold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 4)
+                .background(Color.white.opacity(0.08))
+                .foregroundColor(.white.opacity(0.9))
+                .cornerRadius(7)
+        }
+        .buttonStyle(.plain)
     }
 
     private func refreshChart(force: Bool = false) {

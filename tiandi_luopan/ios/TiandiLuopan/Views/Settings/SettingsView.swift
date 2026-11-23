@@ -298,6 +298,7 @@ public struct SettingsView: View {
     @ObservedObject var lang = LocalizationManager.shared
     @ObservedObject var kuaProfile = UserKuaProfileManager.shared
     @ObservedObject var retention = RetentionServiceManager.shared
+    @ObservedObject private var workflow = SpatialWorkflowStore.shared
 
     @State private var selectedProductId: String = IAPProductID.vipYearly.rawValue
     @State private var paymentError: String = ""
@@ -324,6 +325,9 @@ public struct SettingsView: View {
                     List {
                         // 顶部用户/会员概要卡片
                         userHeaderSection
+
+                        // 工作流进度与综合报告快捷入口
+                        workflowQuickSection
 
                         // 功能模块菜单组（已移除算命/命卦/流月飞星提醒入口，保留免费个人资料清理与会员/语言/关于）
                         Section {
@@ -431,6 +435,76 @@ public struct SettingsView: View {
                 }
             }
         )
+    }
+
+    private var workflowQuickSection: some View {
+        let isEn = (lang.effectiveLanguage == .en)
+        let doneCount = (workflow.hasSurvey ? 1 : 0) + (workflow.hasBearing ? 1 : 0) + (workflow.hasCalculation ? 1 : 0)
+        return Section {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Label(isEn ? "Survey Workflow" : "测绘与计算工作流", systemImage: "checklist")
+                        .adaptiveFont(size: 13.5, weight: .bold)
+                        .foregroundColor(.yanGold)
+                    Spacer()
+                    Text("\(doneCount)/3")
+                        .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(doneCount == 3 ? Color.green.opacity(0.22) : Color.yanGold.opacity(0.2))
+                        .foregroundColor(doneCount == 3 ? .green : .yanGold)
+                        .cornerRadius(6)
+                }
+
+                HStack(spacing: 6) {
+                    workflowChip(title: isEn ? "Survey" : "空间测绘", ok: workflow.hasSurvey, tab: 0)
+                    workflowChip(title: isEn ? "Bearing" : "方位测量", ok: workflow.hasBearing, tab: 2)
+                    workflowChip(title: isEn ? "Compute" : "专业计算", ok: workflow.hasCalculation, tab: 3)
+                }
+
+                Button(action: {
+                    NotificationCenter.default.post(name: .didRequestWorkflowReport, object: nil)
+                }) {
+                    HStack {
+                        Image(systemName: "doc.text.magnifyingglass")
+                        Text(isEn ? "Open Integrated Report" : "打开测绘与计算综合报告")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .adaptiveFont(size: 12.5, weight: .bold)
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .background(Color.yanGold)
+                    .cornerRadius(9)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    private func workflowChip(title: String, ok: Bool, tab: Int) -> some View {
+        Button(action: {
+            AppNavigationRouter.shared.requestRoute(tab: tab)
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: ok ? "checkmark.circle.fill" : "circle.dashed")
+                    .font(.system(size: 10, weight: .bold))
+                Text(title)
+                    .adaptiveFont(size: 10.5, weight: .semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 4)
+            .background(ok ? Color.green.opacity(0.16) : Color.white.opacity(0.07))
+            .foregroundColor(ok ? .green : .white.opacity(0.75))
+            .cornerRadius(7)
+        }
+        .buttonStyle(.plain)
     }
 
     private var userHeaderSection: some View {

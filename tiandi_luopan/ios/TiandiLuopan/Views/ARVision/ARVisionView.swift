@@ -574,6 +574,7 @@ public struct ARVisionView: View {
     // full-width hit target above the capture layer.
     @State private var showShaActions: Bool = false
     @State private var showClearShaAlert: Bool = false
+    @State private var isBottomPanelExpanded: Bool = false
     // Invalidated when the AR page disappears or a newer proof capture starts.
     // Rendering a 1080x1920 proof image is asynchronous; without a generation
     // check a frame captured just before leaving the tab could still be saved
@@ -1344,9 +1345,13 @@ public struct ARVisionView: View {
                 }
             }
         }
-        .padding(8)
-        .background(Color.black.opacity(0.65))
-        .cornerRadius(10)
+        .padding(9)
+        .background(Color.black.opacity(0.62))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
     }
 
     private func cardinalLabel(for heading: Double) -> String {
@@ -1410,160 +1415,231 @@ public struct ARVisionView: View {
         .allowsHitTesting(false)
     }
     
-    // MARK: - 底部形煞研判卡 (支持朝向智能跟随与手动点选)
+    // MARK: - 底部形煞研判卡 (支持折叠/展开释放取景视野，朝向智能跟随与手动点选)
     private func bottomShaControlPanel() -> AnyView {
         guard shaList.indices.contains(activeShaIndex) else { return AnyView(EmptyView()) }
         let currentIdx = activeShaIndex
         let sha = shaList[currentIdx]
-        
-        return AnyView(VStack(spacing: 8) {
-            HStack {
-                Button(action: {
-                    isAutoFollowingDirection.toggle()
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: isAutoFollowingDirection ? "location.fill" : "lock.fill")
-                        Text(isAutoFollowingDirection ? lang.t("ar_auto_follow") : lang.t("ar_manual_lock"))
-                    }
-                    .adaptiveFont(size: 10, weight: .bold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(isAutoFollowingDirection ? Color.green.opacity(0.3) : Color.orange.opacity(0.3))
-                    .foregroundColor(isAutoFollowingDirection ? .green : .orange)
-                    .cornerRadius(6)
-                }
-                
-                Spacer()
-                
-                Text("\(lang.t("ar_current_facing")): \(cardinalLabel(for: targetCalculatedHeading)) · \(String(format: "%.1f°", targetCalculatedHeading))")
-                    .adaptiveFont(size: 10, weight: .medium)
-                    .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.65)
-            }
-            .padding(.horizontal, 4)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(0..<shaList.count, id: \.self) { idx in
-                        let item = shaList[idx]
-                        let isSelected = (idx == currentIdx)
-                        Button(action: {
-                            isAutoFollowingDirection = false
-                            selectedShaIndex = idx
-                            // Manual selection supersedes any prior AI
-                            // candidate. Keeping the old candidate label here
-                            // would associate the user's choice with a stale
-                            // frame and could mislead the scene assessment.
-                            aiResult = nil
-                            aiError = nil
-                            targetNormalizedPoint = CGPoint(x: 0.5, y: 0.5)
-                            targetHorizontalFOV = 50.0
-                            targetNormalizedDrag = .zero
-                        }) {
-                            Text(item.localizedName)
-                                .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
-                                .padding(.horizontal, 9)
-                                .padding(.vertical, 5)
-                                .background(isSelected ? Color.yanCyan.opacity(0.85) : Color.white.opacity(0.15))
-                                .foregroundColor(isSelected ? .black : .white)
-                                .cornerRadius(10)
-                        }
-                    }
-                }
-            }
-            
-            if let aiResult = aiResult {
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundColor(.green)
-                    Text("\(lang.t("ar_ai_result")): \(String(format: "%.0f", aiResult.confidence * 100))% · \(aiResult.detectedRegions)")
-                        .adaptiveFont(size: 10, weight: .medium)
-                        .foregroundColor(.white.opacity(0.85))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.65)
-                    Spacer()
-                }
-                .padding(.horizontal, 8)
-                Text(lang.t("ar_ai_disclaimer"))
-                    .adaptiveFont(size: 9)
-                    .foregroundColor(.orange.opacity(0.85))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 8)
-            } else if let aiError = aiError {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(aiError)
-                        .adaptiveFont(size: 10)
-                        .foregroundColor(.orange)
-                    if photoPermissionDenied {
-                        Button(lang.t("open_system_settings")) {
-                            guard let url = URL(string: UIApplication.openSettingsURLString),
-                                  UIApplication.shared.canOpenURL(url) else { return }
-                            UIApplication.shared.open(url)
-                        }
-                        .adaptiveFont(size: 10, weight: .semibold)
-                        .foregroundColor(.yanCyan)
-                    }
-                }
-                .padding(.horizontal, 8)
-            }
+        let isEn = (lang.effectiveLanguage == .en)
+        let expanded = isSplitLayout || isBottomPanelExpanded
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text("\(aiResult == nil ? lang.t("ar_manual_analysis") : lang.t("ar_ai_candidate")) · \(cardinalLabel(for: targetCalculatedHeading)) \(String(format: "%.1f°", targetCalculatedHeading))")
-                        .adaptiveFont(size: 12, weight: .bold)
-                        .foregroundColor(Color.yanCyan)
-                    Spacer()
-                }
-                Text(sha.localizedVisualFeature)
-                    .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.88))
-                    .lineSpacing(2)
-            }
-            .padding(8)
-            .background(Color.black.opacity(0.75))
-            .cornerRadius(8)
-
-            // 现场标注与全景报告入口
-            HStack(spacing: 8) {
-                Button(action: markCurrentSha) {
-                    Label("\(lang.t("ar_mark_sha")) (\(shaStore.records.count))", systemImage: "mappin.and.ellipse")
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.yanCyan.opacity(0.25))
-                        .foregroundColor(Color.yanCyan)
-                        .cornerRadius(6)
-                }
-                Button(action: { showPanoramaReport = true }) {
-                    Label(lang.t("ar_panorama_report"), systemImage: "gauge")
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.green.opacity(0.2))
-                        .foregroundColor(.green)
-                        .cornerRadius(6)
-                }
-                if !shaStore.records.isEmpty {
+        return AnyView(
+            VStack(spacing: 8) {
+                // 顶部常驻精简栏：跟随状态 + 当前方向/特征 + 快捷标注 + 折叠/展开按钮
+                HStack(spacing: 6) {
                     Button(action: {
-                        showShaActions = true
+                        isAutoFollowingDirection.toggle()
                     }) {
-                        Image(systemName: "ellipsis.circle")
-                            .adaptiveFont(size: 11, weight: .bold)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 5)
-                            .background(Color.white.opacity(0.18))
-                            .foregroundColor(.white)
-                            .cornerRadius(6)
+                        HStack(spacing: 3) {
+                            Image(systemName: isAutoFollowingDirection ? "location.fill" : "lock.fill")
+                            Text(isAutoFollowingDirection ? lang.t("ar_auto_follow") : lang.t("ar_manual_lock"))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                        }
+                        .adaptiveFont(size: 10, weight: .bold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(isAutoFollowingDirection ? Color.green.opacity(0.26) : Color.orange.opacity(0.26))
+                        .foregroundColor(isAutoFollowingDirection ? .green : .orange)
+                        .cornerRadius(7)
                     }
                     .buttonStyle(.plain)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel(lang.t("ar_panorama_title"))
+
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("\(cardinalLabel(for: targetCalculatedHeading)) · \(String(format: "%.1f°", targetCalculatedHeading))")
+                            .adaptiveFont(size: 11, weight: .bold, design: .monospaced)
+                            .foregroundColor(Color.yanGold)
+                            .lineLimit(1)
+                        Text(sha.localizedName)
+                            .adaptiveFont(size: 10, weight: .semibold)
+                            .foregroundColor(.white.opacity(0.82))
+                            .lineLimit(1)
+                    }
+
+                    Spacer(minLength: 4)
+
+                    // 一键现场标注常驻触手可及
+                    Button(action: markCurrentSha) {
+                        Label("\(shaStore.records.count)", systemImage: "mappin.and.ellipse")
+                            .adaptiveFont(size: 10.5, weight: .bold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(Color.yanCyan.opacity(0.24))
+                            .foregroundColor(.yanCyan)
+                            .cornerRadius(7)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(lang.t("ar_mark_sha"))
+
+                    if !isSplitLayout {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isBottomPanelExpanded.toggle()
+                            }
+                        }) {
+                            HStack(spacing: 3) {
+                                Text(expanded ? (isEn ? "Less" : "收起") : (isEn ? "Details" : "详情"))
+                                Image(systemName: expanded ? "chevron.down" : "chevron.up")
+                            }
+                            .adaptiveFont(size: 10, weight: .bold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(Color.white.opacity(0.14))
+                            .foregroundColor(.white)
+                            .cornerRadius(7)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                Spacer()
+
+                // 折叠态下若存在 AI 扫描结果或错误，保留一行轻提示
+                if !expanded {
+                    if let aiResult = aiResult {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.seal.fill").foregroundColor(.green)
+                            Text("\(lang.t("ar_ai_result")): \(String(format: "%.0f", aiResult.confidence * 100))% · \(aiResult.detectedRegions)")
+                                .adaptiveFont(size: 10, weight: .medium)
+                                .foregroundColor(.white.opacity(0.88))
+                                .lineLimit(1)
+                            Spacer()
+                        }
+                    } else if let aiError = aiError {
+                        Text(aiError)
+                            .adaptiveFont(size: 10)
+                            .foregroundColor(.orange)
+                            .lineLimit(2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+
+                if expanded {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(0..<shaList.count, id: \.self) { idx in
+                                let item = shaList[idx]
+                                let isSelected = (idx == currentIdx)
+                                Button(action: {
+                                    isAutoFollowingDirection = false
+                                    selectedShaIndex = idx
+                                    aiResult = nil
+                                    aiError = nil
+                                    targetNormalizedPoint = CGPoint(x: 0.5, y: 0.5)
+                                    targetHorizontalFOV = 50.0
+                                    targetNormalizedDrag = .zero
+                                }) {
+                                    Text(item.localizedName)
+                                        .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
+                                        .padding(.horizontal, 9)
+                                        .padding(.vertical, 5)
+                                        .background(isSelected ? Color.yanCyan.opacity(0.88) : Color.white.opacity(0.14))
+                                        .foregroundColor(isSelected ? .black : .white)
+                                        .cornerRadius(9)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    if let aiResult = aiResult {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundColor(.green)
+                            Text("\(lang.t("ar_ai_result")): \(String(format: "%.0f", aiResult.confidence * 100))% · \(aiResult.detectedRegions)")
+                                .adaptiveFont(size: 10, weight: .medium)
+                                .foregroundColor(.white.opacity(0.85))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.65)
+                            Spacer()
+                        }
+                        Text(lang.t("ar_ai_disclaimer"))
+                            .adaptiveFont(size: 9)
+                            .foregroundColor(.orange.opacity(0.85))
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else if let aiError = aiError {
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(aiError)
+                                .adaptiveFont(size: 10)
+                                .foregroundColor(.orange)
+                            if photoPermissionDenied {
+                                Button(lang.t("open_system_settings")) {
+                                    guard let url = URL(string: UIApplication.openSettingsURLString),
+                                          UIApplication.shared.canOpenURL(url) else { return }
+                                    UIApplication.shared.open(url)
+                                }
+                                .adaptiveFont(size: 10, weight: .semibold)
+                                .foregroundColor(.yanCyan)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text("\(aiResult == nil ? lang.t("ar_manual_analysis") : lang.t("ar_ai_candidate")) · \(cardinalLabel(for: targetCalculatedHeading)) \(String(format: "%.1f°", targetCalculatedHeading))")
+                                .adaptiveFont(size: 11.5, weight: .bold)
+                                .foregroundColor(Color.yanCyan)
+                            Spacer()
+                        }
+                        Text(sha.localizedVisualFeature)
+                            .adaptiveFont(size: 11)
+                            .foregroundColor(.white.opacity(0.88))
+                            .lineSpacing(2)
+                    }
+                    .padding(8)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(8)
+
+                    // 现场标注与全景报告入口
+                    HStack(spacing: 8) {
+                        Button(action: markCurrentSha) {
+                            Label("\(lang.t("ar_mark_sha")) (\(shaStore.records.count))", systemImage: "mappin.and.ellipse")
+                                .adaptiveFont(size: 10.5, weight: .bold)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.yanCyan.opacity(0.24))
+                                .foregroundColor(Color.yanCyan)
+                                .cornerRadius(7)
+                        }
+                        .buttonStyle(.plain)
+
+                        Button(action: { showPanoramaReport = true }) {
+                            Label(lang.t("ar_panorama_report"), systemImage: "gauge")
+                                .adaptiveFont(size: 10.5, weight: .bold)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.green.opacity(0.2))
+                                .foregroundColor(.green)
+                                .cornerRadius(7)
+                        }
+                        .buttonStyle(.plain)
+
+                        if !shaStore.records.isEmpty {
+                            Button(action: {
+                                showShaActions = true
+                            }) {
+                                Image(systemName: "ellipsis.circle")
+                                    .adaptiveFont(size: 12, weight: .bold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 6)
+                                    .background(Color.white.opacity(0.16))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(7)
+                            }
+                            .buttonStyle(.plain)
+                            .contentShape(Rectangle())
+                            .accessibilityLabel(lang.t("ar_panorama_title"))
+                        }
+                        Spacer()
+                    }
+                }
             }
-            .padding(.horizontal, 4)
-        }
+            .padding(10)
+            .background(Color.black.opacity(0.72))
+            .cornerRadius(13)
+            .overlay(
+                RoundedRectangle(cornerRadius: 13)
+                    .stroke(Color.white.opacity(0.14), lineWidth: 1)
+            )
         )
     }
 

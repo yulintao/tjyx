@@ -2794,6 +2794,7 @@ public struct ARSpatialSurveyView: View {
     @State private var show3DSpaceViewer = false
     @State private var currentSurveyReport: HouseSpatialSurvey? = nil
     @State private var showVRSurvey = false
+    @State private var isTelemetryExpanded = false
 
     private var latestSurveyForVR: HouseSpatialSurvey? {
         if let currentSurveyReport { return currentSurveyReport }
@@ -2834,16 +2835,17 @@ public struct ARSpatialSurveyView: View {
             }
 
             GeometryReader { geo in
-                VStack(spacing: 0) {
+                VStack(spacing: 8) {
                     header
                     Spacer(minLength: 8)
-                    // 面板含追踪、建图、测距、鲁班尺、评估、最大平面、净高、语义网格等 8~10 行，
-                    // iPhone SE 667pt 高时可占掉一半屏幕；限高 42% 并允许内部滚动，
-                    // 让 AR 取景区在任何机型上都保留足够可视面积。
+                    // 底部可折叠实测数据面板 + 拇指区三键测绘操作底座，
+                    // 默认保持精简，把超过 65% 的屏幕空间留给 AR 实景取景。
                     ScrollView(.vertical, showsIndicators: false) {
                         measurementPanel
                     }
-                    .frame(maxHeight: geo.size.height * 0.42)
+                    .frame(maxHeight: isTelemetryExpanded ? geo.size.height * 0.42 : 175)
+
+                    surveyActionDock
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 10)
@@ -2912,223 +2914,253 @@ public struct ARSpatialSurveyView: View {
     }
 
     private var header: some View {
-        VStack(spacing: 8) {
-            // 第一行：标题与状态 + 常驻关闭按钮
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
+        let isEn = (lang.effectiveLanguage == .en)
+        return HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
                     Text(lang.t("ar_spatial_survey"))
-                        .adaptiveFont(size: 16, weight: .bold)
+                        .adaptiveFont(size: 15, weight: .bold)
                         .foregroundColor(.white)
-                    Text(model.lidarAvailable ? lang.t("ar_spatial_lidar_available") : lang.t("ar_spatial_ar_mode"))
-                        .adaptiveFont(size: 10, weight: .medium)
-                        .foregroundColor(model.lidarAvailable ? .green : .orange)
+                        .lineLimit(1)
+                    if model.scanQualityScore > 0 {
+                        Text("\(model.scanQualityScore)/100")
+                            .adaptiveFont(size: 9.5, weight: .bold, design: .monospaced)
+                            .foregroundColor(scanQualityColor)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(scanQualityColor.opacity(0.18))
+                            .cornerRadius(5)
+                    }
                 }
-                Spacer()
-                Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                    Image(systemName: "xmark")
-                        .adaptiveFont(size: 13, weight: .bold)
-                        .foregroundColor(.white)
-                        .padding(9)
-                        .background(Color.black.opacity(0.55))
-                        .clipShape(Circle())
-                }
-                .accessibilityLabel(lang.t("ar_spatial_close"))
+                Text(model.lidarAvailable ? lang.t("ar_spatial_lidar_available") : lang.t("ar_spatial_ar_mode"))
+                    .adaptiveFont(size: 10, weight: .medium)
+                    .foregroundColor(model.lidarAvailable ? .green : .orange)
+                    .lineLimit(1)
             }
 
-            // 第二行：功能图标按钮组（小屏横向滚动兜底，避免挤压标题竖排）
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
+            Spacer(minLength: 4)
+
+            // 二级测绘工具菜单（替代原 13 个无文字圆钮，清晰可读）
+            Menu {
 #if canImport(RoomPlan)
-                    if #available(iOS 16.0, *),
-                       ARWorldTrackingConfiguration.supportsSceneReconstruction(.meshWithClassification) {
-                        Button(action: {
-                            model.pause()
-                            showRoomPlan = true
-                        }) {
-                            Image(systemName: "house.fill")
-                                .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(.white)
-                                .padding(9)
-                                .background(Color.blue.opacity(0.8))
-                                .clipShape(Circle())
-                        }
-                        .accessibilityLabel(lang.t("ar_roomplan_title"))
+                if #available(iOS 16.0, *),
+                   ARWorldTrackingConfiguration.supportsSceneReconstruction(.meshWithClassification) {
+                    Button(action: {
+                        model.pause()
+                        showRoomPlan = true
+                    }) {
+                        Label(lang.t("ar_roomplan_title"), systemImage: "house.fill")
                     }
+                }
 #endif
-                    Button(action: {
-                        if let survey = model.buildSpatialSurvey() {
-                            currentSurveyReport = survey
-                            show3DSpaceViewer = true
-                        }
-                    }) {
-                        HStack(spacing: 3) {
-                            Image(systemName: "cube.transparent")
-                                .adaptiveFont(size: 13, weight: .bold)
-                            Text(lang.t("floorplan_3d_recent_actual"))
-                                .adaptiveFont(size: 10, weight: .bold)
-                        }
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 6)
-                        .background(Color.yanGold)
-                        .cornerRadius(14)
+                Button(action: {
+                    if !iap.hasUnlockedVIP {
+                        showPaywall = true
+                        return
                     }
-                    .accessibilityLabel(lang.t("floorplan_3d_recent_actual"))
-                    Button(action: {
-                        if !iap.hasUnlockedVIP {
-                            showPaywall = true
-                            return
-                        }
-                        showVRSurvey = true
-                    }) {
-                        HStack(spacing: 3) {
-                            Image(systemName: "view.3d")
-                                .adaptiveFont(size: 13, weight: .bold)
-                            Text(lang.t("vr_survey_title"))
-                                .adaptiveFont(size: 10, weight: .bold)
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 6)
-                        .background(Color.purple.opacity(0.8))
-                        .cornerRadius(14)
+                    showVRSurvey = true
+                }) {
+                    Label(lang.t("vr_survey_title"), systemImage: "view.3d")
+                }
+
+                Divider()
+
+                Button(action: {
+                    shareItem = ARSpatialShareItem(item: measurementSummaryText)
+                }) {
+                    Label(isEn ? "Share Measurement Summary" : "分享实测数据摘要", systemImage: "doc.text")
+                }
+
+                Button(action: {
+                    if let img = model.captureSurveySnapshotReport() {
+                        shareItem = ARSpatialShareItem(item: img)
                     }
-                    .accessibilityLabel(lang.t("vr_survey_title"))
-                    Button(action: {
-                        _ = model.placeLubanPoint()
-                    }) {
-                        Image(systemName: "ruler.fill")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(model.lubanPointA != nil ? .black : .white)
-                            .padding(9)
-                            .background(model.lubanPointA != nil ? Color.yanCyan : Color.black.opacity(0.55))
-                            .clipShape(Circle())
-                    }
-                    .accessibilityLabel(lang.t("ar_spatial_measure"))
-                    // 手动角落打点连续测绘（Corner-pin Polygon）：弱纹理墙面防拼接漂移
-                    Button(action: {
-                        model.cornerPinActive.toggle()
-                        if !model.cornerPinActive { model.clearCornerPins() }
-                    }) {
-                        Image(systemName: model.cornerPinActive ? "hand.draw.fill" : "hand.draw")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(model.cornerPinActive ? .black : .white)
-                            .padding(9)
-                            .background(model.cornerPinActive ? Color.orange : Color.black.opacity(0.55))
-                            .clipShape(Circle())
-                    }
-                    .accessibilityLabel(lang.t("ar_spatial_measure"))
-                    if model.cornerPinActive {
-                        Button(action: { _ = model.pinCornerPoint() }) {
-                            VStack(spacing: 1) {
-                                Image(systemName: "plus")
-                                    .adaptiveFont(size: 11, weight: .bold)
-                                Text("\(model.cornerPoints.count)")
-                                    .adaptiveFont(size: 9, weight: .bold, design: .monospaced)
-                            }
-                            .foregroundColor(.white)
-                            .padding(6)
-                            .background(Color.orange.opacity(0.85))
-                            .clipShape(Circle())
-                        }
-                        .accessibilityLabel(lang.t("ar_luban_point_a"))
-                        Button(action: { _ = model.finishCornerRoom() }) {
-                            Text(lang.t("done"))
-                                .adaptiveFont(size: 10, weight: .bold)
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 7)
-                                .background(Color.yanGold)
-                                .cornerRadius(12)
-                        }
-                        .disabled(model.cornerPoints.count < 3)
-                        .opacity(model.cornerPoints.count < 3 ? 0.4 : 1.0)
-                        .accessibilityLabel(lang.t("done"))
-                        Button(action: { model.clearCornerPins() }) {
-                            Image(systemName: "trash")
-                                .adaptiveFont(size: 11, weight: .bold)
-                                .foregroundColor(.white)
-                                .padding(8)
-                                .background(Color.red.opacity(0.75))
-                                .clipShape(Circle())
-                        }
-                        .accessibilityLabel(lang.t("ar_panorama_clear"))
-                    }
-                    Button(action: {
-                        shareItem = ARSpatialShareItem(item: measurementSummaryText)
-                    }) {
-                        Image(systemName: "doc.text")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(.yanGold)
-                            .padding(9)
-                            .background(Color.black.opacity(0.55))
-                            .clipShape(Circle())
-                    }
-                    .accessibilityLabel(lang.effectiveLanguage == .en ? "Share Measurement Summary" : "分享实测数据摘要")
-                    Button(action: {
-                        model.toggleMeshVisibility()
-                    }) {
-                        Image(systemName: model.meshVisible ? "eye.fill" : "eye.slash.fill")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(model.meshVisible ? .yanCyan : .white.opacity(0.75))
-                            .padding(9)
-                            .background(Color.black.opacity(0.55))
-                            .clipShape(Circle())
-                    }
-                    .accessibilityLabel(lang.t("ar_spatial_mesh"))
-                    Button(action: {
-                        saveMessage = nil
-                        model.resetSurvey()
-                    }) {
-                        Image(systemName: "arrow.counterclockwise")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(.white)
-                            .padding(9)
-                            .background(Color.black.opacity(0.55))
-                            .clipShape(Circle())
-                    }
-                    .accessibilityLabel(lang.t("ar_spatial_reset"))
-                    if model.hasSavedWorldMap {
-                        Button(action: restoreLatestMap) {
-                            Image(systemName: "arrow.down.doc.fill")
-                                .adaptiveFont(size: 13, weight: .bold)
-                                .foregroundColor(.yanCyan)
-                                .padding(9)
-                                .background(Color.black.opacity(0.55))
-                                .clipShape(Circle())
-                        }
-                        .disabled(isSavingMap)
-                        .accessibilityLabel(lang.t("ar_spatial_map_ready"))
-                    }
-                    Button(action: {
-                        if let img = model.captureSurveySnapshotReport() {
-                            shareItem = ARSpatialShareItem(item: img)
-                        }
-                    }) {
-                        Image(systemName: "camera.viewfinder")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(.green)
-                            .padding(9)
-                            .background(Color.black.opacity(0.55))
-                            .clipShape(Circle())
-                    }
-                    .accessibilityLabel(lang.t("capture_proof"))
-                    Button(action: saveMap) {
-                        Image(systemName: isSavingMap ? "hourglass" : "square.and.arrow.up")
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .foregroundColor(isSavingMap ? .orange : .white)
-                            .padding(9)
-                            .background(Color.black.opacity(0.55))
-                            .clipShape(Circle())
+                }) {
+                    Label(lang.t("capture_proof"), systemImage: "camera.viewfinder")
+                }
+
+                Button(action: saveMap) {
+                    Label(lang.t("ar_spatial_save_map"), systemImage: "square.and.arrow.up")
+                }
+                .disabled(isSavingMap)
+
+                if model.hasSavedWorldMap {
+                    Button(action: restoreLatestMap) {
+                        Label(lang.t("ar_spatial_map_ready"), systemImage: "arrow.down.doc.fill")
                     }
                     .disabled(isSavingMap)
-                    .accessibilityLabel(lang.t("ar_spatial_save_map"))
+                }
+
+                Divider()
+
+                Button(action: {
+                    model.toggleMeshVisibility()
+                }) {
+                    Label(
+                        model.meshVisible ? (isEn ? "Hide 3D Mesh" : "隐藏三维网格") : (isEn ? "Show 3D Mesh" : "显示三维网格"),
+                        systemImage: model.meshVisible ? "eye.slash" : "eye"
+                    )
+                }
+
+                Button(role: .destructive, action: {
+                    saveMessage = nil
+                    model.resetSurvey()
+                }) {
+                    Label(lang.t("ar_spatial_reset"), systemImage: "arrow.counterclockwise")
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "wrench.and.screwdriver.fill")
+                        .font(.system(size: 11, weight: .bold))
+                    Text(isEn ? "Tools" : "工具")
+                        .adaptiveFont(size: 11, weight: .bold)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(Color.white.opacity(0.14))
+                .cornerRadius(16)
+            }
+
+            Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                Image(systemName: "xmark")
+                    .adaptiveFont(size: 13, weight: .bold)
+                    .foregroundColor(.white)
+                    .padding(9)
+                    .background(Color.white.opacity(0.14))
+                    .clipShape(Circle())
+            }
+            .accessibilityLabel(lang.t("ar_spatial_close"))
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .background(Color.black.opacity(0.68))
+        .cornerRadius(13)
+        .overlay(
+            RoundedRectangle(cornerRadius: 13)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
+    }
+
+    /// 拇指区三键测绘操作底座（点对点测距 / 多边形打点 / 3D 建模）
+    private var surveyActionDock: some View {
+        let isEn = (lang.effectiveLanguage == .en)
+        return VStack(spacing: 8) {
+            // 多边形打点激活时，直接在拇指上方浮出打点 / 闭合 / 清除条
+            if model.cornerPinActive {
+                HStack(spacing: 8) {
+                    Button(action: { _ = model.pinCornerPoint() }) {
+                        Label(
+                            (isEn ? "Pin Corner" : "打墙角点") + " (\(model.cornerPoints.count))",
+                            systemImage: "plus.circle.fill"
+                        )
+                        .adaptiveFont(size: 11, weight: .bold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(Color.orange)
+                        .foregroundColor(.black)
+                        .cornerRadius(9)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: { _ = model.finishCornerRoom() }) {
+                        Text(lang.t("done"))
+                            .adaptiveFont(size: 11, weight: .bold)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 9)
+                            .background(Color.yanGold)
+                            .foregroundColor(.black)
+                            .cornerRadius(9)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(model.cornerPoints.count < 3)
+                    .opacity(model.cornerPoints.count < 3 ? 0.45 : 1.0)
+
+                    Button(action: { model.clearCornerPins() }) {
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(9)
+                            .background(Color.red.opacity(0.75))
+                            .cornerRadius(9)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(lang.t("ar_panorama_clear"))
                 }
             }
+
+            HStack(spacing: 8) {
+                // 1. 点对点实测（单手一键打点 A / B）
+                Button(action: { _ = model.placeLubanPoint() }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "ruler.fill")
+                        Text(lubanActionTitle)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .adaptiveFont(size: 11, weight: .bold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 6)
+                    .background(model.lubanPointA != nil ? Color.yanCyan : Color.yanCyan.opacity(0.2))
+                    .foregroundColor(model.lubanPointA != nil ? .black : .yanCyan)
+                    .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+
+                // 2. 多边形打点模式切换
+                Button(action: {
+                    model.cornerPinActive.toggle()
+                    if !model.cornerPinActive { model.clearCornerPins() }
+                }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: model.cornerPinActive ? "pentagon.fill" : "pentagon")
+                        Text(isEn ? "Polygon" : "多边形测绘")
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .adaptiveFont(size: 11, weight: .bold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 6)
+                    .background(model.cornerPinActive ? Color.orange : Color.white.opacity(0.14))
+                    .foregroundColor(model.cornerPinActive ? .black : .white)
+                    .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+
+                // 3. 生成实测 3D 模型与平面同步
+                Button(action: {
+                    if let survey = model.buildSpatialSurvey() {
+                        currentSurveyReport = survey
+                        show3DSpaceViewer = true
+                    }
+                }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "cube.transparent")
+                        Text(isEn ? "3D Model" : "生成 3D")
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .adaptiveFont(size: 11, weight: .bold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 6)
+                    .background(Color.yanGold)
+                    .foregroundColor(.black)
+                    .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(lang.t("floorplan_3d_recent_actual"))
+            }
         }
-        .padding(10)
-        .background(Color.black.opacity(0.68))
-        .cornerRadius(12)
+        .padding(9)
+        .background(Color.black.opacity(0.76))
+        .cornerRadius(13)
+        .overlay(
+            RoundedRectangle(cornerRadius: 13)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
     }
 
     private var centerReticle: some View {
@@ -3170,79 +3202,15 @@ public struct ARSpatialSurveyView: View {
     }
 
     private var measurementPanel: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let isEn = (lang.effectiveLanguage == .en)
+        return VStack(alignment: .leading, spacing: 7) {
             if !model.hasHeadingReference {
                 Text(lang.t("ar_survey_heading_pending"))
                     .adaptiveFont(size: 11).foregroundColor(.orange)
             }
-            if model.scanQualityScore > 0 {
-                HStack(spacing: 6) {
-                    Image(systemName: "dot.radiowaves.left.and.right")
-                        .foregroundColor(scanQualityColor)
-                        .adaptiveFont(size: 11)
-                    Text((lang.effectiveLanguage == .en ? "Scan Quality" : "扫描质量") + ": \(model.scanQualityScore)/100")
-                        .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
-                        .foregroundColor(scanQualityColor)
-                    Spacer()
-                    if let lux = model.ambientLightLux {
-                        Text(String(format: "%.0f lx · %d pts", lux, model.featurePointCount))
-                            .adaptiveFont(size: 9.5, weight: .medium, design: .monospaced)
-                            .foregroundColor(.white.opacity(0.72))
-                    }
-                }
-            }
-            if model.cornerPoints.count >= 2 {
-                HStack(spacing: 6) {
-                    Image(systemName: "pentagon")
-                        .foregroundColor(.orange)
-                        .adaptiveFont(size: 11)
-                    if model.cornerPoints.count >= 3 {
-                        Text(String(format: "%@: %.2f ㎡ · %.2f m",
-                                    lang.effectiveLanguage == .en ? "Measured Polygon" : "多边形实测",
-                                    model.cornerPolygonAreaSqMeters,
-                                    model.cornerPolygonPerimeterMeters))
-                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
-                            .foregroundColor(.yanGold)
-                    } else {
-                        Text(String(format: "%@: %.2f m",
-                                    lang.effectiveLanguage == .en ? "Segment" : "线段长度",
-                                    model.cornerPolygonPerimeterMeters))
-                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
-                            .foregroundColor(.yanGold)
-                    }
-                    Spacer()
-                }
-            }
-            HStack {
-                Label(trackingText, systemImage: trackingIcon)
-                    .adaptiveFont(size: 11, weight: .semibold)
-                    .foregroundColor(trackingColor)
-                Spacer()
-                Text("\(lang.t("ar_spatial_planes")): \(model.planeCount)")
-                    .adaptiveFont(size: 11, weight: .medium)
-                    .foregroundColor(.white.opacity(0.85))
-            }
 
-            HStack(spacing: 12) {
-                Label(mappingText, systemImage: "map")
-                if false, let h = model.estimatedRoomHeightMeters {
-                let beamWarning = model.hasLowBeamWarning
-                Text(String(format: "%@: %.2f m · %@", lang.t("3d_metric_ceiling"), h, beamWarning ? lang.t("ar_spatial_beam_warning") : lang.t("ar_spatial_ceiling_good")))
-                    .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
-                    .foregroundColor(beamWarning ? .orange : .green)
-            }
-            if model.lidarAvailable {
-                    Text("\(lang.t("ar_spatial_mesh")): \(model.meshAnchorCount)")
-                }
-                if model.savedAnchorCount > 0 {
-                    Label("\(model.savedAnchorCount)", systemImage: "mappin.and.ellipse")
-                        .foregroundColor(.yanCyan)
-                }
-            }
-            .adaptiveFont(size: 10, weight: .medium)
-            .foregroundColor(.white.opacity(0.75))
-
-            HStack {
+            // 精简实时测距摘要行 + 详情折叠切换按钮
+            HStack(spacing: 8) {
                 Image(systemName: "ruler")
                     .foregroundColor(.yanCyan)
                 if let distance = model.distance {
@@ -3254,19 +3222,50 @@ public struct ARSpatialSurveyView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                 }
-                Spacer()
-                Button(action: { _ = model.placeLubanPoint() }) {
-                    Text(lubanActionTitle)
-                        .adaptiveFont(size: 10, weight: .bold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.yanCyan.opacity(0.85))
-                        .foregroundColor(.black)
-                        .cornerRadius(8)
+                Spacer(minLength: 4)
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isTelemetryExpanded.toggle()
+                    }
+                }) {
+                    HStack(spacing: 3) {
+                        Text(isTelemetryExpanded ? (isEn ? "Compact" : "精简") : (isEn ? "Telemetry" : "详细遥测"))
+                        Image(systemName: isTelemetryExpanded ? "chevron.down" : "chevron.up")
+                    }
+                    .adaptiveFont(size: 10, weight: .bold)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.12))
+                    .foregroundColor(.white.opacity(0.9))
+                    .cornerRadius(7)
                 }
+                .buttonStyle(.plain)
             }
             .adaptiveFont(size: 13, weight: .bold, design: .monospaced)
             .foregroundColor(.white)
+
+            if model.cornerPoints.count >= 2 {
+                HStack(spacing: 6) {
+                    Image(systemName: "pentagon")
+                        .foregroundColor(.orange)
+                        .adaptiveFont(size: 11)
+                    if model.cornerPoints.count >= 3 {
+                        Text(String(format: "%@: %.2f ㎡ · %.2f m",
+                                    isEn ? "Measured Polygon" : "多边形实测",
+                                    model.cornerPolygonAreaSqMeters,
+                                    model.cornerPolygonPerimeterMeters))
+                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                            .foregroundColor(.yanGold)
+                    } else {
+                        Text(String(format: "%@: %.2f m",
+                                    isEn ? "Segment" : "线段长度",
+                                    model.cornerPolygonPerimeterMeters))
+                            .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                            .foregroundColor(.yanGold)
+                    }
+                    Spacer()
+                }
+            }
 
             if let eval = model.lubanEvaluation {
                 HStack(spacing: 6) {
@@ -3295,57 +3294,97 @@ public struct ARSpatialSurveyView: View {
                     .foregroundColor(.yanCyan)
             }
 
-            if let width = model.largestPlaneWidth, let depth = model.largestPlaneDepth {
+            if isTelemetryExpanded {
+                if model.scanQualityScore > 0 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "dot.radiowaves.left.and.right")
+                            .foregroundColor(scanQualityColor)
+                            .adaptiveFont(size: 11)
+                        Text((isEn ? "Scan Quality" : "扫描质量") + ": \(model.scanQualityScore)/100")
+                            .adaptiveFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(scanQualityColor)
+                        Spacer()
+                        if let lux = model.ambientLightLux {
+                            Text(String(format: "%.0f lx · %d pts", lux, model.featurePointCount))
+                                .adaptiveFont(size: 9.5, weight: .medium, design: .monospaced)
+                                .foregroundColor(.white.opacity(0.72))
+                        }
+                    }
+                }
                 HStack {
-                    Text("\(lang.t("ar_spatial_largest_plane")): \(String(format: "%.2f × %.2f m", width, depth))")
-                        .adaptiveFont(size: 10, weight: .medium, design: .monospaced)
-                        .foregroundColor(.white.opacity(0.75))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                    Label(trackingText, systemImage: trackingIcon)
+                        .adaptiveFont(size: 11, weight: .semibold)
+                        .foregroundColor(trackingColor)
                     Spacer()
-                    Button(action: {
-                        if model.syncPlanesToFloorplan() {
-                            saveMessage = lang.t("ar_roomplan_synced_floorplan")
-                        }
-                    }) {
-                        Label(lang.t("tab_floorplan"), systemImage: "scope")
-                            .adaptiveFont(size: 10, weight: .bold)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background(Color(red: 0.95, green: 0.80, blue: 0.25).opacity(0.9))
-                            .foregroundColor(.black)
-                            .cornerRadius(6)
+                    Text("\(lang.t("ar_spatial_planes")): \(model.planeCount)")
+                        .adaptiveFont(size: 11, weight: .medium)
+                        .foregroundColor(.white.opacity(0.85))
+                }
+
+                HStack(spacing: 12) {
+                    Label(mappingText, systemImage: "map")
+                    if model.lidarAvailable {
+                        Text("\(lang.t("ar_spatial_mesh")): \(model.meshAnchorCount)")
+                    }
+                    if model.savedAnchorCount > 0 {
+                        Label("\(model.savedAnchorCount)", systemImage: "mappin.and.ellipse")
+                            .foregroundColor(.yanCyan)
                     }
                 }
-            }
+                .adaptiveFont(size: 10, weight: .medium)
+                .foregroundColor(.white.opacity(0.75))
 
-            if let h = model.estimatedRoomHeightMeters {
-                let beamWarning = model.hasLowBeamWarning
-                Text(String(format: "%@: %.2f m · %@", lang.t("3d_metric_ceiling"), h, beamWarning ? lang.t("ar_spatial_beam_warning") : lang.t("ar_spatial_ceiling_good")))
-                    .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
-                    .foregroundColor(beamWarning ? .orange : .green)
-            }
-            if model.lidarAvailable {
-                Text(lang.t("ar_spatial_semantic_candidate"))
-                    .adaptiveFont(size: 10, weight: .medium)
-                    .foregroundColor(.white.opacity(0.65))
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 5) {
-                    ForEach(Array(Self.semanticTypes.enumerated()), id: \.offset) { entry in
-                        let item = entry.element
-                        let count = model.semanticCounts[item.0.rawValue, default: 0]
-                        if count > 0 {
-                            Label("\(lang.t(item.1)) \(count)", systemImage: item.2)
-                                .adaptiveFont(size: 10, weight: .medium)
-                                .foregroundColor(.white.opacity(0.9))
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                if let width = model.largestPlaneWidth, let depth = model.largestPlaneDepth {
+                    HStack {
+                        Text("\(lang.t("ar_spatial_largest_plane")): \(String(format: "%.2f × %.2f m", width, depth))")
+                            .adaptiveFont(size: 10, weight: .medium, design: .monospaced)
+                            .foregroundColor(.white.opacity(0.75))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Spacer()
+                        Button(action: {
+                            if model.syncPlanesToFloorplan() {
+                                saveMessage = lang.t("ar_roomplan_synced_floorplan")
+                            }
+                        }) {
+                            Label(lang.t("tab_floorplan"), systemImage: "scope")
+                                .adaptiveFont(size: 10, weight: .bold)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color(red: 0.95, green: 0.80, blue: 0.25).opacity(0.9))
+                                .foregroundColor(.black)
+                                .cornerRadius(6)
                         }
                     }
-
                 }
-            } else {
-                Text(lang.t("ar_spatial_no_depth"))
-                    .adaptiveFont(size: 10)
-                    .foregroundColor(.orange.opacity(0.9))
+
+                if let h = model.estimatedRoomHeightMeters {
+                    let beamWarning = model.hasLowBeamWarning
+                    Text(String(format: "%@: %.2f m · %@", lang.t("3d_metric_ceiling"), h, beamWarning ? lang.t("ar_spatial_beam_warning") : lang.t("ar_spatial_ceiling_good")))
+                        .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
+                        .foregroundColor(beamWarning ? .orange : .green)
+                }
+                if model.lidarAvailable {
+                    Text(lang.t("ar_spatial_semantic_candidate"))
+                        .adaptiveFont(size: 10, weight: .medium)
+                        .foregroundColor(.white.opacity(0.65))
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 5) {
+                        ForEach(Array(Self.semanticTypes.enumerated()), id: \.offset) { entry in
+                            let item = entry.element
+                            let count = model.semanticCounts[item.0.rawValue, default: 0]
+                            if count > 0 {
+                                Label("\(lang.t(item.1)) \(count)", systemImage: item.2)
+                                    .adaptiveFont(size: 10, weight: .medium)
+                                    .foregroundColor(.white.opacity(0.9))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                    }
+                } else {
+                    Text(lang.t("ar_spatial_no_depth"))
+                        .adaptiveFont(size: 10)
+                        .foregroundColor(.orange.opacity(0.9))
+                }
             }
             if let saveMessage = saveMessage {
                 Text(saveMessage)
@@ -3353,9 +3392,13 @@ public struct ARSpatialSurveyView: View {
                     .foregroundColor(.yanCyan)
             }
         }
-        .padding(12)
-        .background(Color.black.opacity(0.78))
+        .padding(11)
+        .background(Color.black.opacity(0.76))
         .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
         .sheet(item: $shareItem) { item in
             ARSpatialShareSheet(items: [item.item])
         }

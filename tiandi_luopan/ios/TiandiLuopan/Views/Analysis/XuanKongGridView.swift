@@ -42,6 +42,8 @@ public struct XuanKongGridView: View {
     @State private var showDailySignSheet: Bool = false
     @State private var showPaywall: Bool = false
     @State private var showMountainPickerSheet: Bool = false
+    @State private var showAuditDetails: Bool = false
+    @State private var showNinePalaceGrid: Bool = true
     @State private var cachedChart: XuanKongChart?
     @State private var selectedPalaceIdx: Int = 4
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -103,19 +105,9 @@ public struct XuanKongGridView: View {
                 WorkflowStepperBar(activeStep: 2)
                     .padding(.horizontal, 16)
                 if let feature = selectedFeature {
-                    HStack {
-                        Button(action: { selectedFeature = nil; cachedChart = nil }) {
-                            Label(lang.t("analysis_back_menu"), systemImage: "chevron.left")
-                                .adaptiveFont(size: 13, weight: .semibold)
-                                .foregroundColor(Color.yanCyan)
-                                .frame(minHeight: 44)
-                        }
-                        Spacer()
-                        Text(lang.t(feature.titleKey))
-                            .adaptiveFont(size: 15, weight: .bold)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 16)
+                    // 顶部快捷模块切换条：支持一键在玄空 / 八宅 / 三合 / 奇门间切换，无需反复退回菜单
+                    quickModuleSwitcherBar(active: feature)
+                        .padding(.horizontal, 16)
                     if feature == .xuanKong { analysisSourceBar().padding(.horizontal, 16) }
                     sittingControlHeader()
                         .padding(.horizontal, isLargeLayout ? 0 : 16)
@@ -322,7 +314,47 @@ public struct XuanKongGridView: View {
         )
     }
 
-    /// 可验证计算参数与算法溯源面板：公开输入方位、节气历法、规则依据，确保每次计算可独立复核。
+    /// 模块内顶部一键切换条：左侧返回总览图标，右侧 4 个确定性计算模块胶囊直切。
+    private func quickModuleSwitcherBar(active: AnalysisFeature) -> some View {
+        let modules: [AnalysisFeature] = [.xuanKong, .baZhai, .sanHe, .qimen]
+        return HStack(spacing: 6) {
+            Button(action: { selectedFeature = nil; cachedChart = nil }) {
+                Image(systemName: "square.grid.2x2")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.yanCyan)
+                    .frame(width: 34, height: 34)
+                    .background(Color.yanCyan.opacity(0.14))
+                    .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(lang.t("analysis_back_menu"))
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(modules) { item in
+                        let isSelected = (item == active)
+                        Button(action: { openFeature(item) }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: item.symbol)
+                                    .font(.system(size: 10, weight: .bold))
+                                Text(lang.t(item.titleKey))
+                                    .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
+                                    .lineLimit(1)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .background(isSelected ? Color.yanGold : Color.white.opacity(0.08))
+                            .foregroundColor(isSelected ? .black : .white.opacity(0.85))
+                            .cornerRadius(8)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+
+    /// 可验证计算参数与算法溯源面板：默认精简单行摘要（把核心排盘提至首屏），轻点可展开完整参数与公式依据。
     private func verifiableComputationAuditCard(for feature: AnalysisFeature) -> some View {
         let isEn = (lang.effectiveLanguage == .en)
         let state = analysisHeading
@@ -332,11 +364,11 @@ public struct XuanKongGridView: View {
         )
         let sourceLabel: String
         if analyzeHome && homeFacing != nil {
-            sourceLabel = isEn ? "Floorplan / LiDAR Measured" : "户型 / LiDAR 实测"
+            sourceLabel = isEn ? "Floorplan / LiDAR" : "户型 / LiDAR 实测"
         } else if SpatialWorkflowStore.shared.hasBearing {
-            sourceLabel = isEn ? "Compass Instrument Locked" : "电子方位仪锁定读数"
+            sourceLabel = isEn ? "Instrument Locked" : "方位仪锁定"
         } else {
-            sourceLabel = isEn ? "Live Sensor / Manual" : "实时传感器 / 手动输入"
+            sourceLabel = isEn ? "Live Sensor" : "实时传感器"
         }
 
         let algorithmLabel: String
@@ -357,99 +389,179 @@ public struct XuanKongGridView: View {
 
         return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Image(systemName: "checkmark.shield.fill")
-                    .foregroundColor(.yanCyan)
-                    .font(.system(size: 12, weight: .bold))
-                Text(isEn ? "Verifiable Computation Inputs" : "可验证计算参数与算法依据")
-                    .adaptiveFont(size: 11.5, weight: .bold)
-                    .foregroundColor(.yanCyan)
-                Spacer()
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        showAuditDetails.toggle()
+                    }
+                }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "checkmark.shield.fill")
+                            .foregroundColor(.yanCyan)
+                            .font(.system(size: 11.5, weight: .bold))
+                        Text(isEn ? "Audit · \(sourceLabel)" : "算法校验 · \(sourceLabel)")
+                            .adaptiveFont(size: 11, weight: .bold)
+                            .foregroundColor(.yanCyan)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                        Image(systemName: showAuditDetails ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.yanCyan.opacity(0.8))
+                    }
+                }
+                .buttonStyle(.plain)
+
+                Spacer(minLength: 4)
+
                 Button(action: {
                     recordWorkflowCalculation(for: feature)
                     NotificationCenter.default.post(name: .didRequestWorkflowReport, object: nil)
                 }) {
-                    Text(isEn ? "Full Report →" : "导出综合报告 →")
+                    Text(isEn ? "Report →" : "综合报告 →")
                         .adaptiveFont(size: 10, weight: .bold)
                         .foregroundColor(.black)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
                         .background(Color.yanGold)
-                        .cornerRadius(5)
+                        .cornerRadius(6)
                 }
+                .buttonStyle(.plain)
             }
 
-            HStack(spacing: 10) {
-                Text("\(isEn ? "Source" : "数据源")：\(sourceLabel)")
-                Spacer(minLength: 4)
-                Text(String(format: "%.1f° · %@/%@", state.facingAngle, state.sittingMountain.localizedName, state.facingMountain.localizedName))
-            }
-            .adaptiveFont(size: 10, weight: .medium, design: .monospaced)
-            .foregroundColor(.white.opacity(0.85))
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
+            if showAuditDetails {
+                Divider().background(Color.white.opacity(0.1))
 
-            Text("\(isEn ? "Calendar" : "天文历法")：\(solar.solarTermName) · \(solar.baziGanzhi)")
+                HStack(spacing: 10) {
+                    Text("\(isEn ? "Source" : "数据源")：\(sourceLabel)")
+                    Spacer(minLength: 4)
+                    Text(String(format: "%.1f° · %@/%@", state.facingAngle, state.sittingMountain.localizedName, state.facingMountain.localizedName))
+                }
                 .adaptiveFont(size: 10, weight: .medium, design: .monospaced)
-                .foregroundColor(.white.opacity(0.75))
+                .foregroundColor(.white.opacity(0.85))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
 
-            Text("\(isEn ? "Formula" : "计算模型")：\(algorithmLabel)")
-                .adaptiveFont(size: 10)
-                .foregroundColor(.white.opacity(0.7))
+                Text("\(isEn ? "Calendar" : "天文历法")：\(solar.solarTermName) · \(solar.baziGanzhi)")
+                    .adaptiveFont(size: 10, weight: .medium, design: .monospaced)
+                    .foregroundColor(.white.opacity(0.75))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+
+                Text("\(isEn ? "Formula" : "计算模型")：\(algorithmLabel)")
+                    .adaptiveFont(size: 10)
+                    .foregroundColor(.white.opacity(0.7))
+            }
         }
-        .padding(10)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 8)
         .background(Color.white.opacity(0.05))
         .cornerRadius(9)
         .overlay(
             RoundedRectangle(cornerRadius: 9)
-                .stroke(Color.yanCyan.opacity(0.32), lineWidth: 1)
+                .stroke(Color.yanCyan.opacity(0.3), lineWidth: 1)
         )
     }
 
     private func analysisMenu() -> some View {
         let isEn = (lang.effectiveLanguage == .en)
-        return VStack(alignment: .leading, spacing: 18) {
-            VStack(alignment: .leading, spacing: 6) {
+        let allModules: [AnalysisFeature] = [.xuanKong, .baZhai, .sanHe, .qimen]
+        let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
+
+        return VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(lang.t("analysis_menu_title"))
-                    .adaptiveFont(size: 22, weight: .bold)
+                    .adaptiveFont(size: 20, weight: .bold)
                     .foregroundColor(.white)
                 Text(isEn
-                     ? "Deterministic spatial & calendrical calculation modules with verifiable astronomical inputs and classical citations."
-                     : "基于实测方位角与天文节气历法的确定性计算模块，全部输入参数与推演规则透明可复核。")
-                    .adaptiveFont(size: 11.5)
+                     ? "Deterministic spatial & calendrical calculation modules with verifiable astronomical inputs."
+                     : "基于实测方位角与天文节气历法的确定性计算模块，全部输入参数与推演规则可独立复核。")
+                    .adaptiveFont(size: 11)
                     .foregroundColor(.white.opacity(0.68))
             }
+
             sittingControlHeader()
-            menuGroup(title: lang.t("analysis_group_house"), features: [.xuanKong, .baZhai, .sanHe])
-            menuGroup(title: isEn ? "Astronomical Calendrical Calculation" : "天文历法排盘计算", features: [.qimen])
+
+            // 双列快捷卡片网格：一屏总览全部 4 大计算模块，点击即入
+            LazyVGrid(columns: columns, spacing: 10) {
+                ForEach(allModules) { feature in
+                    Button(action: { openFeature(feature) }) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 9)
+                                        .fill(Color.yanCyan.opacity(0.16))
+                                        .frame(width: 34, height: 34)
+                                    Image(systemName: feature.symbol)
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(Color.yanCyan)
+                                }
+                                Spacer()
+                                if feature.requiresVIP {
+                                    Image(systemName: iap.hasUnlockedVIP ? "crown.fill" : "lock.fill")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(Color.yanGold)
+                                } else {
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(.white.opacity(0.35))
+                                }
+                            }
+
+                            Text(lang.t(feature.titleKey))
+                                .adaptiveFont(size: 14, weight: .bold)
+                                .foregroundColor(.white)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.8)
+
+                            Text(lang.t(feature.subtitleKey))
+                                .adaptiveFont(size: 10.5)
+                                .foregroundColor(.white.opacity(0.62))
+                                .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(12)
+                        .frame(maxWidth: .infinity, minHeight: 118, alignment: .topLeading)
+                        .background(Color.white.opacity(0.055))
+                        .cornerRadius(13)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 13)
+                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
 
             // 一键生成完整工作流综合分析报告卡片
             Button(action: {
                 NotificationCenter.default.post(name: .didRequestWorkflowReport, object: nil)
             }) {
                 HStack(spacing: 12) {
-                    Image(systemName: "doc.text.magnifyingglass")
-                        .font(.system(size: 22))
-                        .foregroundColor(Color.yanGold)
-                        .frame(width: 30)
-                    VStack(alignment: .leading, spacing: 4) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 9)
+                            .fill(Color.yanGold.opacity(0.2))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(Color.yanGold)
+                    }
+                    VStack(alignment: .leading, spacing: 3) {
                         Text(isEn ? "Integrated Survey & Calculation Report" : "生成空间测绘与方位计算综合报告")
-                            .adaptiveFont(size: 14, weight: .bold)
+                            .adaptiveFont(size: 13.5, weight: .bold)
                             .foregroundColor(.white)
-                        Text(isEn ? "Combine AR/LiDAR metrics, compass telemetry & verifiable calculation tables" : "自动汇总 AR/LiDAR 尺寸、方位仪校准读数与数理计算依据")
-                            .adaptiveFont(size: 11)
+                        Text(isEn ? "Combine AR/LiDAR metrics, compass telemetry & verifiable tables" : "自动汇总 AR/LiDAR 尺寸、方位仪校准读数与数理计算依据")
+                            .adaptiveFont(size: 10.5)
                             .foregroundColor(.white.opacity(0.68))
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .bold))
                         .foregroundColor(Color.yanGold)
                 }
-                .padding(14)
+                .padding(13)
                 .background(Color.yanGold.opacity(0.12))
-                .cornerRadius(12)
+                .cornerRadius(13)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 13)
                         .stroke(Color.yanGold.opacity(0.45), lineWidth: 1)
                 )
             }
@@ -609,10 +721,14 @@ public struct XuanKongGridView: View {
             }
             .buttonStyle(PlainButtonStyle())
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 8)
         .background(Color(red: 0.12, green: 0.12, blue: 0.16))
-        .cornerRadius(8)
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white.opacity(0.09), lineWidth: 1)
+        )
     }
 
     // MARK: - 天机书宣纸长卷 Banner
@@ -666,23 +782,47 @@ public struct XuanKongGridView: View {
     
     // MARK: - 玄空九星排盘内容
     private func xuanKongContent(chart: XuanKongChart) -> some View {
+        let isEn = (lang.effectiveLanguage == .en)
         // 分栏态（Duo 内屏 / iPad 横屏）：左栏 = 元运切换/格局徽章/九宫飞星排盘，
-        // 右栏 = 格局评析与财富/健康/化解建议。independentScroll 让两栏各自滚动，
-        // 避免右栏长解释把整页撑长、左栏画板跟着一起滚；折叠态保持原单列纵排。
-        FoldableTwoPane(compactSpacing: 14,
-                        independentScroll: true) {
-            VStack(spacing: 14) {
+        // 右栏 = 格局评析与化解建议；单列态默认直接展开九宫图（并支持收起），避免进入后看不到排盘。
+        return FoldableTwoPane(compactSpacing: 14,
+                               independentScroll: true) {
+            VStack(spacing: 12) {
                 periodPickerBar(chart: chart)
                 patternBadgeView(chart: chart)
-                if isSplitLayout {
-                    ninePalacesGrid(chart: chart)
-                } else {
-                    DisclosureGroup(lang.t("xkd_chart")) {
-                        ninePalacesGrid(chart: chart).padding(.top, 8)
+
+                // 九宫图标题栏 + 三星图例（山星青 / 运星金 / 向星橙）
+                HStack(spacing: 8) {
+                    HStack(spacing: 10) {
+                        starLegendDot(color: .yanCyan, label: isEn ? "Mtn" : "山星")
+                        starLegendDot(color: .yanGold, label: isEn ? "Period" : "运星")
+                        starLegendDot(color: .orange, label: isEn ? "Face" : "向星")
                     }
-                    .adaptiveFont(size: 12)
-                    .foregroundColor(Color.yanCyan)
-                    .padding(.horizontal, 16)
+                    Spacer()
+                    if !isSplitLayout {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showNinePalaceGrid.toggle()
+                            }
+                        }) {
+                            HStack(spacing: 3) {
+                                Text(showNinePalaceGrid ? (isEn ? "Hide Grid" : "收起九宫") : lang.t("xkd_chart"))
+                                Image(systemName: showNinePalaceGrid ? "chevron.up" : "chevron.down")
+                            }
+                            .adaptiveFont(size: 10.5, weight: .semibold)
+                            .foregroundColor(.yanCyan)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.yanCyan.opacity(0.12))
+                            .cornerRadius(6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, isLargeLayout ? 0 : 16)
+
+                if isSplitLayout || showNinePalaceGrid {
+                    ninePalacesGrid(chart: chart)
                 }
             }
         } analysis: {
@@ -690,6 +830,17 @@ public struct XuanKongGridView: View {
                 analysisCard(chart: chart)
             }
             .padding(.horizontal, isSplitLayout ? 12 : (isLargeLayout ? 0 : 16))
+        }
+    }
+
+    private func starLegendDot(color: Color, label: String) -> some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(color)
+                .frame(width: 6, height: 6)
+            Text(label)
+                .adaptiveFont(size: 10, weight: .semibold)
+                .foregroundColor(.white.opacity(0.75))
         }
     }
     
