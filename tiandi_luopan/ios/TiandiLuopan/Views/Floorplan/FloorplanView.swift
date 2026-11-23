@@ -3490,6 +3490,7 @@ public struct FloorplanView: View {
     private func auditFilterChip(title: String, tag: Int, tint: Color) -> some View {
         let selected = (auditFilter == tag)
         return Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             withAnimation(.easeInOut(duration: 0.16)) {
                 auditFilter = tag
             }
@@ -3499,14 +3500,14 @@ public struct FloorplanView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
+                .padding(.vertical, 7)
                 .padding(.horizontal, 6)
-                .background(selected ? tint.opacity(0.24) : Color.white.opacity(0.06))
-                .foregroundColor(selected ? tint : .white.opacity(0.72))
-                .cornerRadius(8)
+                .background(selected ? tint.opacity(0.24) : Color.white.opacity(0.055))
+                .foregroundColor(selected ? tint : .white.opacity(0.75))
+                .cornerRadius(9)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(selected ? tint.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 9)
+                        .stroke(selected ? tint.opacity(0.6) : Color.white.opacity(0.1), lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)

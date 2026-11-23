@@ -227,6 +227,7 @@ public struct CompassMainView: View {
         return HStack(spacing: 8) {
             // 1. 锁定 / 解锁朝向
             Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 motion.toggleLock()
             }) {
                 HStack(spacing: 5) {
@@ -239,12 +240,12 @@ public struct CompassMainView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
-                .background(motion.isLocked ? Color.red.opacity(0.22) : Color.white.opacity(0.1))
+                .background(motion.isLocked ? Color.red.opacity(0.22) : Color.white.opacity(0.08))
                 .foregroundColor(motion.isLocked ? .red : .white)
-                .cornerRadius(10)
+                .cornerRadius(12)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(motion.isLocked ? Color.red.opacity(0.55) : Color.white.opacity(0.12), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(motion.isLocked ? Color.red.opacity(0.55) : Color.white.opacity(0.14), lineWidth: 1)
                 )
             }
             .buttonStyle(.plain)
@@ -252,6 +253,7 @@ public struct CompassMainView: View {
 
             // 2. 2.5 秒多样本圆周均值稳态采集
             Button(action: {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 startPrecisionSampling()
             }) {
                 HStack(spacing: 5) {
@@ -266,11 +268,11 @@ public struct CompassMainView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
-                .background(isPrecisionSampling ? Color.yanCyan.opacity(0.32) : Color.yanCyan.opacity(0.18))
+                .background(isPrecisionSampling ? Color.yanCyan.opacity(0.28) : Color.yanCyan.opacity(0.14))
                 .foregroundColor(.yanCyan)
-                .cornerRadius(10)
+                .cornerRadius(12)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.yanCyan.opacity(0.45), lineWidth: 1)
                 )
             }
@@ -279,6 +281,7 @@ public struct CompassMainView: View {
 
             // 3. 锁定并同步实测方位到测绘与计算工作流
             Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 if !motion.isLocked {
                     motion.toggleLock()
                 }
@@ -294,9 +297,16 @@ public struct CompassMainView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
-                .background(Color.yanGold)
+                .background(
+                    LinearGradient(
+                        colors: [Color(red: 0.98, green: 0.85, blue: 0.42), Color(red: 0.85, green: 0.68, blue: 0.22)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
                 .foregroundColor(.black)
-                .cornerRadius(10)
+                .cornerRadius(12)
+                .shadow(color: Color.yanGold.opacity(0.25), radius: 6, y: 2)
             }
             .buttonStyle(.plain)
         }

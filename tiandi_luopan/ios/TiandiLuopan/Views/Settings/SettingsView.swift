@@ -463,6 +463,7 @@ public struct SettingsView: View {
                 }
 
                 Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     NotificationCenter.default.post(name: .didRequestWorkflowReport, object: nil)
                 }) {
                     HStack {
@@ -474,10 +475,17 @@ public struct SettingsView: View {
                     }
                     .adaptiveFont(size: 12.5, weight: .bold)
                     .foregroundColor(.black)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 9)
-                    .background(Color.yanGold)
-                    .cornerRadius(9)
+                    .padding(.horizontal, 13)
+                    .padding(.vertical, 10)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(red: 0.98, green: 0.85, blue: 0.42), Color(red: 0.85, green: 0.68, blue: 0.22)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(10)
+                    .shadow(color: Color.yanGold.opacity(0.22), radius: 5, y: 2)
                 }
                 .buttonStyle(.plain)
             }
@@ -487,6 +495,7 @@ public struct SettingsView: View {
 
     private func workflowChip(title: String, ok: Bool, tab: Int) -> some View {
         Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             AppNavigationRouter.shared.requestRoute(tab: tab)
         }) {
             HStack(spacing: 4) {
@@ -498,11 +507,15 @@ public struct SettingsView: View {
                     .minimumScaleFactor(0.75)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 6)
+            .padding(.vertical, 7)
             .padding(.horizontal, 4)
-            .background(ok ? Color.green.opacity(0.16) : Color.white.opacity(0.07))
-            .foregroundColor(ok ? .green : .white.opacity(0.75))
-            .cornerRadius(7)
+            .background(ok ? Color.green.opacity(0.16) : Color.white.opacity(0.06))
+            .foregroundColor(ok ? .green : .white.opacity(0.78))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(ok ? Color.green.opacity(0.35) : Color.white.opacity(0.1), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
     }

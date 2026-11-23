@@ -318,13 +318,21 @@ public struct XuanKongGridView: View {
     private func quickModuleSwitcherBar(active: AnalysisFeature) -> some View {
         let modules: [AnalysisFeature] = [.xuanKong, .baZhai, .sanHe, .qimen]
         return HStack(spacing: 6) {
-            Button(action: { selectedFeature = nil; cachedChart = nil }) {
+            Button(action: {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                selectedFeature = nil
+                cachedChart = nil
+            }) {
                 Image(systemName: "square.grid.2x2")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.yanCyan)
-                    .frame(width: 34, height: 34)
+                    .frame(width: 36, height: 36)
                     .background(Color.yanCyan.opacity(0.14))
-                    .cornerRadius(8)
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.yanCyan.opacity(0.35), lineWidth: 1)
+                    )
             }
             .buttonStyle(.plain)
             .accessibilityLabel(lang.t("analysis_back_menu"))
@@ -333,7 +341,10 @@ public struct XuanKongGridView: View {
                 HStack(spacing: 6) {
                     ForEach(modules) { item in
                         let isSelected = (item == active)
-                        Button(action: { openFeature(item) }) {
+                        Button(action: {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            openFeature(item)
+                        }) {
                             HStack(spacing: 4) {
                                 Image(systemName: item.symbol)
                                     .font(.system(size: 10, weight: .bold))
@@ -341,11 +352,25 @@ public struct XuanKongGridView: View {
                                     .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
                                     .lineLimit(1)
                             }
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 11)
                             .padding(.vertical, 8)
-                            .background(isSelected ? Color.yanGold : Color.white.opacity(0.08))
+                            .background(
+                                isSelected
+                                    ? AnyView(
+                                        LinearGradient(
+                                            colors: [Color(red: 0.98, green: 0.85, blue: 0.42), Color(red: 0.85, green: 0.68, blue: 0.22)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    : AnyView(Color.white.opacity(0.06))
+                            )
                             .foregroundColor(isSelected ? .black : .white.opacity(0.85))
-                            .cornerRadius(8)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(isSelected ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -483,26 +508,46 @@ public struct XuanKongGridView: View {
             // 双列快捷卡片网格：一屏总览全部 4 大计算模块，点击即入
             LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(allModules) { feature in
-                    Button(action: { openFeature(feature) }) {
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        openFeature(feature)
+                    }) {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 ZStack {
-                                    RoundedRectangle(cornerRadius: 9)
-                                        .fill(Color.yanCyan.opacity(0.16))
-                                        .frame(width: 34, height: 34)
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color.yanCyan.opacity(0.24), Color.yanCyan.opacity(0.08)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 36, height: 36)
                                     Image(systemName: feature.symbol)
                                         .font(.system(size: 16, weight: .bold))
                                         .foregroundColor(Color.yanCyan)
                                 }
                                 Spacer()
                                 if feature.requiresVIP {
-                                    Image(systemName: iap.hasUnlockedVIP ? "crown.fill" : "lock.fill")
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(Color.yanGold)
+                                    HStack(spacing: 3) {
+                                        Image(systemName: iap.hasUnlockedVIP ? "crown.fill" : "lock.fill")
+                                            .font(.system(size: 9, weight: .bold))
+                                        Text("PRO")
+                                            .font(.system(size: 9, weight: .black, design: .rounded))
+                                    }
+                                    .foregroundColor(Color.yanGold)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2.5)
+                                    .background(Color.yanGold.opacity(0.16))
+                                    .cornerRadius(6)
                                 } else {
                                     Image(systemName: "arrow.up.right")
                                         .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(.white.opacity(0.35))
+                                        .foregroundColor(.white.opacity(0.45))
+                                        .frame(width: 24, height: 24)
+                                        .background(Color.white.opacity(0.06))
+                                        .clipShape(Circle())
                                 }
                             }
 
@@ -518,12 +563,14 @@ public struct XuanKongGridView: View {
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
-                        .padding(12)
-                        .frame(maxWidth: .infinity, minHeight: 118, alignment: .topLeading)
-                        .background(Color.white.opacity(0.055))
-                        .cornerRadius(13)
+                        .padding(13)
+                        .frame(maxWidth: .infinity, minHeight: 122, alignment: .topLeading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color(red: 0.105, green: 0.115, blue: 0.15))
+                        )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 13)
+                            RoundedRectangle(cornerRadius: 14)
                                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
                         )
                     }

@@ -14,6 +14,7 @@ public struct CompassDialView: View {
     @State private var lastDragAngle: Double = 0.0
     @State private var hasDragStart: Bool = false
     @State private var currentDragDelta: Double = 0.0
+    @State private var lastHapticSector: Int? = nil
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
     
@@ -124,12 +125,20 @@ public struct CompassDialView: View {
                         if !hasDragStart {
                             hasDragStart = true
                             lastDragAngle = angle
+                            let total = motion.headingState.facingAngle
+                            lastHapticSector = Int(total / 15.0)
                         } else {
                             var stepDelta = angle - lastDragAngle
                             if stepDelta > 180 { stepDelta -= 360 }
                             if stepDelta < -180 { stepDelta += 360 }
                             currentDragDelta += stepDelta
                             lastDragAngle = angle
+                            let approxAngle = ((motion.headingState.facingAngle + currentDragDelta).truncatingRemainder(dividingBy: 360) + 360).truncatingRemainder(dividingBy: 360)
+                            let sector = Int(approxAngle / 15.0)
+                            if lastHapticSector != sector {
+                                lastHapticSector = sector
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            }
                         }
                     }
                     .onEnded { _ in
@@ -139,6 +148,7 @@ public struct CompassDialView: View {
                         lastDragAngle = 0
                         hasDragStart = false
                         currentDragDelta = 0
+                        lastHapticSector = nil
                     }
             )
             .simultaneousGesture(
@@ -165,67 +175,102 @@ public struct CompassDialView: View {
         }
     }
     
-    // MARK: - 盘面背景
+    // MARK: - 盘面背景（现代精密航空级深空钛金表盘）
     private func dialBackground(radius: CGFloat) -> some View {
         ZStack {
+            // 深空黑曜石径向渐变底盘
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color(red: 0.14, green: 0.14, blue: 0.18),
-                            Color(red: 0.08, green: 0.08, blue: 0.11),
-                            Color(red: 0.03, green: 0.03, blue: 0.04)
+                            Color(red: 0.11, green: 0.13, blue: 0.17),
+                            Color(red: 0.06, green: 0.07, blue: 0.095),
+                            Color(red: 0.03, green: 0.035, blue: 0.048)
                         ],
                         center: .center,
-                        startRadius: radius * 0.2,
+                        startRadius: radius * 0.18,
                         endRadius: radius
                     )
                 )
                 .frame(width: radius * 2, height: radius * 2)
-            
-            // 外圈金圈装饰
+                .shadow(color: Color.black.opacity(0.65), radius: 14, y: 6)
+
+            // 外圈精密拉丝钛金表圈
             Circle()
                 .stroke(
-                    LinearGradient(
+                    AngularGradient(
                         colors: [
-                            Color(red: 0.95, green: 0.85, blue: 0.45),
-                            Color(red: 0.65, green: 0.45, blue: 0.2),
-                            Color(red: 0.95, green: 0.85, blue: 0.45)
+                            Color.white.opacity(0.28),
+                            Color.yanCyan.opacity(0.32),
+                            Color.white.opacity(0.10),
+                            Color.yanGold.opacity(0.45),
+                            Color.white.opacity(0.28)
                         ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+                        center: .center
                     ),
-                    lineWidth: 3
+                    lineWidth: 2.5
                 )
                 .frame(width: radius * 2, height: radius * 2)
-            
+
+            // 内圈精细分隔发丝线（克制低饱和度，确保文字与刻度清晰可读）
             Circle()
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.35), lineWidth: 1)
-                .frame(width: radius * 1.82, height: radius * 1.82)
-            
+                .stroke(Color.yanCyan.opacity(0.16), lineWidth: 0.75)
+                .frame(width: radius * 1.84, height: radius * 1.84)
+
             Circle()
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.3), lineWidth: 1)
-                .frame(width: radius * 1.5, height: radius * 1.5)
-            
+                .stroke(Color.white.opacity(0.09), lineWidth: 0.75)
+                .frame(width: radius * 1.50, height: radius * 1.50)
+
             Circle()
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.3), lineWidth: 1)
-                .frame(width: radius * 0.92, height: radius * 0.92)
+                .stroke(Color.white.opacity(0.08), lineWidth: 0.75)
+                .frame(width: radius * 0.94, height: radius * 0.94)
         }
     }
     
-    // MARK: - 360 度外圈主刻度
+    // MARK: - 360 度精密航空级外圈主刻度（3° 细格 / 15° 中格 / 30° 数字与四正方位）
     private func degreeTicksLayer(radius: CGFloat, grow: CGFloat = 1.0) -> some View {
-        ForEach(0..<120) { i in
-            let angle = Double(i) * 3.0
-            let is10 = (i % 10 == 0)
-            let is30 = (i % 30 == 0)
+        ZStack {
+            ForEach(0..<120) { i in
+                let angle = Double(i) * 3.0
+                let isCardinal = (i % 30 == 0)
+                let is30 = (i % 10 == 0)
+                let is15 = (i % 5 == 0)
 
-            Rectangle()
-                .fill(is30 ? Color(red: 0.95, green: 0.85, blue: 0.45) : (is10 ? Color.white.opacity(0.8) : Color.white.opacity(0.35)))
-                .frame(width: (is30 ? 1.5 : (is10 ? 1.0 : 0.6)) * grow,
-                       height: (is30 ? 9.0 : (is10 ? 6.0 : 4.0)) * grow)
-                .offset(y: -radius + (is30 ? 4.5 : (is10 ? 3.0 : 2.0)) * grow)
-                .rotationEffect(.degrees(angle))
+                Rectangle()
+                    .fill(
+                        i == 0
+                            ? Color.yanGold
+                            : (isCardinal
+                                ? Color.yanCyan
+                                : (is30 ? Color.white.opacity(0.85) : (is15 ? Color.white.opacity(0.5) : Color.white.opacity(0.22))))
+                    )
+                    .frame(
+                        width: (isCardinal ? 2.0 : (is30 ? 1.4 : (is15 ? 1.0 : 0.6))) * grow,
+                        height: (isCardinal ? 11.0 : (is30 ? 8.5 : (is15 ? 6.0 : 3.5))) * grow
+                    )
+                    .offset(y: -radius + (isCardinal ? 5.5 : (is30 ? 4.25 : (is15 ? 3.0 : 1.75))) * grow)
+                    .rotationEffect(.degrees(angle))
+            }
+
+            // 30° 刻度数字与 N / E / S / W 四正主方位标识
+            ForEach(0..<12) { idx in
+                let deg = idx * 30
+                let label: String = {
+                    switch deg {
+                    case 0: return "N"
+                    case 90: return "E"
+                    case 180: return "S"
+                    case 270: return "W"
+                    default: return "\(deg)"
+                    }
+                }()
+                let isCardinal = (deg % 90 == 0)
+                Text(label)
+                    .font(.system(size: (isCardinal ? 10 : 7.5) * grow, weight: isCardinal ? .black : .semibold, design: .monospaced))
+                    .foregroundColor(deg == 0 ? Color.yanGold : (isCardinal ? Color.yanCyan : Color.white.opacity(0.65)))
+                    .offset(y: -radius + 17 * grow)
+                    .rotationEffect(.degrees(Double(deg)))
+            }
         }
     }
     
@@ -477,81 +522,107 @@ public struct CompassDialView: View {
         .allowsHitTesting(false)
     }
     
-    // MARK: - 天池海底红线
+    // MARK: - 光学蓝宝石中心仪芯（天池）
     private func tianChiLayer(radius: CGFloat) -> some View {
         ZStack {
             Circle()
-                .fill(Color(red: 0.04, green: 0.04, blue: 0.05))
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color(red: 0.08, green: 0.11, blue: 0.15),
+                            Color(red: 0.03, green: 0.04, blue: 0.06)
+                        ],
+                        center: .center,
+                        startRadius: 2,
+                        endRadius: radius
+                    )
+                )
                 .frame(width: radius * 2, height: radius * 2)
-            
+
             Circle()
-                .stroke(Color(red: 0.9, green: 0.75, blue: 0.35), lineWidth: 2)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.yanCyan.opacity(0.65), Color.yanGold.opacity(0.45)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
                 .frame(width: radius * 2, height: radius * 2)
-            
+
+            // 内圈精密参考环
+            Circle()
+                .stroke(Color.white.opacity(0.12), lineWidth: 0.75)
+                .frame(width: radius * 1.32, height: radius * 1.32)
+
+            // 细微南北基准线（低饱和青灰，避免刺眼红线）
             Rectangle()
-                .fill(Color.red.opacity(0.85))
-                .frame(width: 1.5, height: radius * 1.85)
-            
+                .fill(Color.yanCyan.opacity(0.35))
+                .frame(width: 1, height: radius * 1.75)
+
             Circle()
-                .fill(Color.red)
-                .frame(width: 5, height: 5)
-                .offset(y: -radius * 0.75)
+                .fill(Color.yanGold.opacity(0.85))
+                .frame(width: 4, height: 4)
+                .offset(y: -radius * 0.78)
             Circle()
-                .fill(Color.red)
-                .frame(width: 5, height: 5)
-                .offset(y: radius * 0.75)
+                .fill(Color.white.opacity(0.45))
+                .frame(width: 3.5, height: 3.5)
+                .offset(y: radius * 0.78)
         }
     }
     
-    // MARK: - 传统红蓝双色红宝石磁针 (Magnetic Needle)
+    // MARK: - 现代航空双刃磁针 (Magnetic Needle)
     private func magneticNeedleLayer(radius: CGFloat) -> some View {
         let center = radius
 
         return ZStack {
-            // 北端：传统罗盘以青/蓝色端指向地磁北。
+            // 北端：高亮冰蓝/青色指针指向地磁北
             Path { path in
                 path.move(to: CGPoint(x: center, y: center))
-                path.addLine(to: CGPoint(x: center - 3.5, y: center - radius * 0.8))
-                path.addLine(to: CGPoint(x: center, y: center - radius * 0.92))
-                path.addLine(to: CGPoint(x: center + 3.5, y: center - radius * 0.8))
+                path.addLine(to: CGPoint(x: center - 4.0, y: center - radius * 0.72))
+                path.addLine(to: CGPoint(x: center, y: center - radius * 0.94))
+                path.addLine(to: CGPoint(x: center + 4.0, y: center - radius * 0.72))
                 path.closeSubpath()
             }
             .fill(
                 LinearGradient(
-                    colors: [Color(red: 0.2, green: 0.5, blue: 0.9), Color(red: 0.1, green: 0.25, blue: 0.6)],
+                    colors: [Color.yanCyan, Color(red: 0.12, green: 0.42, blue: 0.78)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
             )
+            .shadow(color: Color.yanCyan.opacity(0.35), radius: 3)
             .frame(width: radius * 2, height: radius * 2)
             
-            // 南端：红色端与北端相反，避免把磁针读成反向。
+            // 南端：哑光赤红尾翼与北端形成清晰对比
             Path { path in
                 path.move(to: CGPoint(x: center, y: center))
-                path.addLine(to: CGPoint(x: center - 3.5, y: center + radius * 0.8))
-                path.addLine(to: CGPoint(x: center, y: center + radius * 0.92))
-                path.addLine(to: CGPoint(x: center + 3.5, y: center + radius * 0.8))
+                path.addLine(to: CGPoint(x: center - 3.5, y: center + radius * 0.72))
+                path.addLine(to: CGPoint(x: center, y: center + radius * 0.94))
+                path.addLine(to: CGPoint(x: center + 3.5, y: center + radius * 0.72))
                 path.closeSubpath()
             }
             .fill(
                 LinearGradient(
-                    colors: [Color(red: 0.95, green: 0.25, blue: 0.25), Color(red: 0.7, green: 0.1, blue: 0.1)],
+                    colors: [Color(red: 0.92, green: 0.30, blue: 0.28), Color(red: 0.55, green: 0.14, blue: 0.14)],
                     startPoint: .bottom,
                     endPoint: .top
                 )
             )
             .frame(width: radius * 2, height: radius * 2)
             
+            // 精密钛金轴心
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Color(red: 0.95, green: 0.85, blue: 0.5), Color(red: 0.6, green: 0.45, blue: 0.2)],
+                        colors: [Color.white, Color(red: 0.72, green: 0.76, blue: 0.82)],
                         center: .center,
                         startRadius: 0,
                         endRadius: 5
                     )
                 )
-                .frame(width: 10, height: 10)
+                .frame(width: 9, height: 9)
+                .overlay(Circle().stroke(Color.black.opacity(0.45), lineWidth: 1))
         }
         .frame(width: radius * 2, height: radius * 2)
         .allowsHitTesting(false)
@@ -595,20 +666,25 @@ public struct CompassDialView: View {
         .allowsHitTesting(false)
     }
     
-    // MARK: - 十字天心线
+    // MARK: - 精密十字准星线（不遮挡刻度文字）
     private func crosshairLayer(size: CGFloat) -> some View {
         ZStack {
             Rectangle()
-                .fill(Color.red.opacity(0.75))
-                .frame(width: 1, height: size * 0.96)
+                .fill(Color.white.opacity(0.14))
+                .frame(width: 0.75, height: size * 0.94)
             Rectangle()
-                .fill(Color.red.opacity(0.75))
-                .frame(width: size * 0.96, height: 1)
+                .fill(Color.white.opacity(0.14))
+                .frame(width: size * 0.94, height: 0.75)
+            // 顶部主准星高光线
+            Rectangle()
+                .fill(motion.isLocked ? Color.red.opacity(0.85) : Color.yanGold.opacity(0.85))
+                .frame(width: 1.5, height: 18)
+                .offset(y: -size * 0.44)
         }
         .allowsHitTesting(false)
     }
     
-    // MARK: - 水平仪双轴水泡
+    // MARK: - 水平仪双轴光学水泡
     private func levelBubbleLayer(center: CGPoint, maxRadius: CGFloat) -> some View {
         let maxOffset: CGFloat = maxRadius * 0.75
         let offsetX = max(-maxOffset, min(maxOffset, CGFloat(motion.roll) * 3.5))
@@ -617,22 +693,35 @@ public struct CompassDialView: View {
         
         return ZStack {
             Circle()
-                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                .stroke(isLevel ? Color.green.opacity(0.48) : Color.white.opacity(0.18), lineWidth: isLevel ? 1.25 : 0.85)
                 .frame(width: maxRadius * 1.2, height: maxRadius * 1.2)
             
             Circle()
-                .fill(isLevel ? Color.green.opacity(0.65) : Color.orange.opacity(0.65))
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            (isLevel ? Color.green : Color.orange).opacity(0.85),
+                            (isLevel ? Color.green : Color.orange).opacity(0.35)
+                        ],
+                        center: .topLeading,
+                        startRadius: 1,
+                        endRadius: 9
+                    )
+                )
                 .frame(width: 14, height: 14)
+                .overlay(Circle().stroke(Color.white.opacity(0.45), lineWidth: 0.6))
+                .shadow(color: (isLevel ? Color.green : Color.orange).opacity(0.45), radius: 4)
                 .offset(x: offsetX, y: offsetY)
                 .animation(.interactiveSpring(response: 0.1, dampingFraction: 0.8), value: offsetX)
         }
         .allowsHitTesting(false)
     }
     
-    // MARK: - 正北与正南顶针
+    // MARK: - 顶部主准星三角标（解锁琥珀金 / 锁定警示红）
     private func northSouthIndexLayer(radius: CGFloat) -> some View {
         let canvasSize = radius * 2 + 32
         let center = canvasSize / 2
+        let tint = motion.isLocked ? Color.red : Color.yanGold
 
         return ZStack {
             Path { path in
@@ -641,7 +730,8 @@ public struct CompassDialView: View {
                 path.addLine(to: CGPoint(x: center + 7, y: center - radius - 12))
                 path.closeSubpath()
             }
-            .fill(Color.red)
+            .fill(tint)
+            .shadow(color: tint.opacity(0.55), radius: 4)
         }
         .frame(width: canvasSize, height: canvasSize)
         .allowsHitTesting(false)

@@ -17,21 +17,23 @@ public struct CompassHeaderView: View {
         let palaceText = state.facingMountain.localizedPalace + lang.t("palace_suffix")
 
         VStack(spacing: 8) {
-            // 顶栏 1: 核心度数 + 坐向名(含副标题) 在左，按钮+宫位徽章在右，一行横排。
-            // 长译文(英/印尼/泰/越)用 ViewThatFits 兜底：一行放不下时退到两行堆叠。
-            Group {
+            // 顶栏 1: 玻璃态仪器主读数卡（度数 + 象限方位 + 坐向 + 复位/锁定）
+            VStack(spacing: 8) {
                 ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .center, spacing: 8) {
+                    HStack(alignment: .center, spacing: 10) {
                         degreeBlock(state: state)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(sitFacingText)
-                                .adaptiveFont(size: 18, weight: .bold, design: .serif)
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.6)
+                            HStack(spacing: 6) {
+                                cardinalPill(angle: state.facingAngle)
+                                Text(sitFacingText)
+                                    .adaptiveFont(size: 16, weight: .bold, design: .rounded)
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
+                            }
                             fenjinDescLine(state: state)
                         }
-                        Spacer(minLength: 8)
+                        Spacer(minLength: 6)
                         VStack(alignment: .trailing, spacing: 4) {
                             lockButtons
                             palaceBadge(text: palaceText)
@@ -40,12 +42,13 @@ public struct CompassHeaderView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(alignment: .center) {
                             degreeBlock(state: state)
+                            cardinalPill(angle: state.facingAngle)
                             Spacer()
                             lockButtons
                         }
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Text(sitFacingText)
-                                .adaptiveFont(size: 18, weight: .bold, design: .serif)
+                                .adaptiveFont(size: 16, weight: .bold, design: .rounded)
                                 .foregroundColor(.white)
                                 .lineLimit(2)
                                 .minimumScaleFactor(0.6)
@@ -56,26 +59,33 @@ public struct CompassHeaderView: View {
                         fenjinDescLine(state: state)
                     }
                 }
-            }
-            .padding(.horizontal, 16)
 
-            // 顶栏 2: 真太阳时与双轴倾角 (俯仰 / 横滚)，深色胶囊
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    solarTimeLabel
-                    Spacer(minLength: 8)
-                    pitchRollLabel
-                }
-                VStack(alignment: .leading, spacing: 3) {
-                    solarTimeLabel
-                    pitchRollLabel
+                Divider()
+                    .background(Color.white.opacity(0.08))
+
+                // 顶栏 2: 真太阳时与双轴倾角 (俯仰 / 横滚)
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        solarTimeLabel
+                        Spacer(minLength: 8)
+                        pitchRollLabel
+                    }
+                    VStack(alignment: .leading, spacing: 3) {
+                        solarTimeLabel
+                        pitchRollLabel
+                    }
                 }
             }
             .padding(.horizontal, 14)
-            .padding(.vertical, 5)
-            .frame(maxWidth: .infinity)
-            .background(Color.black.opacity(0.35))
-            .cornerRadius(8)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(red: 0.10, green: 0.11, blue: 0.145))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(motion.isLocked ? Color.yanGold.opacity(0.45) : Color.white.opacity(0.10), lineWidth: 1)
+            )
             .padding(.horizontal, 16)
         }
         // iPad 宽屏单列下顶部仪表会被拉得很宽，度数在左、按钮在右，中间一片空白；
@@ -104,29 +114,46 @@ public struct CompassHeaderView: View {
         }
     }
 
+    private func cardinalPill(angle: Double) -> some View {
+        let norm = (angle.truncatingRemainder(dividingBy: 360) + 360).truncatingRemainder(dividingBy: 360)
+        let dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+        let idx = Int(((norm + 22.5) / 45.0).truncatingRemainder(dividingBy: 8))
+        return Text(dirs[idx])
+            .adaptiveFont(size: 10.5, weight: .black, design: .monospaced)
+            .foregroundColor(.yanCyan)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Color.yanCyan.opacity(0.15))
+            .cornerRadius(5)
+    }
+
     private var lockButtons: some View {
         HStack(spacing: 8) {
             Button(action: {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 motion.resetManualOffset()
             }) {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
-                    .background(Color.white.opacity(0.12))
+                    .foregroundColor(.white.opacity(0.9))
+                    .frame(width: 40, height: 40)
+                    .background(Color.white.opacity(0.08))
                     .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.14), lineWidth: 1))
             }
             .accessibilityLabel(lang.t("btn_reset_heading"))
 
             Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 motion.toggleLock()
             }) {
                 Image(systemName: motion.isLocked ? "lock.fill" : "lock.open")
                     .adaptiveFont(size: 14, weight: .bold)
-                    .foregroundColor(motion.isLocked ? Color.yellow : Color.white)
-                    .frame(width: 44, height: 44)
-                    .background(motion.isLocked ? Color.yellow.opacity(0.25) : Color.white.opacity(0.12))
+                    .foregroundColor(motion.isLocked ? Color.yanGold : Color.white.opacity(0.9))
+                    .frame(width: 40, height: 40)
+                    .background(motion.isLocked ? Color.yanGold.opacity(0.22) : Color.white.opacity(0.08))
                     .clipShape(Circle())
+                    .overlay(Circle().stroke(motion.isLocked ? Color.yanGold.opacity(0.6) : Color.white.opacity(0.14), lineWidth: 1))
             }
             .accessibilityLabel(lang.t(motion.isLocked ? "locked_heading" : "lock_heading"))
         }
