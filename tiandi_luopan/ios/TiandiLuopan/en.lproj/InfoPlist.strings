@@ -1,11 +1,11 @@
 /* App Display Name */
-"CFBundleDisplayName" = "TianJi YanXiang";
-"CFBundleName" = "TianJi YanXiang";
+"CFBundleDisplayName" = "TianJi Space";
+"CFBundleName" = "TianJi Space";
 
 /* Privacy Descriptions */
-"NSLocationWhenInUseUsageDescription" = "TianJi YanXiang uses your location only when you enable orientation calibration to compute local magnetic declination and architectural facing reference.";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "TianJi YanXiang uses your location only when you enable orientation calibration to compute local magnetic declination and architectural facing reference.";
-"NSMotionUsageDescription" = "TianJi YanXiang uses motion sensors during AR spatial surveying and level calibration to measure device tilt and spatial alignment.";
-"NSCameraUsageDescription" = "TianJi YanXiang uses the camera for AR spatial measurement, LiDAR 3D room scanning, and on-site survey snapshots.";
-"NSPhotoLibraryAddUsageDescription" = "TianJi YanXiang needs permission to save floorplan reports and on-site survey snapshots to your photo library.";
-"NSPhotoLibraryUsageDescription" = "TianJi YanXiang needs photo library access to import floorplan blueprints and save spatial survey reports.";
+"NSLocationWhenInUseUsageDescription" = "TianJi Space uses your location only when you enable orientation calibration to compute local magnetic declination and architectural facing reference.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "TianJi Space uses your location only when you enable orientation calibration to compute local magnetic declination and architectural facing reference.";
+"NSMotionUsageDescription" = "TianJi Space uses motion sensors during AR spatial surveying and level calibration to measure device tilt and spatial alignment.";
+"NSCameraUsageDescription" = "TianJi Space uses the camera for AR spatial measurement, LiDAR 3D room scanning, and on-site survey snapshots.";
+"NSPhotoLibraryAddUsageDescription" = "TianJi Space needs permission to save floorplan reports and on-site survey snapshots to your photo library.";
+"NSPhotoLibraryUsageDescription" = "TianJi Space needs photo library access to import floorplan blueprints and save spatial survey reports.";

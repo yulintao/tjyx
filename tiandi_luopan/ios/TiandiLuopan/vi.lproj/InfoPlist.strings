@@ -1,11 +1,11 @@
 /* App Display Name */
-"CFBundleDisplayName" = "Thiên Cơ";
-"CFBundleName" = "Thiên Cơ";
+"CFBundleDisplayName" = "Thiên Cơ Space";
+"CFBundleName" = "Thiên Cơ Space";
 
 /* Privacy Descriptions */
-"NSLocationWhenInUseUsageDescription" = "Thiên Cơ Diễn Tượng chỉ sử dụng vị trí khi bạn bật hiệu chỉnh hướng để tính độ lệch từ và tham chiếu hướng kiến trúc.";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "Thiên Cơ Diễn Tượng chỉ sử dụng vị trí khi bạn bật hiệu chỉnh hướng để tính độ lệch từ và tham chiếu hướng kiến trúc.";
-"NSMotionUsageDescription" = "Thiên Cơ Diễn Tượng sử dụng cảm biến chuyển động khi đo đạc không gian AR và cân bằng mức ngang.";
-"NSCameraUsageDescription" = "Thiên Cơ Diễn Tượng cần quyền camera để đo khoảng cách AR, quét phòng 3D LiDAR và chụp ảnh khảo sát thực địa.";
-"NSPhotoLibraryAddUsageDescription" = "Thiên Cơ Diễn Tượng cần quyền lưu báo cáo mặt bằng và ảnh chụp khảo sát vào thư viện ảnh của bạn.";
-"NSPhotoLibraryUsageDescription" = "Thiên Cơ Diễn Tượng cần quyền truy cập thư viện ảnh để nhập bản vẽ mặt bằng và lưu báo cáo khảo sát không gian.";
+"NSLocationWhenInUseUsageDescription" = "Thiên Cơ Space chỉ sử dụng vị trí khi bạn bật hiệu chỉnh hướng để tính độ lệch từ và tham chiếu hướng kiến trúc.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Thiên Cơ Space chỉ sử dụng vị trí khi bạn bật hiệu chỉnh hướng để tính độ lệch từ và tham chiếu hướng kiến trúc.";
+"NSMotionUsageDescription" = "Thiên Cơ Space sử dụng cảm biến chuyển động khi đo đạc không gian AR và cân bằng mức ngang.";
+"NSCameraUsageDescription" = "Thiên Cơ Space cần quyền camera để đo khoảng cách AR, quét phòng 3D LiDAR và chụp ảnh khảo sát thực địa.";
+"NSPhotoLibraryAddUsageDescription" = "Thiên Cơ Space cần quyền lưu báo cáo mặt bằng và ảnh chụp khảo sát vào thư viện ảnh của bạn.";
+"NSPhotoLibraryUsageDescription" = "Thiên Cơ Space cần quyền truy cập thư viện ảnh để nhập bản vẽ mặt bằng và lưu báo cáo khảo sát không gian.";

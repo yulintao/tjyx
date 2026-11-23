@@ -640,7 +640,7 @@ public final class SpatialWorkflowStore: ObservableObject {
         let qm = QimenEngine.shared.calculateChart(date: date, heading: activeBearing)
 
         var lines: [String] = []
-        lines.append(isEn ? "=== TianJi Integrated Spatial & Calculation Report ===" : "=== 天机演象 · 空间测绘与方位计算综合报告 ===")
+        lines.append(isEn ? "=== TianJi Space Integrated Spatial & Calculation Report ===" : "=== 天机物设 · 空间测绘与方位计算综合报告 ===")
         lines.append((isEn ? "Generated: " : "生成时间：") + formatter.string(from: date))
         lines.append("")
 

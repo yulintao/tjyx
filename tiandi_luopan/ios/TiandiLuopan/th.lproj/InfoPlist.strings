@@ -1,6 +1,6 @@
 /* App Display Name */
-"CFBundleDisplayName" = "เทียนจี";
-"CFBundleName" = "เทียนจี";
+"CFBundleDisplayName" = "TianJi Space";
+"CFBundleName" = "TianJi Space";
 
 /* Privacy Descriptions */
 "NSLocationWhenInUseUsageDescription" = "เทียนจีใช้ข้อมูลตำแหน่งเฉพาะเมื่อคุณเปิดการปรับเทียบทิศทาง เพื่อคำนวณมุมเบี่ยงแม่เหล็กโลกและทิศทางอ้างอิงของอาคาร";

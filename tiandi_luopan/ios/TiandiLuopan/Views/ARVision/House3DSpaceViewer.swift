@@ -1553,7 +1553,7 @@ public enum SurveyReportRenderer {
             let dateStr = DateFormatter.localizedString(from: survey.timestamp, dateStyle: .medium, timeStyle: .short)
             switch lang {
             case .zhHans, .auto:
-                reportTitle = "天机演象 · 全屋 3D 空间测绘与形煞全息存证"
+                reportTitle = "天机物设 · 全屋 3D 空间测绘与结构存证"
                 subtitle = String(format: "测绘基准朝向: %.1f° · 空间得分: %d分 · 测绘时间: %@", survey.compassHeading, survey.fengshuiScore, dateStr)
                 dimsHeader = "【房屋全维物理测绘参数】"
                 dimsText = String(
@@ -1561,11 +1561,11 @@ public enum SurveyReportRenderer {
                     survey.dimensions.totalWidth, survey.dimensions.totalDepth, survey.dimensions.ceilingHeight, survey.dimensions.aspectRatio,
                     survey.dimensions.usableFloorArea, survey.dimensions.grossFloorArea, survey.walls.count, survey.openings.count
                 )
-                shaHeader = "【全屋形煞引擎体检结论与化解】"
-                remedyPrefix = "化解方案："
-                footerText = "天机演象 · AR/LiDAR 空间测绘参考（需现场复核）"
+                shaHeader = "【全屋空间环境核验结论与优化建议】"
+                remedyPrefix = "优化建议："
+                footerText = "天机物设 · AR/LiDAR 空间测绘参考（需现场复核）"
             case .zhHant:
-                reportTitle = "天機演象 · 全屋 3D 空間測繪與形煞全息存證"
+                reportTitle = "天機物設 · 全屋 3D 空間測繪與結構存證"
                 subtitle = String(format: "測繪基準朝向: %.1f° · 空間得分: %d分 · 測繪時間: %@", survey.compassHeading, survey.fengshuiScore, dateStr)
                 dimsHeader = "【房屋全維物理測繪參數】"
                 dimsText = String(
@@ -1573,11 +1573,11 @@ public enum SurveyReportRenderer {
                     survey.dimensions.totalWidth, survey.dimensions.totalDepth, survey.dimensions.ceilingHeight, survey.dimensions.aspectRatio,
                     survey.dimensions.usableFloorArea, survey.dimensions.grossFloorArea, survey.walls.count, survey.openings.count
                 )
-                shaHeader = "【全屋形煞引擎體檢結論與化解】"
-                remedyPrefix = "化解方案："
-                footerText = "天機演象 · AR/LiDAR 空間測繪參考（需現場複核）"
+                shaHeader = "【全屋空間環境核驗結論與優化建議】"
+                remedyPrefix = "優化建議："
+                footerText = "天機物設 · AR/LiDAR 空間測繪參考（需現場複核）"
             case .en:
-                reportTitle = "TianJi · 3D Spatial Survey & Feng Shui Audit"
+                reportTitle = "TianJi Space · 3D Spatial Survey & Architectural Audit"
                 subtitle = String(format: "Heading: %.1f° · Score: %d · Date: %@", survey.compassHeading, survey.fengshuiScore, dateStr)
                 dimsHeader = "[Physical Spatial Measurements]"
                 dimsText = String(
@@ -1585,11 +1585,11 @@ public enum SurveyReportRenderer {
                     survey.dimensions.totalWidth, survey.dimensions.totalDepth, survey.dimensions.ceilingHeight, survey.dimensions.aspectRatio,
                     survey.dimensions.usableFloorArea, survey.dimensions.grossFloorArea, survey.walls.count, survey.openings.count
                 )
-                shaHeader = "[Spatial Audit Findings & Remedies]"
-                remedyPrefix = "Remedy: "
-                footerText = "TianJi · AR/LiDAR Spatial Survey Reference (Verify on site)"
+                shaHeader = "[Spatial Audit Findings & Recommendations]"
+                remedyPrefix = "Recommendation: "
+                footerText = "TianJi Space · AR/LiDAR Spatial Survey Reference (Verify on site)"
             case .ja:
-                reportTitle = "天機演象・全屋3D空間測距＆風水診断レポート"
+                reportTitle = "天機物設・全室3D空間測距＆建築環境レポート"
                 subtitle = String(format: "基準方位: %.1f° ・ スコア: %d点 ・ 計測日時: %@", survey.compassHeading, survey.fengshuiScore, dateStr)
                 dimsHeader = "【住戸3D物理計測パラメータ】"
                 dimsText = String(
@@ -1597,11 +1597,11 @@ public enum SurveyReportRenderer {
                     survey.dimensions.totalWidth, survey.dimensions.totalDepth, survey.dimensions.ceilingHeight, survey.dimensions.aspectRatio,
                     survey.dimensions.usableFloorArea, survey.dimensions.grossFloorArea, survey.walls.count, survey.openings.count
                 )
-                shaHeader = "【空間風水診断結果と化殺対策】"
-                remedyPrefix = "対策："
-                footerText = "天機演象・AR/LiDAR空間計測リファレンス（要現地確認）"
+                shaHeader = "【空間環境チェック結果と改善提案】"
+                remedyPrefix = "改善提案："
+                footerText = "天機物設・AR/LiDAR空間計測リファレンス（要現地確認）"
             case .ko:
-                reportTitle = "천기연상 · 전실 3D 공간 측량 및 풍수 진단 보고서"
+                reportTitle = "천기물설 · 전실 3D 공간 측량 및 건축 환경 보고서"
                 subtitle = String(format: "기준 향: %.1f° · 공간 점수: %d점 · 측량 일시: %@", survey.compassHeading, survey.fengshuiScore, dateStr)
                 dimsHeader = "【주택 물리 측량 파라미터】"
                 dimsText = String(
@@ -1609,11 +1609,11 @@ public enum SurveyReportRenderer {
                     survey.dimensions.totalWidth, survey.dimensions.totalDepth, survey.dimensions.ceilingHeight, survey.dimensions.aspectRatio,
                     survey.dimensions.usableFloorArea, survey.dimensions.grossFloorArea, survey.walls.count, survey.openings.count
                 )
-                shaHeader = "【전실 형살 진단 결과 및 비보책】"
-                remedyPrefix = "해결 방안: "
-                footerText = "천기연상 · AR/LiDAR 공간 측량 참고 (현장 확인 권장)"
+                shaHeader = "【전실 공간 환경 점검 결과 및 개선안】"
+                remedyPrefix = "개선 방안: "
+                footerText = "천기물설 · AR/LiDAR 공간 측량 참고 (현장 확인 권장)"
             case .vi:
-                reportTitle = "Thiên Cơ · Báo Cáo Đo Đạc 3D & Thẩm Định Phong Thủy"
+                reportTitle = "Thiên Cơ Space · Báo Cáo Đo Đạc 3D & Môi Trường Kiến Trúc"
                 subtitle = String(format: "Hướng chuẩn: %.1f° · Điểm: %d · Thời gian: %@", survey.compassHeading, survey.fengshuiScore, dateStr)
                 dimsHeader = "[Thông Số Đo Đạc Không Gian]"
                 dimsText = String(

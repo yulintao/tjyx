@@ -1406,21 +1406,21 @@ public struct CelestialDateSelectionView: View {
         let signBtn: String
         switch lang.effectiveLanguage {
         case .en:
-            prevLabel = "-1d"; nextLabel = "+1d"; nowLabel = "Now"; signBtn = "Sign Card"
+            prevLabel = "-1d"; nextLabel = "+1d"; nowLabel = "Now"; signBtn = "Export Card"
         case .zhHant:
-            prevLabel = "前一日"; nextLabel = "後一日"; nowLabel = "回到今日"; signBtn = "生成吉籤"
+            prevLabel = "前一日"; nextLabel = "後一日"; nowLabel = "回到今日"; signBtn = "匯出曆法卡"
         case .ja:
-            prevLabel = "前日"; nextLabel = "翌日"; nowLabel = "今日へ"; signBtn = "吉籤作成"
+            prevLabel = "前日"; nextLabel = "翌日"; nowLabel = "今日へ"; signBtn = "暦法カード"
         case .ko:
-            prevLabel = "-1일"; nextLabel = "+1일"; nowLabel = "오늘"; signBtn = "길첨카드"
+            prevLabel = "-1일"; nextLabel = "+1일"; nowLabel = "오늘"; signBtn = "달력 카드"
         case .vi:
-            prevLabel = "-1 ngày"; nextLabel = "+1 ngày"; nowLabel = "Hôm nay"; signBtn = "Thẻ Cát"
+            prevLabel = "-1 ngày"; nextLabel = "+1 ngày"; nowLabel = "Hôm nay"; signBtn = "Xuất thẻ lịch"
         case .th:
-            prevLabel = "-1 วัน"; nextLabel = "+1 วัน"; nowLabel = "วันนี้"; signBtn = "การ์ดมงคล"
+            prevLabel = "-1 วัน"; nextLabel = "+1 วัน"; nowLabel = "วันนี้"; signBtn = "ส่งออกการ์ด"
         case .id:
-            prevLabel = "-1 hr"; nextLabel = "+1 hr"; nowLabel = "Hari Ini"; signBtn = "Kartu Hoki"
+            prevLabel = "-1 hr"; nextLabel = "+1 hr"; nowLabel = "Hari Ini"; signBtn = "Ekspor Kartu"
         case .auto, .zhHans:
-            prevLabel = "前一日"; nextLabel = "后一日"; nowLabel = "回到今日"; signBtn = "生成吉签"
+            prevLabel = "前一日"; nextLabel = "后一日"; nowLabel = "回到今日"; signBtn = "导出历法卡"
         }
 
         return VStack(alignment: .leading, spacing: 8) {
@@ -1825,7 +1825,7 @@ public struct CelestialDateSelectionView: View {
         case .en:
             return "You previously chose 'Don't Allow' for notifications. iOS requires you to enable notifications in the Settings app. Please go to Settings to enable alerts for auspicious days."
         case .zhHant:
-            return "檢測到您之前點擊了「不允許」通知，iOS 系統限制應用無法再次直接彈窗請求授權。請前往系統「設定」中為「天機演象」開啟通知權限，以便接收黃道吉日提醒。"
+            return "檢測到您之前點擊了「不允許」通知，iOS 系統限制應用無法再次直接彈窗請求授權。請前往系統「設定」中為「天機物設」開啟通知權限，以便接收節氣提醒。"
         case .ja:
             return "以前「許可しない」を選択されたため、iOSの制約によりアプリ内から再要求できません。「設定」アプリを開き、天地羅盤の通知をオンにして吉日リマインダーを受け取れるようにしてください。"
         case .ko:
@@ -1837,7 +1837,7 @@ public struct CelestialDateSelectionView: View {
         case .id:
             return "Anda sebelumnya memilih 'Jangan Izinkan' notifikasi. Silakan buka 'Pengaturan' perangkat dan aktifkan notifikasi untuk menerima pengingat hari baik."
         case .auto, .zhHans:
-            return "检测到您之前点击了「不允许」通知，iOS 系统限制应用无法再次直接弹窗请求授权。请前往系统「设置」中为「天机演象」开启通知权限，以便接收黄道吉日提醒。"
+            return "检测到您之前点击了「不允许」通知，iOS 系统限制应用无法再次直接弹窗请求授权。请前往系统「设置」中为「天机物设」开启通知权限，以便接收节气提醒。"
         }
     }
 
@@ -2968,7 +2968,7 @@ public struct EditOwnerKuaDialog: View {
         let huoHai = chart.items.first(where: { $0.star == .huoHai })?.localizedDirection ?? "-"
         switch lang.effectiveLanguage {
         case .en:
-            return "Fatal:\(jueMing) · Ghost:\(wuGui) · Mishap:\(huoHai)"
+            return "JueMing:\(jueMing) · WuGui:\(wuGui) · LiuSha:\(liuSha) · HuoHai:\(huoHai)"
         default:
             return "绝命:\(jueMing) · 五鬼:\(wuGui) · 六煞:\(liuSha) · 祸害:\(huoHai)"
         }

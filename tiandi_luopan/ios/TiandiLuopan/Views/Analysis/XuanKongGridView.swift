@@ -611,37 +611,28 @@ public struct XuanKongGridView: View {
         }
     }
 
-    // MARK: - P0.1 常驻立极坐向锁定与 24 山手选控制栏 + 今日吉签入口
+    // MARK: - P0.1 常驻立极坐向锁定与 24 山手选控制栏
     private func sittingControlHeader() -> some View {
         let usesHome = (selectedFeature == .xuanKong || selectedFeature == nil) && analyzeHome && homeFacing != nil
         let state = usesHome ? analysisHeading : motion.headingState
         let pickLabel: String
-        let signLabel: String
         switch lang.effectiveLanguage {
         case .en:
             pickLabel = "Pick 24 Mountains"
-            signLabel = "Daily Sign"
         case .zhHant:
             pickLabel = "手選24山"
-            signLabel = "今日吉籤"
         case .ja:
             pickLabel = "24山選択"
-            signLabel = "本日吉籤"
         case .ko:
             pickLabel = "24산 선택"
-            signLabel = "오늘 길첨"
         case .vi:
             pickLabel = "Chọn 24 Sơn"
-            signLabel = "Thẻ Cát"
         case .th:
             pickLabel = "เลือก 24 ขุนเขา"
-            signLabel = "เซียมซี"
         case .id:
             pickLabel = "Pilih 24 Gunung"
-            signLabel = "Kartu Hoki"
         case .auto, .zhHans:
             pickLabel = "手选24山"
-            signLabel = "今日吉签"
         }
 
         return HStack(spacing: 8) {

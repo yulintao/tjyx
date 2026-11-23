@@ -1,11 +1,11 @@
 /* App Display Name */
-"CFBundleDisplayName" = "天機演象";
-"CFBundleName" = "天機演象";
+"CFBundleDisplayName" = "天機物設";
+"CFBundleName" = "天機物設";
 
 /* Privacy Descriptions */
-"NSLocationWhenInUseUsageDescription" = "天機演象は方位校正を有効にした場合のみ位置情報を使用し、磁気偏角と建築方位の参考値を算出します。";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "天機演象は方位校正を有効にした場合のみ位置情報を使用し、磁気偏角と建築方位の参考値を算出します。";
-"NSMotionUsageDescription" = "天機演象は AR 空間測量および水平校正時にモーションセンサーを使用し、端末の傾きと空間姿勢を表示します。";
-"NSCameraUsageDescription" = "天機演象は AR 実景空間計測、LiDAR 3D ルームスキャン、現地測量スナップショットのためにカメラを使用します。";
-"NSPhotoLibraryAddUsageDescription" = "天機演象は間取り分析レポートや現地測量スナップショットを写真ライブラリに保存するために権限を使用します。";
-"NSPhotoLibraryUsageDescription" = "天機演象は間取り図面の読み込みおよび空間測量レポートの保存のために写真ライブラリへアクセスします。";
+"NSLocationWhenInUseUsageDescription" = "天機物設は方位校正を有効にした場合のみ位置情報を使用し、磁気偏角と建築方位の参考値を算出します。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "天機物設は方位校正を有効にした場合のみ位置情報を使用し、磁気偏角と建築方位の参考値を算出します。";
+"NSMotionUsageDescription" = "天機物設は AR 空間測量および水平校正時にモーションセンサーを使用し、端末の傾きと空間姿勢を表示します。";
+"NSCameraUsageDescription" = "天機物設は AR 実景空間計測、LiDAR 3D ルームスキャン、現地測量スナップショットのためにカメラを使用します。";
+"NSPhotoLibraryAddUsageDescription" = "天機物設は間取り分析レポートや現地測量スナップショットを写真ライブラリに保存するために権限を使用します。";
+"NSPhotoLibraryUsageDescription" = "天機物設は間取り図面の読み込みおよび空間測量レポートの保存のために写真ライブラリへアクセスします。";

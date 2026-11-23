@@ -195,15 +195,15 @@ enum SettingsLocalizationHelpers {
 
     static func rateAppTitle(_ lang: LocalizationManager) -> String {
         switch lang.effectiveLanguage {
-        case .zhHans: return "为「天机演象」评分鼓励"
-        case .zhHant: return "為「天機演象」評分鼓勵"
-        case .en: return "Rate Tiandi Luopan"
+        case .zhHans: return "为「天机物设」评分鼓励"
+        case .zhHant: return "為「天機物設」評分鼓勵"
+        case .en: return "Rate TianJi Space"
         case .ja: return "アプリを評価して応援する"
         case .ko: return "앱 평가하기"
         case .vi: return "Đánh Giá Ứng Dụng"
         case .th: return "ให้คะแนนแอป"
         case .id: return "Beri Nilai Aplikasi"
-        default: return "为「天机演象」评分鼓励"
+        default: return "为「天机物设」评分鼓励"
         }
     }
 
@@ -259,7 +259,7 @@ enum SettingsLocalizationHelpers {
         case .en:
             return "You previously chose 'Don't Allow' for notifications. iOS requires you to enable notifications in the Settings app. Please go to Settings to enable alerts for 24 solar terms and monthly Flying Stars."
         case .zhHant:
-            return "檢測到您之前點擊了「不允許」通知，iOS 系統限制應用無法再次直接彈窗請求授權。請前往系統「設定」中為「天機演象」開啟通知權限，以便及時接收二十四節氣交節與九星換月提醒。"
+            return "檢測到您之前點擊了「不允許」通知，iOS 系統限制應用無法再次直接彈窗請求授權。請前往系統「設定」中為「天機物設」開啟通知權限，以便及時接收二十四節氣交節提醒。"
         case .ja:
             return "以前「許可しない」を選択されたため、iOSの制約によりアプリ内から再要求できません。「設定」アプリを開き、天地羅盤の通知をオンにして節気交節や九星換月の通知を受け取れるようにしてください。"
         case .ko:
@@ -271,7 +271,7 @@ enum SettingsLocalizationHelpers {
         case .id:
             return "Anda sebelumnya memilih 'Jangan Izinkan' notifikasi. Silakan buka 'Pengaturan' perangkat dan aktifkan notifikasi untuk menerima pengingat pergantian musim dan Bintang Terbang."
         case .auto, .zhHans:
-            return "检测到您之前点击了「不允许」通知，iOS 系统限制应用无法再次直接弹窗请求授权。请前往系统「设置」中为「天机演象」开启通知权限，以便及时接收二十四节气交节与九星换月提醒。"
+            return "检测到您之前点击了「不允许」通知，iOS 系统限制应用无法再次直接弹窗请求授权。请前往系统「设置」中为「天机物设」开启通知权限，以便及时接收二十四节气交节提醒。"
         }
     }
 
@@ -552,15 +552,15 @@ public struct SettingsView: View {
 
     private var userHeaderSubtitle: String {
         switch lang.effectiveLanguage {
-        case .zhHans: return "天机演象 · 空间测绘与三维户型分析"
-        case .zhHant: return "天機演象 · 空間測繪與三維戶型分析"
-        case .en: return "TianJi · Spatial Survey & 3D Floorplan"
-        case .ja: return "天機演象 · 空間測量と 3D 間取り分析"
-        case .ko: return "천기연상 · 공간 측량 및 3D 평면도 분석"
-        case .vi: return "Thiên Cơ · Khảo Sát Không Gian & 3D"
+        case .zhHans: return "天机物设 · 空间测绘与三维户型分析"
+        case .zhHant: return "天機物設 · 空間測繪與三維戶型分析"
+        case .en: return "TianJi Space · Spatial Survey & 3D Floorplan"
+        case .ja: return "天機物設 · 空間測量と 3D 間取り分析"
+        case .ko: return "천기물설 · 공간 측량 및 3D 평면도 분석"
+        case .vi: return "Thiên Cơ Space · Khảo Sát Không Gian & 3D"
         case .th: return "สำรวจพื้นที่และวิเคราะห์ผังอาคาร 3D"
-        case .id: return "TianJi · Survei Spasial & Denah 3D"
-        default: return "天机演象 · 空间测绘与三维户型分析"
+        case .id: return "TianJi Space · Survei Spasial & Denah 3D"
+        default: return "天机物设 · 空间测绘与三维户型分析"
         }
     }
 
@@ -1358,15 +1358,15 @@ public struct AboutPageView: View {
 
     private var appNameTitle: String {
         switch lang.effectiveLanguage {
-        case .zhHans: return "天机演象 · 空间测绘"
-        case .zhHant: return "天機演象 · 空間測繪"
-        case .en: return "TianJi Spatial"
-        case .ja: return "天機演象 · 空間測量"
-        case .ko: return "천기연상 · 공간 측량"
-        case .vi: return "Thiên Cơ · Không Gian 3D"
-        case .th: return "TianJi Spatial"
-        case .id: return "TianJi Spatial"
-        default: return "天机演象 · 空间测绘"
+        case .zhHans: return "天机物设 · 空间测绘"
+        case .zhHant: return "天機物設 · 空間測繪"
+        case .en: return "TianJi Space"
+        case .ja: return "天機物設 · 空間測量"
+        case .ko: return "천기물설 · 공간 측량"
+        case .vi: return "Thiên Cơ Space · Không Gian 3D"
+        case .th: return "TianJi Space"
+        case .id: return "TianJi Space"
+        default: return "天机物设 · 空间测绘"
         }
     }
 

@@ -3597,28 +3597,28 @@ public struct FloorplanView: View {
         let reportSubHeadline: String
         switch lang.effectiveLanguage {
         case .en:
-            reportMainTitle = "TianJi · Spatial Floorplan & Layout Report"
+            reportMainTitle = "TianJi Space · Spatial Floorplan & Layout Report"
             reportSubHeadline = "Architectural Geometry · Orientation & Zoning Reference"
         case .zhHant:
-            reportMainTitle = "天機演象 · 戶型空間測繪與佈局報告"
+            reportMainTitle = "天機物設 · 戶型空間測繪與佈局報告"
             reportSubHeadline = "建築幾何分區 · 朝向採光與動線參考"
         case .ja:
-            reportMainTitle = "天機演象・間取り空間測量＆レイアウト報告書"
+            reportMainTitle = "天機物設・間取り空間測量＆レイアウト報告書"
             reportSubHeadline = "建築幾何・方位採光および動線リファレンス"
         case .ko:
-            reportMainTitle = "천기연상 · 평면도 공간 측량 및 배치 보고서"
+            reportMainTitle = "천기물설 · 평면도 공간 측량 및 배치 보고서"
             reportSubHeadline = "건축 기하학 · 방위 채광 및 동선 참고"
         case .vi:
-            reportMainTitle = "Thiên Cơ · Báo Cáo Khảo Sát & Bố Cục Mặt Bằng"
+            reportMainTitle = "Thiên Cơ Space · Báo Cáo Khảo Sát & Bố Cục Mặt Bằng"
             reportSubHeadline = "Hình học kiến trúc · Tham khảo hướng & phân khu"
         case .th:
-            reportMainTitle = "รายงานสำรวจพื้นที่และผังอาคาร"
+            reportMainTitle = "TianJi Space · รายงานสำรวจพื้นที่และผังอาคาร"
             reportSubHeadline = "เรขาคณิตสถาปัตยกรรม · ทิศทางและแสงธรรมชาติ"
         case .id:
-            reportMainTitle = "TianJi · Laporan Survei Spasial & Denah"
+            reportMainTitle = "TianJi Space · Laporan Survei Spasial & Denah"
             reportSubHeadline = "Geometri Arsitektur · Referensi Orientasi & Zonasi"
         case .auto, .zhHans:
-            reportMainTitle = "天机演象 · 户型空间测绘与布局报告"
+            reportMainTitle = "天机物设 · 户型空间测绘与布局报告"
             reportSubHeadline = "建筑几何分区 · 朝向采光与动线参考"
         }
         let subText = String(format: "%.1f° · %d %@", state.facingAngle, roomsToDraw.count, lang.t("3d_btn_rooms"))

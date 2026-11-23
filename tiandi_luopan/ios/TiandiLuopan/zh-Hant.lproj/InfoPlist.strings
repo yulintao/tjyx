@@ -1,11 +1,11 @@
 /* App Display Name */
-"CFBundleDisplayName" = "天機演象";
-"CFBundleName" = "天機演象";
+"CFBundleDisplayName" = "天機物設";
+"CFBundleName" = "天機物設";
 
 /* Privacy Descriptions */
-"NSLocationWhenInUseUsageDescription" = "天機演象僅在您主動啟用方位校正時讀取位置，用於本機地磁偏角與建築朝向參考計算。";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "天機演象僅在您主動啟用方位校正時讀取位置，用於本機地磁偏角與建築朝向參考計算。";
-"NSMotionUsageDescription" = "天機演象僅在 AR 空間測繪和水平校準使用時讀取運動感測器，用於本機空間姿態與水平參考顯示。";
-"NSCameraUsageDescription" = "天機演象需要使用相機以提供 AR 實景空間測量、LiDAR 三維掃房與現場測繪快照功能。";
-"NSPhotoLibraryAddUsageDescription" = "天機演象需要將戶型分析長圖與現場測繪快照保存至您的相簿。";
-"NSPhotoLibraryUsageDescription" = "天機演象需要存取相簿以匯入戶型圖紙，並保存空間測繪分析長圖與現場快照。";
+"NSLocationWhenInUseUsageDescription" = "天機物設僅在您主動啟用方位校正時讀取位置，用於本機地磁偏角與建築朝向參考計算。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "天機物設僅在您主動啟用方位校正時讀取位置，用於本機地磁偏角與建築朝向參考計算。";
+"NSMotionUsageDescription" = "天機物設僅在 AR 空間測繪和水平校準使用時讀取運動感測器，用於本機空間姿態與水平參考顯示。";
+"NSCameraUsageDescription" = "天機物設需要使用相機以提供 AR 實景空間測量、LiDAR 三維掃房與現場測繪快照功能。";
+"NSPhotoLibraryAddUsageDescription" = "天機物設需要將戶型分析長圖與現場測繪快照保存至您的相簿。";
+"NSPhotoLibraryUsageDescription" = "天機物設需要存取相簿以匯入戶型圖紙，並保存空間測繪分析長圖與現場快照。";

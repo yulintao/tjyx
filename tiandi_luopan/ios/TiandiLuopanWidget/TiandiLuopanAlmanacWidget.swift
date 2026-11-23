@@ -50,7 +50,7 @@ struct TiandiLuopanAlmanacWidget: Widget {
     let kind: String = "TiandiLuopanAlmanacWidget"
 
     var body: some WidgetConfiguration {
-        let displayName: String = "天机演象 · \(WidgetText.term.string())"
+        let displayName: String = "天机物设 · \(WidgetText.term.string())"
         let summary: String = "\(WidgetText.term.string())"
         return StaticConfiguration(kind: kind, provider: AlmanacProvider()) { entry in
             AlmanacWidgetRootView(entry: entry)

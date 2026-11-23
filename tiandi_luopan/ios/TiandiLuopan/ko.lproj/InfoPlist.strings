@@ -1,11 +1,11 @@
 /* App Display Name */
-"CFBundleDisplayName" = "천기연상";
-"CFBundleName" = "천기연상";
+"CFBundleDisplayName" = "천기물설";
+"CFBundleName" = "천기물설";
 
 /* Privacy Descriptions */
-"NSLocationWhenInUseUsageDescription" = "천기연상은 방위 보정을 활성화한 경우에만 위치 정보를 사용하여 자기 편각과 건축 방위 기준값을 계산합니다.";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "천기연상은 방위 보정을 활성화한 경우에만 위치 정보를 사용하여 자기 편각과 건축 방위 기준값을 계산합니다.";
-"NSMotionUsageDescription" = "천기연상은 AR 공간 측량 및 수평 보정 시 모션 센서를 사용하여 기기 기울기와 공간 자세를 표시합니다.";
-"NSCameraUsageDescription" = "천기연상은 AR 실경 공간 측정, LiDAR 3D 실내 스캔 및 현장 측량 스냅샷 촬영을 위해 카메라를 사용합니다.";
-"NSPhotoLibraryAddUsageDescription" = "천기연상은 평면도 분석 보고서 및 현장 측량 스냅샷을 사진 보관함에 저장하기 위해 권한을 요청합니다.";
-"NSPhotoLibraryUsageDescription" = "천기연상은 평면도 도면 가져오기 및 공간 측량 보고서 저장을 위해 사진 보관함에 접근합니다.";
+"NSLocationWhenInUseUsageDescription" = "천기물설은 방위 보정을 활성화한 경우에만 위치 정보를 사용하여 자기 편각과 건축 방위 기준값을 계산합니다.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "천기물설은 방위 보정을 활성화한 경우에만 위치 정보를 사용하여 자기 편각과 건축 방위 기준값을 계산합니다.";
+"NSMotionUsageDescription" = "천기물설은 AR 공간 측량 및 수평 보정 시 모션 센서를 사용하여 기기 기울기와 공간 자세를 표시합니다.";
+"NSCameraUsageDescription" = "천기물설은 AR 실경 공간 측정, LiDAR 3D 실내 스캔 및 현장 측량 스냅샷 촬영을 위해 카메라를 사용합니다.";
+"NSPhotoLibraryAddUsageDescription" = "천기물설은 평면도 분석 보고서 및 현장 측량 스냅샷을 사진 보관함에 저장하기 위해 권한을 요청합니다.";
+"NSPhotoLibraryUsageDescription" = "천기물설은 평면도 도면 가져오기 및 공간 측량 보고서 저장을 위해 사진 보관함에 접근합니다.";
