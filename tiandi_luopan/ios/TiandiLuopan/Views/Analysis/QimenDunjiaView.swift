@@ -87,11 +87,18 @@ public struct QimenDunjiaView: View {
             // 3x3 奇门九宫方阵（天地人神四盘确定性排盘矩阵，点击任意宫位查看参数详情）
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
                 ForEach(chart.cells) { cell in
-                    let activeId = selectedPalaceId ?? 4
+                    // 默认选中中宫(4)会被右栏 isTaiJiCenter 判定隐藏 → 首屏「点了没反应」。
+                    // 改默认选中一个非中宫宫位，保证右栏详情始终有内容。
+                    let activeId = selectedPalaceId ?? 0
                     qimenCellView(cell: cell, isSelected: cell.palaceId == activeId)
+                        .contentShape(Rectangle())
                         .onTapGesture {
-                            selectedPalaceId = cell.palaceId
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                selectedPalaceId = cell.palaceId
+                            }
                         }
+                        .accessibilityLabel("\(cell.localizedPalaceName)宫，点击查看四盘参数")
                 }
             }
             // 分栏时铺满左栏（两栏已按有效宽度分配），单列宽屏仍 580、手机全宽
@@ -140,7 +147,7 @@ public struct QimenDunjiaView: View {
                 )
                 .padding(.horizontal, 16)
 
-                if let activeCell = chart.cells.first(where: { $0.palaceId == (selectedPalaceId ?? 4) }), !activeCell.isTaiJiCenter {
+                if let activeCell = chart.cells.first(where: { $0.palaceId == (selectedPalaceId ?? 0) }), !activeCell.isTaiJiCenter {
                     let doorObj = QimenDoor(name: activeCell.doorName, palace: activeCell.palaceId, isAuspicious: activeCell.isDoorAuspicious, luckType: activeCell.doorLuck, lore: "")
                     VStack(alignment: .leading, spacing: 9) {
                         HStack(spacing: 6) {
@@ -286,23 +293,23 @@ public struct QimenDunjiaView: View {
 
     private func qimenStepButton(title: String, hours: Int) -> some View {
         Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             let base = isUsingCustomDate ? selectedDate : Date()
             selectedDate = Calendar.current.date(byAdding: .hour, value: hours, to: base) ?? base
             isUsingCustomDate = true
             refreshChart(force: true)
         }) {
             Text(title)
-                .adaptiveFont(size: 10, weight: .semibold)
+                .adaptiveFont(size: DS.minBodyFont, weight: .semibold)
                 .lineLimit(1)
-                .minimumScaleFactor(0.75)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 4)
+                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
+                .padding(.horizontal, DS.padS)
                 .background(Color.white.opacity(0.08))
                 .foregroundColor(.white.opacity(0.9))
-                .cornerRadius(7)
+                .cornerRadius(DS.radiusS)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
     }
 
     private func refreshChart(force: Bool = false) {
@@ -503,7 +510,7 @@ public struct QimenDunjiaView: View {
                 }
                 .adaptiveFont(size: 12, weight: .bold)
                 .padding(.vertical, 8)
-                .background(Color(red: 0.83, green: 0.68, blue: 0.21))
+                .background(Color.goldDeep)
                 .foregroundColor(.black)
                 .cornerRadius(8)
             }

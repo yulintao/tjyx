@@ -297,7 +297,7 @@ public struct TianJiShuView: View {
                         message: saveErrorMessage ?? lang.t("save_failed"),
                         confirmTitle: showPhotoSettings ? lang.t("open_system_settings") : lang.t("done"),
                         cancelTitle: showPhotoSettings ? lang.t("done") : nil,
-                        confirmColor: Color(red: 0.83, green: 0.68, blue: 0.21),
+                        confirmColor: Color.goldDeep,
                         onConfirm: {
                             showSaveError = false
                             if showPhotoSettings,
@@ -438,7 +438,7 @@ public struct TianJiShuView: View {
                         .adaptiveFont(size: 11, weight: .bold)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 7)
-                        .background(Color(red: 0.83, green: 0.68, blue: 0.21))
+                        .background(Color.goldDeep)
                         .foregroundColor(.black)
                         .cornerRadius(6)
                     }

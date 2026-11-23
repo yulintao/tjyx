@@ -45,38 +45,56 @@ struct FamilyRoomAllocationSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: DS.padM) {
             HStack {
                 Label(lang.t("fra_title"), systemImage: "person.2.fill")
-                    .font(.system(size: 14, weight: .semibold))
+                    .adaptiveFont(size: 14, weight: .semibold)
                 Spacer()
-                Text(lang.t("fra_membership"))
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.yellow)
+                // VIP 徽章卡片化：锁图标 + 描边，明确这是可点的会员入口
+                HStack(spacing: 4) {
+                    Image(systemName: "lock.circle.fill")
+                    Text(lang.t("fra_membership"))
+                }
+                .adaptiveFont(size: DS.minBodyFont, weight: .bold)
+                .foregroundColor(.goldText)
+                .padding(.horizontal, DS.padS)
+                .padding(.vertical, 4)
+                .background(Color.goldPrimary.opacity(0.14))
+                .cornerRadius(DS.radiusS)
+                .overlay(RoundedRectangle(cornerRadius: DS.radiusS).stroke(Color.strokeGold, lineWidth: 1))
             }
             if !iap.canUseFamilyRoomAllocation {
                 Text(lang.t("fra_paywall"))
-                    .font(.system(size: 12)).foregroundColor(.white.opacity(0.7))
+                    .adaptiveFont(size: 12).foregroundColor(.white.opacity(0.7))
                 Button(lang.t("fra_unlock")) { showPaywall = true }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(DSPrimaryButtonStyle())
             } else if !profile.isProfileEnabled {
                 Button(lang.t("fra_add_family")) { showProfiles = true }
+                    .buttonStyle(DSPrimaryButtonStyle())
             } else {
                 Toggle(lang.t("fra_show_labels"), isOn: $showLabels)
-                    .font(.system(size: 12))
-                HStack {
+                    .adaptiveFont(size: 12)
+                HStack(spacing: DS.padS) {
                     Button(lang.t("fra_manage")) { showEditor = true }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(DSSecondaryButtonStyle())
                     Button(lang.t("fra_add_family")) { showProfiles = true }
-                        .buttonStyle(.bordered)
-                }.font(.system(size: 12))
-                if assignments.isEmpty { Text(lang.t("fra_no_match")).font(.system(size: 12)).foregroundColor(.orange) }
+                        .buttonStyle(DSSecondaryButtonStyle())
+                }
+                if assignments.isEmpty {
+                    // 空状态补操作引导，而非一行孤零零的文字
+                    VStack(spacing: DS.padS) {
+                        Image(systemName: "person.2.slash").font(.title2).foregroundColor(.semWarn)
+                        Text(lang.t("fra_no_match")).adaptiveFont(size: 12).foregroundColor(.semWarn)
+                        Button(lang.t("fra_add_family")) { showProfiles = true }
+                            .buttonStyle(DSSecondaryButtonStyle())
+                    }.frame(maxWidth: .infinity)
+                }
                 else if !unassignedPeople.isEmpty {
                     Text(unassignedPeople.map(\.name).joined(separator: "、") + " · " + lang.t("fra_no_bedroom"))
-                        .font(.system(size: 12)).foregroundColor(.orange)
+                        .adaptiveFont(size: 12).foregroundColor(.semWarn)
                 }
                 Text(lang.t(manualAssignments == nil ? "fra_suggested" : "fra_assigned"))
-                    .font(.system(size: 11)).foregroundColor(.cyan)
+                    .adaptiveFont(size: DS.minBodyFont).foregroundColor(.semInfo)
             }
         }
         .foregroundColor(.white)
@@ -109,7 +127,7 @@ struct FamilyRoomAllocationSection: View {
     private var editor: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                Text(lang.t("fra_note")).font(.system(size: 12)).foregroundColor(.white.opacity(0.7))
+                Text(lang.t("fra_note")).adaptiveFont(size: 12).foregroundColor(.white.opacity(0.7))
                 HStack {
                     Button(lang.t("fra_auto")) { onUpdate(nil) }
                     Spacer()
@@ -123,7 +141,7 @@ struct FamilyRoomAllocationSection: View {
                 }
                 ForEach(unassignedPeople) { person in
                     Text(person.name + " · " + lang.t("fra_no_bedroom"))
-                        .font(.system(size: 12)).foregroundColor(.orange)
+                        .adaptiveFont(size: 12).foregroundColor(.semWarn)
                 }
             }.padding(16)
         }
@@ -134,34 +152,42 @@ struct FamilyRoomAllocationSection: View {
             centroid: centroid, heading: heading, aspectRatio: aspectRatio)
         return VStack(alignment: .leading, spacing: 10) {
             Label(room.name + " · " + room.palaceName, systemImage: room.type.iconName)
-                .font(.system(size: 14, weight: .bold))
+                .adaptiveFont(size: 14, weight: .bold)
             ForEach(fits, id: \.person.id) { fit in
                 let selected = assignments.contains { $0.roomID == room.id && $0.personID == fit.person.id }
                 Button {
-                    guard iap.canUseFamilyRoomAllocation else { return }
+                    // 无权限时不再静默无响应：明确拉起付费页
+                    guard iap.canUseFamilyRoomAllocation else { showPaywall = true; return }
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     onUpdate(FamilyRoomAllocationEngine.toggling(personID: fit.person.id, room: room,
                         assignments: assignments, rooms: rooms, people: people))
                 } label: {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(selected ? .cyan : .gray)
+                            .foregroundColor(selected ? .semInfo : .gray)
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text(fit.person.name).font(.system(size: 14, weight: .semibold))
+                                Text(fit.person.name).adaptiveFont(size: 14, weight: .semibold)
                                 Spacer()
                                 Text(lang.t(fit.isRecommended ? "fra_good" : "fra_check"))
-                                    .font(.system(size: 11))
-                                    .foregroundColor(fit.isRecommended ? .green : .orange)
+                                    .adaptiveFont(size: DS.minBodyFont)
+                                    .foregroundColor(fit.isRecommended ? .semJi : .semWarn)
                             }
-                            Text(lang.t(fit.reasonKey)).font(.system(size: 12)).foregroundColor(.white.opacity(0.7))
+                            Text(lang.t(fit.reasonKey)).adaptiveFont(size: 12).foregroundColor(.white.opacity(0.7))
                             if let star = fit.star {
-                                Text(star.localizedName).font(.system(size: 10)).foregroundColor(.white.opacity(0.5))
+                                Text(star.localizedName).adaptiveFont(size: DS.minBodyFont).foregroundColor(.white.opacity(0.5))
                             }
                         }
-                    }.padding(8)
-                        .background(selected ? Color.cyan.opacity(0.1) : Color.white.opacity(0.03))
-                        .cornerRadius(8)
-                }.buttonStyle(.plain)
+                    }
+                    .padding(DS.padM)
+                    .frame(maxWidth: .infinity, minHeight: DS.touchMin, alignment: .leading)
+                    .background(selected ? Color.semInfo.opacity(0.12) : Color.white.opacity(0.03))
+                    .cornerRadius(DS.radiusS)
+                    .overlay(RoundedRectangle(cornerRadius: DS.radiusS)
+                        .stroke(selected ? Color.semInfo.opacity(0.4) : Color.clear, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(fit.person.name)：\(selected ? "已分配" : "未分配")")
             }
         }.padding(12).background(Color.white.opacity(0.05)).cornerRadius(12)
     }

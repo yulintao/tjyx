@@ -682,6 +682,15 @@ public struct ARVisionView: View {
                         scanBeamLayer
                         crosshairCenterLayer()
                         targetBoundingBoxLayer()
+                        // HUD 可读性渐变遮罩（中部保持透亮，不遮挡扫描区）
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.black.opacity(0.45), Color.black.opacity(0.0),
+                                Color.black.opacity(0.0), Color.black.opacity(0.55)
+                            ]),
+                            startPoint: .top, endPoint: .bottom
+                        )
+                        .allowsHitTesting(false)
                         VStack(spacing: 6) {
                             WorkflowStepperBar(activeStep: 0)
                             topStatusBar()
@@ -728,7 +737,18 @@ public struct ARVisionView: View {
             
             // 4. 可拖拽形煞目标物实景锁定框 (结合动态偏角解算)
             targetBoundingBoxLayer()
-            
+
+            // 4.5 可读性渐变遮罩：上下加深、中部透亮，保证 HUD 文字在强光/暗光实景上都清晰，
+            //     同时不遮挡中心扫描区（allowsHitTesting(false) 不影响手势）。
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.black.opacity(0.45), Color.black.opacity(0.0),
+                    Color.black.opacity(0.0), Color.black.opacity(0.55)
+                ]),
+                startPoint: .top, endPoint: .bottom
+            )
+            .allowsHitTesting(false)
+
             // 5. 顶栏悬浮与拍照存证控制栏
             VStack(spacing: 6) {
                 WorkflowStepperBar(activeStep: 0)

@@ -413,7 +413,7 @@ public struct SettingsView: View {
                         message: paymentError,
                         confirmTitle: lang.t("done"),
                         cancelTitle: nil,
-                        confirmColor: Color(red: 0.83, green: 0.68, blue: 0.21),
+                        confirmColor: Color.goldDeep,
                         onConfirm: { showPaymentError = false },
                         onCancel: { showPaymentError = false }
                     )
@@ -799,7 +799,7 @@ public struct MasterVIPPageView: View {
         HStack(spacing: 8) {
             Image(systemName: icon)
                 .adaptiveFont(size: 13)
-                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                .foregroundColor(Color.goldDeep)
                 .frame(width: 20)
             Text(title)
                 .adaptiveFont(size: 12)
@@ -1360,7 +1360,7 @@ public struct AboutPageView: View {
                         message: SettingsLocalizationHelpers.testFlightRateAlertMessage(lang),
                         confirmTitle: lang.t("done"),
                         cancelTitle: nil,
-                        confirmColor: Color(red: 0.83, green: 0.68, blue: 0.21),
+                        confirmColor: Color.goldDeep,
                         onConfirm: { showTestFlightRateTip = false },
                         onCancel: { showTestFlightRateTip = false }
                     )

@@ -8,6 +8,356 @@ extension Color {
     public static let yanGold = Color(red: 0.95, green: 0.80, blue: 0.25)
 }
 
+// MARK: - 统一设计语言 Design Tokens
+// 目标：把散落在各视图的 6 种金、系统色、魔数圆角收敛到一组语义常量。
+// 所有新代码优先使用这里的语义色，旧视图逐步迁移；不改变 yanGold 等既有符号，避免破坏现有编译。
+extension Color {
+    // 金色三阶：主色 / 深金（选中底、边框）/ 文字金（高对比）
+    public static let goldPrimary = Color(red: 0.95, green: 0.80, blue: 0.25)
+    public static let goldDeep    = Color(red: 0.83, green: 0.68, blue: 0.21)
+    public static let goldText    = Color(red: 0.95, green: 0.85, blue: 0.45)
+
+    // 语义色：吉 / 凶 / 警示 / 信息，与黑金主题统一，替代裸 .green/.red/.orange/.purple
+    public static let semJi     = Color(red: 0.36, green: 0.78, blue: 0.53)  // 吉 · 柔和青绿
+    public static let semXiong  = Color(red: 0.90, green: 0.38, blue: 0.36)  // 凶 · 暗红
+    public static let semWarn   = Color(red: 0.92, green: 0.68, blue: 0.30)  // 留意 · 琥珀
+    public static let semInfo   = Color.yanCyan
+
+    // 表面与描边：统一的卡片底、分隔线
+    public static let surfaceCard   = Color(red: 0.11, green: 0.11, blue: 0.15)
+    public static let surfaceElevated = Color(red: 0.13, green: 0.13, blue: 0.18)
+    public static let strokeSoft    = Color.white.opacity(0.12)
+    public static let strokeGold    = Color.goldPrimary.opacity(0.28)
+}
+
+// 布局常量：统一间距 / 圆角 / 触摸目标
+public enum DS {
+    public static let padS: CGFloat = 8
+    public static let padM: CGFloat = 12
+    public static let padL: CGFloat = 16
+    public static let radiusS: CGFloat = 10
+    public static let radiusM: CGFloat = 14
+    public static let radiusL: CGFloat = 18
+    public static let touchMin: CGFloat = 44   // 苹果人机指南最小触摸目标
+    public static let minBodyFont: CGFloat = 11
+}
+
+// MARK: - 可复用按钮样式（统一按压反馈与触摸目标）
+struct DSPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .adaptiveFont(size: 14, weight: .bold)
+            .foregroundColor(Color(red: 0.12, green: 0.10, blue: 0.04))
+            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
+            .padding(.horizontal, DS.padM)
+            .background(
+                LinearGradient(
+                    colors: [Color.goldText, Color.goldPrimary, Color.goldDeep],
+                    startPoint: .topLeading, endPoint: .bottomTrailing
+                )
+            )
+            .cornerRadius(DS.radiusM)
+            .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.goldText.opacity(0.5), lineWidth: 1))
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .opacity(configuration.isPressed ? 0.88 : 1)
+            .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+struct DSSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .adaptiveFont(size: 13, weight: .semibold)
+            .foregroundColor(.primary)
+            .frame(minHeight: DS.touchMin)
+            .padding(.horizontal, DS.padM)
+            .background(Color.white.opacity(configuration.isPressed ? 0.16 : 0.08))
+            .cornerRadius(DS.radiusM)
+            .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.strokeSoft, lineWidth: 1))
+            .opacity(configuration.isPressed ? 0.85 : 1)
+    }
+}
+
+// MARK: - 统一信息卡片修饰器
+struct DSInfoCard: ViewModifier {
+    var accent: Color = .strokeGold
+    func body(content: Content) -> some View {
+        content
+            .padding(DS.padM)
+            .background(Color.surfaceCard)
+            .cornerRadius(DS.radiusM)
+            .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(accent, lineWidth: 1))
+    }
+}
+
+extension View {
+    func dsInfoCard(accent: Color = .strokeGold) -> some View {
+        modifier(DSInfoCard(accent: accent))
+    }
+}
+
+// MARK: - 结论式界面组件族
+// 目标：让各页从「工具箱全铺开」转为「结论在上、详情折叠」。
+
+/// 分节标题：统一章节引导
+struct DSSectionHeader: View {
+    let title: String
+    var subtitle: String? = nil
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).adaptiveFont(size: 16, weight: .bold).foregroundColor(.goldText)
+            if let subtitle = subtitle {
+                Text(subtitle).adaptiveFont(size: 11).foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, DS.padS)
+    }
+}
+
+/// 统计胶囊：一格一个关键读数
+struct DSStatPill: View {
+    let label: String
+    let value: String
+    var tint: Color = .goldText
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label).adaptiveFont(size: 11).foregroundColor(.secondary)
+            Text(value).adaptiveFont(size: 14, weight: .semibold).foregroundColor(tint)
+                .lineLimit(2).minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(DS.padM)
+        .background(Color.surfaceElevated)
+        .cornerRadius(DS.radiusS)
+        .overlay(RoundedRectangle(cornerRadius: DS.radiusS).stroke(Color.strokeSoft, lineWidth: 1))
+    }
+}
+
+/// 状态徽章：吉/凶/来源等短标签
+struct DSStatusBadge: View {
+    let text: String
+    var tint: Color = .semInfo
+    var body: some View {
+        Text(text)
+            .adaptiveFont(size: 11, weight: .semibold)
+            .foregroundColor(tint)
+            .padding(.horizontal, DS.padS)
+            .padding(.vertical, 4)
+            .background(tint.opacity(0.14))
+            .cornerRadius(DS.radiusS)
+            .overlay(RoundedRectangle(cornerRadius: DS.radiusS).stroke(tint.opacity(0.4), lineWidth: 1))
+    }
+}
+
+/// 空状态：图标 + 引导 + 可选操作
+struct DSEmptyState: View {
+    let icon: String
+    let title: String
+    let message: String
+    var actionTitle: String? = nil
+    var action: (() -> Void)? = nil
+    var body: some View {
+        VStack(spacing: DS.padM) {
+            Image(systemName: icon).font(.system(size: 34)).foregroundColor(.semWarn.opacity(0.85))
+            Text(title).adaptiveFont(size: 15, weight: .semibold).foregroundColor(.primary)
+            Text(message).adaptiveFont(size: 12).foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            if let actionTitle = actionTitle, let action = action {
+                Button(action: action) {
+                    Text(actionTitle).adaptiveFont(size: 13, weight: .semibold)
+                }
+                .buttonStyle(DSSecondaryButtonStyle())
+                .padding(.top, DS.padS)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(DS.padL)
+        .dsInfoCard()
+    }
+}
+
+/// 可折叠分区：默认收起，点击展开详情
+struct DSCollapsibleSection<Content: View>: View {
+    let title: String
+    let subtitle: String?
+    let content: Content
+    @State private var expanded: Bool
+
+    init(title: String, subtitle: String? = nil, defaultExpanded: Bool = false,
+         @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.subtitle = subtitle
+        self.content = content()
+        _expanded = State(initialValue: defaultExpanded)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
+            } label: {
+                HStack(spacing: DS.padS) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title).adaptiveFont(size: 14, weight: .semibold).foregroundColor(.primary)
+                        if let subtitle = subtitle {
+                            Text(subtitle).adaptiveFont(size: 11).foregroundColor(.secondary)
+                        }
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .adaptiveFont(size: 12).foregroundColor(.secondary)
+                        .rotationEffect(.degrees(expanded ? 180 : 0))
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, DS.padM)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(title)
+            .accessibilityHint(expanded ? "收起详情" : "展开详情")
+
+            if expanded {
+                Divider().background(Color.strokeSoft)
+                content
+                    .padding(DS.padM)
+                    .transition(.opacity)
+            }
+        }
+        .background(Color.surfaceCard)
+        .cornerRadius(DS.radiusM)
+        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.strokeSoft, lineWidth: 1))
+    }
+}
+
+// MARK: - 此刻 · 此地 · 此向 结论看板
+// 一屏给出：时间/节气、当前坐向、今日宜忌吉时、财神喜神、立向吉凶、居家布局提示。
+// 数据全部来自本机既有的共享引擎（罗盘朝向 / 择日 / 紫白），不新增依赖。
+public struct DSConclusionDashboard: View {
+    @ObservedObject private var motion = CompassMotionManager.shared
+    @ObservedObject private var lang = LocalizationManager.shared
+    @State private var showDetail: Bool = false
+    private let now: Date
+
+    public init(now: Date = Date()) { self.now = now }
+
+    private var state: CompassHeadingState { motion.headingState }
+    private var kongwang: KongWangLevel { state.kongWangLevel }
+    private var daily: ZeRiAnalysis { ZeRiEngine.shared.analyzeGeneralDay(date: now) }
+    private var compassGods: ZeRiEngine.DailyCompassGodDirections {
+        ZeRiEngine.shared.dailyCompassDirections(for: now)
+    }
+    private var sitFace: String {
+        "\(state.sittingMountain.localizedName)\(lang.t("mountain_suffix"))\(state.facingMountain.localizedName)\(lang.t("facing_suffix"))"
+    }
+    private var kwBadge: (String, Color) {
+        switch kongwang {
+        case .pure: return (kongwang.localizedTitle, .semJi)
+        case .jianXiang: return (kongwang.localizedTitle, .semWarn)
+        case .smallVoid: return (kongwang.localizedTitle, .semWarn)
+        case .largeVoid: return (kongwang.localizedTitle, .semXiong)
+        }
+    }
+    private var timeText: String {
+        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .short
+        return f.string(from: now)
+    }
+    private var yiText: String { daily.yiActivities.prefix(4).joined(separator: "、") }
+    private var jiText: String { daily.jiActivities.prefix(3).joined(separator: "、") }
+
+    public var body: some View {
+        VStack(alignment: .leading, spacing: DS.padM) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(lang.effectiveLanguage == .en ? "NOW · HERE · THIS DIRECTION" : "此 刻 · 此 地 · 此 向")
+                        .adaptiveFont(size: 11, weight: .semibold).foregroundColor(.goldText)
+                    Text(sitFace)
+                        .adaptiveFont(size: 20, weight: .bold, design: .rounded)
+                        .foregroundColor(.white)
+                }
+                Spacer()
+                DSStatusBadge(text: kwBadge.0, tint: kwBadge.1)
+            }
+
+            Text(timeText).adaptiveFont(size: 12).foregroundColor(.secondary)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DS.padS) {
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Auspicious (宜)" : "今日宜",
+                           value: yiText.isEmpty ? "—" : yiText, tint: .semJi)
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Avoid (忌)" : "今日忌",
+                           value: jiText.isEmpty ? "—" : jiText, tint: .semXiong)
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Wealth / Joy" : "财神 / 喜神",
+                           value: "\(compassGods.wealthDirection) / \(compassGods.joyDirection)", tint: .goldText)
+                DSStatPill(label: lang.effectiveLanguage == .en ? "Fenjin" : "分金 / 空亡",
+                           value: state.fenJinDesc.isEmpty ? kwBadge.0 : state.fenJinDesc, tint: .semInfo)
+            }
+
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                withAnimation(.easeInOut(duration: 0.2)) { showDetail.toggle() }
+            } label: {
+                HStack {
+                    Text(showDetail
+                         ? (lang.effectiveLanguage == .en ? "Hide details" : "收起详情")
+                         : (lang.effectiveLanguage == .en ? "Show details" : "展开详细盘面与依据"))
+                        .adaptiveFont(size: 12, weight: .semibold).foregroundColor(.goldText)
+                    Spacer()
+                    Image(systemName: "chevron.down").adaptiveFont(size: 12).foregroundColor(.goldText)
+                        .rotationEffect(.degrees(showDetail ? 180 : 0))
+                }
+                .padding(.vertical, DS.padS)
+            }
+            .buttonStyle(.plain)
+
+            if showDetail {
+                Text(daily.detailsText).adaptiveFont(size: 12).foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.opacity)
+            }
+        }
+        .padding(DS.padL)
+        .background(
+            LinearGradient(colors: [Color.goldPrimary.opacity(0.10), Color.surfaceCard],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
+        .cornerRadius(DS.radiusL)
+        .overlay(RoundedRectangle(cornerRadius: DS.radiusL).stroke(Color.strokeGold, lineWidth: 1))
+    }
+}
+
+// MARK: - 通用方位结论条：分析页共用的「当前坐向 + 空亡 + 吉方」一行式结论
+public struct DSOrientationConclusionBar: View {
+    @ObservedObject private var motion = CompassMotionManager.shared
+    @ObservedObject private var lang = LocalizationManager.shared
+    public let moduleName: String
+
+    public init(moduleName: String) { self.moduleName = moduleName }
+
+    public var body: some View {
+        let state = motion.headingState
+        let kw = state.kongWangLevel
+        return HStack(spacing: DS.padM) {
+            Image(systemName: "location.north.line.fill").foregroundColor(.goldText)
+                .adaptiveFont(size: 16)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(moduleName).adaptiveFont(size: 10).foregroundColor(.secondary)
+                Text("\(state.sittingMountain.localizedName)山\(state.facingMountain.localizedName)向 · \(state.fenJinDesc)")
+                    .adaptiveFont(size: 13, weight: .semibold).foregroundColor(.primary)
+                    .lineLimit(1).minimumScaleFactor(0.8)
+            }
+            Spacer(minLength: 4)
+            DSStatusBadge(text: kw.localizedTitle,
+                          tint: kw == .pure ? .semJi : (kw == .largeVoid ? .semXiong : .semWarn))
+        }
+        .padding(.horizontal, DS.padM)
+        .padding(.vertical, DS.padS)
+        .background(Color.surfaceCard)
+        .cornerRadius(DS.radiusM)
+        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.strokeGold, lineWidth: 1))
+    }
+}
+
 // MARK: - iPad 与多设备全景屏幕字体自适应扩展 (Adaptive Typography)
 extension Font {
     /// 当前前台窗口的 trait collection：字号（Dynamic Type）与尺寸类都取自同一个快照，
@@ -608,9 +958,11 @@ public struct RootContentView: View {
         let itemAppearance = UITabBarItemAppearance()
         // Tab 标签是 UIKit 固定字号，不会自动跟随 Dynamic Type：用 UIFontMetrics 补齐，
         // 并给 maximumPointSize = 1.3x 上限，避免放大后撑出 49pt 的 TabBar 高度。
-        let baseTabFontSize: CGFloat = isLargeLayout ? 13 : 10
+        // 统一金色 + 提升小屏 Tab 字号到 11.5pt（原 10pt 与正文说明同级，主次不清）
+        let tabGold = UIColor(red: 242/255.0, green: 217/255.0, blue: 115/255.0, alpha: 1.0)
+        let baseTabFontSize: CGFloat = isLargeLayout ? 13 : 11.5
         let tabFont = UIFontMetrics(forTextStyle: .caption1)
-            .scaledFont(for: UIFont.systemFont(ofSize: baseTabFontSize, weight: .medium),
+            .scaledFont(for: UIFont.systemFont(ofSize: baseTabFontSize, weight: .semibold),
                         maximumPointSize: baseTabFontSize * 1.3)
         itemAppearance.normal.iconColor = UIColor.systemGray2
         itemAppearance.normal.titleTextAttributes = [
@@ -618,9 +970,9 @@ public struct RootContentView: View {
             .font: tabFont
         ]
 
-        itemAppearance.selected.iconColor = UIColor(red: 242/255.0, green: 217/255.0, blue: 115/255.0, alpha: 1.0)
+        itemAppearance.selected.iconColor = tabGold
         itemAppearance.selected.titleTextAttributes = [
-            .foregroundColor: UIColor(red: 242/255.0, green: 217/255.0, blue: 115/255.0, alpha: 1.0),
+            .foregroundColor: tabGold,
             .font: tabFont
         ]
 
@@ -631,7 +983,7 @@ public struct RootContentView: View {
         }
 
         // 实时刷新已挂载的 TabBar（SwiftUI TabView 的宿主 UITabBarController 已创建）
-        let selectedColor = UIColor(red: 242/255.0, green: 217/255.0, blue: 115/255.0, alpha: 1.0)
+        let selectedColor = tabGold
         for scene in UIApplication.shared.connectedScenes {
             guard let windowScene = scene as? UIWindowScene else { continue }
             for window in windowScene.windows {

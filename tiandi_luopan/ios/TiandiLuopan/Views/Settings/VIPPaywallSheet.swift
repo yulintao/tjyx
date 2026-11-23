@@ -86,7 +86,7 @@ public struct VIPLockCardView: View {
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.4), lineWidth: 1)
+                .stroke(Color.goldDeep.opacity(0.4), lineWidth: 1)
         )
         .padding(.horizontal, 16)
         // iPad 自适应：锁定卡在宽屏（iPad / Duo 内屏）上限制最大宽度并居中，
@@ -230,6 +230,25 @@ public struct VIPPaywallSheet: View {
     @State private var alertMsg: String = ""
     @State private var alertIsError: Bool = false
     @State private var showAlert: Bool = false
+    @State private var successToast: String = ""
+
+    /// 购买成功后给一次明确的成功反馈（触感 + 轻提示），再关闭付费页，避免静默 dismiss 的不确定感
+    private func completePurchase(_ message: String) {
+        isPurchasing = false
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        withAnimation { successToast = message }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+            withAnimation { successToast = "" }
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+
+    private var purchaseSuccessText: String {
+        lang.effectiveLanguage == .en ? "Purchase successful · Benefits unlocked" : "购买成功 · 权益已解锁"
+    }
+    private var creditsAddedText: String {
+        lang.effectiveLanguage == .en ? "Credits added to your account" : "次数已到账"
+    }
     
     public init(defaultProductId: IAPProductID = .vipYearly) {
         _selectedProductId = State(initialValue: defaultProductId.rawValue)
@@ -385,32 +404,48 @@ public struct VIPPaywallSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .overlay(
+            Group {
+                if !successToast.isEmpty {
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 10) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.semJi)
+                            Text(successToast)
+                                .adaptiveFont(size: 13, weight: .semibold)
+                                .foregroundColor(.primary)
+                        }
+                        .padding(.horizontal, DS.padL)
+                        .padding(.vertical, DS.padM)
+                        .background(Color.surfaceElevated)
+                        .cornerRadius(DS.radiusM)
+                        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.semJi.opacity(0.5), lineWidth: 1))
+                        .padding(.bottom, 60)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: successToast)
+        )
         .onAppear {
             iap.clearTransientMessages()
             iap.refreshProductsIfNeeded()
         }
         .onReceive(iap.$isVIPUser) { isVip in
-            if isVip {
-                isPurchasing = false
-                presentationMode.wrappedValue.dismiss()
-            }
+            if isVip { completePurchase(purchaseSuccessText) }
         }
         .onReceive(iap.$isLifetimeUser) { isLifetime in
-            if isLifetime {
-                isPurchasing = false
-                presentationMode.wrappedValue.dismiss()
-            }
+            if isLifetime { completePurchase(purchaseSuccessText) }
         }
         .onReceive(iap.$floorplanCreditsCount) { count in
             if isPurchasing && count > 0 && selectedProductId == IAPProductID.floorplanSingle.rawValue {
-                isPurchasing = false
-                presentationMode.wrappedValue.dismiss()
+                completePurchase(creditsAddedText)
             }
         }
         .onReceive(iap.$tianjiCreditsCount) { count in
             if isPurchasing && count > 0 && selectedProductId == IAPProductID.tianjiSingle.rawValue {
-                isPurchasing = false
-                presentationMode.wrappedValue.dismiss()
+                completePurchase(creditsAddedText)
             }
         }
         .onReceive(iap.$isProcessingPurchase) { processing in
@@ -440,7 +475,7 @@ public struct VIPPaywallSheet: View {
                         message: alertMsg,
                         confirmTitle: LocalizationManager.shared.t("done"),
                         cancelTitle: nil,
-                        confirmColor: Color(red: 0.83, green: 0.68, blue: 0.21),
+                        confirmColor: Color.goldDeep,
                         onConfirm: { showAlert = false },
                         onCancel: { showAlert = false }
                     )
@@ -461,7 +496,7 @@ public struct VIPPaywallSheet: View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
                 .adaptiveFont(size: 14)
-                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                .foregroundColor(Color.goldDeep)
                 .frame(width: 20)
                 .padding(.top, 2)
             
@@ -511,11 +546,11 @@ public struct VIPPaywallSheet: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(10)
-            .background(isSelected ? Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.15) : Color.white.opacity(0.04))
+            .background(isSelected ? Color.goldDeep.opacity(0.15) : Color.white.opacity(0.04))
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color(red: 0.83, green: 0.68, blue: 0.21) : Color.white.opacity(0.08), lineWidth: isSelected ? 1.5 : 1)
+                    .stroke(isSelected ? Color.goldDeep : Color.white.opacity(0.08), lineWidth: isSelected ? 1.5 : 1)
             )
         }
         .buttonStyle(PlainButtonStyle())

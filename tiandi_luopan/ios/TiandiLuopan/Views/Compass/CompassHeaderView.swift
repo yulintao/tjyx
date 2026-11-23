@@ -166,7 +166,7 @@ public struct CompassHeaderView: View {
             .minimumScaleFactor(0.7)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.25))
+            .background(Color.goldDeep.opacity(0.25))
             .foregroundColor(Color(red: 0.95, green: 0.82, blue: 0.4))
             .cornerRadius(4)
     }

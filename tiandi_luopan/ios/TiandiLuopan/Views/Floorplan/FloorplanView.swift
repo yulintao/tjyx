@@ -490,17 +490,20 @@ public struct FloorplanView: View {
                                                 .minimumScaleFactor(0.7)
                                             Spacer()
                                             Button(lang.effectiveLanguage == .en ? "Apply" : "一键采用") {
+                                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                                 isSyncWithCompass = false
                                                 compassRotation = lockedBearing.bearingDegrees
                                                 persistLayout()
                                                 refreshAudit(force: true)
                                             }
-                                            .adaptiveFont(size: 10, weight: .bold)
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 4)
-                                            .background(Color.yanCyan)
+                                            // 关键方位同步操作：提升到 44pt 触摸目标 + 触感确认
+                                            .adaptiveFont(size: 12, weight: .bold)
+                                            .frame(minHeight: DS.touchMin)
+                                            .padding(.horizontal, DS.padM)
+                                            .background(Color.semInfo)
                                             .foregroundColor(.black)
-                                            .cornerRadius(6)
+                                            .cornerRadius(DS.radiusS)
+                                            .accessibilityLabel(lang.effectiveLanguage == .en ? "Apply compass bearing" : "采用罗盘方位")
                                         }
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
@@ -1385,7 +1388,7 @@ public struct FloorplanView: View {
                             .adaptiveFont(size: 13, weight: .bold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 11)
-                            .background(Color(red: 0.83, green: 0.68, blue: 0.21))
+                            .background(Color.goldDeep)
                             .foregroundColor(.black)
                             .cornerRadius(8)
                         }
@@ -3964,7 +3967,7 @@ public struct RoomAuditDetailSheet: View {
                         HStack(spacing: 12) {
                             Image(systemName: room.type.iconName)
                                 .adaptiveFont(size: 24)
-                                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                                .foregroundColor(Color.goldDeep)
                                 .frame(width: 44, height: 44)
                                 .background(Color.white.opacity(0.08))
                                 .clipShape(Circle())

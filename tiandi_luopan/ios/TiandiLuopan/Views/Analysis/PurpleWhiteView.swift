@@ -138,8 +138,12 @@ public struct PurpleWhiteView: View {
                         isFacing: item.palaceId == chart.currentFacingPalace,
                         isSelected: item.palaceId == activeId
                     )
+                    .contentShape(Rectangle())
                     .onTapGesture {
-                        selectedPalaceId = item.palaceId
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            selectedPalaceId = item.palaceId
+                        }
                     }
                 }
             }
@@ -217,7 +221,7 @@ public struct PurpleWhiteView: View {
                 }
                 .adaptiveFont(size: 12, weight: .bold)
                 .padding(.vertical, 8)
-                .background(Color(red: 0.83, green: 0.68, blue: 0.21))
+                .background(Color.goldDeep)
                 .foregroundColor(.black)
                 .cornerRadius(8)
             }

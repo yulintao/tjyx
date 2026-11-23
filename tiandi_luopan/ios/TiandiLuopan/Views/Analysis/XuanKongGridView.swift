@@ -104,6 +104,9 @@ public struct XuanKongGridView: View {
                 Color.clear.frame(height: 1).id("analysisRootTop")
                 WorkflowStepperBar(activeStep: 2)
                     .padding(.horizontal, 16)
+                // 结论式改造：当前坐向 + 空亡状态常驻置顶，各派排盘共享
+                DSOrientationConclusionBar(moduleName: "当前方位 · 各派共用")
+                    .padding(.horizontal, 16)
                 if let feature = selectedFeature {
                     // 顶部快捷模块切换条：支持一键在玄空 / 八宅 / 三合 / 奇门间切换，无需反复退回菜单
                     quickModuleSwitcherBar(active: feature)
@@ -812,7 +815,7 @@ public struct XuanKongGridView: View {
                 .fill(Color(red: 0.14, green: 0.12, blue: 0.11))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.3), lineWidth: 1)
+                        .stroke(Color.goldDeep.opacity(0.3), lineWidth: 1)
                 )
         )
         .padding(.horizontal, isLargeLayout ? 0 : 16)
@@ -922,7 +925,7 @@ public struct XuanKongGridView: View {
                                    minHeight: isRoomyLayout ? 36 : 32)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(isSelected ? Color(red: 0.83, green: 0.68, blue: 0.21) : Color.white.opacity(0.1))
+                            .background(isSelected ? Color.goldDeep : Color.white.opacity(0.1))
                             .foregroundColor(isSelected ? .black : .white)
                             .cornerRadius(8)
                         }

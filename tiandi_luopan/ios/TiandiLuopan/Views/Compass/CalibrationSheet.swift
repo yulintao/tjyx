@@ -29,7 +29,7 @@ public struct CalibrationSheet: View {
                     // 1. 顶部标题栏
                     HStack {
                         Image(systemName: "safari.fill")
-                            .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                            .foregroundColor(Color.goldDeep)
                         Text(lang.t("calib_sheet_title"))
                             .adaptiveFont(size: 16, weight: .bold)
                             .foregroundColor(.white)
@@ -162,7 +162,7 @@ public struct CalibrationSheet: View {
                         HStack {
                             Image(systemName: "infinity")
                                 .adaptiveFont(size: 24, weight: .bold)
-                                .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                                .foregroundColor(Color.goldDeep)
                                 .rotationEffect(.degrees(rotateDegree))
                             
                             VStack(alignment: .leading, spacing: 3) {
@@ -181,7 +181,7 @@ public struct CalibrationSheet: View {
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.3), lineWidth: 1)
+                            .stroke(Color.goldDeep.opacity(0.3), lineWidth: 1)
                     )
                     
                     // 5. 操作按键

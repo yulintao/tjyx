@@ -48,6 +48,10 @@ public struct CompassMainView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 4)
 
+                        // 0. 结论看板：此刻·此地·此向 + 四类结论（一屏看尽）
+                        DSConclusionDashboard()
+                            .padding(.horizontal, 16)
+
                         // 1. 顶部数据仪表
                         CompassHeaderView()
 
@@ -240,12 +244,13 @@ public struct CompassMainView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
-                .background(motion.isLocked ? Color.red.opacity(0.22) : Color.white.opacity(0.08))
-                .foregroundColor(motion.isLocked ? .red : .white)
-                .cornerRadius(12)
+                // 统一「锁定」语义色为金色：与 CompassHeaderView 的锁定钮一致，红色只留给凶煞
+                .background(motion.isLocked ? Color.goldPrimary.opacity(0.22) : Color.white.opacity(0.08))
+                .foregroundColor(motion.isLocked ? .goldText : .white)
+                .cornerRadius(DS.radiusM)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(motion.isLocked ? Color.red.opacity(0.55) : Color.white.opacity(0.14), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: DS.radiusM)
+                        .stroke(motion.isLocked ? Color.goldPrimary.opacity(0.55) : Color.strokeSoft, lineWidth: 1)
                 )
             }
             .buttonStyle(.plain)
@@ -320,10 +325,11 @@ public struct CompassMainView: View {
         let kwStatus = kwLevel.localizedTitle
         let kwColor: Color
         switch kwLevel {
-        case .pure: kwColor = Color.green
-        case .jianXiang: kwColor = Color.yellow
+        // 统一空亡语义色（与黑金主题一致，替代高饱和系统色）
+        case .pure: kwColor = Color.semJi
+        case .jianXiang: kwColor = Color.semWarn
         case .smallVoid: kwColor = Color.orange
-        case .largeVoid: kwColor = Color.red
+        case .largeVoid: kwColor = Color.semXiong
         }
         
         return ScrollView(.horizontal, showsIndicators: false) {
@@ -337,8 +343,8 @@ public struct CompassMainView: View {
                         Text(lang.effectiveLanguage == .en ? "24 Mtns" : "手选24山")
                     }
                     .adaptiveFont(size: 11, weight: .bold)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
+                    .padding(.horizontal, DS.padM)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.yanCyan.opacity(0.16))
                     .foregroundColor(Color.yanCyan)
                     .cornerRadius(8)
@@ -356,8 +362,8 @@ public struct CompassMainView: View {
                             .font(.system(size: 9, weight: .bold))
                     }
                     .adaptiveFont(size: 11, weight: .bold)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
+                    .padding(.horizontal, DS.padM)
+                    .frame(minHeight: DS.touchMin)
                     .background(kwColor.opacity(0.15))
                     .foregroundColor(kwColor)
                     .cornerRadius(8)
@@ -374,8 +380,8 @@ public struct CompassMainView: View {
                         Text(lang.t("btn_calib"))
                     }
                     .adaptiveFont(size: 11, weight: .medium)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
+                    .padding(.horizontal, DS.padM)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.08))
                     .foregroundColor(motion.isDistorted ? Color.orange : Color(red: 0.95, green: 0.82, blue: 0.4))
                     .cornerRadius(8)
@@ -391,8 +397,8 @@ public struct CompassMainView: View {
                         Text(lang.t("btn_layers"))
                     }
                     .adaptiveFont(size: 11, weight: .medium)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
+                    .padding(.horizontal, DS.padM)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.08))
                     .foregroundColor(Color.yanCyan)
                     .cornerRadius(8)
@@ -408,10 +414,10 @@ public struct CompassMainView: View {
                         Text(lang.t("btn_palace_all"))
                     }
                     .adaptiveFont(size: 11, weight: .medium)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
+                    .padding(.horizontal, DS.padM)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.08))
-                    .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                    .foregroundColor(Color.goldDeep)
                     .cornerRadius(8)
                 }
                 .buttonStyle(.plain)
@@ -771,7 +777,7 @@ public struct CompassMainView: View {
                 HStack(spacing: 8) {
                     analysisPanelToolButton(title: lang.t("btn_palace_all"),
                                             systemImage: "square.grid.2x2",
-                                            tint: Color(red: 0.83, green: 0.68, blue: 0.21)) { showPalaceSheet = true }
+                                            tint: Color.goldDeep) { showPalaceSheet = true }
                     analysisPanelToolButton(title: lang.effectiveLanguage == .en ? "Sync & Compute" : "同步至计算模块",
                                             systemImage: "arrow.triangle.branch",
                                             tint: Color.green) {
@@ -790,7 +796,7 @@ public struct CompassMainView: View {
             .fill(Color(red: 0.12, green: 0.12, blue: 0.15))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.2), lineWidth: 1)
+                    .stroke(Color.goldDeep.opacity(0.2), lineWidth: 1)
             )
     }
 
@@ -869,7 +875,7 @@ public struct CompassMainView: View {
                     .fill(Color(red: 0.12, green: 0.12, blue: 0.15))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.83, green: 0.68, blue: 0.21).opacity(0.2), lineWidth: 1)
+                            .stroke(Color.goldDeep.opacity(0.2), lineWidth: 1)
                     )
             )
         }

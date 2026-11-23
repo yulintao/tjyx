@@ -123,7 +123,7 @@ public struct BaZhaiView: View {
                     .minimumScaleFactor(0.8)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
-                    .background(selectedSubTab == .house ? Color(red: 0.83, green: 0.68, blue: 0.21) : Color.clear)
+                    .background(selectedSubTab == .house ? Color.goldDeep : Color.clear)
                     .foregroundColor(selectedSubTab == .house ? .black : .white.opacity(0.7))
             }
             
@@ -134,7 +134,7 @@ public struct BaZhaiView: View {
                     .minimumScaleFactor(0.8)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
-                    .background(selectedSubTab == .water ? Color(red: 0.83, green: 0.68, blue: 0.21) : Color.clear)
+                    .background(selectedSubTab == .water ? Color.goldDeep : Color.clear)
                     .foregroundColor(selectedSubTab == .water ? .black : .white.opacity(0.7))
             }
         }
@@ -426,7 +426,7 @@ public struct BaZhaiView: View {
                         Text(hq.localizedQuote)
                     }
                         .adaptiveFont(size: 10, design: .serif)
-                        .foregroundColor(Color(red: 0.83, green: 0.68, blue: 0.21))
+                        .foregroundColor(Color.goldDeep)
                 }
                 .padding(12)
                 .background(Color(red: 0.12, green: 0.12, blue: 0.16))
@@ -601,7 +601,7 @@ public struct BaZhaiView: View {
                 }
                 .adaptiveFont(size: 12, weight: .bold)
                 .padding(.vertical, 8)
-                .background(Color(red: 0.83, green: 0.68, blue: 0.21))
+                .background(Color.goldDeep)
                 .foregroundColor(.black)
                 .cornerRadius(8)
             }
