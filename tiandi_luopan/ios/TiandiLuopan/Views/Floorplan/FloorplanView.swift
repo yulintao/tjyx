@@ -2096,9 +2096,12 @@ public struct FloorplanView: View {
 
     private func roomCalibrationBar() -> some View {
         HStack(spacing: 6) {
+            Image(systemName: "ruler")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.yanCyan)
             Text(lang.t("floorplan_calibrate"))
-                .adaptiveFont(size: 10, weight: .bold)
-                .foregroundColor(.white.opacity(0.75))
+                .adaptiveFont(size: 10.5, weight: .bold)
+                .foregroundColor(.white.opacity(0.82))
             TextField(lang.t("floorplan_width_hint"), text: $calibratedWidthText)
                 .keyboardType(.decimalPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -2106,8 +2109,8 @@ public struct FloorplanView: View {
                 .focused($isCalibrationFieldFocused)
                 .frame(width: 64)
             Text("×")
-                .adaptiveFont(size: 10)
-                .foregroundColor(.white.opacity(0.5))
+                .adaptiveFont(size: 10.5, weight: .bold)
+                .foregroundColor(.white.opacity(0.55))
             TextField(lang.t("floorplan_depth_hint"), text: $calibratedDepthText)
                 .keyboardType(.decimalPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -2119,35 +2122,91 @@ public struct FloorplanView: View {
                     isCalibrationFieldFocused = false
                 }
                 .adaptiveFont(size: 11, weight: .bold)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color.yanCyan.opacity(0.2))
                 .foregroundColor(.yanCyan)
+                .cornerRadius(6)
             }
             if let area = estimatedAreaSqm {
                 Text(String(format: "≈ %.1f ㎡", area))
-                    .adaptiveFont(size: 10, weight: .bold)
+                    .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 4)
+                    .background(Color.yanCyan.opacity(0.16))
                     .foregroundColor(Color.yanCyan)
+                    .cornerRadius(6)
             }
             Spacer(minLength: 0)
         }
+        .padding(.horizontal, 11)
+        .padding(.vertical, 7)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(9)
+        .overlay(
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
         .padding(.horizontal, 16)
     }
 
     private func roomLayoutTools() -> some View {
-        HStack(spacing: 8) {
-            Button(action: centerFromRoomLayout) {
-                Label(lang.t("floorplan_auto_center"), systemImage: "scope")
-                    .adaptiveFont(size: 10, weight: .bold)
-                    .foregroundColor(.yanCyan)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Button(action: centerFromRoomLayout) {
+                    Label(lang.t("floorplan_auto_center"), systemImage: "scope")
+                        .adaptiveFont(size: 10.5, weight: .bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(Color.yanCyan.opacity(0.16))
+                        .foregroundColor(.yanCyan)
+                        .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
+
+                Button(action: { showNewRoomTypePicker = true }) {
+                    Label(lang.t("floorplan_add_room"), systemImage: "plus.rectangle.fill")
+                        .adaptiveFont(size: 10.5, weight: .bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(Color.green.opacity(0.18))
+                        .foregroundColor(.green)
+                        .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
+
+                Spacer(minLength: 4)
+
+                Button(action: {
+                    isEditingRooms = false
+                    selectedEditingRoomID = nil
+                }) {
+                    Text(lang.t("done"))
+                        .adaptiveFont(size: 10.5, weight: .bold)
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 7)
+                        .background(Color.yanGold)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
             }
-            Button(action: { showNewRoomTypePicker = true }) {
-                Label(lang.t("floorplan_add_room"), systemImage: "plus.rectangle")
-                    .adaptiveFont(size: 10, weight: .bold)
-                    .foregroundColor(.green)
-            }
-            Spacer(minLength: 0)
+
             Text(lang.t("floorplan_editing_hint"))
-                .adaptiveFont(size: 9)
-                .foregroundColor(.white.opacity(0.55))
+                .adaptiveFont(size: 9.5)
+                .foregroundColor(.white.opacity(0.58))
         }
+        .padding(10)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.green.opacity(0.28), lineWidth: 1)
+        )
         .padding(.horizontal, 16)
         .sheet(isPresented: $showNewRoomTypePicker) {
             FloorplanRoomTypeEditor(titleKey: "floorplan_add_room", room: nil) { type in
@@ -2165,33 +2224,43 @@ public struct FloorplanView: View {
     /// on a dense floor plan. Width and height are adjusted independently in
     /// small steps, keeping the room centered and inside the canvas.
     private func roomResizeTools(room: FloorplanRoom) -> some View {
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
                     .foregroundColor(.yanCyan)
                 Text("\(lang.t("floorplan_selected_room")): \(room.type.localizedName)")
-                    .adaptiveFont(size: 10, weight: .bold)
+                    .adaptiveFont(size: 11, weight: .bold)
                     .foregroundColor(.white)
                     .lineLimit(1)
                 Spacer()
                 Button {
                     roomForTypeEditing = room
                 } label: {
-                    Label(lang.t("floorplan_room_type"), systemImage: "tag")
-                        .adaptiveFont(size: 9, weight: .semibold)
+                    Label(lang.t("floorplan_room_type"), systemImage: "tag.fill")
+                        .adaptiveFont(size: 10, weight: .bold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(Color.yanCyan.opacity(0.16))
+                        .foregroundColor(.yanCyan)
+                        .cornerRadius(7)
                 }
-                .foregroundColor(.yanCyan)
+                .buttonStyle(.plain)
+
                 Button {
                     showEditingRoomDeleteConfirmation = true
                 } label: {
-                    Image(systemName: "trash")
+                    Image(systemName: "trash.fill")
                         .adaptiveFont(size: 11, weight: .semibold)
+                        .padding(6)
+                        .background(Color.red.opacity(0.18))
+                        .foregroundColor(.red)
+                        .cornerRadius(7)
                 }
-                .foregroundColor(.red)
+                .buttonStyle(.plain)
                 .accessibilityLabel(lang.t("floorplan_delete_room"))
             }
 
-            VStack(spacing: 4) {
+            HStack(spacing: 10) {
                 resizeAxisRow(
                     title: lang.t("floorplan_width"),
                     value: String(format: "%.0f%%", room.rect.width * 100),
@@ -2210,21 +2279,25 @@ public struct FloorplanView: View {
                 )
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
-        .background(Color.black.opacity(0.35))
-        .cornerRadius(8)
+        .padding(11)
+        .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.yanCyan.opacity(0.28), lineWidth: 1)
+        )
         .padding(.horizontal, 16)
     }
 
     private func resizeButton(symbol: String, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
-                .adaptiveFont(size: 9, weight: .bold)
-                .frame(width: 24, height: 22)
-                .background(Color.white.opacity(0.12))
-                .cornerRadius(5)
+                .adaptiveFont(size: 11, weight: .bold)
+                .frame(width: 32, height: 28)
+                .background(Color.yanCyan.opacity(0.16))
+                .cornerRadius(7)
         }
+        .buttonStyle(.plain)
         .foregroundColor(.yanCyan)
         .accessibilityLabel(label)
     }
@@ -2237,19 +2310,27 @@ public struct FloorplanView: View {
         decrease: @escaping () -> Void,
         increase: @escaping () -> Void
     ) -> some View {
-        return HStack(spacing: 8) {
-            Text(title)
-                .adaptiveFont(size: 9, weight: .semibold)
-                .foregroundColor(.white.opacity(0.75))
-                .frame(width: 38, alignment: .leading)
-            resizeButton(symbol: "minus", label: decreaseLabel, action: decrease)
-            Text(value)
-                .adaptiveFont(size: 9, weight: .bold, design: .monospaced)
-                .foregroundColor(.white)
-                .frame(width: 42)
-            resizeButton(symbol: "plus", label: increaseLabel, action: increase)
-            Spacer(minLength: 0)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title)
+                    .adaptiveFont(size: 9.5, weight: .semibold)
+                    .foregroundColor(.white.opacity(0.72))
+                Spacer()
+                Text(value)
+                    .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
+                    .foregroundColor(.yanGold)
+            }
+            HStack(spacing: 6) {
+                resizeButton(symbol: "minus", label: decreaseLabel, action: decrease)
+                    .frame(maxWidth: .infinity)
+                resizeButton(symbol: "plus", label: increaseLabel, action: increase)
+                    .frame(maxWidth: .infinity)
+            }
         }
+        .padding(7)
+        .frame(maxWidth: .infinity)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(8)
     }
 
     private func adjustSelectedRoomSize(widthDelta: CGFloat = 0, heightDelta: CGFloat = 0) {

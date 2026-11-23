@@ -25,6 +25,7 @@ public struct House3DSpaceViewer: View {
     @State private var shareSheetItem: SurveyShareReportItem? = nil
     @State private var showRoomTypePanel: Bool = false
     @State private var editRoomTypeMap: [UUID: FloorplanRoomType] = [:]
+    @State private var isFindingsExpanded: Bool = false
 
     public enum ViewAngleMode: String, CaseIterable {
         case perspective = "3D透视"
@@ -164,7 +165,8 @@ public struct House3DSpaceViewer: View {
 
     // MARK: - 顶部测绘总览看板
     private var topMetricsHeader: some View {
-        VStack(spacing: 6) {
+        let isEn = (lang.effectiveLanguage == .en)
+        return VStack(spacing: 8) {
             HStack(spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: "cube.transparent")
@@ -176,57 +178,49 @@ public struct House3DSpaceViewer: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
-                .frame(maxWidth: horizontalSizeClass == .regular ? 260 : 160, alignment: .leading)
                 .layoutPriority(1)
 
-                // 徽章 + CAD + 房间 + 分享在中文标题下需求约 280pt，加上标题会超出 iPhone 375pt，
-                // 操作区放进横向滚动兜底；关闭键留在外面常驻可点。
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        // 导出 CAD DXF 矢量图
-                        Button(action: exportAndShareDXF) {
-                            HStack(spacing: 3) {
-                                Image(systemName: "doc.badge.gearshape")
-                                    .adaptiveFont(size: 11, weight: .bold)
-                                Text("CAD")
-                                    .adaptiveFont(size: 10, weight: .bold, design: .monospaced)
-                            }
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 5)
-                            .background(Color.yanCyan)
-                            .cornerRadius(12)
-                        }
-                        .accessibilityLabel("CAD")
+                Spacer(minLength: 4)
 
-                        // 毛坯房房间类型设定（一键切换类型即时刷新形煞报告）
-                        Button(action: { showRoomTypePanel.toggle() }) {
-                            HStack(spacing: 3) {
-                                Image(systemName: "door.sliding.left.hand.closed")
-                                    .adaptiveFont(size: 11, weight: .bold)
-                                Text(lang.t("3d_btn_rooms"))
-                                    .adaptiveFont(size: 10, weight: .bold)
-                            }
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 5)
-                            .background(showRoomTypePanel ? Color.orange : Color.white.opacity(0.85))
-                            .cornerRadius(12)
-                        }
-                        .accessibilityLabel(lang.t("3d_room_type_panel_title"))
-
-                        // 导出与分享长图存证
-                        Button(action: exportAndShareReport) {
-                            Image(systemName: "square.and.arrow.up")
-                                .adaptiveFont(size: 12, weight: .bold)
-                                .foregroundColor(.white)
-                                .padding(8)
-                                .background(Color.blue.opacity(0.75))
-                                .clipShape(Circle())
-                        }
-                        .accessibilityLabel(lang.t("ar_roomplan_share"))
+                // 房间类型设定快捷按钮
+                Button(action: { showRoomTypePanel.toggle() }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "door.sliding.left.hand.closed")
+                            .adaptiveFont(size: 11, weight: .bold)
+                        Text(lang.t("3d_btn_rooms"))
+                            .adaptiveFont(size: 10.5, weight: .bold)
+                            .lineLimit(1)
                     }
-                    .padding(.vertical, 2)
+                    .foregroundColor(showRoomTypePanel ? .black : .white)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
+                    .background(showRoomTypePanel ? Color.orange : Color.white.opacity(0.14))
+                    .cornerRadius(9)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(lang.t("3d_room_type_panel_title"))
+
+                // 统一导出菜单（CAD DXF + 长图存证）
+                Menu {
+                    Button(action: exportAndShareDXF) {
+                        Label(isEn ? "Export CAD (.dxf)" : "导出 CAD 矢量图 (.dxf)", systemImage: "doc.badge.gearshape")
+                    }
+                    Button(action: exportAndShareReport) {
+                        Label(lang.t("ar_roomplan_share"), systemImage: "square.and.arrow.up")
+                    }
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: "square.and.arrow.up")
+                            .adaptiveFont(size: 11, weight: .bold)
+                        Text(isEn ? "Export" : "导出")
+                            .adaptiveFont(size: 10.5, weight: .bold)
+                            .lineLimit(1)
+                    }
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
+                    .background(Color.yanCyan)
+                    .cornerRadius(9)
                 }
 
                 Button(action: { presentationMode.wrappedValue.dismiss() }) {
@@ -234,13 +228,13 @@ public struct House3DSpaceViewer: View {
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(.white)
                         .padding(8)
-                        .background(Color.black.opacity(0.6))
+                        .background(Color.white.opacity(0.14))
                         .clipShape(Circle())
                 }
             }
 
             // 测绘核心参数横幅
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 metricCell(
                     title: lang.t("3d_metric_depth_width"),
                     value: String(format: "%.2f × %.2f m", survey.dimensions.totalDepth, survey.dimensions.totalWidth)
@@ -263,8 +257,8 @@ public struct House3DSpaceViewer: View {
             }
             .padding(.vertical, 6)
             .padding(.horizontal, 10)
-            .background(Color.black.opacity(0.55))
-            .cornerRadius(8)
+            .background(Color.white.opacity(0.06))
+            .cornerRadius(9)
 
             HStack(spacing: 5) {
                 Image(systemName: survey.scanMethod.contains("VR") ? "wand.and.stars" : "location.magnifyingglass")
@@ -273,16 +267,16 @@ public struct House3DSpaceViewer: View {
                     .minimumScaleFactor(0.7)
                 Spacer(minLength: 0)
             }
-            .adaptiveFont(size: 9, weight: .semibold)
+            .adaptiveFont(size: 9.5, weight: .semibold)
             .foregroundColor(survey.scanMethod.contains("VR") ? .orange : .yanCyan)
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 4)
         }
-        .padding(12)
-        .background(Color.black.opacity(0.85))
+        .padding(11)
+        .background(Color.black.opacity(0.78))
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.yanGold.opacity(0.3), lineWidth: 1)
+                .stroke(Color.yanGold.opacity(0.28), lineWidth: 1)
         )
     }
 
@@ -457,115 +451,179 @@ public struct House3DSpaceViewer: View {
         }
     }
 
-    // MARK: - 底部控制条与形煞诊断浮层
+    // MARK: - 底部控制条与可折叠空间诊断浮层
     private var bottomControlPanel: some View {
-        VStack(spacing: 10) {
+        let isEn = (lang.effectiveLanguage == .en)
+        return VStack(spacing: 8) {
             if !survey.shaItems.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(survey.shaItems) { item in
-                            Button(action: {
-                                if selectedShaItem?.id == item.id {
-                                    selectedShaItem = nil
-                                } else {
-                                    selectedShaItem = item
+                VStack(spacing: 8) {
+                    // 折叠/展开头栏：默认折叠以保留最大 3D 模型视野
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isFindingsExpanded.toggle()
+                        }
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checklist")
+                                .foregroundColor(.yanGold)
+                                .adaptiveFont(size: 11, weight: .bold)
+                            Text((isEn ? "Spatial Findings" : "空间诊断要点") + " (\(survey.shaItems.count))")
+                                .adaptiveFont(size: 11, weight: .bold)
+                                .foregroundColor(.white)
+                            if let topItem = selectedShaItem ?? survey.shaItems.first, !isFindingsExpanded {
+                                Text("· \(topItem.title)")
+                                    .adaptiveFont(size: 10.5, weight: .medium)
+                                    .foregroundColor(severityColor(topItem.severity))
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                            HStack(spacing: 3) {
+                                Text(isFindingsExpanded ? (isEn ? "Hide" : "收起") : (isEn ? "Expand" : "展开"))
+                                Image(systemName: isFindingsExpanded ? "chevron.down" : "chevron.up")
+                            }
+                            .adaptiveFont(size: 10, weight: .semibold)
+                            .foregroundColor(.yanCyan)
+                        }
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 8)
+                        .background(Color.black.opacity(0.76))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    if isFindingsExpanded {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(survey.shaItems) { item in
+                                    let isSel = (selectedShaItem?.id == item.id)
+                                    Button(action: {
+                                        selectedShaItem = isSel ? nil : item
+                                    }) {
+                                        HStack(spacing: 5) {
+                                            Circle()
+                                                .fill(severityColor(item.severity))
+                                                .frame(width: 7, height: 7)
+                                            Text(item.title)
+                                                .adaptiveFont(size: 11, weight: .bold)
+                                                .foregroundColor(.white)
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(isSel ? Color.yanGold.opacity(0.25) : Color.black.opacity(0.72))
+                                        .cornerRadius(10)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(isSel ? Color.yanGold : Color.white.opacity(0.14), lineWidth: 1)
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                            }) {
-                                HStack(spacing: 5) {
-                                    Circle()
-                                        .fill(severityColor(item.severity))
-                                        .frame(width: 7, height: 7)
-                                    Text(item.title)
-                                        .adaptiveFont(size: 11, weight: .bold)
-                                        .foregroundColor(.white)
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(selectedShaItem?.id == item.id ? Color.yanGold.opacity(0.25) : Color.white.opacity(0.10))
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(selectedShaItem?.id == item.id ? Color.yanGold : Color.clear, lineWidth: 1)
-                                )
                             }
                         }
-                    }
-                }
 
-                if let item = selectedShaItem ?? survey.shaItems.first {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text("【\(item.title)】")
-                                .adaptiveFont(size: 12, weight: .bold)
-                                .foregroundColor(severityColor(item.severity))
-                            Text(item.locationName)
-                                .adaptiveFont(size: 10, weight: .medium)
-                                .foregroundColor(.white.opacity(0.7))
-                            Spacer()
-                            Text(item.severity.localizedTitle)
-                                .adaptiveFont(size: 9, weight: .bold)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(severityColor(item.severity).opacity(0.25))
-                                .cornerRadius(4)
-                                .foregroundColor(severityColor(item.severity))
+                        if let item = selectedShaItem ?? survey.shaItems.first {
+                            VStack(alignment: .leading, spacing: 5) {
+                                HStack {
+                                    Text("【\(item.title)】")
+                                        .adaptiveFont(size: 12, weight: .bold)
+                                        .foregroundColor(severityColor(item.severity))
+                                    Text(item.locationName)
+                                        .adaptiveFont(size: 10, weight: .medium)
+                                        .foregroundColor(.white.opacity(0.7))
+                                    Spacer()
+                                    Text(item.severity.localizedTitle)
+                                        .adaptiveFont(size: 9, weight: .bold)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(severityColor(item.severity).opacity(0.25))
+                                        .cornerRadius(4)
+                                        .foregroundColor(severityColor(item.severity))
+                                }
+                                Text(item.detail)
+                                    .adaptiveFont(size: 10.5, weight: .regular)
+                                    .foregroundColor(.white.opacity(0.9))
+                                    .lineLimit(3)
+                                Text("\(lang.t("floorplan_solution_prefix")) \(item.solution)")
+                                    .adaptiveFont(size: 10.5, weight: .medium)
+                                    .foregroundColor(.yanGold)
+                                    .lineLimit(2)
+                            }
+                            .padding(10)
+                            .background(Color.black.opacity(0.78))
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(severityColor(item.severity).opacity(0.4), lineWidth: 1)
+                            )
                         }
-                        Text(item.detail)
-                            .adaptiveFont(size: 10, weight: .regular)
-                            .foregroundColor(.white.opacity(0.9))
-                            .lineLimit(2)
-                        Text("\(lang.t("floorplan_solution_prefix")) \(item.solution)")
-                            .adaptiveFont(size: 10, weight: .medium)
-                            .foregroundColor(.yanGold)
-                            .lineLimit(2)
                     }
-                    .padding(10)
-                    .background(Color.black.opacity(0.75))
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(severityColor(item.severity).opacity(0.4), lineWidth: 1)
-                    )
                 }
             }
 
             // 视角与显示开关控制行
-            HStack(spacing: 8) {
-                // 视角切换 Picker
+            HStack(spacing: 6) {
+                // 视角切换
                 HStack(spacing: 4) {
                     ForEach(ViewAngleMode.allCases, id: \.self) { mode in
                         Button(action: { viewMode = mode }) {
                             Text(mode.localizedTitle)
-                                .adaptiveFont(size: 10, weight: .medium)
+                                .adaptiveFont(size: 10, weight: viewMode == mode ? .bold : .medium)
                                 .foregroundColor(viewMode == mode ? .black : .white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                                 .padding(.horizontal, 8)
-                                .padding(.vertical, 6)
-                                .background(viewMode == mode ? Color.yanGold : Color.white.opacity(0.12))
+                                .padding(.vertical, 7)
+                                .background(viewMode == mode ? Color.yanGold : Color.white.opacity(0.1))
                                 .cornerRadius(8)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
 
-                Spacer()
+                Spacer(minLength: 4)
+
+                // 方位九宫网格叠加切换
+                Menu {
+                    Button(action: { palaceGridMode = .off }) {
+                        Label(isEn ? "Hide Sector Grid" : "隐藏方位网格", systemImage: palaceGridMode == .off ? "checkmark" : "eye.slash")
+                    }
+                    Button(action: { palaceGridMode = .baZhai }) {
+                        Label(isEn ? "BaZhai 8-Sector Grid" : "叠加八宅方位网格", systemImage: palaceGridMode == .baZhai ? "checkmark" : "square.grid.3x3")
+                    }
+                    Button(action: { palaceGridMode = .xuanKong }) {
+                        Label(isEn ? "XuanKong 9-Palace Grid" : "叠加玄空九宫网格", systemImage: palaceGridMode == .xuanKong ? "checkmark" : "square.grid.3x3.fill")
+                    }
+                } label: {
+                    Image(systemName: palaceGridMode == .off ? "square.grid.3x3" : "square.grid.3x3.fill")
+                        .adaptiveFont(size: 12, weight: .bold)
+                        .foregroundColor(palaceGridMode == .off ? .white.opacity(0.65) : .yanGold)
+                        .padding(8)
+                        .background(palaceGridMode == .off ? Color.white.opacity(0.1) : Color.yanGold.opacity(0.2))
+                        .clipShape(Circle())
+                }
 
                 // 尺寸标注开关
                 Button(action: { showDimensions.toggle() }) {
                     Image(systemName: showDimensions ? "ruler.fill" : "ruler")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(showDimensions ? .yanCyan : .white.opacity(0.6))
-                        .padding(7)
-                        .background(Color.white.opacity(0.12))
+                        .padding(8)
+                        .background(showDimensions ? Color.yanCyan.opacity(0.18) : Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }
                 .accessibilityLabel(lang.t("3d_metric_depth_width"))
 
-                // 形煞警示标注开关
+                // 诊断标注开关
                 Button(action: { showShaAlerts.toggle() }) {
                     Image(systemName: showShaAlerts ? "exclamationmark.triangle.fill" : "exclamationmark.triangle")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(showShaAlerts ? .orange : .white.opacity(0.6))
-                        .padding(7)
-                        .background(Color.white.opacity(0.12))
+                        .padding(8)
+                        .background(showShaAlerts ? Color.orange.opacity(0.18) : Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }
                 .accessibilityLabel(lang.t("ar_sha_analysis_prefix"))
@@ -577,15 +635,19 @@ public struct House3DSpaceViewer: View {
                     Image(systemName: "arrow.counterclockwise")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(.white)
-                        .padding(7)
-                        .background(Color.white.opacity(0.12))
+                        .padding(8)
+                        .background(Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }
                 .accessibilityLabel(lang.t("3d_reset_camera"))
             }
             .padding(8)
-            .background(Color.black.opacity(0.85))
-            .cornerRadius(12)
+            .background(Color.black.opacity(0.82))
+            .cornerRadius(13)
+            .overlay(
+                RoundedRectangle(cornerRadius: 13)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+            )
         }
     }
 

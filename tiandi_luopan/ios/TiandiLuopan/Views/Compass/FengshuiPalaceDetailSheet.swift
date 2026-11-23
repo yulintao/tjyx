@@ -22,69 +22,123 @@ public struct FengshuiPalaceDetailSheet: View {
     }
     
     public var body: some View {
+        let activePalaceName = motion.headingState.facingMountain.localizedPalace
+        let isEn = (lang.effectiveLanguage == .en)
         return NavigationView {
-            ScrollView {
-                VStack(spacing: 12) {
-                    ForEach(0..<palaces.count, id: \.self) { idx in
-                        let p = palaces[idx]
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                HStack(spacing: 6) {
-                                    Text("【\(p.gua)\(lang.t("gua_suffix")) · \(p.dir)】")
-                                        .adaptiveFont(size: 16, weight: .bold, design: .serif)
-                                        .foregroundColor(Color(red: 0.95, green: 0.85, blue: 0.45))
-                                    Text(p.elem)
-                                        .adaptiveFont(size: 10, weight: .bold)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.white.opacity(0.12))
-                                        .foregroundColor(.white)
-                                        .cornerRadius(4)
+            ScrollViewReader { proxy in
+                VStack(spacing: 0) {
+                    // 顶部八宫一键定位条（当前朝向宫位高亮）
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(0..<palaces.count, id: \.self) { idx in
+                                let p = palaces[idx]
+                                let isCurrent = (p.gua == activePalaceName)
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.25)) {
+                                        proxy.scrollTo(idx, anchor: .top)
+                                    }
+                                }) {
+                                    HStack(spacing: 3) {
+                                        if isCurrent {
+                                            Circle().fill(Color.yanGold).frame(width: 5, height: 5)
+                                        }
+                                        Text("\(p.gua) · \(p.dir)")
+                                            .adaptiveFont(size: 11, weight: isCurrent ? .bold : .medium)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(isCurrent ? Color.yanGold.opacity(0.24) : Color.white.opacity(0.08))
+                                    .foregroundColor(isCurrent ? .yanGold : .white.opacity(0.85))
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(isCurrent ? Color.yanGold.opacity(0.65) : Color.clear, lineWidth: 1)
+                                    )
                                 }
-                                Spacer()
-                                Text("\(lang.t("family_member_corresp"))\(p.member)")
-                                    .adaptiveFont(size: 11)
-                                    .foregroundColor(.white.opacity(0.8))
+                                .buttonStyle(.plain)
                             }
-                            
-                            Text(p.desc)
-                                .adaptiveFont(size: 12)
-                                .foregroundColor(.white.opacity(0.85))
-                                .lineSpacing(3)
-                            
-                            HStack(spacing: 12) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(lang.t("suitable_spaces"))
-                                        .adaptiveFont(size: 11, weight: .bold)
-                                        .foregroundColor(.green)
-                                    Text(p.bestRoom)
-                                        .adaptiveFont(size: 11)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
-                                Spacer()
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(lang.t("forbidden_layouts"))
-                                        .adaptiveFont(size: 11, weight: .bold)
-                                        .foregroundColor(.red)
-                                    Text(p.taboo)
-                                        .adaptiveFont(size: 11)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
-                            }
-                            .padding(8)
-                            .background(Color.white.opacity(0.04))
-                            .cornerRadius(6)
                         }
-                        .padding(12)
-                        .background(Color(red: 0.12, green: 0.12, blue: 0.16))
-                        .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.06), lineWidth: 1)
-                        )
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                    }
+                    .background(Color(red: 0.09, green: 0.09, blue: 0.12))
+
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(0..<palaces.count, id: \.self) { idx in
+                                let p = palaces[idx]
+                                let isCurrent = (p.gua == activePalaceName)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack {
+                                        HStack(spacing: 6) {
+                                            Text("【\(p.gua)\(lang.t("gua_suffix")) · \(p.dir)】")
+                                                .adaptiveFont(size: 16, weight: .bold, design: .serif)
+                                                .foregroundColor(Color.yanGold)
+                                            Text(p.elem)
+                                                .adaptiveFont(size: 10, weight: .bold)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Color.white.opacity(0.12))
+                                                .foregroundColor(.white)
+                                                .cornerRadius(4)
+                                            if isCurrent {
+                                                Text(isEn ? "Facing" : "当前朝向")
+                                                    .adaptiveFont(size: 9.5, weight: .bold)
+                                                    .padding(.horizontal, 6)
+                                                    .padding(.vertical, 2)
+                                                    .background(Color.yanCyan.opacity(0.22))
+                                                    .foregroundColor(.yanCyan)
+                                                    .cornerRadius(4)
+                                            }
+                                        }
+                                        Spacer()
+                                        Text("\(lang.t("family_member_corresp"))\(p.member)")
+                                            .adaptiveFont(size: 11)
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                    
+                                    Text(p.desc)
+                                        .adaptiveFont(size: 12)
+                                        .foregroundColor(.white.opacity(0.85))
+                                        .lineSpacing(3)
+                                    
+                                    HStack(alignment: .top, spacing: 12) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(lang.t("suitable_spaces"))
+                                                .adaptiveFont(size: 11, weight: .bold)
+                                                .foregroundColor(.green)
+                                            Text(p.bestRoom)
+                                                .adaptiveFont(size: 11)
+                                                .foregroundColor(.white.opacity(0.8))
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(lang.t("forbidden_layouts"))
+                                                .adaptiveFont(size: 11, weight: .bold)
+                                                .foregroundColor(.red)
+                                            Text(p.taboo)
+                                                .adaptiveFont(size: 11)
+                                                .foregroundColor(.white.opacity(0.8))
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                    .padding(9)
+                                    .background(Color.white.opacity(0.04))
+                                    .cornerRadius(7)
+                                }
+                                .id(idx)
+                                .padding(12)
+                                .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                                .cornerRadius(11)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 11)
+                                        .stroke(isCurrent ? Color.yanGold.opacity(0.65) : Color.white.opacity(0.07), lineWidth: isCurrent ? 1.5 : 1)
+                                )
+                            }
+                        }
+                        .padding(16)
                     }
                 }
-                .padding()
             }
             .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
             .navigationBarTitle(lang.t("palace_sheet_title"), displayMode: .inline)
@@ -93,5 +147,6 @@ public struct FengshuiPalaceDetailSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .preferredColorScheme(.dark)
     }
 }

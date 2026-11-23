@@ -50,64 +50,132 @@ public struct KongWangDetailSheet: View {
             kwRemedyText = lang.t("kw_pure_remedy")
         }
         
+        let isEn = (lang.effectiveLanguage == .en)
+        let clampedProgress = min(max(delta / 7.5, 0.0), 1.0)
+
         return NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // 状态徽章
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(kwStatusText)
-                                .adaptiveFont(size: 20, weight: .bold)
+                VStack(alignment: .leading, spacing: 14) {
+                    // 状态头卡 + 偏离度可视化标尺
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(kwStatusText)
+                                    .adaptiveFont(size: 20, weight: .bold)
+                                    .foregroundColor(kwColor)
+                                Text("\(lang.t("kw_heading_prefix")): \(String(format: "%.1f", currentHeading))° · \(m.localizedName) (\(lang.t("kw_center_prefix")) \(String(format: "%.1f", m.centerAngle))° \(lang.t("kw_deviation_prefix")) \(String(format: "%.1f", delta))°)")
+                                    .adaptiveFont(size: 12, design: .monospaced)
+                                    .foregroundColor(.white.opacity(0.75))
+                                    .lineLimit(2)
+                                    .minimumScaleFactor(0.75)
+                            }
+                            Spacer()
+                            Text(kwGradeText)
+                                .adaptiveFont(size: 12, weight: .bold)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(kwColor.opacity(0.2))
                                 .foregroundColor(kwColor)
-                            Text("\(lang.t("kw_heading_prefix")): \(String(format: "%.1f", currentHeading))° · \(m.localizedName) (\(lang.t("kw_center_prefix")) \(String(format: "%.1f", m.centerAngle))° \(lang.t("kw_deviation_prefix")) \(String(format: "%.1f", delta))°)")
-                                .adaptiveFont(size: 13)
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.75)
+                                .cornerRadius(7)
                         }
-                        Spacer()
-                        Text(kwGradeText)
-                            .adaptiveFont(size: 13, weight: .bold)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(kwColor.opacity(0.2))
-                            .foregroundColor(kwColor)
-                            .cornerRadius(6)
+
+                        // 0° ~ 7.5° 山向中心偏离标尺
+                        VStack(alignment: .leading, spacing: 5) {
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.white.opacity(0.1))
+                                        .frame(height: 8)
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(kwColor)
+                                        .frame(width: max(8, geo.size.width * CGFloat(clampedProgress)), height: 8)
+                                }
+                            }
+                            .frame(height: 8)
+                            HStack {
+                                Text("0° \(isEn ? "Center" : "正中")")
+                                Spacer()
+                                Text("1.5° \(isEn ? "Sub" : "兼向")")
+                                Spacer()
+                                Text("6.5° \(isEn ? "Void" : "空亡")")
+                                Spacer()
+                                Text("7.5°")
+                            }
+                            .adaptiveFont(size: 9.5, design: .monospaced)
+                            .foregroundColor(.white.opacity(0.55))
+                        }
+
+                        if delta > 0.3 {
+                            Button(action: {
+                                motion.lockAtFacingAngle(m.centerAngle)
+                            }) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "scope")
+                                    Text(isEn
+                                         ? String(format: "Lock to Center %.1f° (%@)", m.centerAngle, m.localizedName)
+                                         : String(format: "一键锁至本山正中 %.1f°（%@）", m.centerAngle, m.localizedName))
+                                }
+                                .adaptiveFont(size: 11.5, weight: .bold)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 9)
+                                .background(Color.yanCyan.opacity(0.18))
+                                .foregroundColor(.yanCyan)
+                                .cornerRadius(8)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
-                    
-                    Divider()
+                    .padding(14)
+                    .background(Color(red: 0.12, green: 0.12, blue: 0.16))
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(kwColor.opacity(0.35), lineWidth: 1)
+                    )
                     
                     // 诊断解析
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(lang.t("kw_principle_section"))
-                            .adaptiveFont(size: 15, weight: .bold)
+                            .adaptiveFont(size: 14, weight: .bold)
+                            .foregroundColor(.yanGold)
                         Text(kwDesc)
                             .adaptiveFont(size: 13)
                             .lineSpacing(4)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white.opacity(0.88))
                     }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(red: 0.11, green: 0.11, blue: 0.15))
+                    .cornerRadius(12)
                     
                     // 地师调理
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(lang.t("kw_master_remedy_section"))
-                            .adaptiveFont(size: 15, weight: .bold)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(lang.t("kw_master_remedy_section"), systemImage: "lightbulb.fill")
+                            .adaptiveFont(size: 14, weight: .bold)
+                            .foregroundColor(.yanGold)
                         Text(kwRemedyText)
                             .adaptiveFont(size: 13)
-                            .lineSpacing(3)
-                            .padding(12)
-                            .background(Color.yellow.opacity(0.08))
-                            .cornerRadius(8)
+                            .lineSpacing(4)
+                            .foregroundColor(.white.opacity(0.88))
                     }
-                    
-                    Spacer()
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.yanGold.opacity(0.09))
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.yanGold.opacity(0.28), lineWidth: 1)
+                    )
                 }
-                .padding()
+                .padding(16)
             }
+            .background(Color(red: 0.07, green: 0.07, blue: 0.09).ignoresSafeArea())
             .navigationBarTitle(lang.t("kw_sheet_title"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .preferredColorScheme(.dark)
     }
 }

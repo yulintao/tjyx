@@ -10,6 +10,7 @@ public struct LayerSettingsSheet: View {
     public init() {}
     
     public var body: some View {
+        let isEn = (lang.effectiveLanguage == .en)
         return NavigationView {
             List {
                 // 流派预设一键切换
@@ -17,25 +18,57 @@ public struct LayerSettingsSheet: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(CompassPreset.allCases) { preset in
+                                let isSelected = (layers.activePreset == preset)
                                 Button(action: {
                                     layers.applyPreset(preset)
                                 }) {
-                                    Text(preset.localizedTitle)
-                                        .adaptiveFont(size: 13, weight: layers.activePreset == preset ? .bold : .medium)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 8)
-                                        .background(layers.activePreset == preset ? Color(red: 0.83, green: 0.68, blue: 0.21) : Color.white.opacity(0.08))
-                                        .foregroundColor(layers.activePreset == preset ? .black : .white)
-                                        .cornerRadius(8)
+                                    HStack(spacing: 5) {
+                                        if isSelected {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 11, weight: .bold))
+                                        }
+                                        Text(preset.localizedTitle)
+                                            .adaptiveFont(size: 12.5, weight: isSelected ? .bold : .medium)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(isSelected ? Color.yanGold : Color.white.opacity(0.08))
+                                    .foregroundColor(isSelected ? .black : .white)
+                                    .cornerRadius(9)
                                 }
+                                .buttonStyle(.plain)
                             }
                         }
                         .padding(.vertical, 4)
                     }
                 }
                 
-                // 圈层开关自定义
-                Section(header: Text(lang.t("layers_custom_section"))) {
+                // 圈层开关自定义（含一键全开/精简测绘快捷操作）
+                Section(header: HStack {
+                    Text(lang.t("layers_custom_section"))
+                    Spacer()
+                    Button(isEn ? "Minimal" : "精简测量") {
+                        layers.showDegreeTicks = true
+                        layers.showMountain24 = true
+                        layers.showEightGua = true
+                        layers.showSolarTerms = false
+                        layers.showHexagrams64 = false
+                        layers.showFenjin120 = false
+                    }
+                    .adaptiveFont(size: 10.5, weight: .semibold)
+                    .foregroundColor(.yanCyan)
+                    Text("·").foregroundColor(.secondary)
+                    Button(isEn ? "All On" : "全开") {
+                        layers.showDegreeTicks = true
+                        layers.showSolarTerms = true
+                        layers.showHexagrams64 = true
+                        layers.showFenjin120 = true
+                        layers.showMountain24 = true
+                        layers.showEightGua = true
+                    }
+                    .adaptiveFont(size: 10.5, weight: .semibold)
+                    .foregroundColor(.yanGold)
+                }) {
                     Toggle(lang.t("layer_degree_ticks"), isOn: $layers.showDegreeTicks)
                     Toggle(lang.t("layer_solar_terms"), isOn: $layers.showSolarTerms)
                     Toggle(lang.t("layer_hexagrams64"), isOn: $layers.showHexagrams64)
@@ -43,13 +76,14 @@ public struct LayerSettingsSheet: View {
                     Toggle(lang.t("layer_mountain24"), isOn: $layers.showMountain24)
                     Toggle(lang.t("layer_eight_gua"), isOn: $layers.showEightGua)
                 }
+                .tint(Color.yanGold)
                 
-                // 天池仪器与指针
+                // 天池仪器与指针（移除财神/喜神金标，保持专业测量仪表纯净）
                 Section(header: Text(lang.t("tianchi_section"))) {
                     Toggle(lang.t("layer_true_north"), isOn: $layers.showTrueNorthNeedle)
                     Toggle(lang.t("layer_level_bubble"), isOn: $layers.showLevelBubble)
-                    Toggle(dailyGodLayerTitle(), isOn: $layers.showDailyGodMarkers)
                 }
+                .tint(Color.yanCyan)
             }
             .listStyle(InsetGroupedListStyle())
             .navigationBarTitle(lang.t("layers_settings"), displayMode: .inline)
@@ -58,19 +92,9 @@ public struct LayerSettingsSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-    }
-
-    private func dailyGodLayerTitle() -> String {
-        switch lang.effectiveLanguage {
-        case .zhHans: return "今日财神/喜神方位金标"
-        case .zhHant: return "今日財神/喜神方位金標"
-        case .en: return "Daily Wealth & Joy Direction Markers"
-        case .ja: return "本日の財神・喜神方位マーカー"
-        case .ko: return "오늘의 재신·희신 방위 마커"
-        case .vi: return "Đánh Dấu Hướng Thần Tài & Hỷ Thần"
-        case .th: return "เครื่องหมายทิศเทพโชคลาภและเทพมงคล"
-        case .id: return "Penanda Arah Rezeki & Sukacita Harian"
-        default: return "今日财神/喜神方位金标"
+        .preferredColorScheme(.dark)
+        .onAppear {
+            layers.showDailyGodMarkers = false
         }
     }
 }
