@@ -474,10 +474,12 @@ public struct FloorplanView: View {
                                     .frame(maxWidth: contentMax)
                                     .padding(.horizontal, 16)
 
-                                // 测绘训练进度：户型模块（体检），真实布局操作驱动
-                                DSTrainingProgressHUD(module: "floorplan")
-                                    .frame(maxWidth: contentMax)
-                                    .padding(.horizontal, 16)
+                                // 测绘训练进度：户型模块（体检），默认收起，首屏聚焦画布与工具
+                                DSFoldableSection(title: "测绘训练", defaultExpanded: false) {
+                                    DSTrainingProgressHUD(module: "floorplan")
+                                        .frame(maxWidth: contentMax)
+                                }
+                                .padding(.horizontal, 16)
 
                                 if let lockedBearing = workflow.bearing {
                                     let delta = abs(lockedBearing.bearingDegrees - effectiveHeading)

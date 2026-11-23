@@ -105,9 +105,11 @@ public struct XuanKongGridView: View {
                 Color.clear.frame(height: 1).id("analysisRootTop")
                 WorkflowStepperBar(activeStep: 2)
                     .padding(.horizontal, 16)
-                // 测绘训练进度：分析模块（探查/体检），真实操作驱动
-                DSTrainingProgressHUD(module: "analysis")
-                    .padding(.horizontal, 16)
+                // 测绘训练进度：分析模块（探查/体检），默认收起，首屏聚焦结论与排盘
+                DSFoldableSection(title: "测绘训练", defaultExpanded: false) {
+                    DSTrainingProgressHUD(module: "analysis")
+                }
+                .padding(.horizontal, 16)
                 // 结论式改造：当前坐向 + 空亡状态常驻置顶，各派排盘共享
                 DSOrientationConclusionBar(moduleName: "当前方位 · 各派共用")
                     .padding(.horizontal, 16)
