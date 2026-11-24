@@ -3028,7 +3028,7 @@ public struct ARSpatialSurveyView: View {
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 10)
-                .padding(.vertical, 8)
+                .frame(minHeight: DS.touchMin)
                 .background(Color.white.opacity(0.14))
                 .cornerRadius(16)
             }
@@ -3044,7 +3044,7 @@ public struct ARSpatialSurveyView: View {
                     }
                     .foregroundColor(.yanCyan)
                     .padding(.horizontal, 9)
-                    .padding(.vertical, 8)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.yanCyan.opacity(0.18))
                     .cornerRadius(16)
                 }
@@ -3057,6 +3057,7 @@ public struct ARSpatialSurveyView: View {
                         .adaptiveFont(size: 13, weight: .bold)
                         .foregroundColor(.white)
                         .padding(9)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(Color.white.opacity(0.14))
                         .clipShape(Circle())
                 }
@@ -3086,7 +3087,7 @@ public struct ARSpatialSurveyView: View {
                             systemImage: "plus.circle.fill"
                         )
                         .adaptiveFont(size: 11, weight: .bold)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                         .padding(.vertical, 9)
                         .background(Color.semWarn)
                         .foregroundColor(.black)
@@ -3098,7 +3099,7 @@ public struct ARSpatialSurveyView: View {
                         Text(lang.t("done"))
                             .adaptiveFont(size: 11, weight: .bold)
                             .padding(.horizontal, 14)
-                            .padding(.vertical, 9)
+                            .frame(minHeight: DS.touchMin)
                             .background(Color.yanGold)
                             .foregroundColor(.black)
                             .cornerRadius(9)
@@ -3112,6 +3113,7 @@ public struct ARSpatialSurveyView: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(.white)
                             .padding(9)
+                            .frame(width: DS.touchMin, height: DS.touchMin)
                             .background(Color.semXiong.opacity(0.75))
                             .cornerRadius(9)
                     }
@@ -3130,7 +3132,7 @@ public struct ARSpatialSurveyView: View {
                             .minimumScaleFactor(0.75)
                     }
                     .adaptiveFont(size: 11, weight: .bold)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 6)
                     .background(model.lubanPointA != nil ? Color.yanCyan : Color.yanCyan.opacity(0.2))
@@ -3151,7 +3153,7 @@ public struct ARSpatialSurveyView: View {
                             .minimumScaleFactor(0.75)
                     }
                     .adaptiveFont(size: 11, weight: .bold)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 6)
                     .background(model.cornerPinActive ? Color.semWarn : Color.white.opacity(0.14))
@@ -3174,7 +3176,7 @@ public struct ARSpatialSurveyView: View {
                             .minimumScaleFactor(0.75)
                     }
                     .adaptiveFont(size: 11, weight: .bold)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 6)
                     .background(Color.yanGold)
@@ -3265,7 +3267,7 @@ public struct ARSpatialSurveyView: View {
                     }
                     .adaptiveFont(size: 10, weight: .bold)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.12))
                     .foregroundColor(.white.opacity(0.9))
                     .cornerRadius(7)
@@ -3313,6 +3315,7 @@ public struct ARSpatialSurveyView: View {
                         Image(systemName: "xmark.circle.fill")
                             .adaptiveFont(size: 12)
                             .foregroundColor(.white.opacity(0.7))
+                            .frame(width: DS.touchMin, height: DS.touchMin)
                     }
                 }
                 .padding(.horizontal, 8)
@@ -3381,8 +3384,8 @@ public struct ARSpatialSurveyView: View {
                             Label(lang.t("tab_floorplan"), systemImage: "scope")
                                 .adaptiveFont(size: 10, weight: .bold)
                                 .padding(.horizontal, 7)
-                                .padding(.vertical, 3)
-                                .background(Color(red: 0.95, green: 0.80, blue: 0.25).opacity(0.9))
+                                .frame(minHeight: DS.touchMin)
+                                .background(Color.yanGold.opacity(0.9))
                                 .foregroundColor(.black)
                                 .cornerRadius(6)
                         }
