@@ -1326,7 +1326,7 @@ public struct ARVisionView: View {
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 6)
-                        .background(Color.purple.opacity(0.82))
+                        .background(Color.vermilion.opacity(0.82))
                         .foregroundColor(.white)
                         .cornerRadius(14)
                     }

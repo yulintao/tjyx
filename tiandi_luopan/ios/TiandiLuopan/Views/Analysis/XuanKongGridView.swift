@@ -978,8 +978,8 @@ public struct XuanKongGridView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(useTiGua ? Color.purple.opacity(0.25) : Color.blue.opacity(0.2))
-                    .foregroundColor(useTiGua ? Color(red: 0.85, green: 0.65, blue: 1.0) : Color.yanCyan)
+                    .background(useTiGua ? Color.vermilion.opacity(0.25) : Color.yanCyan.opacity(0.2))
+                    .foregroundColor(useTiGua ? Color.vermilion : Color.yanCyan)
                     .cornerRadius(6)
                 }
             }
@@ -1264,7 +1264,7 @@ public struct XuanKongGridView: View {
     private func guidanceColor(_ use: XuanKongSectorUse) -> Color {
         switch use {
         case .quiet: return .semWarn
-        case .separateUses: return Color(red: 0.8, green: 0.67, blue: 1)
+        case .separateUses: return Color.vermilion
         case .activity: return .yanGold
         case .rest: return .yanCyan
         case .everyday: return .white.opacity(0.7)

@@ -412,7 +412,7 @@ public struct BaZhaiView: View {
                             .adaptiveFont(size: 11, weight: .bold)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(hq.isJiuPin ? Color.semJi.opacity(0.2) : (hq.isDanger ? Color.semXiong.opacity(0.2) : Color.blue.opacity(0.2)))
+                            .background(hq.isJiuPin ? Color.semJi.opacity(0.2) : (hq.isDanger ? Color.semXiong.opacity(0.2) : Color.yanCyan.opacity(0.2)))
                             .foregroundColor(hq.isJiuPin ? Color.semJi : (hq.isDanger ? Color.semXiong : Color.yanCyan))
                             .cornerRadius(4)
                     }
@@ -2124,12 +2124,12 @@ public struct AddFamilyMemberDialog: View {
                                         .adaptiveFont(size: 11, weight: !selectedIsMale ? .bold : .medium)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 7)
-                                        .background(!selectedIsMale ? Color.pink.opacity(0.28) : Color.white.opacity(0.06))
-                                        .foregroundColor(!selectedIsMale ? Color.pink : .white.opacity(0.8))
+                                        .background(!selectedIsMale ? Color.vermilion.opacity(0.28) : Color.white.opacity(0.06))
+                                        .foregroundColor(!selectedIsMale ? Color.vermilion : .white.opacity(0.8))
                                         .cornerRadius(6)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 6)
-                                                .stroke(!selectedIsMale ? Color.pink : Color.clear, lineWidth: 1)
+                                                .stroke(!selectedIsMale ? Color.vermilion : Color.clear, lineWidth: 1)
                                         )
                                 }
                                 .buttonStyle(PlainButtonStyle())

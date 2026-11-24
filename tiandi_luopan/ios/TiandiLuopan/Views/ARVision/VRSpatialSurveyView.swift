@@ -429,7 +429,7 @@ public struct VRSpatialSurveyView: View {
                 vrQuickToolButton(
                     icon: "plus.square.on.square",
                     title: lang.t("vr_survey_add_room"),
-                    bg: Color.blue.opacity(0.24),
+                    bg: Color.yanCyan.opacity(0.24),
                     fg: .yanCyan,
                     action: { addRoom(at: nil, in: nil) }
                 )
