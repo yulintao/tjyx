@@ -822,7 +822,7 @@ public struct CompassMainView: View {
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .adaptiveFont(size: 13)
-                        .frame(width: DS.touchMin, minHeight: DS.touchMin)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .foregroundColor(Color.goldText)
                         .background(Color.white.opacity(0.08))
                         .cornerRadius(8)

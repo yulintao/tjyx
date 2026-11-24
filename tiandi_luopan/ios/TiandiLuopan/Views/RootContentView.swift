@@ -1538,6 +1538,7 @@ private struct ARSurveyTabHostView: View {
                             .foregroundColor(.black)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
+                            .frame(minHeight: DS.touchMin)
                             .background(Color.yanGold)
                             .cornerRadius(14)
                         }
@@ -1634,7 +1635,7 @@ public struct WorkflowStepperBar: View {
                             .minimumScaleFactor(0.68)
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(minHeight: 30)
+                    .frame(minHeight: DS.touchMin)
                     .padding(.horizontal, 4)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
