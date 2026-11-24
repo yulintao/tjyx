@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B201 /* GridStack in Frameworks */ = {isa = PBXBuildFile; productRef = A102 /* GridStack */; };
 		1001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2001 /* AppDelegate.swift */; };
 		1002 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2002 /* SceneDelegate.swift */; };
 		1003 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2003 /* ViewController.swift */; };
@@ -223,7 +224,7 @@
 				1043 /* ARKit.framework in Frameworks */,
 				1044 /* RoomPlan.framework in Frameworks */,
 				9112 /* WidgetKit.framework in App Frameworks */,
-				A102 /* GridStack in Frameworks */,
+				B201 /* GridStack in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
