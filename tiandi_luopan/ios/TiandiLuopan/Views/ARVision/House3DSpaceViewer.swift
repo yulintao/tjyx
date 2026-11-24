@@ -193,7 +193,7 @@ public struct House3DSpaceViewer: View {
                     }
                     .foregroundColor(showRoomTypePanel ? .black : .white)
                     .padding(.horizontal, 9)
-                    .padding(.vertical, 6)
+                    .frame(minHeight: DS.touchMin)
                     .background(showRoomTypePanel ? Color.semWarn : Color.white.opacity(0.14))
                     .cornerRadius(9)
                 }
@@ -218,7 +218,7 @@ public struct House3DSpaceViewer: View {
                     }
                     .foregroundColor(.black)
                     .padding(.horizontal, 9)
-                    .padding(.vertical, 6)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.yanCyan)
                     .cornerRadius(9)
                 }
@@ -227,7 +227,7 @@ public struct House3DSpaceViewer: View {
                     Image(systemName: "xmark")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(.white)
-                        .padding(8)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(Color.white.opacity(0.14))
                         .clipShape(Circle())
                 }
@@ -296,11 +296,12 @@ public struct House3DSpaceViewer: View {
                 Image(systemName: "xmark.circle.fill")
                     .adaptiveFont(size: 13)
                     .foregroundColor(.white.opacity(0.6))
+                    .frame(width: DS.touchMin, height: DS.touchMin)
             }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color(red: 0.12, green: 0.14, blue: 0.20).opacity(0.95))
+        .background(Color.surfaceElevated.opacity(0.95))
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -341,7 +342,7 @@ public struct House3DSpaceViewer: View {
                         .adaptiveFont(size: 11, weight: .bold)
                         .foregroundColor(.black)
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanGold)
                         .cornerRadius(10)
                 }
@@ -485,7 +486,7 @@ public struct House3DSpaceViewer: View {
                             .foregroundColor(.yanCyan)
                         }
                         .padding(.horizontal, 11)
-                        .padding(.vertical, 8)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.black.opacity(0.76))
                         .cornerRadius(10)
                         .overlay(
@@ -512,7 +513,7 @@ public struct House3DSpaceViewer: View {
                                                 .foregroundColor(.white)
                                         }
                                         .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
+                                        .frame(minHeight: DS.touchMin)
                                         .background(isSel ? Color.yanGold.opacity(0.25) : Color.black.opacity(0.72))
                                         .cornerRadius(10)
                                         .overlay(
@@ -576,7 +577,7 @@ public struct House3DSpaceViewer: View {
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
                                 .padding(.horizontal, 8)
-                                .padding(.vertical, 7)
+                                .frame(minHeight: DS.touchMin)
                                 .background(viewMode == mode ? Color.yanGold : Color.white.opacity(0.1))
                                 .cornerRadius(8)
                         }
@@ -601,7 +602,7 @@ public struct House3DSpaceViewer: View {
                     Image(systemName: palaceGridMode == .off ? "square.grid.3x3" : "square.grid.3x3.fill")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(palaceGridMode == .off ? .white.opacity(0.65) : .yanGold)
-                        .padding(8)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(palaceGridMode == .off ? Color.white.opacity(0.1) : Color.yanGold.opacity(0.2))
                         .clipShape(Circle())
                 }
@@ -611,7 +612,7 @@ public struct House3DSpaceViewer: View {
                     Image(systemName: showDimensions ? "ruler.fill" : "ruler")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(showDimensions ? .yanCyan : .white.opacity(0.6))
-                        .padding(8)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(showDimensions ? Color.yanCyan.opacity(0.18) : Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }
@@ -622,7 +623,7 @@ public struct House3DSpaceViewer: View {
                     Image(systemName: showShaAlerts ? "exclamationmark.triangle.fill" : "exclamationmark.triangle")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(showShaAlerts ? .semWarn : .white.opacity(0.6))
-                        .padding(8)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(showShaAlerts ? Color.semWarn.opacity(0.18) : Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }
@@ -635,7 +636,7 @@ public struct House3DSpaceViewer: View {
                     Image(systemName: "arrow.counterclockwise")
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(.white)
-                        .padding(8)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }

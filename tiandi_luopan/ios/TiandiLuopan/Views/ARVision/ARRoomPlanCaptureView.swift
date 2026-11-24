@@ -1288,7 +1288,7 @@ public struct ARRoomPlanSurveyView: View {
                         Image(systemName: "xmark")
                             .adaptiveFont(size: 13, weight: .bold)
                             .foregroundColor(.white)
-                            .padding(9)
+                            .frame(width: DS.touchMin, height: DS.touchMin)
                             .background(Color.white.opacity(0.14))
                             .clipShape(Circle())
                     }
@@ -1364,8 +1364,7 @@ public struct ARRoomPlanSurveyView: View {
                                 Text(lang.t("ar_roomplan_finish"))
                             }
                             .adaptiveFont(size: 13, weight: .bold)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 11)
+                            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                             .background(Color.semJi)
                             .foregroundColor(.black)
                             .cornerRadius(10)
@@ -1400,7 +1399,7 @@ public struct ARRoomPlanSurveyView: View {
                                         Label(lang.t("ar_roomplan_confirm_entrance"), systemImage: "door.left.hand.open")
                                             .adaptiveFont(size: 10, weight: .bold)
                                             .padding(.horizontal, 8)
-                                            .padding(.vertical, 4)
+                                            .frame(minHeight: DS.touchMin)
                                             .background(Color.yanGold.opacity(0.18))
                                             .foregroundColor(.yanGold)
                                             .cornerRadius(6)
@@ -1413,8 +1412,7 @@ public struct ARRoomPlanSurveyView: View {
                                     Button(action: { model.applyHeadingOffset(model.headingOffsetDegrees + step) }) {
                                         Text(step > 0 ? String(format: "+%.0f°", step) : String(format: "%.0f°", step))
                                             .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 6)
+                                            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                                             .background(abs(step) >= 5 ? Color.semWarn.opacity(0.24) : Color.white.opacity(0.12))
                                             .foregroundColor(abs(step) >= 5 ? .semWarn : .white)
                                             .cornerRadius(7)
@@ -1512,7 +1510,7 @@ public struct ARRoomPlanSurveyView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
             .padding(.vertical, 8)
             .padding(.horizontal, 4)
             .background(bg)

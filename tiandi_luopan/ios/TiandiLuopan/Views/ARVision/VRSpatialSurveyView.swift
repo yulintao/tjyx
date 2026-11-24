@@ -193,7 +193,7 @@ public struct VRSpatialSurveyView: View {
                 Image(systemName: "xmark")
                     .adaptiveFont(size: 13, weight: .bold)
                     .foregroundColor(.white)
-                    .padding(9)
+                    .frame(width: DS.touchMin, height: DS.touchMin)
                     .background(Color.black.opacity(0.55))
                     .clipShape(Circle())
             }
@@ -392,7 +392,7 @@ public struct VRSpatialSurveyView: View {
                     }
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.yanCyan.opacity(0.2))
                     .foregroundColor(.yanCyan)
                     .cornerRadius(6)
@@ -415,7 +415,7 @@ public struct VRSpatialSurveyView: View {
                                 .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
                                 .foregroundColor(isSelected ? .black : .white.opacity(0.9))
                                 .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
+                                .frame(minHeight: DS.touchMin)
                                 .background(isSelected ? tint(for: type) : Color.white.opacity(0.1))
                                 .cornerRadius(9)
                         }
@@ -464,8 +464,7 @@ public struct VRSpatialSurveyView: View {
                 }
                 .adaptiveFont(size: 13, weight: .bold)
                 .foregroundColor(.black)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 11)
+                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                 .background(Color.yanGold)
                 .cornerRadius(10)
             }
@@ -490,7 +489,7 @@ public struct VRSpatialSurveyView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
             .padding(.vertical, 7)
             .padding(.horizontal, 4)
             .background(bg)

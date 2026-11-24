@@ -1026,7 +1026,7 @@ public struct ARVisionView: View {
                         }
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanCyan)
                         .foregroundColor(.black)
                         .cornerRadius(12)
@@ -1285,7 +1285,7 @@ public struct ARVisionView: View {
                 }) {
                     Image(systemName: "camera.rotate.fill")
                         .adaptiveFont(size: 13)
-                        .padding(8)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(Color.white.opacity(0.2))
                         .foregroundColor(.white)
                         .clipShape(Circle())
@@ -1303,7 +1303,7 @@ public struct ARVisionView: View {
                         }
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 9)
-                        .padding(.vertical, 6)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanCyan.opacity(0.85))
                         .foregroundColor(.black)
                         .cornerRadius(14)
@@ -1323,7 +1323,7 @@ public struct ARVisionView: View {
                         }
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 9)
-                        .padding(.vertical, 6)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.vermilion.opacity(0.82))
                         .foregroundColor(.white)
                         .cornerRadius(14)
@@ -1354,7 +1354,7 @@ public struct ARVisionView: View {
                         }
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 9)
-                        .padding(.vertical, 6)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.semJi.opacity(0.8))
                         .foregroundColor(.black)
                         .cornerRadius(14)
@@ -1456,7 +1456,7 @@ public struct ARVisionView: View {
                         }
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
+                        .frame(minHeight: DS.touchMin)
                         .background(isAutoFollowingDirection ? Color.semJi.opacity(0.26) : Color.semWarn.opacity(0.26))
                         .foregroundColor(isAutoFollowingDirection ? .semJi : .semWarn)
                         .cornerRadius(7)
@@ -1481,7 +1481,7 @@ public struct ARVisionView: View {
                         Label("\(shaStore.records.count)", systemImage: "mappin.and.ellipse")
                             .adaptiveFont(size: 10.5, weight: .bold)
                             .padding(.horizontal, 8)
-                            .padding(.vertical, 5)
+                            .frame(minHeight: DS.touchMin)
                             .background(Color.yanCyan.opacity(0.24))
                             .foregroundColor(.yanCyan)
                             .cornerRadius(7)
@@ -1501,7 +1501,7 @@ public struct ARVisionView: View {
                             }
                             .adaptiveFont(size: 10, weight: .bold)
                             .padding(.horizontal, 8)
-                            .padding(.vertical, 5)
+                            .frame(minHeight: DS.touchMin)
                             .background(Color.white.opacity(0.14))
                             .foregroundColor(.white)
                             .cornerRadius(7)
@@ -1548,7 +1548,7 @@ public struct ARVisionView: View {
                                     Text(item.localizedName)
                                         .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
                                         .padding(.horizontal, 9)
-                                        .padding(.vertical, 5)
+                                        .frame(minHeight: DS.touchMin)
                                         .background(isSelected ? Color.yanCyan.opacity(0.88) : Color.white.opacity(0.14))
                                         .foregroundColor(isSelected ? .black : .white)
                                         .cornerRadius(9)
@@ -1585,6 +1585,7 @@ public struct ARVisionView: View {
                                     UIApplication.shared.open(url)
                                 }
                                 .adaptiveFont(size: 10, weight: .semibold)
+                                .frame(minHeight: DS.touchMin)
                                 .foregroundColor(.yanCyan)
                             }
                         }
@@ -1613,7 +1614,7 @@ public struct ARVisionView: View {
                             Label("\(lang.t("ar_mark_sha")) (\(shaStore.records.count))", systemImage: "mappin.and.ellipse")
                                 .adaptiveFont(size: 10.5, weight: .bold)
                                 .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
+                                .frame(minHeight: DS.touchMin)
                                 .background(Color.yanCyan.opacity(0.24))
                                 .foregroundColor(Color.yanCyan)
                                 .cornerRadius(7)
@@ -1624,7 +1625,7 @@ public struct ARVisionView: View {
                             Label(lang.t("ar_panorama_report"), systemImage: "gauge")
                                 .adaptiveFont(size: 10.5, weight: .bold)
                                 .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
+                                .frame(minHeight: DS.touchMin)
                                 .background(Color.semJi.opacity(0.2))
                                 .foregroundColor(.semJi)
                                 .cornerRadius(7)
@@ -1638,7 +1639,7 @@ public struct ARVisionView: View {
                                 Image(systemName: "ellipsis.circle")
                                     .adaptiveFont(size: 12, weight: .bold)
                                     .padding(.horizontal, 8)
-                                    .padding(.vertical, 6)
+                                    .frame(minHeight: DS.touchMin)
                                     .background(Color.white.opacity(0.16))
                                     .foregroundColor(.white)
                                     .cornerRadius(7)
@@ -2271,7 +2272,7 @@ public struct ShaRemedyDetailSheet: View {
                                     .adaptiveFont(size: 12, weight: isSelected ? .bold : .medium)
                             }
                             .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
+                            .frame(minHeight: DS.touchMin)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
                                     .fill(isSelected ? Color.goldText.opacity(0.25) : Color.white.opacity(0.08))
@@ -2670,7 +2671,7 @@ private struct ShaPanoramaReportSheet: View {
                                                 Image(systemName: "trash")
                                                     .adaptiveFont(size: 12)
                                                     .foregroundColor(.semXiong.opacity(0.75))
-                                                    .padding(6)
+                                                    .frame(width: DS.touchMin, height: DS.touchMin)
                                                     .contentShape(Rectangle())
                                             }
                                             .buttonStyle(BorderlessButtonStyle())
