@@ -93,8 +93,7 @@ public struct FenjinDetailSheet: View {
                                      : String(format: "一键锁至该分金正中 %.1f°", currentFenjin.centerAngle))
                             }
                             .adaptiveFont(size: 11.5, weight: .bold)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 9)
+                            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                             .background(Color.yanCyan.opacity(0.18))
                             .foregroundColor(.yanCyan)
                             .cornerRadius(8)

@@ -274,7 +274,7 @@ struct DSCollapsibleSection<Content: View>: View {
                         .adaptiveFont(size: 12).foregroundColor(.secondary)
                         .rotationEffect(.degrees(expanded ? 180 : 0))
                 }
-                .padding(.vertical, 10)
+                .frame(minHeight: DS.touchMin)
                 .padding(.horizontal, DS.padM)
                 .contentShape(Rectangle())
             }
@@ -1734,8 +1734,7 @@ public struct IntegratedWorkflowReportSheet: View {
                         }) {
                             Label(isEn ? "Copy" : "复制内容", systemImage: "doc.on.doc")
                                 .adaptiveFont(size: 12, weight: .bold)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
+                                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                                 .background(Color.white.opacity(0.1))
                                 .foregroundColor(.yanCyan)
                                 .cornerRadius(10)
@@ -1744,8 +1743,7 @@ public struct IntegratedWorkflowReportSheet: View {
                         Button(action: { showShareSheet = true }) {
                             Label(isEn ? "Export / Share" : "导出并分享", systemImage: "square.and.arrow.up")
                                 .adaptiveFont(size: 12, weight: .bold)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
+                                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                                 .background(Color.yanGold)
                                 .foregroundColor(.black)
                                 .cornerRadius(10)

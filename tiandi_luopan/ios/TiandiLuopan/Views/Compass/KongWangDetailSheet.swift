@@ -116,8 +116,7 @@ public struct KongWangDetailSheet: View {
                                          : String(format: "一键锁至本山正中 %.1f°（%@）", m.centerAngle, m.localizedName))
                                 }
                                 .adaptiveFont(size: 11.5, weight: .bold)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 9)
+                                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                                 .background(Color.yanCyan.opacity(0.18))
                                 .foregroundColor(.yanCyan)
                                 .cornerRadius(8)

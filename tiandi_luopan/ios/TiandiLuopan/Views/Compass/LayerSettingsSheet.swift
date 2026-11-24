@@ -31,7 +31,7 @@ public struct LayerSettingsSheet: View {
                                             .adaptiveFont(size: 12.5, weight: isSelected ? .bold : .medium)
                                     }
                                     .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
+                                    .frame(minHeight: DS.touchMin)
                                     .background(isSelected ? Color.yanGold : Color.white.opacity(0.08))
                                     .foregroundColor(isSelected ? .black : .white)
                                     .cornerRadius(9)
@@ -56,6 +56,7 @@ public struct LayerSettingsSheet: View {
                         layers.showFenjin120 = false
                     }
                     .adaptiveFont(size: 10.5, weight: .semibold)
+                    .frame(minHeight: DS.touchMin)
                     .foregroundColor(.yanCyan)
                     Text("·").foregroundColor(.secondary)
                     Button(isEn ? "All On" : "全开") {
@@ -67,6 +68,7 @@ public struct LayerSettingsSheet: View {
                         layers.showEightGua = true
                     }
                     .adaptiveFont(size: 10.5, weight: .semibold)
+                    .frame(minHeight: DS.touchMin)
                     .foregroundColor(.yanGold)
                 }) {
                     Toggle(lang.t("layer_degree_ticks"), isOn: $layers.showDegreeTicks)

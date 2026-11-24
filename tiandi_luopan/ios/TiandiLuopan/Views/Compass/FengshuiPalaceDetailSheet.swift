@@ -46,7 +46,7 @@ public struct FengshuiPalaceDetailSheet: View {
                                             .adaptiveFont(size: 11, weight: isCurrent ? .bold : .medium)
                                     }
                                     .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
+                                    .frame(minHeight: DS.touchMin)
                                     .background(isCurrent ? Color.yanGold.opacity(0.24) : Color.white.opacity(0.08))
                                     .foregroundColor(isCurrent ? .yanGold : .white.opacity(0.85))
                                     .cornerRadius(8)

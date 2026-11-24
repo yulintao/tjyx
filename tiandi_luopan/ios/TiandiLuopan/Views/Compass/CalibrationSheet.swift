@@ -41,6 +41,7 @@ public struct CalibrationSheet: View {
                         }) {
                             Image(systemName: "xmark.circle.fill")
                                 .adaptiveFont(size: 20)
+                                .frame(width: DS.touchMin, height: DS.touchMin)
                                 .foregroundColor(.white.opacity(0.6))
                         }
                     }
@@ -220,8 +221,7 @@ public struct CalibrationSheet: View {
                         }) {
                             Text(lang.t("i_know"))
                                 .adaptiveFont(size: 13)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
+                                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                                 .background(Color.white.opacity(0.1))
                                 .foregroundColor(.white)
                                 .cornerRadius(8)

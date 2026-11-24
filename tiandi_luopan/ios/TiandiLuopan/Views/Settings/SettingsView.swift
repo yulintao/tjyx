@@ -620,7 +620,7 @@ public struct SettingsView: View {
                     .lineLimit(1)
             }
         }
-        .padding(.vertical, 3)
+        .frame(minHeight: DS.touchMin)
     }
 }
 
@@ -686,6 +686,7 @@ public struct MasterVIPPageView: View {
                                 iap.retryPurchaseAvailability()
                             }
                             .adaptiveFont(size: 11, weight: .semibold)
+                            .frame(minHeight: DS.touchMin)
                             .foregroundColor(.yanCyan)
                         }
                     }
@@ -707,7 +708,7 @@ public struct MasterVIPPageView: View {
                                 Spacer()
                             }
                             .adaptiveFont(size: 13, weight: .bold)
-                            .padding(.vertical, 10)
+                            .frame(minHeight: DS.touchMin)
                             .background(
                                 LinearGradient(
                                     colors: [Color.goldText, Color.goldDeep],
@@ -924,7 +925,7 @@ public struct OwnerKuaReminderPageView: View {
                                     .font(.system(size: 11, weight: .bold))
                                     .foregroundColor(.secondary)
                             }
-                            .padding(.vertical, 6)
+                            .frame(minHeight: DS.touchMin)
                         }
                         .buttonStyle(PlainButtonStyle())
                     } else {
@@ -1018,7 +1019,7 @@ public struct OwnerKuaReminderPageView: View {
                                 Spacer()
                             }
                             .foregroundColor(.yanCyan)
-                            .padding(.vertical, 4)
+                            .frame(minHeight: DS.touchMin)
                         }
                         .buttonStyle(PlainButtonStyle())
                     }

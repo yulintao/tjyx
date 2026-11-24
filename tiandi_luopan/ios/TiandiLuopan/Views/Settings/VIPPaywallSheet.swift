@@ -65,8 +65,7 @@ public struct VIPLockCardView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .adaptiveFont(size: 12, weight: .bold)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 9)
+                    .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                     .background(
                         LinearGradient(
                             colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
@@ -338,6 +337,7 @@ public struct VIPPaywallSheet: View {
                                     iap.retryPurchaseAvailability()
                                 }
                                 .adaptiveFont(size: 11, weight: .semibold)
+                                .frame(minHeight: DS.touchMin)
                                 .foregroundColor(.yanCyan)
                             }
                             .padding(.horizontal, 16)

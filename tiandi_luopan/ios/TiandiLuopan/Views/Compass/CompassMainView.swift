@@ -523,7 +523,7 @@ public struct CompassMainView: View {
                             }
                         }
                         .padding(.horizontal, 7)
-                        .padding(.vertical, 3.5)
+                        .frame(minHeight: DS.touchMin)
                         .background(isSelected ? Color.yanGold.opacity(0.25) : Color.white.opacity(0.08))
                         .foregroundColor(isSelected ? .yanGold : .white.opacity(0.85))
                         .cornerRadius(5)
@@ -561,12 +561,14 @@ public struct CompassMainView: View {
             Button(action: { showCalibSheet = true }) {
                 Label("\(refText) \(String(format: "%+.1f°", motion.currentDeclination))", systemImage: "location.north.line")
                     .foregroundColor(.yanCyan)
+                    .frame(minHeight: DS.touchMin)
             }
             .buttonStyle(.plain)
             Spacer(minLength: 4)
             Button(action: { showCalibSheet = true }) {
                 Label(String(format: "%.0f μT", motion.magneticStrengthUT), systemImage: "waveform.path.ecg")
                     .foregroundColor(motion.isDistorted ? .semWarn : .semJi)
+                    .frame(minHeight: DS.touchMin)
             }
             .buttonStyle(.plain)
             Spacer(minLength: 4)
