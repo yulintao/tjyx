@@ -223,6 +223,7 @@
 				1043 /* ARKit.framework in Frameworks */,
 				1044 /* RoomPlan.framework in Frameworks */,
 				9112 /* WidgetKit.framework in App Frameworks */,
+				A102 /* GridStack in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,6 +242,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A101 /* GridStack */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pietropizzi/GridStack.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = "0.4.3";
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A102 /* GridStack */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A101 /* GridStack */;
+			productName = "GridStack";
+		};
+/* End XCSwiftPackageProductDependency section */
+
 
 /* Begin PBXGroup section */
 		4000 /* MainGroup */ = {
@@ -399,6 +420,9 @@
 				9002 /* PBXTargetDependency */,
 			);
 			name = TiandiLuopan;
+			packageProductDependencies = (
+				A102 /* GridStack */,
+			);
 			productName = TiandiLuopan;
 			productReference = 2000 /* TiandiLuopan.app */;
 			productType = "com.apple.product-type.application";
@@ -479,6 +503,9 @@
 				Base,
 			);
 			mainGroup = 4000 /* MainGroup */;
+			packageReferences = (
+				A101 /* GridStack */,
+			);
 			productRefGroup = 4003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

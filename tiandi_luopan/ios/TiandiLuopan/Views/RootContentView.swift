@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import GridStack
 
 // MARK: - iOS 14.0 颜色向下兼容扩展
 // 新中式雅致色板：暖墨底 + 纸色文字 + 古金 / 朱红点缀。
@@ -994,7 +995,7 @@ struct ProportionalTwoPaneLayout: Layout {
 public struct RootContentView: View {
     private let motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var selectedTab: Int
+    @State private var route: HomeRoute?
     @State private var analysisSubTab: Int = 0
     @State private var analysisFeatureRequest: AnalysisFeatureRequest?
     @State private var showWorkflowReportSheet: Bool = false
@@ -1012,14 +1013,15 @@ public struct RootContentView: View {
     @State private var layoutForm = AdaptiveLayoutForm.current()
     
     public init() {
-        var initialTab = 0
+        var initialRoute: HomeRoute? = nil
         if let tabArgIndex = CommandLine.arguments.firstIndex(of: "-selectedTab"),
            tabArgIndex + 1 < CommandLine.arguments.count,
            let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]) {
-            initialTab = Self.clampedTabIndex(tabValue)
+            let clamped = Self.clampedTabIndex(tabValue)
+            initialRoute = HomeRoute(rawValue: clamped)
         }
-        _selectedTab = State(initialValue: initialTab)
-        
+        _route = State(initialValue: initialRoute)
+
         // 自定义原生 TabBar 深色黑金质感外观（折叠/展开切换时 onChange 会重调以刷新字号）
         Self.applyTabBarAppearance(isLargeLayout: UITraitCollection.current.horizontalSizeClass == .regular)
     }
@@ -1117,47 +1119,11 @@ public struct RootContentView: View {
     }
     
     public var body: some View {
-        TabView(selection: $selectedTab) {
-            // Tab 1 (默认首页): 空间测绘与户型布局（导入图纸 / Vision 识别 / AR·LiDAR 建模 / CAD 导出）
-            FloorplanView(isActive: selectedTab == 0)
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text(lang.t("tab_floorplan"))
+        NavigationStack {
+            HomeHubView(route: $route)
+                .navigationDestination(item: $route) { target in
+                    destinationView(for: target)
                 }
-                .tag(0)
-            
-            // Tab 2: 默认直接进入 AR/LiDAR 实景空间测绘（距离/多边形面积周长/RoomPlan 3D 建模），支持一键切换建筑实景方位观测
-            ARSurveyTabHostView(isActive: selectedTab == 1)
-                .tabItem {
-                    Image(systemName: "camera.viewfinder")
-                    Text(lang.t("tab_ar"))
-                }
-                .tag(1)
-
-            // Tab 3: 专业电子方位仪（真北/磁北 WMM 磁偏角、磁场监测 μT、双轴水准仪、锁定并同步方位）
-            CompassMainView(isActive: selectedTab == 2)
-                .tabItem {
-                    Image(systemName: "safari.fill")
-                    Text(lang.t("tab_compass"))
-                }
-                .tag(2)
-
-            // Tab 4: 可验证数理计算模块（玄空九星、八宅大游年、三合水法、时家奇门天文历法排盘与算法溯源）
-            XuanKongGridView(isActive: selectedTab == 3,
-                             selectedSubTab: $analysisSubTab, featureRequest: $analysisFeatureRequest)
-                .tabItem {
-                    Image(systemName: "square.grid.3x3.fill")
-                    Text(lang.t("tab_analysis"))
-                }
-                .tag(3)
-            
-            // Tab 5: 系统设置与会员中心（StoreKit 2 内购、资料清理、传感器校准、多语言）
-            SettingsView(isActive: selectedTab == 4)
-                .tabItem {
-                    Image(systemName: "gearshape.fill")
-                    Text(lang.t("tab_settings"))
-                }
-                .tag(4)
         }
         .accentColor(Color.goldText)
         .preferredColorScheme(.dark)
@@ -1198,7 +1164,7 @@ public struct RootContentView: View {
         .sheet(isPresented: $showWorkflowReportSheet) {
             IntegratedWorkflowReportSheet()
         }
-        .onChange(of: selectedTab) { _ in
+        .onChange(of: route) { _ in
             updateResourceUsage()
         }
         .onAppear {
@@ -1230,14 +1196,15 @@ public struct RootContentView: View {
     /// 消费深链与主屏快捷入口的待处理意图（幂等）。
     private func consumePendingAlmanacRoute() {
         if AppNavigationRouter.shared.consumeAlmanac() {
-            selectedTab = 0
+            route = .floorplan
         }
-        if let route = AppNavigationRouter.shared.consumeTabRoute() {
-            selectedTab = Self.clampedTabIndex(route.tab)
-            if let sub = route.subTab {
+        if let tabRoute = AppNavigationRouter.shared.consumeTabRoute() {
+            let idx = Self.clampedTabIndex(tabRoute.tab)
+            route = HomeRoute(rawValue: idx) ?? .floorplan
+            if let sub = tabRoute.subTab {
                 analysisSubTab = sub
             }
-            if selectedTab == 3, let feature = route.feature ?? route.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
+            if route == .analysis, let feature = tabRoute.feature ?? tabRoute.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
                 if feature == .xuanKong || feature == .baZhai || feature == .sanHe || feature == .qimen {
                     analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
                 }
@@ -1251,10 +1218,115 @@ public struct RootContentView: View {
             .filter { $0.activationState == .foregroundActive }
             .count
         let multipleActiveScenes = activeSceneCount > 1
-        UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || selectedTab == 1 || selectedTab == 2
-        motion.setDeviceMotionEnabled(multipleActiveScenes || selectedTab == 1 || selectedTab == 2)
-        motion.setHeadingUpdatesEnabled(multipleActiveScenes || selectedTab != 4)
+        let active = route?.rawValue
+        UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || active == 1 || active == 2
+        motion.setDeviceMotionEnabled(multipleActiveScenes || active == 1 || active == 2)
+        motion.setHeadingUpdatesEnabled(multipleActiveScenes || active != 4)
         motion.resumeIfSensorsEnabled()
+    }
+
+    /// 首页图标推入对应的功能页。
+    @ViewBuilder
+    private func destinationView(for target: HomeRoute) -> some View {
+        switch target {
+        case .floorplan:
+            FloorplanView(isActive: true)
+        case .ar:
+            ARSurveyTabHostView(isActive: true)
+        case .compass:
+            CompassMainView(isActive: true)
+        case .analysis:
+            XuanKongGridView(isActive: true,
+                             selectedSubTab: $analysisSubTab,
+                             featureRequest: $analysisFeatureRequest)
+        case .settings:
+            SettingsView(isActive: true)
+        }
+    }
+}
+
+/// 首页功能入口路由：rawValue 与旧版五标签下标一一对应。
+private enum HomeRoute: Int, CaseIterable, Hashable {
+    case floorplan
+    case ar
+    case compass
+    case analysis
+    case settings
+
+    var systemImage: String {
+        switch self {
+        case .floorplan: "house.fill"
+        case .ar: "camera.viewfinder"
+        case .compass: "safari.fill"
+        case .analysis: "square.grid.3x3.fill"
+        case .settings: "gearshape.fill"
+        }
+    }
+
+    var titleKey: String {
+        switch self {
+        case .floorplan: "tab_floorplan"
+        case .ar: "tab_ar"
+        case .compass: "tab_compass"
+        case .analysis: "tab_analysis"
+        case .settings: "tab_settings"
+        }
+    }
+}
+
+/// 首页图标宫格：点按图标推入对应功能页（开源 GridStack 布局）。
+private struct HomeHubView: View {
+    @Binding var route: HomeRoute?
+    @ObservedObject private var lang = LocalizationManager.shared
+
+    private var brandTitle: String {
+        Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "TianJi Space"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DS.padL) {
+            Text(brandTitle)
+                .adaptiveFont(size: DS.TypeScale.title, weight: .bold)
+                .foregroundColor(Color.paperText)
+                .padding(.horizontal, DS.padL)
+                .padding(.top, DS.padL)
+
+            GridStack(minCellWidth: 84, spacing: DS.padM, numItems: HomeRoute.allCases.count) { index, cellWidth in
+                let target = HomeRoute.allCases[index]
+                Button {
+                    route = target
+                } label: {
+                    hubTile(target: target)
+                        .frame(width: cellWidth)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(lang.t(target.titleKey))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(Color.screenInk)
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func hubTile(target: HomeRoute) -> some View {
+        VStack(spacing: DS.padS) {
+            ZStack {
+                RoundedRectangle(cornerRadius: DS.radiusM)
+                    .fill(Color.surfaceElevated)
+                    .frame(width: 64, height: 64)
+                Image(systemName: target.systemImage)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(Color.goldText)
+            }
+            Text(lang.t(target.titleKey))
+                .adaptiveFont(size: DS.TypeScale.sub, weight: .semibold)
+                .foregroundColor(Color.paperText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
     }
 }
 
