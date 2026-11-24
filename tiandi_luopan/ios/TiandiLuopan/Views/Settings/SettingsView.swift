@@ -494,7 +494,7 @@ public struct SettingsView: View {
                     .adaptiveFont(size: 12.5, weight: .bold)
                     .foregroundColor(.black)
                     .padding(.horizontal, 13)
-                    .padding(.vertical, 10)
+                    .frame(minHeight: DS.touchMin)
                     .background(
                         LinearGradient(
                             colors: [Color.goldText, Color.goldDeep],
@@ -524,7 +524,7 @@ public struct SettingsView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
             .padding(.vertical, 7)
             .padding(.horizontal, 4)
             .background(ok ? Color.semJi.opacity(0.16) : Color.white.opacity(0.06))

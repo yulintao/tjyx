@@ -45,126 +45,117 @@ public struct CompassMainView: View {
                 // 分栏态（Duo 内屏 / iPad 横屏）：左栏 = 罗盘主交互（仪表/工具条/盘面），
                 // 右栏 = 周易分金与八宅提示卡（分析解释）；单列态保持原纵排。
                 FoldableTwoPane(compactSpacing: 4) {
-                    VStack(spacing: 4) {
-                        WorkflowStepperBar(activeStep: 1)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 4)
+                    // 单列与大屏左栏统一用 ScrollView，杜绝内容被裁切、核心操作不可达。
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            // 1. 顶部数据仪表：唯一权威读数（方位 / 坐向 / 分金 / 水平）
+                            CompassHeaderView()
 
-                        // 0. 结论看板：此刻·此地·此向 + 四类结论（一屏看尽）
-                        DSConclusionDashboard()
-                            .padding(.horizontal, 16)
-
-                        // 0.5 训练与每日挑战：默认收起，首屏只留仪表 / 盘体 / 主操作
-                        DSFoldableSection(title: "训练 · 每日挑战", defaultExpanded: false) {
-                            VStack(spacing: DS.padS) {
-                                DSTrainingProgressHUD(module: "compass")
-                                DSDailyChallengeCard()
+                            // 2. 强磁告警：仅异常时出现，紧邻核心仪表
+                            if motion.isDistorted {
+                                Button(action: { showCalibSheet = true }) {
+                                    HStack(spacing: 5) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundColor(Color.semWarn)
+                                        Text("\(lang.t("mag_warning_tap")) (\(String(format: "%.0f", motion.magneticStrengthUT)) μT) · \(lang.t("tap_to_calib"))")
+                                            .adaptiveFont(size: 11, weight: .bold)
+                                            .foregroundColor(.white)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.7)
+                                            .layoutPriority(1)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .adaptiveFont(size: 11)
+                                            .foregroundColor(.white.opacity(0.7))
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 10)
+                                    .background(Color.semWarn.opacity(0.25))
+                                    .cornerRadius(DS.radiusS)
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.horizontal, 16)
+                                .frame(minHeight: DS.touchMin)
                             }
-                            .padding(.horizontal, 16)
-                        }
 
-                        // 1. 顶部数据仪表
-                        CompassHeaderView()
+                            // 3. 核心随动电子方位盘（第一屏主体）
+                            CompassDialView()
+                                .padding(.horizontal, 8)
 
-                        // 专业测量仪器遥测条（基准北向 / WMM 磁偏角 / 磁场稳定度 / 双轴水平状态）
-                        instrumentTelemetryStrip()
-                            .padding(.horizontal, 16)
-                        
-                        // 强磁干扰动态告警条
-                        if motion.isDistorted {
-                            Button(action: {
-                                showCalibSheet = true
-                            }) {
-                                HStack(spacing: 5) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(Color.semWarn)
-                                    Text("\(lang.t("mag_warning_tap")) (\(String(format: "%.0f", motion.magneticStrengthUT)) μT) · \(lang.t("tap_to_calib"))")
-                                        .adaptiveFont(size: 11, weight: .bold)
-                                        .foregroundColor(.white)
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.65)
-                                        .layoutPriority(1)
+                            // 4. 拇指区主操作：锁定 / 稳态采样 / 一键同步
+                            primaryInstrumentActionDock()
+                                .padding(.horizontal, 16)
+
+                            // 5. 采集进度与结果反馈（操作时出现）
+                            if isPrecisionSampling {
+                                HStack(spacing: 8) {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .yanCyan))
+                                        .scaleEffect(0.8)
+                                    Text(lang.effectiveLanguage == .en
+                                         ? "Sampling steady bearing (\(sampleAngles.count)/\(Self.precisionTargetCount))... Hold level"
+                                         : "稳态均值采集中（\(sampleAngles.count)/\(Self.precisionTargetCount)）… 请保持水平")
+                                        .adaptiveFont(size: 11, weight: .semibold, design: .monospaced)
+                                        .foregroundColor(.yanCyan)
                                     Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .adaptiveFont(size: 10)
-                                        .foregroundColor(.white.opacity(0.7))
+                                    Button(lang.t("cancel")) {
+                                        isPrecisionSampling = false
+                                        sampleAngles.removeAll()
+                                        sampleMagneticUT.removeAll()
+                                    }
+                                    .adaptiveFont(size: 12, weight: .bold)
+                                    .foregroundColor(.semWarn)
+                                    .frame(minHeight: DS.touchMin)
                                 }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(Color.semWarn.opacity(0.25))
-                                .cornerRadius(6)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Color.yanCyan.opacity(0.14))
+                                .cornerRadius(DS.radiusS)
                                 .padding(.horizontal, 16)
-                            }
-                        }
-                        
-                        // 2. 专业方位仪测量工具条（锁定 / 同步至工作流 / 24方位手选 / 精度校准 / 图层）
-                        compassToolBar()
-                            .padding(.top, 2)
-
-                        if isPrecisionSampling {
-                            HStack(spacing: 8) {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .yanCyan))
-                                    .scaleEffect(0.8)
-                                Text(lang.effectiveLanguage == .en
-                                     ? "Sampling steady bearing (\(sampleAngles.count)/\(Self.precisionTargetCount))... Hold level"
-                                     : "稳态均值采集中（\(sampleAngles.count)/\(Self.precisionTargetCount)）… 请保持水平")
-                                    .adaptiveFont(size: 10.5, weight: .semibold, design: .monospaced)
+                            } else if showBearingAppliedToast {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .foregroundColor(.semJi)
+                                    Text(precisionToastText)
+                                        .adaptiveFont(size: 11, weight: .semibold)
+                                        .foregroundColor(.semJi)
+                                        .lineLimit(2)
+                                    Spacer()
+                                    Button(lang.effectiveLanguage == .en ? "Compute →" : "去计算 →") {
+                                        AppNavigationRouter.shared.requestRoute(tab: 3)
+                                    }
+                                    .adaptiveFont(size: 12, weight: .bold)
                                     .foregroundColor(.yanCyan)
-                                Spacer()
-                                Button(lang.t("cancel")) {
-                                    isPrecisionSampling = false
-                                    sampleAngles.removeAll()
-                                    sampleMagneticUT.removeAll()
+                                    .frame(minHeight: DS.touchMin)
                                 }
-                                .adaptiveFont(size: 10, weight: .bold)
-                                .foregroundColor(.semWarn)
-                            }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Color.yanCyan.opacity(0.14))
-                            .cornerRadius(7)
-                            .padding(.horizontal, 16)
-                        } else if showBearingAppliedToast {
-                            HStack(spacing: 6) {
-                                Image(systemName: "checkmark.seal.fill")
-                                    .foregroundColor(.semJi)
-                                Text(precisionToastText)
-                                    .adaptiveFont(size: 10.5, weight: .semibold)
-                                    .foregroundColor(.semJi)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
-                                Spacer()
-                                Button(lang.effectiveLanguage == .en ? "Compute →" : "去计算 →") {
-                                    AppNavigationRouter.shared.requestRoute(tab: 3)
-                                }
-                                .adaptiveFont(size: 10.5, weight: .bold)
-                                .foregroundColor(.yanCyan)
-                            }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Color.semJi.opacity(0.14))
-                            .cornerRadius(7)
-                            .padding(.horizontal, 16)
-                        }
-
-                        if !workflow.bearingStations.isEmpty {
-                            bearingStationsStrip()
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Color.semJi.opacity(0.14))
+                                .cornerRadius(DS.radiusS)
                                 .padding(.horizontal, 16)
-                        }
-                        
-                        Spacer(minLength: 4)
-                        
-                        // 3. 核心随动电子方位盘 (双轴水准仪、精密刻度与 24 方位)
-                        CompassDialView()
-                            .padding(.horizontal, 8)
-                        
-                        Spacer(minLength: 4)
+                            }
 
-                        // 4. 拇指区核心操作底座（锁定 / 稳态采样 / 一键同步工作流，无需横向滑动）
-                        primaryInstrumentActionDock()
+                            // 6. 结论看板：默认收起，避免第一屏过载（点开看此刻·此地·此向结论）
+                            DSFoldableSection(title: lang.effectiveLanguage == .en ? "Summary" : "此刻 · 此地 · 此向",
+                                              defaultExpanded: false) {
+                                DSConclusionDashboard()
+                            }
                             .padding(.horizontal, 16)
-                            .padding(.bottom, 2)
+
+                            // 7. 工具与遥测：默认收起，需要时展开（专业测量细节）
+                            DSFoldableSection(title: lang.effectiveLanguage == .en ? "Tools & Telemetry" : "工具与测量参数",
+                                              defaultExpanded: false) {
+                                VStack(spacing: 12) {
+                                    compassToolBar()
+                                    instrumentTelemetryStrip()
+                                    if !workflow.bearingStations.isEmpty {
+                                        bearingStationsStrip()
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 80)
+                        }
                     }
                 } analysis: {
                     // 4. 展开态右侧专业研判工作台（独立滚动）/ 单列态底部快捷卡片
@@ -173,11 +164,8 @@ public struct CompassMainView: View {
                                                 vertical: verticalSizeClass,
                                                 form: layoutForm) {
                         ScrollView {
-                            VStack(spacing: 12) {
-                                unfoldedCompassAnalysisPanel()
-                                DSTrainingBadgeShelf(compact: false)
-                            }
-                            .padding(16)
+                            unfoldedCompassAnalysisPanel()
+                                .padding(16)
                             // iOS 27 浮动 TabBar 不占 safe area，会盖住右栏末尾卡片；
                             // 直接给可滚动内容留底部余量，保证最后一张卡能完整滚出。
                             .padding(.bottom, 80)
@@ -186,15 +174,11 @@ public struct CompassMainView: View {
                         // 单列宽屏（iPad 竖屏 / Duo 折叠外屏）下底部卡片会被拉得很宽，
                         // 收在 900pt（与户型/设置同一套内容宽度口径）后居中；
                         // iPad 横屏走上面的右栏工作台分支，不会到这里。
-                        VStack(spacing: 12) {
-                            bottomStatusCard()
-                                .frame(maxWidth: 900)
-                            DSTrainingBadgeShelf(compact: true)
-                                .frame(maxWidth: 900)
-                        }
-                        .padding(.horizontal, 16)
-                        .frame(maxWidth: .infinity)
-                        .padding(.bottom, 8)
+                        bottomStatusCard()
+                            .frame(maxWidth: 900)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity)
+                            .padding(.bottom, 8)
                     }
                 }
             }

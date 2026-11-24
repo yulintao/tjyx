@@ -103,25 +103,22 @@ public struct XuanKongGridView: View {
             if isActive {
                 VStack(spacing: 14) {
                 Color.clear.frame(height: 1).id("analysisRootTop")
-                WorkflowStepperBar(activeStep: 2)
-                    .padding(.horizontal, 16)
-                // 测绘训练进度：分析模块（探查/体检），默认收起，首屏聚焦结论与排盘
-                DSFoldableSection(title: "测绘训练", defaultExpanded: false) {
-                    DSTrainingProgressHUD(module: "analysis")
-                }
-                .padding(.horizontal, 16)
-                // 结论式改造：当前坐向 + 空亡状态常驻置顶，各派排盘共享
+                // 结论式改造：当前坐向 + 空亡状态常驻置顶，各派排盘共享（唯一权威方位展示）
                 DSOrientationConclusionBar(moduleName: "当前方位 · 各派共用")
                     .padding(.horizontal, 16)
                 if let feature = selectedFeature {
-                    // 顶部快捷模块切换条：支持一键在玄空 / 八宅 / 三合 / 奇门间切换，无需反复退回菜单
+                    // 顶部快捷模块切换条：一键在玄空 / 八宅 / 三合 / 奇门间切换
                     quickModuleSwitcherBar(active: feature)
                         .padding(.horizontal, 16)
-                    if feature == .xuanKong { analysisSourceBar().padding(.horizontal, 16) }
-                    sittingControlHeader()
-                        .padding(.horizontal, isLargeLayout ? 0 : 16)
-                    verifiableComputationAuditCard(for: feature)
-                        .padding(.horizontal, isLargeLayout ? 0 : 16)
+                    // 来源/日期/坐向等参数收进折叠面板，首屏聚焦排盘结果
+                    DSFoldableSection(title: lang.effectiveLanguage == .en ? "Parameters" : "计算参数", defaultExpanded: false) {
+                        VStack(spacing: 12) {
+                            if feature == .xuanKong { analysisSourceBar() }
+                            sittingControlHeader()
+                            verifiableComputationAuditCard(for: feature)
+                        }
+                    }
+                    .padding(.horizontal, isLargeLayout ? 0 : 16)
                     switch feature {
                     case .xuanKong:
                         if let chart { xuanKongContent(chart: chart) }
@@ -879,6 +876,10 @@ public struct XuanKongGridView: View {
                 if isSplitLayout || showNinePalaceGrid {
                     ninePalacesGrid(chart: chart)
                 }
+
+                // 天机书长卷导出入口（此前定义未挂载，用户无法触达）
+                tianJiShuBanner()
+                    .padding(.horizontal, isLargeLayout ? 0 : 16)
             }
         } analysis: {
             VStack(spacing: 12) {

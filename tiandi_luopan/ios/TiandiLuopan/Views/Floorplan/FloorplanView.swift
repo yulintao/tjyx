@@ -470,17 +470,6 @@ public struct FloorplanView: View {
 
                     // 左栏内容（画布 + 全部操作工具）：展开态与折叠态共用同一份定义
                     let mainColumn = VStack(spacing: 8) {
-                                WorkflowStepperBar(activeStep: 0)
-                                    .frame(maxWidth: contentMax)
-                                    .padding(.horizontal, 16)
-
-                                // 测绘训练进度：户型模块（体检），默认收起，首屏聚焦画布与工具
-                                DSFoldableSection(title: "测绘训练", defaultExpanded: false) {
-                                    DSTrainingProgressHUD(module: "floorplan")
-                                        .frame(maxWidth: contentMax)
-                                }
-                                .padding(.horizontal, 16)
-
                                 if let lockedBearing = workflow.bearing {
                                     let delta = abs(lockedBearing.bearingDegrees - effectiveHeading)
                                     let circularDelta = min(delta, 360.0 - delta)
@@ -544,8 +533,9 @@ public struct FloorplanView: View {
                                     }
                                 }
                                 
-                                floorplanCanvasView(auditedRooms: auditResult.auditedRooms, personLabels: [:],
-                                                    reviewRoomIDs: [])
+                                floorplanCanvasView(auditedRooms: auditResult.auditedRooms,
+                                                    personLabels: personLabels,
+                                                    reviewRoomIDs: roomReviewIDs)
                                     .frame(width: isLargeLayout ? canvasSide : nil, height: canvasSide)
                                     .frame(maxWidth: .infinity)
                                     .padding(.horizontal, isLargeLayout ? 0 : 16)
