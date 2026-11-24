@@ -337,7 +337,7 @@ public struct XuanKongGridView: View {
                 Image(systemName: "square.grid.2x2")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.yanCyan)
-                    .frame(width: 36, height: 36)
+                    .frame(width: DS.touchMin, height: DS.touchMin)
                     .background(Color.yanCyan.opacity(0.14))
                     .cornerRadius(10)
                     .overlay(
@@ -458,7 +458,8 @@ public struct XuanKongGridView: View {
                         .adaptiveFont(size: 10, weight: .bold)
                         .foregroundColor(.black)
                         .padding(.horizontal, 9)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 10)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanGold)
                         .cornerRadius(6)
                 }
@@ -726,6 +727,7 @@ public struct XuanKongGridView: View {
                         .lineLimit(1)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 5)
+                        .frame(minHeight: DS.touchMin)
                         .background(motion.isLocked ? Color.semXiong.opacity(0.22) : Color.white.opacity(0.1))
                         .foregroundColor(motion.isLocked ? .semXiong : .white)
                         .cornerRadius(6)
@@ -746,6 +748,7 @@ public struct XuanKongGridView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.yanCyan.opacity(0.18))
                     .foregroundColor(Color.yanCyan)
                     .cornerRadius(6)
@@ -766,6 +769,7 @@ public struct XuanKongGridView: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 5)
+                .frame(minHeight: DS.touchMin)
                 .background(Color.goldText.opacity(0.2))
                 .foregroundColor(Color.goldText)
                 .cornerRadius(6)
