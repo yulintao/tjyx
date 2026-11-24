@@ -266,7 +266,7 @@ public struct QimenDunjiaView: View {
                         Text(nowLabel)
                             .adaptiveFont(size: 10.5, weight: .bold)
                             .padding(.horizontal, 9)
-                            .padding(.vertical, 5)
+                            .frame(minHeight: DS.touchMin)
                             .background(Color.yanCyan.opacity(0.2))
                             .foregroundColor(Color.yanCyan)
                             .cornerRadius(7)
@@ -397,7 +397,7 @@ public struct QimenDunjiaView: View {
                                 .adaptiveFont(size: 10, weight: .bold)
                         }
                         .padding(.horizontal, 9)
-                        .padding(.vertical, 5)
+                        .frame(minHeight: DS.touchMin)
                         .background(isSelected ? Color.goldText : Color.white.opacity(0.08))
                         .foregroundColor(isSelected ? .black : .white.opacity(0.85))
                         .cornerRadius(6)
