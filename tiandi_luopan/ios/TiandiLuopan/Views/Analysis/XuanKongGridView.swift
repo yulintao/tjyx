@@ -1696,7 +1696,7 @@ public struct Mountain24PickerSheet: View {
 
     private func elementColor(for elem: String) -> Color {
         switch elem {
-        case "水", "Water", "수", "Thủy": return Color.blue
+        case "水", "Water", "수", "Thủy": return Color.yanCyan
         case "木", "Wood", "목", "Mộc": return Color.semJi
         case "火", "Fire", "화", "Hỏa": return Color.semXiong
         case "土", "Earth", "토", "Thổ": return Color.goldText

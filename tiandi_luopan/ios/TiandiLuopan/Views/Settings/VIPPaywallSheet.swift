@@ -257,7 +257,7 @@ public struct VIPPaywallSheet: View {
     public var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 0.08, green: 0.08, blue: 0.10)
+                Color.screenInk
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -299,7 +299,7 @@ public struct VIPPaywallSheet: View {
                             }
                         }
                         .padding(12)
-                        .background(Color(red: 0.12, green: 0.12, blue: 0.15))
+                        .background(Color.surfaceCard)
                         .cornerRadius(12)
                         .padding(.horizontal, 16)
                         

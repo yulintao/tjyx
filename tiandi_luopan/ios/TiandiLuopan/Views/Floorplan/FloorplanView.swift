@@ -4115,7 +4115,7 @@ public struct RoomAuditDetailSheet: View {
                                 .lineSpacing(2)
                         }
                         .padding(14)
-                        .background(Color(red: 0.11, green: 0.12, blue: 0.11))
+                        .background(Color.surfaceCard)
                         .cornerRadius(12)
                         
                         Spacer(minLength: 20)
