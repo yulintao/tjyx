@@ -365,6 +365,7 @@ public struct XuanKongGridView: View {
                             }
                             .padding(.horizontal, 11)
                             .padding(.vertical, 8)
+                            .frame(minHeight: DS.touchMin)
                             .background(
                                 isSelected
                                     ? AnyView(
