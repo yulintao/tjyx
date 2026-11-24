@@ -426,37 +426,29 @@ public struct CompassMainView: View {
                 }
                 .buttonStyle(.plain)
 
-                // 图层设置
-                Button(action: {
-                    showLayerSheet = true
-                    training.recordTool("layers", isEn: lang.effectiveLanguage == .en)
-                }) {
+                // 次要工具收纳：图层 / 八方全鉴 收进「更多」菜单，减少首屏横向滚动的按钮数
+                Menu {
+                    Button(action: {
+                        showLayerSheet = true
+                        training.recordTool("layers", isEn: lang.effectiveLanguage == .en)
+                    }) {
+                        Label(lang.t("btn_layers"), systemImage: "square.3.layers.3d")
+                    }
+                    Button(action: {
+                        showPalaceSheet = true
+                    }) {
+                        Label(lang.t("btn_palace_all"), systemImage: "square.grid.2x2")
+                    }
+                } label: {
                     HStack(spacing: 4) {
-                        Image(systemName: "square.3.layers.3d")
-                        Text(lang.t("btn_layers"))
+                        Image(systemName: "ellipsis.circle.fill")
+                        Text(lang.effectiveLanguage == .en ? "More" : "更多")
                     }
                     .adaptiveFont(size: 11, weight: .medium)
                     .padding(.horizontal, DS.padM)
                     .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.08))
                     .foregroundColor(Color.yanCyan)
-                    .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-
-                // 八方全鉴
-                Button(action: {
-                    showPalaceSheet = true
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "square.grid.2x2")
-                        Text(lang.t("btn_palace_all"))
-                    }
-                    .adaptiveFont(size: 11, weight: .medium)
-                    .padding(.horizontal, DS.padM)
-                    .frame(minHeight: DS.touchMin)
-                    .background(Color.white.opacity(0.08))
-                    .foregroundColor(Color.goldDeep)
                     .cornerRadius(8)
                 }
                 .buttonStyle(.plain)
