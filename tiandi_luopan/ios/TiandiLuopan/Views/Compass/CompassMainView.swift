@@ -807,28 +807,40 @@ public struct CompassMainView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(analysisPanelBackground())
 
-            // 5. 快捷工具入口与工作流流转
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    analysisPanelToolButton(title: lang.t("btn_fenjin_detail"),
-                                            systemImage: "ruler",
-                                            tint: Color.yanCyan) { showFenjinSheet = true }
-                    analysisPanelToolButton(title: lang.t("kw_sheet_title"),
-                                            systemImage: "scope",
-                                            tint: kwColor) { showKongwangSheet = true }
+            // 5. 工作流主操作直达计算模块；分金/空亡/全盘详情收纳进菜单，减少首屏堆叠
+            HStack(spacing: 8) {
+                Menu {
+                    Button(action: { showFenjinSheet = true }) {
+                        Label(lang.t("btn_fenjin_detail"), systemImage: "ruler")
+                    }
+                    Button(action: { showKongwangSheet = true }) {
+                        Label(lang.t("kw_sheet_title"), systemImage: "scope")
+                    }
+                    Button(action: { showPalaceSheet = true }) {
+                        Label(lang.t("btn_palace_all"), systemImage: "square.grid.2x2")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .adaptiveFont(size: 13)
+                        .frame(width: DS.touchMin, minHeight: DS.touchMin)
+                        .foregroundColor(Color.goldText)
+                        .background(Color.white.opacity(0.08))
+                        .cornerRadius(8)
                 }
-                HStack(spacing: 8) {
-                    analysisPanelToolButton(title: lang.t("btn_palace_all"),
-                                            systemImage: "square.grid.2x2",
-                                            tint: Color.goldDeep) { showPalaceSheet = true }
-                    analysisPanelToolButton(title: lang.effectiveLanguage == .en ? "Sync & Compute" : "同步至计算模块",
-                                            systemImage: "arrow.triangle.branch",
-                                            tint: Color.semJi) {
-                        if !motion.isLocked { motion.toggleLock() }
-                        applyCurrentBearingToWorkflow()
-                        AppNavigationRouter.shared.requestRoute(tab: 3)
+                .buttonStyle(.plain)
+                .accessibilityLabel(lang.effectiveLanguage == .en ? "Details" : "详情")
+
+                Button(action: {
+                    if !motion.isLocked { motion.toggleLock() }
+                    applyCurrentBearingToWorkflow()
+                    AppNavigationRouter.shared.requestRoute(tab: 3)
+                }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "arrow.triangle.branch")
+                        Text(lang.effectiveLanguage == .en ? "Sync & Compute" : "同步至计算模块")
                     }
                 }
+                .buttonStyle(DSPrimaryButtonStyle())
             }
         }
     }
@@ -841,29 +853,6 @@ public struct CompassMainView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.goldDeep.opacity(0.2), lineWidth: 1)
             )
-    }
-
-    /// 研判工作台快捷工具按钮
-    private func analysisPanelToolButton(title: String,
-                                        systemImage: String,
-                                        tint: Color,
-                                        action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                Image(systemName: systemImage)
-                    .adaptiveFont(size: 11)
-                Text(title)
-                    .adaptiveFont(size: 11, weight: .bold)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            .foregroundColor(tint)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(Color.white.opacity(0.06))
-            .cornerRadius(8)
-        }
-        .buttonStyle(PlainButtonStyle())
     }
 
     // MARK: - 底部状态卡
