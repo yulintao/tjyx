@@ -1655,11 +1655,11 @@ public struct WorkflowStepperBar: View {
             }
         }
         .padding(3)
-        .background(Color.white.opacity(0.05))
+        .background(Color.surfaceCard)
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.white.opacity(0.09), lineWidth: 1)
+                .stroke(Color.strokeSoft, lineWidth: 1)
         )
     }
 }
