@@ -2138,7 +2138,7 @@ public struct FloorplanView: View {
                 }
                 .adaptiveFont(size: 11, weight: .bold)
                 .padding(.horizontal, 8)
-                .padding(.vertical, 5)
+                .frame(minHeight: DS.touchMin)
                 .background(Color.yanCyan.opacity(0.2))
                 .foregroundColor(.yanCyan)
                 .cornerRadius(6)
@@ -3433,7 +3433,7 @@ public struct FloorplanView: View {
                         }
                         .adaptiveFont(size: 10.5, weight: .bold)
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanGold.opacity(0.2))
                         .foregroundColor(Color.yanGold)
                         .cornerRadius(8)
