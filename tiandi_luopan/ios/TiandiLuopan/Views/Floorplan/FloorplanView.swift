@@ -1394,7 +1394,7 @@ public struct FloorplanView: View {
                                 Text(saveBtnTitle)
                             }
                             .adaptiveFont(size: 13, weight: .bold)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                             .padding(.vertical, 11)
                             .background(Color.goldDeep)
                             .foregroundColor(.black)
@@ -1409,7 +1409,7 @@ public struct FloorplanView: View {
                                 Text(importBtnTitle)
                             }
                             .adaptiveFont(size: 11, weight: .semibold)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                             .padding(.vertical, 8)
                             .background(Color.white.opacity(0.08))
                             .foregroundColor(Color.yanCyan)
@@ -1471,7 +1471,7 @@ public struct FloorplanView: View {
                                             Text(loadBtn)
                                                 .adaptiveFont(size: 12, weight: .bold)
                                                 .padding(.horizontal, 12)
-                                                .padding(.vertical, 6)
+                                                .frame(minHeight: DS.touchMin)
                                                 .background(Color.yanCyan.opacity(0.2))
                                                 .foregroundColor(Color.yanCyan)
                                                 .cornerRadius(6)
@@ -1483,6 +1483,7 @@ public struct FloorplanView: View {
                                                 .font(.system(size: 13))
                                                 .foregroundColor(Color.goldText)
                                                 .padding(6)
+                                                .frame(width: DS.touchMin, height: DS.touchMin)
                                         }
                                         Button(action: {
                                             deleteCaseFromArchive(item)
@@ -1491,6 +1492,7 @@ public struct FloorplanView: View {
                                                 .font(.system(size: 13))
                                                 .foregroundColor(.semXiong.opacity(0.85))
                                                 .padding(6)
+                                                .frame(width: DS.touchMin, height: DS.touchMin)
                                         }
                                     }
                                     .padding(12)
@@ -2065,7 +2067,7 @@ public struct FloorplanView: View {
                 }
                 .adaptiveFont(size: 10, weight: .bold)
                 .padding(.horizontal, 8)
-                .padding(.vertical, 5)
+                .frame(minHeight: DS.touchMin)
                 .background(Color.yanCyan.opacity(0.18))
                 .foregroundColor(Color.yanCyan)
                 .cornerRadius(6)
@@ -2087,6 +2089,8 @@ public struct FloorplanView: View {
                 Button(action: undoRoomDetection) {
                     Text(lang.t("floorplan_undo_detect"))
                         .adaptiveFont(size: 9, weight: .bold)
+                        .padding(.horizontal, 8)
+                        .frame(minHeight: DS.touchMin)
                         .foregroundColor(.semWarn)
                 }
             }
@@ -2180,7 +2184,7 @@ public struct FloorplanView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanCyan.opacity(0.16))
                         .foregroundColor(.yanCyan)
                         .cornerRadius(8)
@@ -2193,7 +2197,7 @@ public struct FloorplanView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.semJi.opacity(0.18))
                         .foregroundColor(.semJi)
                         .cornerRadius(8)
@@ -2209,7 +2213,7 @@ public struct FloorplanView: View {
                     Text(lang.t("done"))
                         .adaptiveFont(size: 10.5, weight: .bold)
                         .padding(.horizontal, 11)
-                        .padding(.vertical, 7)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanGold)
                         .foregroundColor(.black)
                         .cornerRadius(8)
@@ -2260,7 +2264,7 @@ public struct FloorplanView: View {
                     Label(lang.t("floorplan_room_type"), systemImage: "tag.fill")
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanCyan.opacity(0.16))
                         .foregroundColor(.yanCyan)
                         .cornerRadius(7)
@@ -2273,6 +2277,7 @@ public struct FloorplanView: View {
                     Image(systemName: "trash.fill")
                         .adaptiveFont(size: 11, weight: .semibold)
                         .padding(6)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
                         .background(Color.semXiong.opacity(0.18))
                         .foregroundColor(.semXiong)
                         .cornerRadius(7)
@@ -2314,7 +2319,7 @@ public struct FloorplanView: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .adaptiveFont(size: 11, weight: .bold)
-                .frame(width: 32, height: 28)
+                .frame(minHeight: DS.touchMin)
                 .background(Color.yanCyan.opacity(0.16))
                 .cornerRadius(7)
         }
@@ -2603,7 +2608,7 @@ public struct FloorplanView: View {
                     Text(lang.t("floorplan_heading_use_compass"))
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanCyan.opacity(0.18))
                         .foregroundColor(.yanCyan)
                         .cornerRadius(6)
@@ -2617,7 +2622,7 @@ public struct FloorplanView: View {
                     Button(action: { adjustManualHeading(by: step) }) {
                         Text(step > 0 ? String(format: "+%.1f°", step) : String(format: "%.1f°", step))
                             .adaptiveFont(size: 10.5, weight: .bold, design: .monospaced)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                             .padding(.vertical, 6)
                             .background(Color.semWarn.opacity(0.16))
                             .foregroundColor(.semWarn)
@@ -2642,7 +2647,7 @@ public struct FloorplanView: View {
                     }) {
                         Text(item.0)
                             .adaptiveFont(size: 10, weight: isSelected ? .bold : .medium, design: .monospaced)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                             .padding(.vertical, 5)
                             .background(isSelected ? Color.yanGold.opacity(0.24) : Color.white.opacity(0.06))
                             .foregroundColor(isSelected ? .yanGold : .white.opacity(0.8))
