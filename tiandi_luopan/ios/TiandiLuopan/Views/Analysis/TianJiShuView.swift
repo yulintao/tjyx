@@ -230,7 +230,7 @@ public struct TianJiShuView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.black.opacity(0.85))
+                        .background(Color.surfaceElevated)
                         .cornerRadius(20)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
@@ -390,7 +390,7 @@ public struct TianJiShuView: View {
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: "seal.fill")
-                        .foregroundColor(Color(red: 0.95, green: 0.35, blue: 0.32))
+                        .foregroundColor(Color.vermilion)
                     Text(barTitle)
                         .adaptiveFont(size: 12, weight: .bold)
                         .foregroundColor(Color.goldText)
@@ -399,6 +399,7 @@ public struct TianJiShuView: View {
                         .adaptiveFont(size: 10, weight: .bold)
                         .foregroundColor(.white.opacity(0.6))
                 }
+                .frame(minHeight: DS.touchMin)
             }
             .buttonStyle(PlainButtonStyle())
 
@@ -436,8 +437,7 @@ public struct TianJiShuView: View {
                             Text(applyTitle)
                         }
                         .adaptiveFont(size: 11, weight: .bold)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 7)
+                        .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                         .background(Color.goldDeep)
                         .foregroundColor(.black)
                         .cornerRadius(6)
