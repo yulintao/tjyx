@@ -1,6 +1,5 @@
 import SwiftUI
 import UIKit
-import GridStack
 
 // MARK: - iOS 14.0 颜色向下兼容扩展
 // 新中式雅致色板：暖墨底 + 纸色文字 + 古金 / 朱红点缀。
@@ -1277,7 +1276,7 @@ private enum HomeRoute: Int, CaseIterable, Hashable {
     }
 }
 
-/// 首页图标宫格：点按图标推入对应功能页（开源 GridStack 布局）。
+/// 首页水墨菜单：竖排条目 + 朱印点缀，点按推入对应功能页。
 private struct HomeHubView: View {
     @ObservedObject private var lang = LocalizationManager.shared
 
@@ -1286,47 +1285,95 @@ private struct HomeHubView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DS.padL) {
-            Text(brandTitle)
-                .adaptiveFont(size: DS.TypeScale.title, weight: .bold)
-                .foregroundColor(Color.paperText)
-                .padding(.horizontal, DS.padL)
-                .padding(.top, DS.padL)
+        ZStack(alignment: .topLeading) {
+            Color.screenInk.ignoresSafeArea()
 
-            GridStack(minCellWidth: 84, spacing: DS.padM, numItems: HomeRoute.allCases.count) { index, cellWidth in
-                let target = HomeRoute.allCases[index]
-                NavigationLink(value: target) {
-                    hubTile(target: target)
-                        .frame(width: cellWidth)
+            // 顶部淡墨晕染
+            RadialGradient(
+                colors: [Color.paperText.opacity(0.07), Color.clear],
+                center: .topLeading,
+                startRadius: 40,
+                endRadius: 320
+            )
+            .ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: DS.padL) {
+                header
+
+                VStack(spacing: DS.padS) {
+                    ForEach(HomeRoute.allCases, id: \.self) { target in
+                        NavigationLink(value: target) {
+                            menuRow(target: target)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(lang.t(target.titleKey))
+                        if target != .settings {
+                            divider
+                        }
+                    }
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(lang.t(target.titleKey))
+                .padding(DS.padM)
+                .background(Color.surfaceCard.opacity(0.5))
+                .cornerRadius(DS.radiusL)
+                .overlay(RoundedRectangle(cornerRadius: DS.radiusL).stroke(Color.strokeGold, lineWidth: 1))
             }
+            .padding(.horizontal, DS.padL)
+            .padding(.top, DS.padL)
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(Color.screenInk)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func hubTile(target: HomeRoute) -> some View {
-        VStack(spacing: DS.padS) {
-            ZStack {
-                RoundedRectangle(cornerRadius: DS.radiusM)
-                    .fill(Color.surfaceElevated)
-                    .frame(width: 64, height: 64)
-                Image(systemName: target.systemImage)
-                    .font(.system(size: 24, weight: .semibold))
+    private var header: some View {
+        VStack(alignment: .leading, spacing: DS.padM) {
+            HStack(spacing: DS.padM) {
+                // 朱印
+                RoundedRectangle(cornerRadius: DS.radiusS)
+                    .fill(Color.vermilion)
+                    .frame(width: 52, height: 52)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DS.radiusS)
+                            .stroke(Color.paperText.opacity(0.35), lineWidth: 1)
+                    )
+                Text(brandTitle)
+                    .adaptiveFont(size: DS.TypeScale.title, weight: .bold, design: .serif)
                     .foregroundColor(Color.goldText)
             }
-            Text(lang.t(target.titleKey))
-                .adaptiveFont(size: DS.TypeScale.sub, weight: .semibold)
-                .foregroundColor(Color.paperText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+            // 笔墨分隔
+            HStack(spacing: DS.padS) {
+                Circle().fill(Color.vermilion).frame(width: 6, height: 6)
+                Rectangle().fill(Color.strokeSoft).frame(height: 1)
+            }
         }
-        .frame(maxWidth: .infinity)
+    }
+
+    private func menuRow(target: HomeRoute) -> some View {
+        HStack(spacing: DS.padM) {
+            RoundedRectangle(cornerRadius: DS.radiusS)
+                .fill(Color.surfaceElevated)
+                .frame(width: 46, height: 46)
+                .overlay(
+                    Image(systemName: target.systemImage)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(Color.goldText)
+                )
+            Text(lang.t(target.titleKey))
+                .adaptiveFont(size: DS.TypeScale.headline, weight: .semibold, design: .serif)
+                .foregroundColor(Color.paperText)
+            Spacer(minLength: DS.padS)
+            Image(systemName: "chevron.forward")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(Color.paperSub)
+        }
+        .frame(minHeight: 64)
         .contentShape(Rectangle())
+    }
+
+    private var divider: some View {
+        Rectangle()
+            .fill(Color.strokeSoft)
+            .frame(height: 1)
+            .padding(.leading, 46 + DS.padM)
     }
 }
 
