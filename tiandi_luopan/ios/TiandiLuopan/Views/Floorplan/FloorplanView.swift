@@ -2042,7 +2042,7 @@ public struct FloorplanView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: DS.touchMin)
             .padding(.vertical, 7)
             .padding(.horizontal, 4)
             .background(filled ? tint.opacity(0.24) : tint.opacity(0.12))

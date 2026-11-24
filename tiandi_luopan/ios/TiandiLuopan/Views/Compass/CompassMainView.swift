@@ -274,7 +274,7 @@ public struct CompassMainView: View {
                         .minimumScaleFactor(0.75)
                 }
                 .adaptiveFont(size: 11.5, weight: .bold)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
                 // 统一「锁定」语义色为金色：与 CompassHeaderView 的锁定钮一致，红色只留给凶煞
@@ -303,7 +303,7 @@ public struct CompassMainView: View {
                         .minimumScaleFactor(0.75)
                 }
                 .adaptiveFont(size: 11.5, weight: .bold)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
                 .background(isPrecisionSampling ? Color.yanCyan.opacity(0.28) : Color.yanCyan.opacity(0.14))
@@ -334,7 +334,7 @@ public struct CompassMainView: View {
                         .minimumScaleFactor(0.75)
                 }
                 .adaptiveFont(size: 11.5, weight: .bold)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
                 .background(
