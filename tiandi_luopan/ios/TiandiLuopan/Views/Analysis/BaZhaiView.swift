@@ -925,7 +925,7 @@ public struct OwnerLifeGuaView: View {
                     }
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.12))
                     .foregroundColor(.white)
                     .cornerRadius(6)
@@ -939,7 +939,7 @@ public struct OwnerLifeGuaView: View {
                     Text(kua.isMale ? maleLabel : femaleLabel)
                         .adaptiveFont(size: 11, weight: .bold)
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanCyan.opacity(0.2))
                         .foregroundColor(Color.yanCyan)
                         .cornerRadius(6)
@@ -1434,7 +1434,7 @@ public struct CelestialDateSelectionView: View {
                 Text(prevLabel)
                     .adaptiveFont(size: 10, weight: .semibold)
                     .padding(.horizontal, 7)
-                    .padding(.vertical, 4)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.08))
                     .foregroundColor(.white)
                     .cornerRadius(5)
@@ -1451,7 +1451,7 @@ public struct CelestialDateSelectionView: View {
                 Text(nextLabel)
                     .adaptiveFont(size: 10, weight: .semibold)
                     .padding(.horizontal, 7)
-                    .padding(.vertical, 4)
+                    .frame(minHeight: DS.touchMin)
                     .background(Color.white.opacity(0.08))
                     .foregroundColor(.white)
                     .cornerRadius(5)
@@ -1466,7 +1466,7 @@ public struct CelestialDateSelectionView: View {
                     Text(nowLabel)
                         .adaptiveFont(size: 10, weight: .bold)
                         .padding(.horizontal, 6)
-                        .padding(.vertical, 4)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.yanCyan.opacity(0.2))
                         .foregroundColor(Color.yanCyan)
                         .cornerRadius(5)
@@ -1485,7 +1485,7 @@ public struct CelestialDateSelectionView: View {
                         .adaptiveFont(size: 10, weight: .bold)
                 }
                 .padding(.horizontal, 7)
-                .padding(.vertical, 4)
+                .frame(minHeight: DS.touchMin)
                 .background(Color.goldText.opacity(0.2))
                 .foregroundColor(Color.goldText)
                 .cornerRadius(5)
@@ -1724,7 +1724,7 @@ public struct CelestialDateSelectionView: View {
                                 Text(cat.localizedTitle)
                                     .adaptiveFont(size: 10, weight: isSelected ? .bold : .medium)
                                     .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
+                                    .frame(minHeight: DS.touchMin)
                                     .background(
                                         isSelected
                                             ? Color.goldText

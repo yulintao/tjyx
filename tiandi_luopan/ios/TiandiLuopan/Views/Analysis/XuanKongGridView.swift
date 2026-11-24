@@ -808,7 +808,7 @@ public struct XuanKongGridView: View {
                 Text(lang.t("one_click_export"))
                     .adaptiveFont(size: 11, weight: .bold)
                     .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
+                    .frame(minHeight: DS.touchMin)
                     .background(
                         LinearGradient(
                             colors: [Color.goldText, Color(red: 0.75, green: 0.55, blue: 0.2)],
@@ -864,7 +864,7 @@ public struct XuanKongGridView: View {
                             .adaptiveFont(size: 10.5, weight: .semibold)
                             .foregroundColor(.yanCyan)
                             .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
+                            .frame(minHeight: DS.touchMin)
                             .background(Color.yanCyan.opacity(0.12))
                             .cornerRadius(6)
                         }
@@ -983,7 +983,7 @@ public struct XuanKongGridView: View {
                             .adaptiveFont(size: 11, weight: .semibold)
                     }
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
+                    .frame(minHeight: DS.touchMin)
                     .background(useTiGua ? Color.vermilion.opacity(0.25) : Color.yanCyan.opacity(0.2))
                     .foregroundColor(useTiGua ? Color.vermilion : Color.yanCyan)
                     .cornerRadius(6)
@@ -1613,7 +1613,7 @@ public struct Mountain24PickerSheet: View {
             Text(title)
                 .adaptiveFont(size: 11, weight: isSelected ? .bold : .medium)
                 .padding(.horizontal, 10)
-                .padding(.vertical, 6)
+                .frame(minHeight: DS.touchMin)
                 .background(isSelected ? Color.yanCyan.opacity(0.28) : Color.white.opacity(0.08))
                 .foregroundColor(isSelected ? .yanCyan : .white.opacity(0.85))
                 .cornerRadius(6)
@@ -1731,7 +1731,7 @@ public struct Mountain24PickerSheet: View {
                                 .adaptiveFont(size: 10.5, weight: .semibold)
                         }
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .frame(minHeight: DS.touchMin)
                         .background(Color.white.opacity(0.12))
                         .foregroundColor(.white)
                         .cornerRadius(5)
@@ -1798,8 +1798,7 @@ public struct Mountain24PickerSheet: View {
         }) {
             Text(label)
                 .adaptiveFont(size: 11, weight: .bold)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, minHeight: DS.touchMin)
                 .background(Color.white.opacity(0.08))
                 .foregroundColor(.white.opacity(0.9))
                 .cornerRadius(5)
