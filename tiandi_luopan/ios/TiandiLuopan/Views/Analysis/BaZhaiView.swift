@@ -94,7 +94,7 @@ public struct BaZhaiView: View {
         if isEmbedded { content }
         else {
             ScrollView { content }
-                .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+                .background(Color.screenInk.ignoresSafeArea())
         }
     }
 
@@ -793,7 +793,7 @@ public struct OwnerLifeGuaView: View {
                     .padding(.vertical, 16)
                 }
             }
-            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+            .background(Color.screenInk.ignoresSafeArea())
             .navigationTitle(lang.t("bz_tool_owner"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) {
@@ -1279,7 +1279,7 @@ public struct CelestialDateSelectionView: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+            .background(Color.screenInk.ignoresSafeArea())
             .navigationTitle(lang.t("bz_tool_dates"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) {

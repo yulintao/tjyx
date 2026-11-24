@@ -472,7 +472,7 @@ public struct VRSpatialSurveyView: View {
             .buttonStyle(.plain)
         }
         .padding(10)
-        .background(Color(red: 0.086, green: 0.075, blue: 0.059))
+        .background(Color.screenInk)
         .cornerRadius(13)
         .overlay(
             RoundedRectangle(cornerRadius: 13)

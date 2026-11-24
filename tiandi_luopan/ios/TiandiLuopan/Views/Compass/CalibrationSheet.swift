@@ -21,7 +21,7 @@ public struct CalibrationSheet: View {
     
     public var body: some View {
         return ZStack {
-            Color(red: 0.086, green: 0.075, blue: 0.059)
+            Color.screenInk
                 .ignoresSafeArea()
             
             ScrollView {

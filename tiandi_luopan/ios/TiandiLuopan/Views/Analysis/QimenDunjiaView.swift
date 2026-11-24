@@ -447,7 +447,7 @@ public struct QimenDunjiaView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(10)
-        .background(Color(red: 0.11, green: 0.13, blue: 0.18))
+        .background(Color.surfaceCard)
         .cornerRadius(9)
         .overlay(
             RoundedRectangle(cornerRadius: 9)

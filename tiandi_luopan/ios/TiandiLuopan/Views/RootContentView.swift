@@ -40,6 +40,9 @@ extension Color {
     public static let surfaceElevated = Color(red: 0.169, green: 0.145, blue: 0.106)
     public static let strokeSoft    = Color(red: 0.95, green: 0.91, blue: 0.83).opacity(0.10)
     public static let strokeGold    = Color.goldPrimary.opacity(0.26)
+
+    /// 屏幕底色：暖墨（全 App 页面 / 弹层统一背景，替代散落的黑、冷石板与同值字面量）
+    public static let screenInk     = Color(red: 0.086, green: 0.075, blue: 0.059)
 }
 
 // 布局常量：统一间距 / 圆角 / 触摸目标
@@ -52,6 +55,15 @@ public enum DS {
     public static let radiusL: CGFloat = 18
     public static let touchMin: CGFloat = 44   // 苹果人机指南最小触摸目标
     public static let minBodyFont: CGFloat = 11
+
+    // 统一字号层级：页标题 / 小节标题 / 正文 / 次要说明 / 注释，避免各页散落 10~16 的随意取值
+    public enum TypeScale {
+        public static let title: CGFloat = 22
+        public static let headline: CGFloat = 17
+        public static let body: CGFloat = 14
+        public static let sub: CGFloat = 12
+        public static let caption: CGFloat = 11
+    }
 }
 
 // MARK: - 可复用按钮样式（统一按压反馈与触摸目标）
@@ -125,6 +137,40 @@ struct DSSectionHeader: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, DS.padS)
+    }
+}
+
+/// 页面页头：统一主标题 + 副标题 + 可选右侧操作（图标 / 按钮），各标签首屏共用。
+struct DSScreenHeader<Accessory: View>: View {
+    let title: String
+    let subtitle: String?
+    @ViewBuilder let accessory: () -> Accessory
+
+    init(title: String, subtitle: String? = nil,
+         @ViewBuilder accessory: @escaping () -> Accessory = { EmptyView() }) {
+        self.title = title
+        self.subtitle = subtitle
+        self.accessory = accessory
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: DS.padM) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .adaptiveFont(size: DS.TypeScale.headline, weight: .bold)
+                    .foregroundColor(.goldText)
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .adaptiveFont(size: DS.TypeScale.sub)
+                        .foregroundColor(.paperSub)
+                }
+            }
+            Spacer(minLength: DS.padS)
+            accessory()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, DS.padL)
+        .padding(.vertical, DS.padS)
     }
 }
 
@@ -810,7 +856,7 @@ public struct FoldableTwoPane<Main: View, Analysis: View>: View {
 
     public init(mainColumnRatio: CGFloat? = nil,
                 compactSpacing: CGFloat = 8,
-                analysisBackground: Color = Color(red: 0.086, green: 0.075, blue: 0.059),
+                analysisBackground: Color = Color.screenInk,
                 analysisAlignment: Alignment = .top,
                 independentScroll: Bool = false,
                 @ViewBuilder main: () -> Main,
@@ -1408,7 +1454,7 @@ public struct CameraExclusiveGate<Content: View>: View {
                 deniedCard
             case .pending:
                 // 等窗口场景标识的一帧：用与相机页一致的深色底，避免闪白。
-                Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
+                Color.screenInk.ignoresSafeArea()
             }
         }
         .background(
@@ -1445,7 +1491,7 @@ public struct CameraExclusiveGate<Content: View>: View {
                 .padding(.horizontal, 28)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+        .background(Color.screenInk.ignoresSafeArea())
     }
 
     private func tryAcquire(onReturn: Bool = false) {
@@ -1478,7 +1524,7 @@ private struct ARSurveyTabHostView: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
+            Color.screenInk.ignoresSafeArea()
             if isActive {
                 if showExteriorSiteObserver {
                     ZStack(alignment: .topTrailing) {
@@ -1648,7 +1694,7 @@ public struct IntegratedWorkflowReportSheet: View {
         let isEn = (lang.effectiveLanguage == .en)
         return NavigationView {
             ZStack {
-                Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
+                Color.screenInk.ignoresSafeArea()
                 VStack(spacing: 12) {
                     // 三阶段完整度状态摘要（未完成项支持点击直达对应工作台）
                     VStack(alignment: .leading, spacing: 6) {

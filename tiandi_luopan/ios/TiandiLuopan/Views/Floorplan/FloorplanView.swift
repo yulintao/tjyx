@@ -445,7 +445,7 @@ public struct FloorplanView: View {
             : (rooms, [])
         
         return ZStack {
-            Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
+            Color.screenInk.ignoresSafeArea()
             
             if isActive {
                 GeometryReader { geo in
@@ -1374,7 +1374,7 @@ public struct FloorplanView: View {
 
         return NavigationView {
             ZStack {
-                Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
+                Color.screenInk.ignoresSafeArea()
 
                 VStack(spacing: 14) {
                     VStack(spacing: 10) {
@@ -1675,7 +1675,7 @@ public struct FloorplanView: View {
             }
         }
         .padding(12)
-        .background(Color(red: 0.11, green: 0.12, blue: 0.17))
+        .background(Color.surfaceCard)
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -3024,7 +3024,7 @@ public struct FloorplanView: View {
             ZStack {
                 // 底色
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(red: 0.11, green: 0.12, blue: 0.16))
+                    .fill(Color.surfaceCard)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.white.opacity(0.08), lineWidth: 1)
@@ -3953,7 +3953,7 @@ struct FloorplanConfirmDialog: View {
             }
             .padding(18)
             .frame(maxWidth: 300)
-            .background(Color(red: 0.14, green: 0.14, blue: 0.18))
+            .background(Color.surfaceElevated)
             .cornerRadius(14)
         }
     }
@@ -3982,7 +3982,7 @@ public struct RoomAuditDetailSheet: View {
     public var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea()
+                Color.screenInk.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {

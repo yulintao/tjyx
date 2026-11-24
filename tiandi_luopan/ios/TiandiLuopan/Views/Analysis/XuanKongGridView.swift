@@ -153,7 +153,7 @@ public struct XuanKongGridView: View {
             scroll.scrollTo("analysisRootTop", anchor: .top)
         }
         }
-        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+        .background(Color.screenInk.ignoresSafeArea())
         .sheet(isPresented: $showTianJiShuSheet) {
             if let reportSnapshot { TianJiShuView(analysis: reportSnapshot) }
         }
@@ -579,7 +579,7 @@ public struct XuanKongGridView: View {
                         .frame(maxWidth: .infinity, minHeight: 122, alignment: .topLeading)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(Color(red: 0.105, green: 0.115, blue: 0.15))
+                                .fill(Color.surfaceCard)
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
@@ -1486,7 +1486,7 @@ public struct Mountain24PickerSheet: View {
         let state = motion.headingState
         let isEn = (lang.effectiveLanguage == .en)
         return ZStack {
-            Color(red: 0.086, green: 0.075, blue: 0.059)
+            Color.screenInk
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -1755,7 +1755,7 @@ public struct Mountain24PickerSheet: View {
                 .foregroundColor(.white.opacity(0.75))
         }
         .padding(12)
-        .background(Color(red: 0.13, green: 0.14, blue: 0.19))
+        .background(Color.surfaceElevated)
         .cornerRadius(10)
     }
 

@@ -717,7 +717,7 @@ public struct ARVisionView: View {
                             .padding(.bottom, 12)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(red: 0.086, green: 0.075, blue: 0.059))
+                    .background(Color.screenInk)
                 }
                 // AR 页不经过 FoldableTwoPane，需单独抵消 regular 宽屏字号放大，
                 // 否则窄栏里国际化长标题与徽章会互相穿插。

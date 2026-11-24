@@ -38,7 +38,7 @@ public struct CompassMainView: View {
     public var body: some View {
         ZStack {
             // 背景渐变
-            Color(red: 0.086, green: 0.075, blue: 0.059)
+            Color.screenInk
                 .ignoresSafeArea()
             
             if isActive {

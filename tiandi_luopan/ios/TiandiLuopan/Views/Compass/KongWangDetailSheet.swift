@@ -169,7 +169,7 @@ public struct KongWangDetailSheet: View {
                 }
                 .padding(16)
             }
-            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+            .background(Color.screenInk.ignoresSafeArea())
             .navigationBarTitle(lang.t("kw_sheet_title"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()

@@ -386,7 +386,7 @@ public struct SettingsView: View {
                     .listStyle(InsetGroupedListStyle())
                     .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
                     .frame(maxWidth: .infinity)
-                    .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+                    .background(Color.screenInk.ignoresSafeArea())
                     .navigationBarTitle(lang.t("tab_settings"), displayMode: .inline)
                     .preferredColorScheme(.dark)
                     .onAppear {
@@ -762,7 +762,7 @@ public struct MasterVIPPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+        .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_vip"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .onAppear { iap.refreshProductsIfNeeded() }
@@ -1066,7 +1066,7 @@ public struct OwnerKuaReminderPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+        .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_kua_reminder"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .sheet(item: $activeSheet) { sheet in
@@ -1250,7 +1250,7 @@ public struct LanguagePreferencesPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+        .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_language"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showCalibrationGuide) {
@@ -1361,7 +1361,7 @@ public struct AboutPageView: View {
         .listStyle(InsetGroupedListStyle())
         .frame(maxWidth: horizontalSizeClass == .regular ? 900 : 700)
         .frame(maxWidth: .infinity)
-        .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+        .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_about"), displayMode: .inline)
         .preferredColorScheme(.dark)
         .sheet(item: $legalDocument) { document in

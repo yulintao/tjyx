@@ -80,7 +80,7 @@ public struct CompassHeaderView: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(red: 0.10, green: 0.11, blue: 0.145))
+                    .fill(Color.surfaceElevated)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
@@ -174,7 +174,7 @@ public struct CompassHeaderView: View {
     private func fenjinDescLine(state: CompassHeadingState) -> some View {
         Text(state.fenJinDesc)
             .adaptiveFont(size: 12, weight: .medium)
-            .foregroundColor(state.isJianXiang ? Color.semWarn : Color(red: 0.8, green: 0.8, blue: 0.85))
+            .foregroundColor(state.isJianXiang ? Color.semWarn : Color.paperSub)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }

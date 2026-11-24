@@ -61,7 +61,7 @@ public struct FengshuiPalaceDetailSheet: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                     }
-                    .background(Color(red: 0.086, green: 0.075, blue: 0.059))
+                    .background(Color.screenInk)
 
                     ScrollView {
                         VStack(spacing: 12) {
@@ -140,7 +140,7 @@ public struct FengshuiPalaceDetailSheet: View {
                     }
                 }
             }
-            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+            .background(Color.screenInk.ignoresSafeArea())
             .navigationBarTitle(lang.t("palace_sheet_title"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()

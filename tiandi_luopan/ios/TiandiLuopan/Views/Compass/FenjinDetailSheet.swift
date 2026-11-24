@@ -147,7 +147,7 @@ public struct FenjinDetailSheet: View {
                 }
                 .padding(16)
             }
-            .background(Color(red: 0.086, green: 0.075, blue: 0.059).ignoresSafeArea())
+            .background(Color.screenInk.ignoresSafeArea())
             .navigationBarTitle(lang.t("fenjin_detail_title"), displayMode: .inline)
             .navigationBarItems(trailing: Button(lang.t("done")) {
                 presentationMode.wrappedValue.dismiss()

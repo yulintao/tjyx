@@ -183,9 +183,9 @@ public struct CompassDialView: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color(red: 0.11, green: 0.13, blue: 0.17),
-                            Color(red: 0.06, green: 0.07, blue: 0.095),
-                            Color(red: 0.03, green: 0.035, blue: 0.048)
+                            Color(red: 0.15, green: 0.125, blue: 0.095),
+                            Color(red: 0.095, green: 0.082, blue: 0.064),
+                            Color(red: 0.05, green: 0.044, blue: 0.035)
                         ],
                         center: .center,
                         startRadius: radius * 0.18,
@@ -529,8 +529,8 @@ public struct CompassDialView: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color(red: 0.08, green: 0.11, blue: 0.15),
-                            Color(red: 0.03, green: 0.04, blue: 0.06)
+                            Color(red: 0.085, green: 0.074, blue: 0.058),
+                            Color(red: 0.045, green: 0.039, blue: 0.032)
                         ],
                         center: .center,
                         startRadius: 2,
@@ -586,7 +586,7 @@ public struct CompassDialView: View {
             }
             .fill(
                 LinearGradient(
-                    colors: [Color.yanCyan, Color(red: 0.12, green: 0.42, blue: 0.78)],
+                    colors: [Color.yanCyan, Color(red: 0.20, green: 0.45, blue: 0.44)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -615,7 +615,7 @@ public struct CompassDialView: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Color.white, Color(red: 0.72, green: 0.76, blue: 0.82)],
+                        colors: [Color.white, Color(red: 0.72, green: 0.66, blue: 0.55)],
                         center: .center,
                         startRadius: 0,
                         endRadius: 5
