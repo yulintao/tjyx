@@ -324,63 +324,41 @@ public struct SettingsView: View {
             if isActive {
                 NavigationView {
                     List {
-                        // 顶部用户/会员概要卡片
-                        userHeaderSection
-
-                        // 工作流进度与综合报告快捷入口
-                        workflowQuickSection
-
-                        // 测绘训练档案：查看全模块关卡进度与成就徽章
+                        // Hero：核心功能入口置顶（第一眼即会员/资料/语言/关于）
                         Section {
-                            Button { showTrainingProfile = true } label: {
-                                menuRow(
-                                    icon: "rosette",
-                                    iconColor: .goldText,
-                                    title: lang.effectiveLanguage == .en ? "Survey Training Profile" : "测绘训练档案",
-                                    badge: "LV.\(CompassTrainingStore.shared.level)",
-                                    badgeColor: .goldText
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        // 功能模块菜单组（仅保留免费个人资料清理与会员/语言/关于，避免命理导向入口）
-                        Section {
-                            // 模块 1: 专业会员
                             NavigationLink(destination: MasterVIPPageView(selectedProductId: $selectedProductId)) {
-                                menuRow(
-                                    icon: "crown.fill",
-                                    iconColor: Color.goldText,
-                                    title: lang.t("settings_menu_vip"),
-                                    badge: isProUnlocked ? lang.t("vip_user") : lang.t("standard_user"),
-                                    badgeColor: isProUnlocked ? .semJi : .semWarn
-                                )
+                                menuRow(icon: "crown.fill", iconColor: Color.goldText,
+                                        title: lang.t("settings_menu_vip"))
                             }
-
                             NavigationLink(destination: PersonalProfileDataView()) {
                                 menuRow(icon: "person.crop.circle.badge.minus", iconColor: Color.yanCyan,
                                         title: lang.t("profile_data_title"))
                             }
-
-                            // 模块 2: 界面语言与传感器校准
                             NavigationLink(destination: LanguagePreferencesPageView()) {
-                                menuRow(
-                                    icon: "globe",
-                                    iconColor: Color.yanCyan,
-                                    title: lang.t("settings_menu_language"),
-                                    subtitle: lang.currentSetting.displayName
-                                )
+                                menuRow(icon: "globe", iconColor: Color.yanCyan,
+                                        title: lang.t("settings_menu_language"),
+                                        subtitle: lang.currentSetting.displayName)
                             }
-
-                            // 模块 3: 关于
                             NavigationLink(destination: AboutPageView()) {
-                                menuRow(
-                                    icon: "info.circle.fill",
-                                    iconColor: Color.semWarn,
-                                    title: lang.t("settings_menu_about"),
-                                    subtitle: "v" + lang.t("settings_version_value")
-                                )
+                                menuRow(icon: "info.circle.fill", iconColor: Color.semWarn,
+                                        title: lang.t("settings_menu_about"))
                             }
+                        } header: {
+                            Text(lang.effectiveLanguage == .en ? "Settings" : "设置")
+                        }
+
+                        // 次要：训练档案 / 工作流进度 / 用户概要，下沉到核心入口之后
+                        Section {
+                            Button { showTrainingProfile = true } label: {
+                                menuRow(icon: "rosette", iconColor: .goldText,
+                                        title: lang.effectiveLanguage == .en ? "Survey Training Profile" : "测绘训练档案",
+                                        badge: "LV.\(CompassTrainingStore.shared.level)", badgeColor: .goldText)
+                            }
+                            .buttonStyle(.plain)
+                            workflowQuickSection
+                            userHeaderSection
+                        } header: {
+                            Text(lang.effectiveLanguage == .en ? "Activity" : "活动与档案")
                         }
                     }
                     .listStyle(InsetGroupedListStyle())
@@ -982,11 +960,11 @@ public struct OwnerKuaReminderPageView: View {
                                             Image(systemName: "chevron.down")
                                                 .font(.system(size: 8, weight: .bold))
                                         }
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 3)
+                                        .padding(.horizontal, 8)
+                                        .frame(minHeight: DS.touchMin)
                                         .background(Color.white.opacity(0.08))
                                         .foregroundColor(.white)
-                                        .cornerRadius(5)
+                                        .cornerRadius(DS.radiusS)
                                     }
                                     .buttonStyle(PlainButtonStyle())
 
@@ -995,12 +973,12 @@ public struct OwnerKuaReminderPageView: View {
                                         kuaProfile.updateFamilyMember(id: member.id, isMale: !member.isMale)
                                     }) {
                                         Text(member.isMale ? SettingsLocalizationHelpers.maleLabel(lang) : SettingsLocalizationHelpers.femaleLabel(lang))
-                                            .adaptiveFont(size: 11, weight: .bold)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 3)
+                                            .adaptiveFont(size: DS.TypeScale.sub, weight: .bold)
+                                            .padding(.horizontal, 8)
+                                            .frame(minHeight: DS.touchMin)
                                             .background(Color.yanCyan.opacity(0.18))
                                             .foregroundColor(.yanCyan)
-                                            .cornerRadius(5)
+                                            .cornerRadius(DS.radiusS)
                                     }
                                     .buttonStyle(PlainButtonStyle())
 
@@ -1012,8 +990,9 @@ public struct OwnerKuaReminderPageView: View {
                                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                     }) {
                                         Image(systemName: "trash.circle.fill")
-                                            .font(.system(size: 15))
-                                            .foregroundColor(.white.opacity(0.45))
+                                            .font(.system(size: 17))
+                                            .foregroundColor(.white.opacity(0.55))
+                                            .frame(width: DS.touchMin, height: DS.touchMin)
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                 }

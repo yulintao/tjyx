@@ -2844,17 +2844,14 @@ public struct ARSpatialSurveyView: View {
 
             GeometryReader { geo in
                 VStack(spacing: 8) {
-                    if isEmbedded {
-                        WorkflowStepperBar(activeStep: 0)
-                    }
                     header
                     Spacer(minLength: 8)
-                    // 底部可折叠实测数据面板 + 拇指区三键测绘操作底座，
-                    // 默认保持精简，把超过 65% 的屏幕空间留给 AR 实景取景。
+                    // Hero-first：实测面板收起时仅一行摘要（约 72pt），把 >75% 屏幕留给 AR 取景；
+                    // 展开后才显示完整遥测明细。三键操作底座始终贴在拇指区。
                     ScrollView(.vertical, showsIndicators: false) {
                         measurementPanel
                     }
-                    .frame(maxHeight: isTelemetryExpanded ? geo.size.height * 0.42 : 175)
+                    .frame(maxHeight: isTelemetryExpanded ? geo.size.height * 0.45 : 72)
 
                     surveyActionDock
                 }

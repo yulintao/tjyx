@@ -692,7 +692,6 @@ public struct ARVisionView: View {
                         )
                         .allowsHitTesting(false)
                         VStack(spacing: 6) {
-                            WorkflowStepperBar(activeStep: 0)
                             topStatusBar()
                             horizonCompassRibbon()
                             Spacer()
@@ -751,7 +750,6 @@ public struct ARVisionView: View {
 
             // 5. 顶栏悬浮与拍照存证控制栏
             VStack(spacing: 6) {
-                WorkflowStepperBar(activeStep: 0)
                 topStatusBar()
                 horizonCompassRibbon()
                 

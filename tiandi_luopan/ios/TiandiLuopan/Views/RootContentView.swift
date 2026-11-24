@@ -377,70 +377,45 @@ public struct DSConclusionDashboard: View {
     private var jiText: String { daily.jiActivities.prefix(3).joined(separator: "、") }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: DS.padM) {
+        // 单层卡片：标题 + 信息行，不再嵌套翻转卡/Pill/阴影。
+        VStack(alignment: .leading, spacing: DS.padS) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(lang.effectiveLanguage == .en ? "NOW · HERE · THIS DIRECTION" : "此 刻 · 此 地 · 此 向")
-                        .adaptiveFont(size: 11, weight: .semibold).foregroundColor(.goldText)
+                        .adaptiveFont(size: DS.TypeScale.caption, weight: .semibold).foregroundColor(.goldText)
                     Text(sitFace)
-                        .adaptiveFont(size: 20, weight: .bold, design: .rounded)
-                        .foregroundColor(.white)
+                        .adaptiveFont(size: DS.TypeScale.title, weight: .bold, design: .rounded)
+                        .foregroundColor(.paperText)
                 }
                 Spacer()
                 DSStatusBadge(text: kwBadge.0, tint: kwBadge.1)
             }
 
-            Text(timeText).adaptiveFont(size: 12).foregroundColor(.secondary)
+            Divider().background(Color.strokeSoft)
 
-            // 翻转卡片：正面四类读数，背面详细依据；点按翻面，保留结论在上。
-            DSFlipCard {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DS.padS) {
-                    DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · favorable" : "历法参考 · 宜",
-                               value: yiText.isEmpty ? "—" : yiText, tint: .semJi)
-                    DSStatPill(label: lang.effectiveLanguage == .en ? "Trad. calendar · avoid" : "历法参考 · 忌",
-                               value: jiText.isEmpty ? "—" : jiText, tint: .semXiong)
-                    DSStatPill(label: lang.effectiveLanguage == .en ? "Direction notes" : "方位参考",
-                               value: "\(compassGods.wealthDirection) / \(compassGods.joyDirection)", tint: .goldText)
-                    DSStatPill(label: lang.effectiveLanguage == .en ? "Fenjin / void" : "分金 / 空亡",
-                               value: state.fenJinDesc.isEmpty ? kwBadge.0 : state.fenJinDesc, tint: .semInfo)
-                }
-                .frame(minHeight: 132, alignment: .top)
-            } back: {
-                VStack(alignment: .leading, spacing: DS.padS) {
-                    HStack {
-                        Image(systemName: "doc.text.magnifyingglass").foregroundColor(.goldText).adaptiveFont(size: 13)
-                        Text(lang.effectiveLanguage == .en ? "Details & Notes" : "详细盘面与依据")
-                            .adaptiveFont(size: 12, weight: .bold).foregroundColor(.goldText)
-                        Spacer()
-                        Image(systemName: "arrow.uturn.left").adaptiveFont(size: 11).foregroundColor(.secondary)
-                    }
-                    Text(daily.detailsText).adaptiveFont(size: 11).foregroundColor(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(minHeight: 132, alignment: .top)
+            DSInfoRow(label: lang.effectiveLanguage == .en ? "Time" : "时间", value: timeText)
+            DSInfoRow(label: lang.effectiveLanguage == .en ? "Calendar" : "历法参考",
+                      value: yiText.isEmpty ? "—" : yiText, valueColor: .semJi)
+            DSInfoRow(label: lang.effectiveLanguage == .en ? "Direction" : "方位参考",
+                      value: "\(compassGods.wealthDirection) / \(compassGods.joyDirection)")
+            DSInfoRow(label: lang.effectiveLanguage == .en ? "Fenjin / void" : "分金 / 空亡",
+                      value: state.fenJinDesc.isEmpty ? kwBadge.0 : state.fenJinDesc, valueColor: .semInfo)
+
+            // 依据默认隐藏，点开才显示（消除首屏信息过载）
+            DSFoldableSection(title: lang.effectiveLanguage == .en ? "Basis" : "依据说明", defaultExpanded: false) {
+                Text(daily.detailsText).adaptiveFont(size: DS.TypeScale.caption).foregroundColor(.paperSub)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(lang.effectiveLanguage == .en
+                     ? "For traditional culture research reference only · Not for decision-making"
+                     : "传统文化研究参考 · 不构成决策依据")
+                    .adaptiveFont(size: 10).foregroundColor(.paperSub.opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
             }
-
-            HStack {
-                Image(systemName: "rotate.3d").adaptiveFont(size: 11).foregroundColor(.goldText)
-                Text(lang.effectiveLanguage == .en ? "Tap the card above to flip for details" : "点按上方卡片翻面查看依据")
-                    .adaptiveFont(size: 10).foregroundColor(.secondary)
-                Spacer()
-            }
-
-            Text(lang.effectiveLanguage == .en
-                 ? "For traditional culture research reference only · Not for decision-making"
-                 : "传统文化研究参考 · 不构成决策依据")
-                .adaptiveFont(size: 10).foregroundColor(.secondary.opacity(0.75))
-                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(DS.padL)
-        .background(
-            LinearGradient(colors: [Color.goldPrimary.opacity(0.10), Color.surfaceCard],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-        .cornerRadius(DS.radiusL)
-        .overlay(RoundedRectangle(cornerRadius: DS.radiusL).stroke(Color.strokeGold, lineWidth: 1))
-        .shadow(color: Color.black.opacity(0.22), radius: 12, x: 0, y: 6)
+        .padding(DS.padM)
+        .background(Color.surfaceCard)
+        .cornerRadius(DS.radiusM)
+        .overlay(RoundedRectangle(cornerRadius: DS.radiusM).stroke(Color.strokeGold, lineWidth: 1))
     }
 }
 
