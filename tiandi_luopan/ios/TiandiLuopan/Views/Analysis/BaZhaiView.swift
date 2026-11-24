@@ -471,7 +471,7 @@ public struct BaZhaiView: View {
                         .lineSpacing(2)
                 }
                 .padding(12)
-                .background(Color(red: 0.13, green: 0.11, blue: 0.11))
+                .background(Color.surfaceCard)
                 .cornerRadius(12)
                 .padding(.horizontal, 16)
                 }
@@ -694,7 +694,7 @@ public struct BaZhaiView: View {
             }
         }
         .padding(12)
-        .background(Color(red: 0.11, green: 0.13, blue: 0.12))
+        .background(Color.surfaceCard)
         .cornerRadius(12)
         .padding(.horizontal, 16)
     }

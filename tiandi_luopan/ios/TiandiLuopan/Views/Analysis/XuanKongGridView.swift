@@ -821,7 +821,7 @@ public struct XuanKongGridView: View {
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(red: 0.14, green: 0.12, blue: 0.11))
+                .fill(Color.surfaceElevated)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.goldDeep.opacity(0.3), lineWidth: 1)
