@@ -995,7 +995,7 @@ struct ProportionalTwoPaneLayout: Layout {
 public struct RootContentView: View {
     private let motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var route: HomeRoute?
+    @State private var path: [HomeRoute] = []
     @State private var analysisSubTab: Int = 0
     @State private var analysisFeatureRequest: AnalysisFeatureRequest?
     @State private var showWorkflowReportSheet: Bool = false
@@ -1013,14 +1013,16 @@ public struct RootContentView: View {
     @State private var layoutForm = AdaptiveLayoutForm.current()
     
     public init() {
-        var initialRoute: HomeRoute? = nil
+        var initialPath: [HomeRoute] = []
         if let tabArgIndex = CommandLine.arguments.firstIndex(of: "-selectedTab"),
            tabArgIndex + 1 < CommandLine.arguments.count,
            let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]) {
             let clamped = Self.clampedTabIndex(tabValue)
-            initialRoute = HomeRoute(rawValue: clamped)
+            if let route = HomeRoute(rawValue: clamped) {
+                initialPath = [route]
+            }
         }
-        _route = State(initialValue: initialRoute)
+        _path = State(initialValue: initialPath)
 
         // 自定义原生 TabBar 深色黑金质感外观（折叠/展开切换时 onChange 会重调以刷新字号）
         Self.applyTabBarAppearance(isLargeLayout: UITraitCollection.current.horizontalSizeClass == .regular)
@@ -1119,9 +1121,9 @@ public struct RootContentView: View {
     }
     
     public var body: some View {
-        NavigationStack {
-            HomeHubView(route: $route)
-                .navigationDestination(item: $route) { target in
+        NavigationStack(path: $path) {
+            HomeHubView()
+                .navigationDestination(for: HomeRoute.self) { target in
                     destinationView(for: target)
                 }
         }
@@ -1164,7 +1166,7 @@ public struct RootContentView: View {
         .sheet(isPresented: $showWorkflowReportSheet) {
             IntegratedWorkflowReportSheet()
         }
-        .onChange(of: route) { _ in
+        .onChange(of: path) { _ in
             updateResourceUsage()
         }
         .onAppear {
@@ -1196,15 +1198,16 @@ public struct RootContentView: View {
     /// 消费深链与主屏快捷入口的待处理意图（幂等）。
     private func consumePendingAlmanacRoute() {
         if AppNavigationRouter.shared.consumeAlmanac() {
-            route = .floorplan
+            path = [.floorplan]
         }
         if let tabRoute = AppNavigationRouter.shared.consumeTabRoute() {
             let idx = Self.clampedTabIndex(tabRoute.tab)
-            route = HomeRoute(rawValue: idx) ?? .floorplan
+            let target = HomeRoute(rawValue: idx) ?? .floorplan
+            path = [target]
             if let sub = tabRoute.subTab {
                 analysisSubTab = sub
             }
-            if route == .analysis, let feature = tabRoute.feature ?? tabRoute.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
+            if target == .analysis, let feature = tabRoute.feature ?? tabRoute.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
                 if feature == .xuanKong || feature == .baZhai || feature == .sanHe || feature == .qimen {
                     analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
                 }
@@ -1218,7 +1221,7 @@ public struct RootContentView: View {
             .filter { $0.activationState == .foregroundActive }
             .count
         let multipleActiveScenes = activeSceneCount > 1
-        let active = route?.rawValue
+        let active = path.last?.rawValue
         UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || active == 1 || active == 2
         motion.setDeviceMotionEnabled(multipleActiveScenes || active == 1 || active == 2)
         motion.setHeadingUpdatesEnabled(multipleActiveScenes || active != 4)
@@ -1276,7 +1279,6 @@ private enum HomeRoute: Int, CaseIterable, Hashable {
 
 /// 首页图标宫格：点按图标推入对应功能页（开源 GridStack 布局）。
 private struct HomeHubView: View {
-    @Binding var route: HomeRoute?
     @ObservedObject private var lang = LocalizationManager.shared
 
     private var brandTitle: String {
@@ -1293,9 +1295,7 @@ private struct HomeHubView: View {
 
             GridStack(minCellWidth: 84, spacing: DS.padM, numItems: HomeRoute.allCases.count) { index, cellWidth in
                 let target = HomeRoute.allCases[index]
-                Button {
-                    route = target
-                } label: {
+                NavigationLink(value: target) {
                     hubTile(target: target)
                         .frame(width: cellWidth)
                 }
