@@ -36,7 +36,7 @@ public struct XuanKongGridView: View {
     @State private var starMode = FlyingStarModeSelection()
     private var useTiGua: Bool { starMode.usesTiGua(automatic: analysisHeading.isJianXiang) }
     @Binding private var featureRequest: AnalysisFeatureRequest?
-    @State private var selectedFeature: AnalysisFeature?
+    @State private var selectedFeature: AnalysisFeature? = .xuanKong
     @State private var toolRequest: AnalysisToolRequest?
     @State private var reportSnapshot: TianJiAnalysisSnapshot?
     @State private var showTianJiShuSheet: Bool = false
