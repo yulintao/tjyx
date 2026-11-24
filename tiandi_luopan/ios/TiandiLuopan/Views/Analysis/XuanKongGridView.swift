@@ -507,12 +507,12 @@ public struct XuanKongGridView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(lang.t("analysis_menu_title"))
                     .adaptiveFont(size: 20, weight: .bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.goldText)
                 Text(isEn
                      ? "Deterministic spatial & calendrical calculation modules with verifiable astronomical inputs."
                      : "基于实测方位角与天文节气历法的确定性计算模块，全部输入参数与推演规则可独立复核。")
                     .adaptiveFont(size: 11)
-                    .foregroundColor(.white.opacity(0.68))
+                    .foregroundColor(.paperSub)
             }
 
             sittingControlHeader()
