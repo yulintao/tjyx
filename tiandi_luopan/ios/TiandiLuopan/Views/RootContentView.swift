@@ -994,7 +994,7 @@ struct ProportionalTwoPaneLayout: Layout {
 public struct RootContentView: View {
     private let motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var selectedRoute: HomeRoute = .floorplan
+    @State private var selectedRoute: HomeRoute = .dashboard
     @State private var showCompassPopup: Bool = false
     @State private var analysisSubTab: Int = 0
     @State private var analysisFeatureRequest: AnalysisFeatureRequest?
@@ -1013,7 +1013,7 @@ public struct RootContentView: View {
     @State private var layoutForm = AdaptiveLayoutForm.current()
     
     public init() {
-        var initialRoute: HomeRoute = .floorplan
+        var initialRoute: HomeRoute = .dashboard
         if let tabArgIndex = CommandLine.arguments.firstIndex(of: "-selectedTab"),
            tabArgIndex + 1 < CommandLine.arguments.count,
            let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]) {
@@ -1029,7 +1029,7 @@ public struct RootContentView: View {
     }
 
     private static func clampedTabIndex(_ raw: Int) -> Int {
-        max(0, min(4, raw))
+        max(0, min(5, raw))
     }
 
     /// 同步刷新布局环境值：只在值真正变化时写 @State，避免无谓重绘。
@@ -1231,9 +1231,8 @@ public struct RootContentView: View {
                 analysisSubTab = sub
             }
             if target == .analysis, let feature = tabRoute.feature ?? tabRoute.subTab.flatMap(AnalysisFeature.fromLegacySubTab) {
-                if feature == .xuanKong || feature == .baZhai || feature == .sanHe || feature == .qimen {
-                    analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
-                }
+                // 全部 AnalysisFeature 均支持深链直达（含紫白 / 宅主 / 择日）。
+                analysisFeatureRequest = AnalysisFeatureRequest(feature: feature)
             }
         }
     }
@@ -1255,6 +1254,8 @@ public struct RootContentView: View {
     @ViewBuilder
     private func destinationView(for target: HomeRoute) -> some View {
         switch target {
+        case .dashboard:
+            CommandCenterView()
         case .floorplan:
             FloorplanView(isActive: true)
         case .ar:
@@ -1300,14 +1301,18 @@ public struct RootContentView: View {
 
 /// 首页功能入口路由：rawValue 与旧版五标签下标一一对应。
 private enum HomeRoute: Int, CaseIterable, Hashable {
+    // 旧 tab 索引 0...4 保持不变，避免深链/快捷指令/测试里 30+ 处硬编码平移。
+    // 总控首页用 5，仅在 bottomEntries 里排到首位。
     case floorplan
     case ar
     case compass
     case analysis
     case settings
+    case dashboard = 5
 
     var systemImage: String {
         switch self {
+        case .dashboard: "square.grid.2x2.fill"
         case .floorplan: "house.fill"
         case .ar: "camera.viewfinder"
         case .compass: "safari.fill"
@@ -1318,6 +1323,7 @@ private enum HomeRoute: Int, CaseIterable, Hashable {
 
     var titleKey: String {
         switch self {
+        case .dashboard: "tab_home"
         case .floorplan: "tab_floorplan"
         case .ar: "tab_ar"
         case .compass: "tab_compass"
@@ -1326,9 +1332,9 @@ private enum HomeRoute: Int, CaseIterable, Hashable {
         }
     }
 
-    /// 底部导航常驻入口：罗盘不占导航位，改由全局悬浮按钮弹出。
+    /// 底部导航常驻入口：总控首页置顶，罗盘走全局悬浮按钮。
     static var bottomEntries: [HomeRoute] {
-        [.floorplan, .ar, .analysis, .settings]
+        [.dashboard, .floorplan, .ar, .analysis, .settings]
     }
 }
 
