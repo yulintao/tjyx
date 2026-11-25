@@ -173,6 +173,10 @@ public struct CompassDialView: View {
                 motion.refreshTimeAndSolarTermIfNeeded()
             }
         }
+        // ScrollView 内的 GeometryReader 若不显式给高度会塌成 0；
+        // 按可用宽度约束为等比正方形（上限 520pt），保证盘面在首屏完整呈现。
+        .frame(maxWidth: .infinity, maxHeight: 520)
+        .aspectRatio(1, contentMode: .fit)
     }
     
     // MARK: - 盘面背景（现代精密航空级深空钛金表盘）
