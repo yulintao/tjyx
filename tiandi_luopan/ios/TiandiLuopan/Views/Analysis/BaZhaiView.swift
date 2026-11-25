@@ -829,7 +829,7 @@ public struct OwnerLifeGuaView: View {
             }
         }
         .navigationViewStyle(.stack)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     // MARK: - P1.1 宅主命卦画像与「人宅合一」配对卡
@@ -1310,7 +1310,7 @@ public struct CelestialDateSelectionView: View {
             }
         }
         .navigationViewStyle(.stack)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     private func refreshAnalysis() {
@@ -2347,7 +2347,7 @@ public struct AddFamilyMemberDialog: View {
                 .frame(maxWidth: 440)
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .onAppear {
             initDefaults()
         }
@@ -2940,7 +2940,7 @@ public struct EditOwnerKuaDialog: View {
             .frame(maxWidth: 480)
         }
     }
-    .preferredColorScheme(.dark)
+    .preferredColorScheme(.light)
     .onAppear {
         setupInitialValues()
     }

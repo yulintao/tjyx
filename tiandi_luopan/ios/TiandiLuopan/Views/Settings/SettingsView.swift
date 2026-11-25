@@ -307,7 +307,7 @@ public struct SettingsView: View {
     @State private var showTrainingProfile: Bool = false
 
     private static let appearanceConfigured: Void = {
-        UITableView.appearance().backgroundColor = UIColor(red: 22/255.0, green: 19/255.0, blue: 15/255.0, alpha: 1.0)
+        UITableView.appearance().backgroundColor = UIColor(red: 243/255.0, green: 235/255.0, blue: 221/255.0, alpha: 1.0)
     }()
 
     public init(isActive: Bool = true) {
@@ -366,7 +366,7 @@ public struct SettingsView: View {
                     .frame(maxWidth: .infinity)
                     .background(Color.screenInk.ignoresSafeArea())
                     .navigationBarTitle(lang.t("tab_settings"), displayMode: .inline)
-                    .preferredColorScheme(.dark)
+                    .preferredColorScheme(.light)
                     .onAppear {
                         guard isActive else { return }
                         showPaymentError = false
@@ -393,7 +393,7 @@ public struct SettingsView: View {
                     }
                 }
                 .navigationViewStyle(StackNavigationViewStyle())
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(.light)
                 .sheet(isPresented: $showTrainingProfile) {
                     TrainingProfileSheet()
                 }
@@ -743,7 +743,7 @@ public struct MasterVIPPageView: View {
         .frame(maxWidth: .infinity)
         .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_vip"), displayMode: .inline)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .onAppear { iap.refreshProductsIfNeeded() }
     }
 
@@ -1048,7 +1048,7 @@ public struct OwnerKuaReminderPageView: View {
         .frame(maxWidth: .infinity)
         .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_kua_reminder"), displayMode: .inline)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .sheet(item: $activeSheet) { sheet in
             OwnerGuaVIPGate {
             switch sheet {
@@ -1232,7 +1232,7 @@ public struct LanguagePreferencesPageView: View {
         .frame(maxWidth: .infinity)
         .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_language"), displayMode: .inline)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .sheet(isPresented: $showCalibrationGuide) {
             CalibrationSheet(keepsMotionActive: true)
         }
@@ -1343,7 +1343,7 @@ public struct AboutPageView: View {
         .frame(maxWidth: .infinity)
         .background(Color.screenInk.ignoresSafeArea())
         .navigationBarTitle(lang.t("settings_menu_about"), displayMode: .inline)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .sheet(item: $legalDocument) { document in
             LegalDocumentSheet(
                 title: lang.t(document.titleKey),

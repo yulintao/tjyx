@@ -147,6 +147,6 @@ public struct FengshuiPalaceDetailSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 }

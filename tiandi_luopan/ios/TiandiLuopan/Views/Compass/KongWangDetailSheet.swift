@@ -175,6 +175,6 @@ public struct KongWangDetailSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 }

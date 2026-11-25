@@ -1511,7 +1511,7 @@ public struct FloorplanView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     // MARK: - P3.4 多套房源 PK 横向对比矩阵（选房/租房比对神器）
@@ -4119,7 +4119,7 @@ public struct RoomAuditDetailSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .overlay(
             Group {
                 if showDeleteConfirmation, let onDelete = onDelete {

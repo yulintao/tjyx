@@ -17,32 +17,32 @@ extension Color {
 // 目标：把散落在各视图的 6 种金、系统色、魔数圆角收敛到一组语义常量。
 // 所有新代码优先使用这里的语义色，旧视图逐步迁移；不改变 yanGold 等既有符号，避免破坏现有编译。
 extension Color {
-    // 金色三阶：古金主色 / 深金（选中底、边框）/ 文字金（高对比）
-    public static let goldPrimary = Color(red: 0.80, green: 0.63, blue: 0.31)
-    public static let goldDeep    = Color(red: 0.63, green: 0.49, blue: 0.23)
-    public static let goldText    = Color(red: 0.91, green: 0.78, blue: 0.52)
+    // 青铜三阶：主强调 / 深铜（选中底、边框）/ 铜色文字（浅底上的可读强调）
+    public static let goldPrimary = Color(red: 0.588, green: 0.467, blue: 0.235)
+    public static let goldDeep    = Color(red: 0.467, green: 0.376, blue: 0.184)
+    public static let goldText    = Color(red: 0.541, green: 0.427, blue: 0.208)
 
     // 朱红：强调 / 警示主点缀（替代高饱和霓虹红）
-    public static let vermilion   = Color(red: 0.71, green: 0.27, blue: 0.23)
+    public static let vermilion   = Color(red: 0.761, green: 0.341, blue: 0.247)
 
-    // 纸色文字：主文字 / 次级文字
-    public static let paperText   = Color(red: 0.95, green: 0.91, blue: 0.83)
-    public static let paperSub    = Color(red: 0.66, green: 0.61, blue: 0.50)
+    // 墨字：主文字 / 次级文字（暖纸浅色方案下为深棕墨色）
+    public static let paperText   = Color(red: 0.173, green: 0.141, blue: 0.094)
+    public static let paperSub    = Color(red: 0.431, green: 0.380, blue: 0.298)
 
-    // 语义色：吉 / 凶 / 警示 / 信息，与暖墨主题统一，替代裸 .semJi/.semXiong/.semWarn/.purple
-    public static let semJi     = Color(red: 0.35, green: 0.67, blue: 0.50)  // 吉 · 温润青玉
-    public static let semXiong  = Color(red: 0.85, green: 0.35, blue: 0.31)  // 凶 · 朱砂红
-    public static let semWarn   = Color(red: 0.88, green: 0.63, blue: 0.29)  // 留意 · 琥珀
+    // 语义色：吉 / 凶 / 警示 / 信息，浅底上保持可读对比
+    public static let semJi     = Color(red: 0.306, green: 0.561, blue: 0.400)  // 吉 · 温润青玉
+    public static let semXiong  = Color(red: 0.706, green: 0.310, blue: 0.290)  // 凶 · 朱砂红
+    public static let semWarn   = Color(red: 0.725, green: 0.502, blue: 0.208)  // 留意 · 琥珀
     public static let semInfo   = Color.yanCyan
 
-    // 表面与描边：暖墨卡片底、柔和分隔线
-    public static let surfaceCard   = Color(red: 0.141, green: 0.122, blue: 0.090)
-    public static let surfaceElevated = Color(red: 0.169, green: 0.145, blue: 0.106)
-    public static let strokeSoft    = Color(red: 0.95, green: 0.91, blue: 0.83).opacity(0.10)
+    // 表面与描边：暖白卡片、柔和暖边
+    public static let surfaceCard   = Color(red: 0.984, green: 0.961, blue: 0.918)
+    public static let surfaceElevated = Color(red: 1.0, green: 1.0, blue: 1.0)
+    public static let strokeSoft    = Color(red: 0.173, green: 0.141, blue: 0.094).opacity(0.10)
     public static let strokeGold    = Color.goldPrimary.opacity(0.26)
 
-    /// 屏幕底色：暖墨（全 App 页面 / 弹层统一背景，替代散落的黑、冷石板与同值字面量）
-    public static let screenInk     = Color(red: 0.086, green: 0.075, blue: 0.059)
+    /// 屏幕底色：暖纸（全 App 页面 / 弹层统一背景，浅色方案）
+    public static let screenInk     = Color(red: 0.945, green: 0.910, blue: 0.839)
 }
 
 // 布局常量：统一间距 / 圆角 / 触摸目标
@@ -1053,15 +1053,15 @@ public struct RootContentView: View {
     private static func applyTabBarAppearance(isLargeLayout: Bool) {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        // 暖墨底色，与卡片表面同系
-        appearance.backgroundColor = UIColor(red: 22/255.0, green: 19/255.0, blue: 15/255.0, alpha: 1.0)
+        // 暖纸底色，与卡片表面同系（浅色方案）
+        appearance.backgroundColor = UIColor(red: 243/255.0, green: 235/255.0, blue: 221/255.0, alpha: 1.0)
 
         let itemAppearance = UITabBarItemAppearance()
         // Tab 标签是 UIKit 固定字号，不会自动跟随 Dynamic Type：用 UIFontMetrics 补齐，
         // 并给 maximumPointSize = 1.3x 上限，避免放大后撑出 49pt 的 TabBar 高度。
-        // 统一古金 + 提升小屏 Tab 字号到 11.5pt（原 10pt 与正文说明同级，主次不清）
-        let tabGold = UIColor(red: 205/255.0, green: 161/255.0, blue: 79/255.0, alpha: 1.0)
-        let tabNormal = UIColor(red: 169/255.0, green: 156/255.0, blue: 128/255.0, alpha: 1.0)
+        // 选中青铜、常态墨灰，浅底上保持主次清晰。
+        let tabGold = UIColor(red: 150/255.0, green: 119/255.0, blue: 60/255.0, alpha: 1.0)
+        let tabNormal = UIColor(red: 110/255.0, green: 97/255.0, blue: 76/255.0, alpha: 1.0)
         let baseTabFontSize: CGFloat = isLargeLayout ? 13 : 11.5
         let tabFont = UIFontMetrics(forTextStyle: .caption1)
             .scaledFont(for: UIFont.systemFont(ofSize: baseTabFontSize, weight: .semibold),
@@ -1127,7 +1127,7 @@ public struct RootContentView: View {
                 }
         }
         .accentColor(Color.goldText)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         // 采集真实窗口尺寸并同步注入 Environment：iPad 旋转不改变 size class，
         // 各页靠 interfaceOrientation + 尺寸切换「横屏双栏 / 竖屏单列」。
         .background(
@@ -1878,7 +1878,7 @@ public struct IntegratedWorkflowReportSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .onAppear {
             let now = Date()
             reportText = workflow.generateVerifiableReportText(date: now)

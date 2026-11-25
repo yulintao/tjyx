@@ -153,6 +153,6 @@ public struct FenjinDetailSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 }

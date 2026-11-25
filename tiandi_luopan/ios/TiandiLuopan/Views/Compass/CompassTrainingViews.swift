@@ -405,6 +405,6 @@ public struct TrainingProfileSheet: View {
             .navigationBarItems(trailing: Button(isEn ? "Done" : "完成") { presentationMode.wrappedValue.dismiss() })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 }

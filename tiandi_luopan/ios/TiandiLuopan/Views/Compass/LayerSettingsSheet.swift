@@ -94,7 +94,7 @@ public struct LayerSettingsSheet: View {
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .onAppear {
             layers.showDailyGodMarkers = false
         }

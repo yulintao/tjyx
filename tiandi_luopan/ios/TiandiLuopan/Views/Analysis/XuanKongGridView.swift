@@ -1589,7 +1589,7 @@ public struct Mountain24PickerSheet: View {
                 )
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     private var palaceFilterBar: some View {

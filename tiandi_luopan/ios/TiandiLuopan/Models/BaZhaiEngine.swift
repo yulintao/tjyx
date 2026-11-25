@@ -1990,7 +1990,7 @@ public struct DailyAuspiciousCardSheet: View {
                 renderedImage = Self.renderPoster(date: targetDate, state: headingState)
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     private var cardTitle: String {
@@ -2375,7 +2375,7 @@ public struct OnboardingGuideSheet: View {
                 .padding(.bottom, 28)
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     private func finish() {
