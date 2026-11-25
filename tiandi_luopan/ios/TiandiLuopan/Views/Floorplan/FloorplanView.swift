@@ -514,6 +514,13 @@ public struct FloorplanView: View {
                                 topControlBar()
                                     .frame(maxWidth: contentMax)
 
+                                floorplanCanvasView(auditedRooms: auditResult.auditedRooms,
+                                                    personLabels: personLabels,
+                                                    reviewRoomIDs: roomReviewIDs)
+                                    .frame(width: isLargeLayout ? canvasSide : nil, height: canvasSide)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, isLargeLayout ? 0 : 16)
+
                                 headingQualityNotice()
                                     .frame(maxWidth: contentMax)
 
@@ -532,13 +539,6 @@ public struct FloorplanView: View {
                                             .frame(maxWidth: contentMax)
                                     }
                                 }
-                                
-                                floorplanCanvasView(auditedRooms: auditResult.auditedRooms,
-                                                    personLabels: personLabels,
-                                                    reviewRoomIDs: roomReviewIDs)
-                                    .frame(width: isLargeLayout ? canvasSide : nil, height: canvasSide)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.horizontal, isLargeLayout ? 0 : 16)
 
                                 if !isSyncWithCompass {
                                     manualHeadingControl()
