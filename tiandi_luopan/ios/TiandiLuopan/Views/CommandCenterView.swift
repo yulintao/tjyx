@@ -13,12 +13,11 @@ public struct CommandCenterView: View {
 
     private var isEn: Bool { lang.effectiveLanguage == .en }
 
-    // 新配色：冷墨底 + 冷白金主色（区别于旧暖墨金）
-    private let ink = Color(red: 0.055, green: 0.063, blue: 0.078)
-    private let card = Color(red: 0.095, green: 0.105, blue: 0.125)
-    private let platinum = Color(red: 0.93, green: 0.86, blue: 0.66)
-    private let mint = Color(red: 0.38, green: 0.72, blue: 0.62)
-    private let coral = Color(red: 0.88, green: 0.48, blue: 0.38)
+    // 浅色暖纸方案：复用全局语义令牌，不另起深色底。
+    private let card = Color.surfaceCard
+    private let platinum = Color.goldText
+    private let mint = Color.semJi
+    private let coral = Color.vermilion
 
     public init() {}
 
@@ -93,7 +92,7 @@ public struct CommandCenterView: View {
 
     public var body: some View {
         ZStack {
-            ink.ignoresSafeArea()
+            Color.screenInk.ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     // Hero 1：品牌 + 状态摘要
@@ -119,7 +118,7 @@ public struct CommandCenterView: View {
                     .adaptiveFont(size: 28, weight: .bold, design: .rounded)
                     .foregroundColor(platinum)
                 Text(isEn ? "Spatial survey · Traditional research" : "空间测绘 · 传统文化研究参考")
-                    .adaptiveFont(size: 12).foregroundColor(.white.opacity(0.55))
+                    .adaptiveFont(size: 12).foregroundColor(Color.paperSub)
             }
             Spacer()
             if iap.hasUnlockedVIP {
@@ -147,8 +146,8 @@ public struct CommandCenterView: View {
         VStack(spacing: 4) {
             Image(systemName: icon).foregroundColor(tint).adaptiveFont(size: 16)
             Text(value).adaptiveFont(size: 14, weight: .bold, design: .rounded)
-                .foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.75)
-            Text(label).adaptiveFont(size: 10).foregroundColor(.white.opacity(0.5))
+                .foregroundColor(Color.paperText).lineLimit(1).minimumScaleFactor(0.75)
+            Text(label).adaptiveFont(size: 10).foregroundColor(Color.paperSub)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
@@ -161,7 +160,7 @@ public struct CommandCenterView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: group.icon).foregroundColor(platinum).adaptiveFont(size: 14)
-                Text(group.title).adaptiveFont(size: 16, weight: .bold).foregroundColor(.white)
+                Text(group.title).adaptiveFont(size: 16, weight: .bold).foregroundColor(Color.paperText)
             }
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 ForEach(group.items) { item in
@@ -174,11 +173,11 @@ public struct CommandCenterView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(item.title)
                                     .adaptiveFont(size: 13, weight: .semibold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color.paperText)
                                     .lineLimit(1)
                                 Text(item.subtitle)
                                     .adaptiveFont(size: 10)
-                                    .foregroundColor(.white.opacity(0.5))
+                                    .foregroundColor(Color.paperSub)
                                     .lineLimit(1)
                             }
                             Spacer(minLength: 0)
