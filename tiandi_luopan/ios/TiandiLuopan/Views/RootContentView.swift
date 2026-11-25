@@ -994,7 +994,8 @@ struct ProportionalTwoPaneLayout: Layout {
 public struct RootContentView: View {
     private let motion = CompassMotionManager.shared
     @ObservedObject private var lang = LocalizationManager.shared
-    @State private var path: [HomeRoute] = []
+    @State private var selectedRoute: HomeRoute = .floorplan
+    @State private var showCompassPopup: Bool = false
     @State private var analysisSubTab: Int = 0
     @State private var analysisFeatureRequest: AnalysisFeatureRequest?
     @State private var showWorkflowReportSheet: Bool = false
@@ -1012,18 +1013,18 @@ public struct RootContentView: View {
     @State private var layoutForm = AdaptiveLayoutForm.current()
     
     public init() {
-        var initialPath: [HomeRoute] = []
+        var initialRoute: HomeRoute = .floorplan
         if let tabArgIndex = CommandLine.arguments.firstIndex(of: "-selectedTab"),
            tabArgIndex + 1 < CommandLine.arguments.count,
            let tabValue = Int(CommandLine.arguments[tabArgIndex + 1]) {
             let clamped = Self.clampedTabIndex(tabValue)
             if let route = HomeRoute(rawValue: clamped) {
-                initialPath = [route]
+                initialRoute = route
             }
         }
-        _path = State(initialValue: initialPath)
+        _selectedRoute = State(initialValue: initialRoute)
 
-        // 自定义原生 TabBar 深色黑金质感外观（折叠/展开切换时 onChange 会重调以刷新字号）
+        // 自定义原生 TabBar 浅色质感外观（折叠/展开切换时 onChange 会重调以刷新字号）
         Self.applyTabBarAppearance(isLargeLayout: UITraitCollection.current.horizontalSizeClass == .regular)
     }
 
@@ -1120,11 +1121,27 @@ public struct RootContentView: View {
     }
     
     public var body: some View {
-        NavigationStack(path: $path) {
-            HomeHubView()
-                .navigationDestination(for: HomeRoute.self) { target in
-                    destinationView(for: target)
-                }
+        VStack(spacing: 0) {
+            ZStack {
+                destinationView(for: selectedRoute)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            shellBottomBar
+        }
+        .overlay(alignment: .bottomTrailing) {
+            Button {
+                showCompassPopup = true
+            } label: {
+                Image(systemName: "safari.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(Color.surfaceElevated)
+                    .frame(width: 56, height: 56)
+                    .background(Circle().fill(Color.goldPrimary))
+                    .shadow(color: Color.black.opacity(0.18), radius: 6, y: 3)
+            }
+            .padding(.trailing, DS.padL)
+            .padding(.bottom, 88)
+            .accessibilityLabel(lang.t("tab_compass"))
         }
         .accentColor(Color.goldText)
         .preferredColorScheme(.light)
@@ -1165,7 +1182,10 @@ public struct RootContentView: View {
         .sheet(isPresented: $showWorkflowReportSheet) {
             IntegratedWorkflowReportSheet()
         }
-        .onChange(of: path) { _ in
+        .sheet(isPresented: $showCompassPopup) {
+            destinationView(for: .compass)
+        }
+        .onChange(of: selectedRoute) { _ in
             updateResourceUsage()
         }
         .onAppear {
@@ -1197,12 +1217,16 @@ public struct RootContentView: View {
     /// 消费深链与主屏快捷入口的待处理意图（幂等）。
     private func consumePendingAlmanacRoute() {
         if AppNavigationRouter.shared.consumeAlmanac() {
-            path = [.floorplan]
+            selectedRoute = .floorplan
         }
         if let tabRoute = AppNavigationRouter.shared.consumeTabRoute() {
             let idx = Self.clampedTabIndex(tabRoute.tab)
             let target = HomeRoute(rawValue: idx) ?? .floorplan
-            path = [target]
+            if target == .compass {
+                showCompassPopup = true
+            } else {
+                selectedRoute = target
+            }
             if let sub = tabRoute.subTab {
                 analysisSubTab = sub
             }
@@ -1220,7 +1244,7 @@ public struct RootContentView: View {
             .filter { $0.activationState == .foregroundActive }
             .count
         let multipleActiveScenes = activeSceneCount > 1
-        let active = path.last?.rawValue
+        let active = selectedRoute.rawValue
         UIApplication.shared.isIdleTimerDisabled = multipleActiveScenes || active == 1 || active == 2
         motion.setDeviceMotionEnabled(multipleActiveScenes || active == 1 || active == 2)
         motion.setHeadingUpdatesEnabled(multipleActiveScenes || active != 4)
@@ -1244,6 +1268,33 @@ public struct RootContentView: View {
         case .settings:
             SettingsView(isActive: true)
         }
+    }
+
+    /// 底部导航条：四个常驻一级入口，选中青铜、常态墨灰。罗盘走悬浮弹层，不在此列。
+    private var shellBottomBar: some View {
+        HStack(spacing: 0) {
+            ForEach(HomeRoute.bottomEntries, id: \.self) { route in
+                Button {
+                    selectedRoute = route
+                } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: route.systemImage)
+                            .font(.system(size: 20, weight: .semibold))
+                        Text(lang.t(route.titleKey))
+                            .adaptiveFont(size: DS.TypeScale.caption, weight: .semibold)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .foregroundColor(selectedRoute == route ? .goldText : .paperSub)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(lang.t(route.titleKey))
+            }
+        }
+        .padding(.top, DS.padS)
+        .padding(.bottom, 16)
+        .background(Color.surfaceElevated)
+        .overlay(Rectangle().fill(Color.strokeSoft).frame(height: 1), alignment: .top)
     }
 }
 
@@ -1274,108 +1325,13 @@ private enum HomeRoute: Int, CaseIterable, Hashable {
         case .settings: "tab_settings"
         }
     }
-}
 
-/// 首页水墨菜单：竖排条目 + 朱印点缀，点按推入对应功能页。
-private struct HomeHubView: View {
-    @ObservedObject private var lang = LocalizationManager.shared
-
-    private var brandTitle: String {
-        Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "TianJi Space"
-    }
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            Color.screenInk.ignoresSafeArea()
-
-            // 顶部淡墨晕染
-            RadialGradient(
-                colors: [Color.paperText.opacity(0.07), Color.clear],
-                center: .topLeading,
-                startRadius: 40,
-                endRadius: 320
-            )
-            .ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: DS.padL) {
-                header
-
-                VStack(spacing: DS.padS) {
-                    ForEach(HomeRoute.allCases, id: \.self) { target in
-                        NavigationLink(value: target) {
-                            menuRow(target: target)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(lang.t(target.titleKey))
-                        if target != .settings {
-                            divider
-                        }
-                    }
-                }
-                .padding(DS.padM)
-                .background(Color.surfaceCard.opacity(0.5))
-                .cornerRadius(DS.radiusL)
-                .overlay(RoundedRectangle(cornerRadius: DS.radiusL).stroke(Color.strokeGold, lineWidth: 1))
-            }
-            .padding(.horizontal, DS.padL)
-            .padding(.top, DS.padL)
-        }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: DS.padM) {
-            HStack(spacing: DS.padM) {
-                // 朱印
-                RoundedRectangle(cornerRadius: DS.radiusS)
-                    .fill(Color.vermilion)
-                    .frame(width: 52, height: 52)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DS.radiusS)
-                            .stroke(Color.paperText.opacity(0.35), lineWidth: 1)
-                    )
-                Text(brandTitle)
-                    .adaptiveFont(size: DS.TypeScale.title, weight: .bold, design: .serif)
-                    .foregroundColor(Color.goldText)
-            }
-            // 笔墨分隔
-            HStack(spacing: DS.padS) {
-                Circle().fill(Color.vermilion).frame(width: 6, height: 6)
-                Rectangle().fill(Color.strokeSoft).frame(height: 1)
-            }
-        }
-    }
-
-    private func menuRow(target: HomeRoute) -> some View {
-        HStack(spacing: DS.padM) {
-            RoundedRectangle(cornerRadius: DS.radiusS)
-                .fill(Color.surfaceElevated)
-                .frame(width: 46, height: 46)
-                .overlay(
-                    Image(systemName: target.systemImage)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(Color.goldText)
-                )
-            Text(lang.t(target.titleKey))
-                .adaptiveFont(size: DS.TypeScale.headline, weight: .semibold, design: .serif)
-                .foregroundColor(Color.paperText)
-            Spacer(minLength: DS.padS)
-            Image(systemName: "chevron.forward")
-                .font(.system(size: 15, weight: .medium))
-                .foregroundColor(Color.paperSub)
-        }
-        .frame(minHeight: 64)
-        .contentShape(Rectangle())
-    }
-
-    private var divider: some View {
-        Rectangle()
-            .fill(Color.strokeSoft)
-            .frame(height: 1)
-            .padding(.leading, 46 + DS.padM)
+    /// 底部导航常驻入口：罗盘不占导航位，改由全局悬浮按钮弹出。
+    static var bottomEntries: [HomeRoute] {
+        [.floorplan, .ar, .analysis, .settings]
     }
 }
+
 
 // MARK: - 相机独占租约（多窗口互斥）
 //
