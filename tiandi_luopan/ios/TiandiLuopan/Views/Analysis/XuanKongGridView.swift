@@ -103,6 +103,20 @@ public struct XuanKongGridView: View {
             if isActive {
                 VStack(spacing: 14) {
                 Color.clear.frame(height: 1).id("analysisRootTop")
+                DSFieldContextBar(
+                    title: lang.effectiveLanguage == .en ? "On-site assessment" : "现场研判",
+                    subtitle: lang.effectiveLanguage == .en ? "Verified bearing and evidence" : "已核验坐向与计算依据",
+                    status: workflow.hasCalculation
+                        ? (lang.effectiveLanguage == .en ? "Calculated" : "已计算")
+                        : (lang.effectiveLanguage == .en ? "Ready to calculate" : "待计算"),
+                    statusColor: workflow.hasCalculation ? .semJi : .yanGold,
+                    actionIcon: "location.north.line.fill",
+                    actionLabel: lang.effectiveLanguage == .en ? "Choose sitting and facing" : "选择坐向",
+                    action: { showMountainPickerSheet = true }
+                )
+                    .padding(.horizontal, 16)
+                WorkflowStepperBar(activeStep: 2)
+                    .padding(.horizontal, 16)
                 // 结论式改造：当前坐向 + 空亡状态常驻置顶，各派排盘共享（唯一权威方位展示）
                 DSOrientationConclusionBar(moduleName: "当前方位 · 各派共用")
                     .padding(.horizontal, 16)

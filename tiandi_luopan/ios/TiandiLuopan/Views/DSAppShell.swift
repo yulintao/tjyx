@@ -44,6 +44,84 @@ public struct DSHeroStage<Content: View>: View {
     }
 }
 
+/// 现场沉浸页面的轻量上下文栏：说明当前工具、工作状态与可选的右侧动作。
+/// 它只占一行，不包裹 Hero，避免在测绘现场遮挡画布或相机画面。
+public struct DSFieldContextBar: View {
+    private let title: String
+    private let subtitle: String?
+    private let status: String?
+    private let statusColor: Color
+    private let action: (() -> Void)?
+    private let actionIcon: String?
+    private let actionLabel: String?
+
+    public init(title: String,
+                subtitle: String? = nil,
+                status: String? = nil,
+                statusColor: Color = .semJi,
+                actionIcon: String? = nil,
+                actionLabel: String? = nil,
+                action: (() -> Void)? = nil) {
+        self.title = title
+        self.subtitle = subtitle
+        self.status = status
+        self.statusColor = statusColor
+        self.action = action
+        self.actionIcon = actionIcon
+        self.actionLabel = actionLabel
+    }
+
+    public var body: some View {
+        HStack(spacing: DS.padS) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .adaptiveFont(size: DS.TypeScale.headline, weight: .bold)
+                    .foregroundColor(.paperText)
+                    .lineLimit(1)
+                if let subtitle {
+                    Text(subtitle)
+                        .adaptiveFont(size: DS.TypeScale.caption)
+                        .foregroundColor(.paperSub)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer(minLength: DS.padS)
+
+            if let status {
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(statusColor)
+                        .frame(width: 6, height: 6)
+                    Text(status)
+                        .adaptiveFont(size: DS.TypeScale.caption, weight: .semibold)
+                        .foregroundColor(statusColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .padding(.horizontal, 8)
+                .frame(minHeight: 28)
+                .background(statusColor.opacity(0.12))
+                .clipShape(Capsule())
+            }
+
+            if let action, let actionIcon {
+                Button(action: action) {
+                    Image(systemName: actionIcon)
+                        .adaptiveFont(size: 13, weight: .bold)
+                        .foregroundColor(.paperText)
+                        .frame(width: DS.touchMin, height: DS.touchMin)
+                        .background(Color.paperText.opacity(0.07))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(actionLabel ?? title)
+            }
+        }
+        .frame(minHeight: 48)
+    }
+}
+
 /// 主操作底座：单排等分按钮，统一 44pt 与金色主按钮样式。
 public struct DSActionDock<Content: View>: View {
     private let content: Content

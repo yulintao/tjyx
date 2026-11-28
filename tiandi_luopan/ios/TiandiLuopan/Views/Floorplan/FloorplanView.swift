@@ -470,6 +470,24 @@ public struct FloorplanView: View {
 
                     // 左栏内容（画布 + 全部操作工具）：展开态与折叠态共用同一份定义
                     let mainColumn = VStack(spacing: 8) {
+                                DSFieldContextBar(
+                                    title: lang.effectiveLanguage == .en ? "Field floorplan" : "现场平面图",
+                                    subtitle: lang.effectiveLanguage == .en ? "Room layout and site notes" : "房间布局与现场标记",
+                                    status: isEditingRooms
+                                        ? (lang.effectiveLanguage == .en ? "Editing" : "编辑中")
+                                        : (lang.effectiveLanguage == .en ? "Ready" : "就绪"),
+                                    statusColor: isEditingRooms ? .yanCyan : .semJi,
+                                    actionIcon: "camera.viewfinder",
+                                    actionLabel: lang.effectiveLanguage == .en ? "Start AR survey" : "开始 AR 测绘",
+                                    action: { showARSpatialSurvey = true }
+                                )
+                                    .frame(maxWidth: contentMax)
+                                    .padding(.horizontal, 16)
+
+                                WorkflowStepperBar(activeStep: 0)
+                                    .frame(maxWidth: contentMax)
+                                    .padding(.horizontal, 16)
+
                                 if let lockedBearing = workflow.bearing {
                                     let delta = abs(lockedBearing.bearingDegrees - effectiveHeading)
                                     let circularDelta = min(delta, 360.0 - delta)

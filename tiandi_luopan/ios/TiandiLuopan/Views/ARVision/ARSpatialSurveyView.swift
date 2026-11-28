@@ -2845,6 +2845,8 @@ public struct ARSpatialSurveyView: View {
             GeometryReader { geo in
                 VStack(spacing: 8) {
                     header
+                    WorkflowStepperBar(activeStep: 0)
+                        .padding(.horizontal, 2)
                     Spacer(minLength: 8)
                     // Hero-first：实测面板收起时仅一行摘要（约 72pt），把 >75% 屏幕留给 AR 取景；
                     // 展开后才显示完整遥测明细。三键操作底座始终贴在拇指区。

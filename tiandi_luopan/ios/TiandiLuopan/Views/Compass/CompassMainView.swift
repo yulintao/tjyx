@@ -48,8 +48,24 @@ public struct CompassMainView: View {
                     // 单列与大屏左栏统一用 ScrollView，杜绝内容被裁切、核心操作不可达。
                     ScrollView {
                         VStack(spacing: 12) {
+                            DSFieldContextBar(
+                                title: lang.effectiveLanguage == .en ? "Bearing survey" : "方向采样",
+                                subtitle: lang.effectiveLanguage == .en ? "True north · Level · Precision" : "真北 · 水平 · 精度",
+                                status: motion.isLevel
+                                    ? (lang.effectiveLanguage == .en ? "Level" : "已水平")
+                                    : (lang.effectiveLanguage == .en ? "Adjust level" : "调整水平"),
+                                statusColor: motion.isLevel ? .semJi : .semWarn,
+                                actionIcon: "scope",
+                                actionLabel: lang.t("tap_to_calib"),
+                                action: { showCalibSheet = true }
+                            )
+                            .padding(.horizontal, 16)
+
                             // 1. 顶部数据仪表：唯一权威读数（方位 / 坐向 / 分金 / 水平）
                             CompassHeaderView()
+
+                            WorkflowStepperBar(activeStep: 1)
+                                .padding(.horizontal, 16)
 
                             // 2. 强磁告警：仅异常时出现，紧邻核心仪表
                             if motion.isDistorted {
