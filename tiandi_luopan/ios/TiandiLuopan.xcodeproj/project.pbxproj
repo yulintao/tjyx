@@ -75,6 +75,7 @@
 		1083 /* CompassTrainingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2095 /* CompassTrainingViews.swift */; };
 		1084 /* DSAppShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2096 /* DSAppShell.swift */; };
 		1085 /* CommandCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2097 /* CommandCenterView.swift */; };
+		1086 /* SpacePuzzleRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2098 /* SpacePuzzleRootView.swift */; };
 		9100 /* WidgetAlmanacSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9200 /* WidgetAlmanacSnapshot.swift */; };
 		9101 /* TiandiLuopanAlmanacWidget.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 9201 /* TiandiLuopanAlmanacWidget.swift */; };
 		9102 /* AlmanacWidgetViews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 9202 /* AlmanacWidgetViews.swift */; };
@@ -170,6 +171,7 @@
 		2095 /* CompassTrainingViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/Compass/CompassTrainingViews.swift"; sourceTree = "<group>"; };
 		2096 /* DSAppShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/DSAppShell.swift"; sourceTree = "<group>"; };
 		2097 /* CommandCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/CommandCenterView.swift"; sourceTree = "<group>"; };
+		2098 /* SpacePuzzleRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/SpacePuzzleRootView.swift"; sourceTree = "<group>"; };
 		9200 /* WidgetAlmanacSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/WidgetAlmanacSnapshot.swift"; sourceTree = "<group>"; };
 		9201 /* TiandiLuopanAlmanacWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiandiLuopanAlmanacWidget.swift; sourceTree = "<group>"; };
 		9202 /* AlmanacWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlmanacWidgetViews.swift; sourceTree = "<group>"; };
@@ -298,6 +300,7 @@
 				2095 /* CompassTrainingViews.swift */,
 				2096 /* DSAppShell.swift */,
 				2097 /* CommandCenterView.swift */,
+				2098 /* SpacePuzzleRootView.swift */,
 				2023 /* BaZhaiEngine.swift */,
 				2024 /* SanHeWaterEngine.swift */,
 				2025 /* SolarTimeCalculator.swift */,
@@ -609,6 +612,7 @@
 				1083 /* CompassTrainingViews.swift in Sources */,
 				1084 /* DSAppShell.swift in Sources */,
 				1085 /* CommandCenterView.swift in Sources */,
+				1086 /* SpacePuzzleRootView.swift in Sources */,
 				9100 /* WidgetAlmanacSnapshot.swift in Sources */,
 
 
