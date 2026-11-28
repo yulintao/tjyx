@@ -1153,18 +1153,11 @@ public struct ARVisionView: View {
     }
 
     private func targetBoundingBoxLayer() -> AnyView {
-        guard shaList.indices.contains(activeShaIndex) else { return AnyView(EmptyView()) }
-        let currentSha = shaList[activeShaIndex]
-        let m = targetMountain
-        
         return AnyView(GeometryReader { proxy in
             let boxSize = Self.targetBoxSize(in: proxy.size)
             let normPoint = ARTargetProjection.targetPoint(detected: targetNormalizedPoint, normalizedDrag: targetNormalizedDrag,
                                                            viewport: proxy.size, marker: boxSize)
             let targetDist = (cameraPosition == .back) ? fusionModel.sampleDepth(atViewNormalizedPoint: normPoint) : nil
-
-            let waterItem = targetSanHeWater
-            let hitBaSha = isTargetHitBaSha
 
             ZStack {
                 RoundedRectangle(cornerRadius: 8)

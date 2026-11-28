@@ -9,6 +9,7 @@ public struct XuanKongGridView: View {
     @ObservedObject var motion = CompassMotionManager.shared
     @ObservedObject var iap = StoreKitIAPManager.shared
     @ObservedObject var lang = LocalizationManager.shared
+    @ObservedObject private var workflow = SpatialWorkflowStore.shared
     @ObservedObject private var workspace = FloorplanWorkspaceStore.shared
     @ObservedObject private var surveyStore = ShaSurveyStore.shared
     @ObservedObject private var training = CompassTrainingStore.shared
